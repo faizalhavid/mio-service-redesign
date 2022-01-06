@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { navigate } from "../../navigations/rootNavigation";
 
 const Welcome = (): JSX.Element => {
   return (
@@ -47,7 +48,7 @@ const Welcome = (): JSX.Element => {
             padding: 10,
             backgroundColor: "teal",
           }}
-          onPress={() => {}}
+          onPress={() => navigate("Register")}
         >
           <Text
             style={{
@@ -89,7 +90,7 @@ const Welcome = (): JSX.Element => {
             padding: 10,
             backgroundColor: "teal",
           }}
-          onPress={() => {}}
+          onPress={() => navigate("Register")}
         >
           <Text
             style={{

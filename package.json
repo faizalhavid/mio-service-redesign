@@ -11,8 +11,10 @@
     "release": "cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
+    "@react-native-firebase/app": "^14.2.1",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
+    "native-base": "^3.2.2",
     "react": "17.0.2",
     "react-native": "0.66.4",
     "react-native-safe-area-context": "^3.3.2",
