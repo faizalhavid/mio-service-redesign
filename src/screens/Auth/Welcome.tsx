@@ -18,45 +18,35 @@ import { navigate } from "../../navigations/rootNavigation";
 const Welcome = (): JSX.Element => {
   return (
     <>
-      <SafeAreaView
-        style={{
-          flex: 1,
-          backgroundColor: useColorModeValue("white", "black"),
-          flexDirection: "column",
-          justifyContent: "space-between",
-        }}
+      <StatusBar barStyle={"light-content"} />
+      <ImageBackground
+        source={require("../../assets/images/login-bg.jpeg")}
+        resizeMode="cover"
+        style={styles.image}
       >
-        <ImageBackground
-          source={require("../../assets/images/login-bg.jpeg")}
-          resizeMode="cover"
-          style={styles.image}
-        >
-          <Flex flex={1} bg={"rgba(0,0,0,0.5)"}>
-            <Flex direction="row" mt={100} justifyContent={"center"}>
-              <Image
-                source={require("../../assets/images/mio-logo-white.png")}
-              />
-              <Image
-                source={require("../../assets/images/mio-logo-text-white.png")}
-              />
-            </Flex>
-            <Spacer top={180} />
-            <Flex direction="column" alignItems={"center"}>
-              <AuthButton
-                type="solid"
-                label="LOG IN"
-                onPress={() => navigate("Login")}
-              />
-              <Spacer top={40} />
-              <AuthButton
-                type="outline"
-                label="SIGN UP"
-                onPress={() => navigate("Register")}
-              />
-            </Flex>
+        <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.5)"}>
+          <Flex flexDirection={"row"} mt={100} justifyContent={"center"}>
+            <Image source={require("../../assets/images/mio-logo-white.png")} />
+            <Image
+              source={require("../../assets/images/mio-logo-text-white.png")}
+            />
           </Flex>
-        </ImageBackground>
-      </SafeAreaView>
+          <Spacer top={180} />
+          <Flex flexDirection={"column"} alignItems={"center"}>
+            <AuthButton
+              type="solid"
+              label="LOG IN"
+              onPress={() => navigate("Login")}
+            />
+            <Spacer top={40} />
+            <AuthButton
+              type="outline"
+              label="SIGN UP"
+              onPress={() => navigate("Register")}
+            />
+          </Flex>
+        </Flex>
+      </ImageBackground>
     </>
   );
 };

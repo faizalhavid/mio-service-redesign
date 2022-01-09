@@ -17,7 +17,8 @@ import { navigate } from "../../navigations/rootNavigation";
 
 const Register = (): JSX.Element => {
   return (
-    <SafeAreaView
+    <>
+      {/* <SafeAreaView
       style={{
         flex: 1,
         flexDirection: "column",
@@ -25,12 +26,12 @@ const Register = (): JSX.Element => {
         margin: 0,
         backgroundColor: useColorModeValue("white", "black"),
       }}
-    >
+    > */}
       <Center mt={100} width={"100%"}>
         <Text fontSize={20}>Create an account</Text>
         <Text fontSize={20}>to manage your service</Text>
       </Center>
-      <Flex flex={1} paddingX={5} mt={10}>
+      <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
         <Input
           _focus={{
             borderBottomColor: "teal.700",
@@ -81,7 +82,7 @@ const Register = (): JSX.Element => {
         <Spacer top={40} />
         <Center _text={{ color: "gray.400" }}>or Signup using</Center>
         <Spacer top={40} />
-        <Flex direction="row" justifyContent={"center"}>
+        <Flex flexDirection={"row"} justifyContent={"center"}>
           <SocialLoginButton type="Google" onPress={() => {}} />
           <Spacer left={10} />
           <SocialLoginButton type="Facebook" onPress={() => {}} />
@@ -90,7 +91,8 @@ const Register = (): JSX.Element => {
         </Flex>
       </Flex>
       <FooterButton onPress={() => navigate("Login")} />
-    </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </>
   );
 };
 
