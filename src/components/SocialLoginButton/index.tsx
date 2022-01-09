@@ -1,5 +1,6 @@
+import { Text } from "native-base";
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 type SocialLoginButtonProps = {
   type: "Google" | "Facebook" | "Apple" | undefined;
@@ -62,7 +63,6 @@ const styles = StyleSheet.create({
   },
   text: {
     marginLeft: 2,
-    color: "#000",
     fontWeight: "400",
     fontSize: 14,
   },

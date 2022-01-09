@@ -8,7 +8,8 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "release": "cd android && ./gradlew assembleRelease"
+    "release-android": "cd android && ./gradlew assembleRelease",
+    "bundle-android": "cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@react-native-firebase/app": "^14.2.1",
@@ -17,8 +18,10 @@
     "native-base": "^3.2.2",
     "react": "17.0.2",
     "react-native": "0.66.4",
+    "react-native-bootsplash": "^4.0.2",
     "react-native-safe-area-context": "^3.3.2",
-    "react-native-screens": "^3.10.1"
+    "react-native-screens": "^3.10.1",
+    "react-native-svg": "^12.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

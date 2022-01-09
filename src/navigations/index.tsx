@@ -5,23 +5,33 @@ import {
 } from "@react-navigation/native-stack";
 import React from "react";
 import { TitleBar } from "../components/TitleBar/TitleBar";
+import Login from "../screens/Auth/Login";
 import Register from "../screens/Auth/Register";
 import Welcome from "../screens/Auth/Welcome";
 import { navigationRef } from "./rootNavigation";
+import RNBootSplash from "react-native-bootsplash";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
   Register: undefined;
+  Login: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
   const navigationOptions: NativeStackNavigationOptions = {
-    headerShown: true,
-    gestureEnabled: false,
-    // headerBackVisible: false,
+    headerTitle: (props) => <TitleBar logoType="color" {...props} />,
+    headerStyle: {
+      backgroundColor: "white",
+    },
+    headerTransparent: true,
+    headerTitleAlign: "center",
+    headerShadowVisible: false,
   };
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => RNBootSplash.hide()}
+    >
       <RootStack.Navigator
         initialRouteName="Welcome"
         screenOptions={navigationOptions}
@@ -30,24 +40,11 @@ const index = (): JSX.Element => {
           name="Welcome"
           component={Welcome}
           options={{
-            headerTitle: (props) => <TitleBar logoType="white" {...props} />,
-            headerStyle: {
-              backgroundColor: "teal",
-            },
+            headerShown: false,
           }}
         />
-        <RootStack.Screen
-          name="Register"
-          component={Register}
-          options={{
-            headerTitle: (props) => <TitleBar logoType="color" {...props} />,
-            headerStyle: {
-              backgroundColor: "white",
-            },
-            headerTransparent: true,
-            headerTitleAlign: "left",
-          }}
-        />
+        <RootStack.Screen name="Register" component={Register} />
+        <RootStack.Screen name="Login" component={Login} />
       </RootStack.Navigator>
     </NavigationContainer>
   );
