@@ -1,7 +1,4 @@
 export const AppColors = {
-  primary: "red",
-};
-
-export const PrimaryButtonColors = {
-  primary: AppColors.primary,
+  PRIMARY: "#9fd297",
+  SECONDARY: "teal.700",
 };

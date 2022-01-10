@@ -1,3 +1,4 @@
+import { useColorModeValue } from "native-base";
 import React from "react";
 import { SafeAreaView } from "react-native";
 
@@ -13,7 +14,7 @@ const AppSafeAreaView = ({ content }: AppSafeAreaView): JSX.Element => {
         flexDirection: "column",
         padding: 0,
         margin: 0,
-        backgroundColor: "white",
+        backgroundColor: useColorModeValue("white", "black"),
       }}
     >
       {content}

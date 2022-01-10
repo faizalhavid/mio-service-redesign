@@ -1,18 +1,63 @@
-import { Text } from "native-base";
+import { Center, Flex, Input, Text, VStack } from "native-base";
 import React from "react";
+import { AppColors } from "../../commons/colors";
+import AppButton from "../../components/AppButton";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
+import Spacer from "../../components/Spacer";
+import { navigate } from "../../navigations/rootNavigation";
 
-const test = "TEST";
-const Content = (
+const content = (
   <>
-    <Text color={"green.500"} mt={150}>
-      {test}
-    </Text>
+    <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
+      <Center mt={100} width={"100%"}>
+        <Text fontSize={20}>Login</Text>
+      </Center>
+      <VStack mt={100}>
+        <Input
+          _focus={{
+            borderBottomColor: AppColors.SECONDARY,
+          }}
+          returnKeyType="next"
+          clearButtonMode="always"
+          autoCapitalize="none"
+          placeholder="EMAIL"
+          variant={"underlined"}
+          autoCorrect={false}
+        />
+        <Spacer top={20} />
+        <Input
+          _focus={{
+            borderBottomColor: AppColors.SECONDARY,
+          }}
+          returnKeyType="next"
+          clearButtonMode="always"
+          autoCapitalize="none"
+          placeholder="PASSWORD"
+          variant={"underlined"}
+          autoCorrect={false}
+        />
+        <Spacer top={40} />
+        <Center>
+          <AppButton label="SIGN IN" onPress={() => navigate("Home")} />
+        </Center>
+      </VStack>
+      <VStack space="1" position={"absolute"} bottom={10} alignSelf={"center"}>
+        <Center size="16" width={"100%"}>
+          Already have an account?
+        </Center>
+        <Center>
+          <AppButton
+            label="SIGN UP FOR FREE"
+            onPress={() => navigate("Home")}
+          />
+        </Center>
+      </VStack>
+    </Flex>
   </>
 );
 
 const Login = (): JSX.Element => {
-  return <AppSafeAreaView content={Content}></AppSafeAreaView>;
+  return <AppSafeAreaView content={content} />;
 };
 
 export default Login;
