@@ -19,7 +19,7 @@ import { navigate } from "../../navigations/rootNavigation";
 
 const content = (
   <>
-    <Center mt={100} width={"100%"}>
+    <Center width={"100%"}>
       <Text fontSize={20}>Create an account</Text>
       <Text fontSize={20}>to manage your service</Text>
     </Center>
@@ -80,7 +80,7 @@ const content = (
         <SocialLoginButton type="Apple" onPress={() => {}} />
       </HStack>
     </Flex>
-    <FooterButton onPress={() => navigate("Login")} />
+    <FooterButton label="CREATE ACCOUNT" onPress={() => navigate("Address")} />
   </>
 );
 

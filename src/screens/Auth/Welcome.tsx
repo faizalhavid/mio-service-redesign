@@ -20,11 +20,11 @@ const Welcome = (): JSX.Element => {
     <>
       <StatusBar barStyle={"light-content"} />
       <ImageBackground
-        source={require("../../assets/images/login-bg.jpeg")}
+        source={require("../../assets/images/intro-bg.png")}
         resizeMode="cover"
         style={styles.image}
       >
-        <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.5)"}>
+        <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.3)"}>
           <Flex flexDirection={"row"} mt={100} justifyContent={"center"}>
             <Image source={require("../../assets/images/mio-logo-white.png")} />
             <Image

@@ -9,10 +9,10 @@ import { navigate } from "../../navigations/rootNavigation";
 const content = (
   <>
     <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
-      <Center mt={100} width={"100%"}>
+      <Center width={"100%"}>
         <Text fontSize={20}>Login</Text>
       </Center>
-      <VStack mt={100}>
+      <VStack mt={10}>
         <Input
           _focus={{
             borderBottomColor: AppColors.SECONDARY,
@@ -47,6 +47,7 @@ const content = (
         </Center>
         <Center>
           <AppButton
+            color={AppColors.SECONDARY}
             label="SIGN UP FOR FREE"
             onPress={() => navigate("Home")}
           />

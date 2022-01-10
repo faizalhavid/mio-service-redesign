@@ -12,8 +12,8 @@ const AppSafeAreaView = ({ content }: AppSafeAreaView): JSX.Element => {
       style={{
         flex: 1,
         flexDirection: "column",
-        padding: 0,
-        margin: 0,
+        paddingTop: 70,
+        marginTop: 0,
         backgroundColor: useColorModeValue("white", "black"),
       }}
     >

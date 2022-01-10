@@ -4,24 +4,26 @@ import { AppColors } from "../../commons/colors";
 
 type AppButtonProps = {
   onPress: () => void;
+  color?: string;
   label: string;
 };
 
-const AppButton = ({ label, onPress }: AppButtonProps): JSX.Element => {
+const AppButton = ({ label, color, onPress }: AppButtonProps): JSX.Element => {
+  const btnColor = color || AppColors.PRIMARY;
   return (
     <>
       <Button
-        bg={AppColors.PRIMARY}
-        borderColor={AppColors.PRIMARY}
+        bg={btnColor}
+        borderColor={btnColor}
         borderRadius={50}
         width={250}
         height={60}
         onPress={onPress}
         _text={{
-          color: useContrastText(AppColors.PRIMARY),
+          color: useContrastText(btnColor),
         }}
         _pressed={{
-          backgroundColor: `${AppColors.PRIMARY}E6`,
+          backgroundColor: `${btnColor}E6`,
         }}
       >
         {label}
