@@ -11,12 +11,14 @@ import Welcome from "../screens/Auth/Welcome";
 import { navigationRef } from "./rootNavigation";
 import RNBootSplash from "react-native-bootsplash";
 import Address from "../screens/Auth/Address";
+import ChooseService from "../screens/Home/ChooseService";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
   Register: undefined;
   Login: undefined;
   Address: undefined;
+  ChooseService: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
@@ -48,6 +50,7 @@ const index = (): JSX.Element => {
         <RootStack.Screen name="Register" component={Register} />
         <RootStack.Screen name="Login" component={Login} />
         <RootStack.Screen name="Address" component={Address} />
+        <RootStack.Screen name="ChooseService" component={ChooseService} />
       </RootStack.Navigator>
     </NavigationContainer>
   );

@@ -73,7 +73,10 @@ const content = (
         />
       </VStack>
     </VStack>
-    <FooterButton label="SAVE & CONTINUE" onPress={() => navigate("Login")} />
+    <FooterButton
+      label="SAVE & CONTINUE"
+      onPress={() => navigate("ChooseService")}
+    />
   </>
 );
 
