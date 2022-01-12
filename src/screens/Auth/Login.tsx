@@ -58,7 +58,7 @@ const content = (
 );
 
 const Login = (): JSX.Element => {
-  return <AppSafeAreaView content={content} />;
+  return <AppSafeAreaView>{content}</AppSafeAreaView>;
 };
 
 export default Login;

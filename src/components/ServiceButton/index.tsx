@@ -13,10 +13,10 @@ import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 
 type ServiceButtonProps = {
-  icon: string;
-  text: string;
-  onPress: () => void;
-  onAdd: () => void;
+  icon: string | undefined;
+  text: string | undefined;
+  onPress: (() => void) | undefined;
+  onAdd: (() => void) | undefined;
 };
 
 const ServiceButton = ({
@@ -38,7 +38,7 @@ const ServiceButton = ({
         onPress={onPress}
       >
         <VStack space="2">
-          <SvgCss xml={icon} />
+          {icon && <SvgCss xml={icon} />}
           <Text textAlign={"center"} color={AppColors.SECONDARY}>
             {text}
           </Text>
@@ -47,7 +47,7 @@ const ServiceButton = ({
             borderColor={btnColor}
             borderRadius={50}
             width={75}
-            onPress={onPress}
+            onPress={onAdd}
             _text={{
               color: "white",
             }}

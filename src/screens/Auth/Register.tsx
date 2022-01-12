@@ -99,7 +99,7 @@ const content = (
 );
 
 const Register = (): JSX.Element => {
-  return <AppSafeAreaView content={content} />;
+  return <AppSafeAreaView>{content}</AppSafeAreaView>;
 };
 
 export default Register;

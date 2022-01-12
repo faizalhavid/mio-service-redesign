@@ -3,10 +3,14 @@ import React from "react";
 import { SafeAreaView } from "react-native";
 
 type AppSafeAreaView = {
-  content: HTMLElement;
+  content?: HTMLElement;
+  children?: React.ReactNode;
 };
 
-const AppSafeAreaView = ({ content }: AppSafeAreaView): JSX.Element => {
+const AppSafeAreaView = ({
+  content,
+  children,
+}: AppSafeAreaView): JSX.Element => {
   return (
     <SafeAreaView
       style={{
@@ -17,7 +21,7 @@ const AppSafeAreaView = ({ content }: AppSafeAreaView): JSX.Element => {
         backgroundColor: useColorModeValue("white", "black"),
       }}
     >
-      {content}
+      {children}
     </SafeAreaView>
   );
 };
