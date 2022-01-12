@@ -3,8 +3,8 @@ import AppSafeAreaView from "../../components/AppSafeAreaView";
 
 const content = <></>;
 
-const Template = (): JSX.Element => {
+const ChooseService = (): JSX.Element => {
   return <AppSafeAreaView content={content} />;
 };
 
-export default Template;
+export default ChooseService;

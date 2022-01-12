@@ -1,11 +1,13 @@
 import {
   Box,
   Center,
+  Divider,
   Flex,
   HStack,
   Input,
   Text,
   useColorModeValue,
+  VStack,
 } from "native-base";
 import React from "react";
 import { Dimensions, Image, View } from "react-native";
@@ -72,13 +74,25 @@ const content = (
         autoCorrect={false}
       />
       <Spacer top={40} />
-      <Center _text={{ color: "gray.400" }}>or Signup using</Center>
+      <HStack justifyContent={"center"}>
+        <Divider my="5" />
+        <Center
+          position={"absolute"}
+          top={2}
+          background={"white"}
+          _text={{
+            color: "gray.400",
+          }}
+        >
+          or
+        </Center>
+      </HStack>
       <Spacer top={40} />
-      <HStack justifyContent={"center"} space={2}>
+      <VStack justifyContent={"center"} space={2} width={"100%"}>
         <SocialLoginButton type="Google" onPress={() => {}} />
         <SocialLoginButton type="Facebook" onPress={() => {}} />
         <SocialLoginButton type="Apple" onPress={() => {}} />
-      </HStack>
+      </VStack>
     </Flex>
     <FooterButton label="CREATE ACCOUNT" onPress={() => navigate("Address")} />
   </>

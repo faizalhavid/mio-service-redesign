@@ -4,10 +4,16 @@ import React from "react";
 type AuthButtonProps = {
   type: "outline" | "solid";
   label: string;
+  subText?: string;
   onPress: () => void;
 };
 
-const AuthButton = ({ type, label, onPress }: AuthButtonProps): JSX.Element => {
+const AuthButton = ({
+  type,
+  label,
+  subText,
+  onPress,
+}: AuthButtonProps): JSX.Element => {
   const [accessibleColors] = useAccessibleColors();
   return (
     <Button
@@ -19,14 +25,26 @@ const AuthButton = ({ type, label, onPress }: AuthButtonProps): JSX.Element => {
       variant={type}
       onPress={onPress}
       tintColor={"transparent"}
-      _text={{
-        color: type == "solid" ? "black" : "white",
-      }}
       _pressed={{
         backgroundColor: type == "solid" ? "#F3CB51E6" : "#F3CB51",
       }}
     >
-      {label}
+      <Text
+        color={type == "solid" ? "black" : "white"}
+        textAlign={"center"}
+        fontWeight={"bold"}
+      >
+        {label}
+      </Text>
+      {subText && (
+        <Text
+          color={type == "solid" ? "#000" : "#fff"}
+          textAlign={"center"}
+          fontSize={12}
+        >
+          {subText}
+        </Text>
+      )}
     </Button>
   );
 };

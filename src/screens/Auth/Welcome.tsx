@@ -36,12 +36,14 @@ const Welcome = (): JSX.Element => {
             <AuthButton
               type="solid"
               label="LOG IN"
+              subText="if already have an account"
               onPress={() => navigate("Login")}
             />
             <Spacer top={40} />
             <AuthButton
               type="outline"
               label="SIGN UP"
+              subText="if don't have an account?"
               onPress={() => navigate("Register")}
             />
           </Flex>

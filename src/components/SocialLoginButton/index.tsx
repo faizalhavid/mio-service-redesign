@@ -1,45 +1,71 @@
-import { Text } from "native-base";
+import { Button, HStack, Text, useContrastText } from "native-base";
 import React from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { AppColors } from "../../commons/colors";
 
 type SocialLoginButtonProps = {
   type: "Google" | "Facebook" | "Apple" | undefined;
-  onPress: Function;
+  onPress: () => void;
 };
 
 const SocialLoginButton = ({
   type,
   onPress,
 }: SocialLoginButtonProps): JSX.Element => {
-  return (
-    <TouchableOpacity onPress={() => onPress()}>
-      {type == "Google" && (
-        <View style={styles.button}>
+  const LOGO = () => {
+    switch (type) {
+      case "Google":
+        return (
           <Image
+            width={20}
+            height={20}
             source={require("../../assets/images/google.png")}
             style={styles.logo}
           />
-          <Text style={styles.text}>Google</Text>
-        </View>
-      )}
-      {type == "Facebook" && (
-        <View style={[styles.button, { width: 100 }]}>
+        );
+      case "Facebook":
+        return (
           <Image
+            width={20}
+            height={20}
             source={require("../../assets/images/fb.png")}
             style={styles.logo}
           />
-          <Text style={styles.text}>Facebook</Text>
-        </View>
-      )}
-      {type == "Apple" && (
-        <View style={styles.button}>
+        );
+      case "Apple":
+        return (
           <Image
+            width={20}
+            height={20}
             source={require("../../assets/images/apple.png")}
             style={styles.logo}
           />
-          <Text style={styles.text}>Apple</Text>
-        </View>
-      )}
+        );
+    }
+    return <></>;
+  };
+
+  return (
+    <TouchableOpacity onPress={() => onPress()}>
+      <Button
+        borderRadius={50}
+        width={"100%"}
+        height={10}
+        onPress={onPress}
+        bg={"transparent"}
+        borderColor={"gray.350"}
+        // alignContent={"flex-start"}
+        // justifyContent={"flex-start"}
+        borderWidth={1}
+        _pressed={{
+          backgroundColor: `#EEEEEEE6`,
+        }}
+      >
+        <HStack space={2}>
+          <View>{LOGO()}</View>
+          <Text>Signup with {type}</Text>
+        </HStack>
+      </Button>
     </TouchableOpacity>
   );
 };
@@ -47,23 +73,8 @@ const SocialLoginButton = ({
 export default SocialLoginButton;
 
 const styles = StyleSheet.create({
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    width: 80,
-    height: 30,
-    borderRadius: 20,
-  },
   logo: {
     width: 20,
     height: 20,
-  },
-  text: {
-    marginLeft: 2,
-    fontWeight: "400",
-    fontSize: 14,
   },
 });
