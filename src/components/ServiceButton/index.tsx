@@ -5,6 +5,7 @@ import {
   Button,
   Text,
   useContrastText,
+  Circle,
 } from "native-base";
 import React from "react";
 import { SvgCss } from "react-native-svg";
@@ -15,6 +16,7 @@ import AppSafeAreaView from "../../components/AppSafeAreaView";
 type ServiceButtonProps = {
   icon: string | undefined;
   text: string | undefined;
+  status: boolean | undefined;
   onPress: (() => void) | undefined;
   onAdd: (() => void) | undefined;
 };
@@ -22,6 +24,7 @@ type ServiceButtonProps = {
 const ServiceButton = ({
   icon,
   text,
+  status,
   onAdd,
   onPress,
 }: ServiceButtonProps): JSX.Element => {
@@ -38,25 +41,28 @@ const ServiceButton = ({
         onPress={onPress}
       >
         <VStack space="2">
-          {icon && <SvgCss xml={icon} />}
+          <Circle size={120} bg={AppColors.PRIMARY} p={10}>
+            {icon && <SvgCss xml={icon} />}
+          </Circle>
           <Text textAlign={"center"} color={AppColors.SECONDARY}>
             {text}
           </Text>
           <Button
-            bg={btnColor}
-            borderColor={btnColor}
+            bg={status ? "transparent" : btnColor}
+            borderColor={status ? AppColors.SECONDARY : btnColor}
             borderRadius={50}
+            borderWidth={1}
             width={75}
             onPress={onAdd}
             _text={{
-              color: "white",
+              color: status ? AppColors.SECONDARY : "white",
             }}
             alignSelf={"center"}
             _pressed={{
               backgroundColor: `${btnColor}E6`,
             }}
           >
-            Add
+            {status ? "Added" : "Add"}
           </Button>
         </VStack>
       </Pressable>
