@@ -13,14 +13,17 @@ import RNBootSplash from "react-native-bootsplash";
 import Address from "../screens/Auth/Address";
 import ChooseService from "../screens/Home/ChooseService";
 import ServiceDetails from "../screens/Home/ServiceDetails";
+import Schedule from "../screens/Home/EditServiceDetails";
+import EditServiceInfo from "../screens/Home/EditServiceDetails";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
   Register: undefined;
   Login: undefined;
-  Address: undefined;
+  Address: { mode: string };
   ChooseService: undefined;
   ServiceDetails: { mode: string };
+  EditServiceInfo: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
@@ -52,13 +55,18 @@ const index = (): JSX.Element => {
         />
         <RootStack.Screen name="Register" component={Register} />
         <RootStack.Screen name="Login" component={Login} />
-        <RootStack.Screen name="Address" component={Address} />
+        <RootStack.Screen
+          name="Address"
+          component={Address}
+          initialParams={{ mode: "" }}
+        />
         <RootStack.Screen name="ChooseService" component={ChooseService} />
         <RootStack.Screen
           name="ServiceDetails"
           component={ServiceDetails}
           initialParams={{ mode: "" }}
         />
+        <RootStack.Screen name="EditServiceInfo" component={EditServiceInfo} />
       </RootStack.Navigator>
     </NavigationContainer>
   );

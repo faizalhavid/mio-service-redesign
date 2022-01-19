@@ -1,10 +1,8 @@
 import React from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 
-const content = <></>;
-
 const Template = (): JSX.Element => {
-  return <AppSafeAreaView>{content}</AppSafeAreaView>;
+  return <AppSafeAreaView></AppSafeAreaView>;
 };
 
 export default Template;

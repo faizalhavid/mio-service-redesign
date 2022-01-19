@@ -95,7 +95,7 @@ const Register = (): JSX.Element => {
       <FooterButton
         label="CREATE ACCOUNT"
         subText="Provide address in next step"
-        onPress={() => navigate("Address")}
+        onPress={() => navigate("Address", { mode: "CREATE" })}
       />
     </AppSafeAreaView>
   );

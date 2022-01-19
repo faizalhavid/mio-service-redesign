@@ -2,16 +2,13 @@ import {
   Actionsheet,
   Button,
   Circle,
-  Divider,
   HStack,
   Text,
-  useDisclose,
   View,
-  Pressable,
   VStack,
 } from "native-base";
 import React from "react";
-import { SvgCss, SvgXml } from "react-native-svg";
+import { SvgCss } from "react-native-svg";
 import {
   HOUSE_CLEANING,
   LAWN_CARE,
@@ -181,7 +178,7 @@ const ChooseService = (): JSX.Element => {
         </Actionsheet.Content>
       </Actionsheet>
       <FooterButton
-        label="CHOOSE SERVICE"
+        label="NEXT"
         subText="Provide service details in next step"
         onPress={() => navigate("ServiceDetails", { mode: "EDIT" })}
       />
