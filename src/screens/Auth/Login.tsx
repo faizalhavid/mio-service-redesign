@@ -7,8 +7,8 @@ import Spacer from "../../components/Spacer";
 import { navigate } from "../../navigations/rootNavigation";
 
 const content = (
-  <>
-    <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
+  <AppSafeAreaView statusBarColor="#fff">
+    <Flex flexDirection={"column"} flex={1} paddingX={5}>
       <Center width={"100%"}>
         <Text fontSize={20}>Login</Text>
       </Center>
@@ -54,7 +54,7 @@ const content = (
         </Center>
       </VStack>
     </Flex>
-  </>
+  </AppSafeAreaView>
 );
 
 const Login = (): JSX.Element => {

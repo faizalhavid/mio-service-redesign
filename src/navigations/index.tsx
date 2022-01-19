@@ -12,6 +12,7 @@ import { navigationRef } from "./rootNavigation";
 import RNBootSplash from "react-native-bootsplash";
 import Address from "../screens/Auth/Address";
 import ChooseService from "../screens/Home/ChooseService";
+import ServiceDetails from "../screens/Home/ServiceDetails";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
@@ -19,6 +20,7 @@ export type SuperRootStackParamList = {
   Login: undefined;
   Address: undefined;
   ChooseService: undefined;
+  ServiceDetails: { mode: string };
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
@@ -30,6 +32,7 @@ const index = (): JSX.Element => {
     headerTransparent: true,
     headerTitleAlign: "center",
     headerShadowVisible: false,
+    animation: "slide_from_right",
   };
   return (
     <NavigationContainer
@@ -51,6 +54,11 @@ const index = (): JSX.Element => {
         <RootStack.Screen name="Login" component={Login} />
         <RootStack.Screen name="Address" component={Address} />
         <RootStack.Screen name="ChooseService" component={ChooseService} />
+        <RootStack.Screen
+          name="ServiceDetails"
+          component={ServiceDetails}
+          initialParams={{ mode: "" }}
+        />
       </RootStack.Navigator>
     </NavigationContainer>
   );

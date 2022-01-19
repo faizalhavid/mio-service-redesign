@@ -21,15 +21,46 @@ import {
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
+import OrderSummary from "../../components/OrderSummary";
 import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
 
-type ServicesType = {
-  icon: string;
+const LAWN_CARE_TEXT: string = "Lawn Care";
+const POOL_CLEANING_TEXT: string = "Pool Cleaning";
+const HOUSE_CLEANING_TEXT: string = "House Cleaning";
+const PEST_CONTROL_TEXT: string = "Pest Control";
+
+export type ServicesType = {
+  icon: (color?: string) => string;
   text: string;
   description: string;
-  onAdd: () => void;
-  onPress: () => void;
+};
+
+export const SERVICES: { [key: string]: ServicesType } = {
+  [LAWN_CARE_TEXT]: {
+    icon: (color: string = "white") => LAWN_CARE(color),
+    text: LAWN_CARE_TEXT,
+    description:
+      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+  },
+  [POOL_CLEANING_TEXT]: {
+    icon: (color: string = "white") => POOL_CLEANING(color),
+    text: POOL_CLEANING_TEXT,
+    description:
+      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+  },
+  [HOUSE_CLEANING_TEXT]: {
+    icon: (color: string = "white") => HOUSE_CLEANING(color),
+    text: HOUSE_CLEANING_TEXT,
+    description:
+      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+  },
+  [PEST_CONTROL_TEXT]: {
+    icon: (color: string = "white") => PEST_CONTROL(color),
+    text: PEST_CONTROL_TEXT,
+    description:
+      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+  },
 };
 
 const ChooseService = (): JSX.Element => {
@@ -41,46 +72,6 @@ const ChooseService = (): JSX.Element => {
   const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
 
   const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
-
-  const LAWN_CARE_TEXT: string = "Lawn Care";
-  const POOL_CLEANING_TEXT: string = "Pool Cleaning";
-  const HOUSE_CLEANING_TEXT: string = "House Cleaning";
-  const PEST_CONTROL_TEXT: string = "Pest Control";
-
-  const SERVICES: { [key: string]: ServicesType } = {
-    [LAWN_CARE_TEXT]: {
-      icon: LAWN_CARE,
-      text: LAWN_CARE_TEXT,
-      description:
-        "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
-      onAdd: () => chooseService(LAWN_CARE_TEXT),
-      onPress: () => showServiceInfo(LAWN_CARE_TEXT),
-    },
-    [POOL_CLEANING_TEXT]: {
-      icon: POOL_CLEANING,
-      text: POOL_CLEANING_TEXT,
-      description:
-        "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
-      onAdd: () => chooseService(POOL_CLEANING_TEXT),
-      onPress: () => showServiceInfo(POOL_CLEANING_TEXT),
-    },
-    [HOUSE_CLEANING_TEXT]: {
-      icon: HOUSE_CLEANING,
-      text: HOUSE_CLEANING_TEXT,
-      description:
-        "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
-      onAdd: () => chooseService(HOUSE_CLEANING_TEXT),
-      onPress: () => showServiceInfo(HOUSE_CLEANING_TEXT),
-    },
-    [PEST_CONTROL_TEXT]: {
-      icon: PEST_CONTROL,
-      text: PEST_CONTROL_TEXT,
-      description:
-        "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
-      onAdd: () => chooseService(PEST_CONTROL_TEXT),
-      onPress: () => showServiceInfo(PEST_CONTROL_TEXT),
-    },
-  };
 
   const chooseService = (serviceName: string = "") => {
     let pos = selectedServices.indexOf(serviceName);
@@ -106,74 +97,35 @@ const ChooseService = (): JSX.Element => {
         <VStack space={0}>
           <HStack justifyContent="center" space={5}>
             {[SERVICES[LAWN_CARE_TEXT], SERVICES[POOL_CLEANING_TEXT]].map(
-              (service) => (
+              (service, index) => (
                 <ServiceButton
-                  key={service?.text}
-                  icon={service?.icon}
+                  key={index}
+                  icon={service?.icon()}
                   text={service?.text}
                   status={selectedServices.indexOf(service?.text) >= 0}
-                  onAdd={service?.onAdd}
-                  onPress={service?.onPress}
+                  onAdd={() => chooseService(service?.text)}
+                  onPress={() => showServiceInfo(service?.text)}
                 />
               )
             )}
           </HStack>
           <HStack justifyContent="center" space={5}>
             {[SERVICES[HOUSE_CLEANING_TEXT], SERVICES[PEST_CONTROL_TEXT]].map(
-              (service) => (
+              (service, index) => (
                 <ServiceButton
-                  key={service?.text}
-                  icon={service?.icon}
+                  key={index}
+                  icon={service?.icon()}
                   text={service?.text}
                   status={selectedServices.indexOf(service?.text) >= 0}
-                  onAdd={service?.onAdd}
-                  onPress={service?.onPress}
+                  onAdd={() => chooseService(service?.text)}
+                  onPress={() => showServiceInfo(service?.text)}
                 />
               )
             )}
           </HStack>
         </VStack>
       </VStack>
-      <Pressable
-        bg={"teal.600"}
-        position={"absolute"}
-        bottom={75}
-        height={85}
-        width={"100%"}
-        _pressed={{
-          backgroundColor: "teal.500",
-        }}
-        onPress={() => {
-          console.log("hi");
-        }}
-      >
-        <VStack>
-          <HStack justifyContent={"space-between"}>
-            <Text color={"white"} py={2} px={2}>
-              Order Summary
-            </Text>
-            <Text color={"white"} py={2} px={2}>
-              More
-            </Text>
-          </HStack>
-          <HStack space={3} px={2}>
-            {selectedServices.map((service) => (
-              <>
-                <HStack
-                  space={2}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                >
-                  <SvgCss xml={SERVICES[service].icon} width={30} height={30} />
-                  <Text color={"white"}>
-                    {SERVICES[service].text.split(" ")[0]}
-                  </Text>
-                </HStack>
-              </>
-            ))}
-          </HStack>
-        </VStack>
-      </Pressable>
+      <OrderSummary selectedServices={selectedServices} />
       <Actionsheet
         isOpen={toggleServiceInfo}
         onClose={() => setToggleServiceInfo(false)}
@@ -184,7 +136,7 @@ const ChooseService = (): JSX.Element => {
               <View alignSelf={"center"}>
                 {selectedServiceInfo?.icon && (
                   <Circle size={120} bg={AppColors.PRIMARY} p={10}>
-                    <SvgCss xml={selectedServiceInfo?.icon} />
+                    <SvgCss xml={selectedServiceInfo?.icon()} />
                   </Circle>
                 )}
               </View>
@@ -229,8 +181,9 @@ const ChooseService = (): JSX.Element => {
         </Actionsheet.Content>
       </Actionsheet>
       <FooterButton
-        label="SAVE & CONTINUE"
-        onPress={() => navigate("ChooseService")}
+        label="CHOOSE SERVICE"
+        subText="Provide service details in next step"
+        onPress={() => navigate("ServiceDetails", { mode: "EDIT" })}
       />
     </>
   );

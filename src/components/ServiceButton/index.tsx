@@ -52,7 +52,7 @@ const ServiceButton = ({
             borderColor={status ? AppColors.SECONDARY : btnColor}
             borderRadius={50}
             borderWidth={1}
-            width={75}
+            width={78}
             onPress={onAdd}
             _text={{
               color: status ? AppColors.SECONDARY : "white",
@@ -62,7 +62,7 @@ const ServiceButton = ({
               backgroundColor: `${btnColor}E6`,
             }}
           >
-            {status ? "Added" : "Add"}
+            {status ? "Remove" : "Add"}
           </Button>
         </VStack>
       </Pressable>

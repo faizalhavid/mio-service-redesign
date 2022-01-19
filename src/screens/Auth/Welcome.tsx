@@ -1,4 +1,9 @@
-import { Flex, StatusBar, useColorModeValue } from "native-base";
+import {
+  Flex,
+  PresenceTransition,
+  StatusBar,
+  useColorModeValue,
+} from "native-base";
 import React from "react";
 import {
   Button,
@@ -11,20 +16,20 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AppSafeAreaView from "../../components/AppSafeAreaView";
 import AuthButton from "../../components/AuthButton";
 import Spacer from "../../components/Spacer";
 import { navigate } from "../../navigations/rootNavigation";
 
 const Welcome = (): JSX.Element => {
   return (
-    <>
-      <StatusBar barStyle={"light-content"} />
+    <AppSafeAreaView p={0} statusBarColor="transparent">
       <ImageBackground
         source={require("../../assets/images/intro-bg.png")}
         resizeMode="cover"
         style={styles.image}
       >
-        <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.3)"}>
+        <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.3)"} pt={20}>
           <Flex flexDirection={"row"} mt={100} justifyContent={"center"}>
             <Image source={require("../../assets/images/mio-logo-white.png")} />
             <Image
@@ -49,7 +54,7 @@ const Welcome = (): JSX.Element => {
           </Flex>
         </Flex>
       </ImageBackground>
-    </>
+    </AppSafeAreaView>
   );
 };
 

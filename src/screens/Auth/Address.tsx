@@ -74,7 +74,8 @@ const content = (
       </VStack>
     </VStack>
     <FooterButton
-      label="SAVE & CONTINUE"
+      label="SAVE ADDRESS"
+      subText="Choose Service in next step"
       onPress={() => navigate("ChooseService")}
     />
   </>

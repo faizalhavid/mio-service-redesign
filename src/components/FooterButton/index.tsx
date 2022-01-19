@@ -14,10 +14,15 @@ import { AppColors } from "../../commons/colors";
 
 type FooterButtonProps = {
   label: string;
+  subText?: string;
   onPress: () => void;
 };
 
-const FooterButton = ({ label, onPress }: FooterButtonProps): JSX.Element => {
+const FooterButton = ({
+  label,
+  subText,
+  onPress,
+}: FooterButtonProps): JSX.Element => {
   return (
     <>
       <Button
@@ -29,16 +34,27 @@ const FooterButton = ({ label, onPress }: FooterButtonProps): JSX.Element => {
         width={"100%"}
         onPress={onPress}
       >
-        <HStack space={0} alignItems="center">
+        <HStack space={0} alignItems="center" alignSelf={"center"}>
           <Text
+            alignSelf={"center"}
             fontSize={16}
             fontWeight={"semibold"}
             color={useContrastText(AppColors.SECONDARY)}
           >
             {label}
           </Text>
-          <ChevronRightIcon size="8" color={"white"} />
+          {/* <ChevronRightIcon size="8" color={"white"} /> */}
         </HStack>
+        {subText && (
+          <Text
+            alignSelf={"center"}
+            fontSize={12}
+            fontWeight={"semibold"}
+            color={"teal.100"}
+          >
+            ({subText})
+          </Text>
+        )}
       </Button>
     </>
   );

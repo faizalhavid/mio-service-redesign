@@ -1,26 +1,35 @@
-import { useColorModeValue } from "native-base";
+import { ScrollView, useColorModeValue } from "native-base";
 import React from "react";
 import { SafeAreaView } from "react-native";
+import { AppStatusBar } from "../../components/AppStatusBar";
 
-type AppSafeAreaView = {
-  content?: HTMLElement;
+type AppSafeAreaViewProps = {
+  p?: number;
+  bg?: string;
+  statusBarColor?: string;
   children?: React.ReactNode;
 };
 
 const AppSafeAreaView = ({
-  content,
+  p,
+  bg,
+  statusBarColor,
   children,
-}: AppSafeAreaView): JSX.Element => {
+}: AppSafeAreaViewProps): JSX.Element => {
   return (
     <SafeAreaView
       style={{
         flex: 1,
         flexDirection: "column",
-        paddingTop: 70,
+        paddingTop: p === undefined ? 100 : p,
         marginTop: 0,
-        backgroundColor: useColorModeValue("white", "black"),
+        backgroundColor: bg || useColorModeValue("white", "black"),
+        padding: p,
       }}
     >
+      <AppStatusBar
+        color={statusBarColor || useColorModeValue("white", "black")}
+      />
       {children}
     </SafeAreaView>
   );
