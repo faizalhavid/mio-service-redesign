@@ -122,7 +122,7 @@ const ChooseService = (): JSX.Element => {
           </HStack>
         </VStack>
       </VStack>
-      <OrderSummary selectedServices={selectedServices} />
+      {/* <OrderSummary selectedServices={selectedServices} /> */}
       <Actionsheet
         isOpen={toggleServiceInfo}
         onClose={() => setToggleServiceInfo(false)}
@@ -178,7 +178,7 @@ const ChooseService = (): JSX.Element => {
         </Actionsheet.Content>
       </Actionsheet>
       <FooterButton
-        label="NEXT"
+        label="ADD SERVICE DETAILS"
         subText="Provide service details in next step"
         onPress={() => navigate("ServiceDetails", { mode: "EDIT" })}
       />

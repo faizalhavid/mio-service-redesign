@@ -13,8 +13,9 @@ import RNBootSplash from "react-native-bootsplash";
 import Address from "../screens/Auth/Address";
 import ChooseService from "../screens/Home/ChooseService";
 import ServiceDetails from "../screens/Home/ServiceDetails";
-import Schedule from "../screens/Home/EditServiceDetails";
-import EditServiceInfo from "../screens/Home/EditServiceDetails";
+import EditServiceDetails from "../screens/Home/EditServiceDetails";
+import Payment from "../screens/Home/Payment";
+import Booked from "../screens/Home/Booked";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
@@ -23,7 +24,9 @@ export type SuperRootStackParamList = {
   Address: { mode: string };
   ChooseService: undefined;
   ServiceDetails: { mode: string };
-  EditServiceInfo: undefined;
+  EditServiceDetails: undefined;
+  Payment: undefined;
+  Booked: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
@@ -66,7 +69,15 @@ const index = (): JSX.Element => {
           component={ServiceDetails}
           initialParams={{ mode: "" }}
         />
-        <RootStack.Screen name="EditServiceInfo" component={EditServiceInfo} />
+        <RootStack.Screen
+          name="EditServiceDetails"
+          component={EditServiceDetails}
+          options={{
+            animation: "slide_from_bottom",
+          }}
+        />
+        <RootStack.Screen name="Payment" component={Payment} />
+        <RootStack.Screen name="Booked" component={Booked} />
       </RootStack.Navigator>
     </NavigationContainer>
   );

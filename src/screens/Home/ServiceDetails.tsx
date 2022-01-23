@@ -2,26 +2,28 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   Button,
   Center,
-  CheckIcon,
   Divider,
-  Flex,
   HStack,
   ScrollView,
-  Select,
   Text,
   VStack,
 } from "native-base";
 import React from "react";
+import { SvgCss } from "react-native-svg";
+import {
+  CALENDAR_ICON,
+  CIRCLE_TICK_ICON,
+  INFO_ICON,
+} from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ChooseServiceDetailsButton from "../../components/ChooseServiceDetailsButton";
 import FooterButton from "../../components/FooterButton";
 import OrderSummary from "../../components/OrderSummary";
-import ServiceDetailsOptions from "../../components/ServiceDetailsOptions";
 import ServiceDetailsSection from "../../components/ServiceDetailsSection";
 import { SuperRootStackParamList } from "../../navigations";
 import { navigate } from "../../navigations/rootNavigation";
-import EditServiceInfo from "./EditServiceDetails";
+import PriceBreakdown from "./PriceBreakdown";
 
 type ServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
@@ -43,17 +45,10 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
   return (
     <AppSafeAreaView>
       <ScrollView>
-        <VStack space={3}>
-          {isEdit && (
-            <Text textAlign={"center"} fontSize={20}>
-              Let's make sure {"\n"} we've got the right place
-            </Text>
-          )}
-          {isPreview && (
-            <Text textAlign={"center"} fontSize={20}>
-              Order Summary
-            </Text>
-          )}
+        <VStack space={5}>
+          <Text textAlign={"center"} fontSize={18}>
+            Let's make sure {"\n"} we've got the right place
+          </Text>
           <HStack
             justifyContent={"space-around"}
             alignItems={"center"}
@@ -83,53 +78,63 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
               Please confirm the information below
             </Text>
           </Center>
-          <VStack>
-            <ServiceDetailsSection title="Lawn Care">
+          <VStack space={0}>
+            <ServiceDetailsSection title="Lawn Care" noData={true}>
               <ChooseServiceDetailsButton
                 title="Choose Lot Size, Service Type & Schedule"
                 onPress={() => {
-                  setShowServiceDesc(true);
+                  navigate("EditServiceDetails");
                 }}
               />
             </ServiceDetailsSection>
-            <ServiceDetailsSection title="Pool Cleaning">
+            <ServiceDetailsSection title="Pool Cleaning" noData={false}>
+              {/* <ChooseServiceDetailsButton
+                title="Choose Lot Size, Service Type & Schedule"
+                onPress={() => {}}
+              /> */}
+              <HStack space={2} alignItems={"center"} pl={3}>
+                <SvgCss xml={INFO_ICON} width={20} height={20} />
+                <Text color={AppColors.SECONDARY} fontSize={14}>
+                  Lot Size
+                </Text>
+              </HStack>
+              <HStack space={2} alignItems={"center"} pl={3}>
+                <SvgCss xml={CIRCLE_TICK_ICON} width={20} height={20} />
+                <Text color={AppColors.SECONDARY} fontSize={14}>
+                  $40 weekly service
+                </Text>
+              </HStack>
+              <HStack space={2} alignItems={"center"} pl={3}>
+                <SvgCss xml={CALENDAR_ICON} width={20} height={20} />
+                <Text color={AppColors.SECONDARY} fontSize={14}>
+                  Monday, Aug 2, 8:00 AM - 10 AM
+                </Text>
+              </HStack>
+            </ServiceDetailsSection>
+            <ServiceDetailsSection title="House Cleaning" noData={true}>
               <ChooseServiceDetailsButton
                 title="Choose Lot Size, Service Type & Schedule"
                 onPress={() => {}}
               />
             </ServiceDetailsSection>
-            <ServiceDetailsSection title="House Cleaning">
-              <ChooseServiceDetailsButton
-                title="Choose Lot Size, Service Type & Schedule"
-                onPress={() => {}}
-              />
-            </ServiceDetailsSection>
-            <ServiceDetailsSection title="Pest Control">
+            <ServiceDetailsSection title="Pest Control" noData={true}>
               <ChooseServiceDetailsButton
                 title="Choose Lot Size, Service Type & Schedule"
                 onPress={() => {}}
               />
             </ServiceDetailsSection>
           </VStack>
-          <Divider thickness={1} />
-          <Center>
-            <Button
-              variant={"outline"}
-              borderColor={AppColors.SECONDARY}
-              borderRadius={20}
-            >
-              <Text>Add Service Note</Text>
-            </Button>
-          </Center>
-          <Divider thickness={0} mt={200} />
+          {/* <Divider thickness={10} /> */}
+          {/* <PriceBreakdown /> */}
+          <Divider thickness={0} mt={0} mb={200} />
         </VStack>
       </ScrollView>
-      <EditServiceInfo isOpen={showServiceDesc} onClose={() => {}} />
-      <OrderSummary selectedServices={selectedServices} />
+      {/* <OrderSummary selectedServices={selectedServices} /> */}
       <FooterButton
-        label="SAVE SERVICE DETAILS"
+        v2={false}
+        label="CHOOSE PAYMENT METHOD"
         subText="Provide payment information in next step"
-        onPress={() => navigate("ServiceDetails", { mode: "EDIT" })}
+        onPress={() => navigate("Payment")}
       />
     </AppSafeAreaView>
   );
