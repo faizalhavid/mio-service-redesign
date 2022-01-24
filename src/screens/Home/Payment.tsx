@@ -27,11 +27,13 @@ const Payment = (): JSX.Element => {
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Order Summary
           </Text>
+          <Divider thickness={1} />
           <PriceBreakdown />
           <Divider thickness={10} />
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Payment Option
           </Text>
+          <Divider thickness={1} />
           <Radio.Group
             defaultValue="1"
             name="myRadioGroup"
@@ -59,9 +61,11 @@ const Payment = (): JSX.Element => {
               </Radio>
             </VStack>
           </Radio.Group>
+          <Divider thickness={1} />
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Credit Card
           </Text>
+          <Divider thickness={1} />
           <Radio.Group
             defaultValue="1"
             name="myRadioGroup"
@@ -136,6 +140,7 @@ const Payment = (): JSX.Element => {
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Billing Address
           </Text>
+          <Divider thickness={1} />
           <Radio.Group
             alignSelf={"center"}
             defaultValue="1"

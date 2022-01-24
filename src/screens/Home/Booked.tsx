@@ -9,8 +9,8 @@ import { navigate } from "../../navigations/rootNavigation";
 
 const Booked = (): JSX.Element => {
   return (
-    <AppSafeAreaView>
-      <ScrollView mt={70}>
+    <AppSafeAreaView p={0}>
+      <ScrollView mt={120}>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={22} fontWeight={"semibold"}>
             Your Service has {"\n"}Been Booked!

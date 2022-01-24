@@ -78,7 +78,7 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
               Please confirm the information below
             </Text>
           </Center>
-          <VStack space={0}>
+          <VStack space={1}>
             <ServiceDetailsSection title="Lawn Care" noData={true}>
               <ChooseServiceDetailsButton
                 title="Choose Lot Size, Service Type & Schedule"

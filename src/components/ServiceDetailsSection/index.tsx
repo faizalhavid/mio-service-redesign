@@ -18,7 +18,7 @@ const ServiceDetailsSection = ({
       <VStack>
         <HStack
           bg={AppColors.PRIMARY}
-          shadow={3}
+          shadow={2}
           px={6}
           py={2}
           justifyContent={"space-between"}
