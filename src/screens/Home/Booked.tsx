@@ -5,7 +5,7 @@ import { BOOKING_SUCCESS } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import { navigate } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
 
 const Booked = (): JSX.Element => {
   return (
@@ -43,7 +43,7 @@ const Booked = (): JSX.Element => {
       <FooterButton
         label="Home"
         subText="Provide payment information in next step"
-        onPress={() => navigate("Booked")}
+        onPress={() => popToPop("Dashboard")}
       />
     </AppSafeAreaView>
   );

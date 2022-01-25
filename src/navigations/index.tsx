@@ -74,9 +74,11 @@ const index = (): JSX.Element => {
         <RootStack.Screen
           name="EditServiceDetails"
           component={EditServiceDetails}
-          options={{
-            animation: "slide_from_bottom",
-          }}
+          options={
+            {
+              // animation: "slide_from_bottom",
+            }
+          }
         />
         <RootStack.Screen name="Payment" component={Payment} />
         <RootStack.Screen name="Booked" component={Booked} />
