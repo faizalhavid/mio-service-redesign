@@ -16,6 +16,7 @@ import ServiceDetails from "../screens/Home/ServiceDetails";
 import EditServiceDetails from "../screens/Home/EditServiceDetails";
 import Payment from "../screens/Home/Payment";
 import Booked from "../screens/Home/Booked";
+import DashboardTab from "./DashboardTab";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
@@ -27,6 +28,7 @@ export type SuperRootStackParamList = {
   EditServiceDetails: undefined;
   Payment: undefined;
   Booked: undefined;
+  Dashboard: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
@@ -46,7 +48,7 @@ const index = (): JSX.Element => {
       onReady={() => RNBootSplash.hide()}
     >
       <RootStack.Navigator
-        initialRouteName="Welcome"
+        initialRouteName="Dashboard"
         screenOptions={navigationOptions}
       >
         <RootStack.Screen
@@ -78,6 +80,7 @@ const index = (): JSX.Element => {
         />
         <RootStack.Screen name="Payment" component={Payment} />
         <RootStack.Screen name="Booked" component={Booked} />
+        <RootStack.Screen name="Dashboard" component={DashboardTab} />
       </RootStack.Navigator>
     </NavigationContainer>
   );
