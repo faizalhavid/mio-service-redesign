@@ -16,10 +16,13 @@ import React from "react";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
+import TermsAndConditions from "../../components/TermsAndConditions";
 import { navigate } from "../../navigations/rootNavigation";
 import PriceBreakdown from "./PriceBreakdown";
 
 const Payment = (): JSX.Element => {
+  const [showTNC, setShowTNC] = React.useState(false);
+
   return (
     <AppSafeAreaView p={0}>
       <ScrollView mt={100}>
@@ -30,7 +33,7 @@ const Payment = (): JSX.Element => {
           <Divider thickness={1} />
           <PriceBreakdown />
           <Divider thickness={10} />
-          <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
+          {/* <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Payment Option
           </Text>
           <Divider thickness={1} />
@@ -60,8 +63,7 @@ const Payment = (): JSX.Element => {
                 Google Pay
               </Radio>
             </VStack>
-          </Radio.Group>
-          <Divider thickness={1} />
+          </Radio.Group> */}
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Credit Card
           </Text>
@@ -214,13 +216,21 @@ const Payment = (): JSX.Element => {
           <Divider thickness={10} />
         </VStack>
         <Center px={5} py={5}>
-          <Text textAlign={"center"}>
-            By clicking "Submit Payment" your agree to {"\n"}our terms &
-            conditions
-          </Text>
+          <Button
+            pt={5}
+            m={0}
+            variant={"link"}
+            onPress={() => setShowTNC(true)}
+          >
+            <Text textAlign={"center"}>
+              By clicking "Submit Payment" your agree to {"\n"}our{" "}
+              <Text color={"blue.500"}>terms & conditions</Text>
+            </Text>
+          </Button>
         </Center>
         <Divider thickness={0} mt={0} mb={200} />
       </ScrollView>
+      <TermsAndConditions show={showTNC} setShow={setShowTNC} />
       <FooterButton
         label="SUBMIT PAYMENT"
         subText="Provide payment information in next step"

@@ -48,7 +48,7 @@ const index = (): JSX.Element => {
       onReady={() => RNBootSplash.hide()}
     >
       <RootStack.Navigator
-        initialRouteName="Dashboard"
+        initialRouteName="Payment"
         screenOptions={navigationOptions}
       >
         <RootStack.Screen
