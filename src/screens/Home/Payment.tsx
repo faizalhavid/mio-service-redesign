@@ -24,8 +24,8 @@ const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
 
   return (
-    <AppSafeAreaView p={0}>
-      <ScrollView mt={100}>
+    <AppSafeAreaView>
+      <ScrollView>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Order Summary
@@ -91,7 +91,7 @@ const Payment = (): JSX.Element => {
           </Radio.Group>
           <HStack
             bg={AppColors.PRIMARY}
-            shadow={3}
+            shadow={2}
             px={6}
             py={2}
             justifyContent={"space-between"}

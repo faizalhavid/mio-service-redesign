@@ -71,7 +71,7 @@ const EditServiceDetails = ({
   }, []);
 
   return (
-    <AppSafeAreaView p={0}>
+    <AppSafeAreaView>
       {showFields && (
         <PresenceTransition
           visible={true}
@@ -87,7 +87,7 @@ const EditServiceDetails = ({
         >
           <VStack p={5}>
             <ScrollView>
-              <Divider thickness={0} mt={20}></Divider>
+              <Divider thickness={0}></Divider>
               <HStack justifyContent={"space-between"} alignItems={"center"}>
                 <Text
                   fontSize={20}
@@ -103,6 +103,7 @@ const EditServiceDetails = ({
                 />
               </HStack>
               {SectionDivider(1)}
+              {SectionDivider(0)}
               <VStack>
                 {Title("Choose Lot Size")}
                 {SectionDivider(0)}

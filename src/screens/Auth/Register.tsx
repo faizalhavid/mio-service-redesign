@@ -9,6 +9,7 @@ import {
   VStack,
 } from "native-base";
 import React from "react";
+import { Platform } from "react-native";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";

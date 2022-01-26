@@ -9,7 +9,7 @@ import { navigate, popToPop } from "../../navigations/rootNavigation";
 
 const Booked = (): JSX.Element => {
   return (
-    <AppSafeAreaView p={0}>
+    <AppSafeAreaView>
       <ScrollView mt={120}>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={22} fontWeight={"semibold"}>

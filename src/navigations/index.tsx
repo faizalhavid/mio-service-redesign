@@ -40,6 +40,7 @@ const index = (): JSX.Element => {
     headerTransparent: true,
     headerTitleAlign: "center",
     headerShadowVisible: false,
+    headerBackTitleVisible: false,
     animation: "slide_from_right",
   };
   return (
@@ -48,7 +49,7 @@ const index = (): JSX.Element => {
       onReady={() => RNBootSplash.hide()}
     >
       <RootStack.Navigator
-        initialRouteName="Payment"
+        initialRouteName="Welcome"
         screenOptions={navigationOptions}
       >
         <RootStack.Screen
@@ -74,11 +75,9 @@ const index = (): JSX.Element => {
         <RootStack.Screen
           name="EditServiceDetails"
           component={EditServiceDetails}
-          options={
-            {
-              // animation: "slide_from_bottom",
-            }
-          }
+          options={{
+            animation: "slide_from_bottom",
+          }}
         />
         <RootStack.Screen name="Payment" component={Payment} />
         <RootStack.Screen name="Booked" component={Booked} />

@@ -1,14 +1,24 @@
-import { Center, Flex, Input, Text, VStack } from "native-base";
+import {
+  Center,
+  Divider,
+  Flex,
+  Input,
+  StatusBar,
+  Text,
+  VStack,
+} from "native-base";
 import React from "react";
+import { Platform } from "react-native";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import Spacer from "../../components/Spacer";
-import { navigate } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
 
 const content = (
   <AppSafeAreaView statusBarColor="#fff">
-    <Flex flexDirection={"column"} flex={1} paddingX={5}>
+    {Platform.OS === "android" && <Divider thickness={0} mt={100} />}
+    <Flex mt={100} flexDirection={"column"} flex={1} paddingX={5}>
       <Center width={"100%"}>
         <Text fontSize={20}>Login</Text>
       </Center>
@@ -38,7 +48,7 @@ const content = (
         />
         <Spacer top={40} />
         <Center>
-          <AppButton label="SIGN IN" onPress={() => navigate("Home")} />
+          <AppButton label="SIGN IN" onPress={() => popToPop("Dashboard")} />
         </Center>
       </VStack>
       <VStack space="1" position={"absolute"} bottom={10} alignSelf={"center"}>
@@ -49,7 +59,7 @@ const content = (
           <AppButton
             color={AppColors.SECONDARY}
             label="SIGN UP FOR FREE"
-            onPress={() => navigate("Home")}
+            onPress={() => navigate("Register")}
           />
         </Center>
       </VStack>

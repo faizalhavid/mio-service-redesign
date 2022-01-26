@@ -52,7 +52,7 @@ const ServiceButton = ({
             borderColor={status ? AppColors.SECONDARY : btnColor}
             borderRadius={50}
             borderWidth={1}
-            width={78}
+            width={82}
             onPress={onAdd}
             _text={{
               color: status ? AppColors.SECONDARY : "white",

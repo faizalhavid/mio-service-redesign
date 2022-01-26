@@ -1,29 +1,16 @@
-import {
-  Flex,
-  PresenceTransition,
-  StatusBar,
-  useColorModeValue,
-} from "native-base";
+import { Flex } from "native-base";
 import React from "react";
-import {
-  Button,
-  Dimensions,
-  Image,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Image, ImageBackground, StyleSheet } from "react-native";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
+import { AppStatusBar } from "../../components/AppStatusBar";
 import AuthButton from "../../components/AuthButton";
 import Spacer from "../../components/Spacer";
 import { navigate } from "../../navigations/rootNavigation";
 
 const Welcome = (): JSX.Element => {
   return (
-    <AppSafeAreaView p={0} statusBarColor="transparent">
+    <>
+      <AppStatusBar color={"transparent"} />
       <ImageBackground
         source={require("../../assets/images/intro-bg.png")}
         resizeMode="cover"
@@ -54,7 +41,7 @@ const Welcome = (): JSX.Element => {
           </Flex>
         </Flex>
       </ImageBackground>
-    </AppSafeAreaView>
+    </>
   );
 };
 

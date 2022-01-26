@@ -1,18 +1,18 @@
-import { ScrollView, useColorModeValue } from "native-base";
+import { Divider, ScrollView, useColorModeValue } from "native-base";
 import React from "react";
-import { SafeAreaView } from "react-native";
+import { Platform, SafeAreaView } from "react-native";
 import { AppStatusBar } from "../../components/AppStatusBar";
 
 type AppSafeAreaViewProps = {
-  p?: number;
   bg?: string;
+  mt?: number;
   statusBarColor?: string;
   children?: React.ReactNode;
 };
 
 const AppSafeAreaView = ({
-  p,
   bg,
+  mt,
   statusBarColor,
   children,
 }: AppSafeAreaViewProps): JSX.Element => {
@@ -21,15 +21,15 @@ const AppSafeAreaView = ({
       style={{
         flex: 1,
         flexDirection: "column",
-        paddingTop: p === undefined ? 100 : p,
-        marginTop: 0,
         backgroundColor: bg || useColorModeValue("white", "black"),
-        padding: p,
       }}
     >
       <AppStatusBar
         color={statusBarColor || useColorModeValue("white", "black")}
       />
+      {/* {Platform.OS === "android" && (
+        <Divider thickness={0} mt={mt === undefined ? 100 : mt} />
+      )} */}
       {children}
     </SafeAreaView>
   );
