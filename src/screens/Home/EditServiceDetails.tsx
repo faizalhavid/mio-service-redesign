@@ -3,21 +3,18 @@ import {
   Text,
   HStack,
   Divider,
-  Button,
   TextArea,
   PresenceTransition,
 } from "native-base";
 import React, { useEffect } from "react";
 import { KeyboardAvoidingView, ScrollView } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SvgCss } from "react-native-svg";
 import { LAWN_CARE } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import SelectionButton from "../../components/SelectionButton";
-import ServiceDetailsOptions from "../../components/ServiceDetailsOptions";
-import { goBack, navigate } from "../../navigations/rootNavigation";
+import { goBack } from "../../navigations/rootNavigation";
 
 type EditServiceDetailsProps = {
   isOpen: boolean;
@@ -86,168 +83,181 @@ const EditServiceDetails = ({
           }}
         >
           <VStack p={5}>
-            <ScrollView>
-              <Divider thickness={0}></Divider>
-              <HStack justifyContent={"space-between"} alignItems={"center"}>
-                <Text
-                  fontSize={20}
-                  fontWeight={"semibold"}
-                  color={AppColors.DARK_PRIMARY}
-                >
-                  Lawn Care
-                </Text>
-                <SvgCss
-                  xml={LAWN_CARE(AppColors.DARK_PRIMARY)}
-                  width={25}
-                  height={25}
-                />
-              </HStack>
-              {SectionDivider(1)}
-              {SectionDivider(0)}
-              <VStack>
-                {Title("Choose Lot Size")}
-                {SectionDivider(0)}
-                <HStack space={2}>
-                  <SelectionButton w={38} h={38} active={true} text="1" />
-                  <SelectionButton w={38} h={38} active={false} text="2" />
+            <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}>
+              <ScrollView>
+                <Divider thickness={0}></Divider>
+                <HStack justifyContent={"space-between"} alignItems={"center"}>
+                  <Text
+                    fontSize={20}
+                    fontWeight={"semibold"}
+                    color={AppColors.DARK_PRIMARY}
+                  >
+                    Lawn Care
+                  </Text>
+                  <SvgCss
+                    xml={LAWN_CARE(AppColors.DARK_PRIMARY)}
+                    width={25}
+                    height={25}
+                  />
                 </HStack>
+                {SectionDivider(1)}
                 {SectionDivider(0)}
-                {Title("Choose Subscription Method")}
-                {SectionDivider(0)}
-                <HStack space={2}>
-                  <SelectionButton
-                    w={120}
-                    h={100}
-                    variant="custom"
-                    active={true}
-                    text2={(color) => {
-                      return (
-                        <VStack justifyContent={"center"} alignItems={"center"}>
-                          <HStack
-                            space={2}
+                <VStack>
+                  {Title("Choose Lot Size")}
+                  {SectionDivider(0)}
+                  <HStack space={2}>
+                    <SelectionButton w={38} h={38} active={true} text="1" />
+                    <SelectionButton w={38} h={38} active={false} text="2" />
+                  </HStack>
+                  {SectionDivider(0)}
+                  {Title("Choose Subscription Method")}
+                  {SectionDivider(0)}
+                  <HStack space={2}>
+                    <SelectionButton
+                      w={120}
+                      h={100}
+                      variant="custom"
+                      active={true}
+                      text2={(color) => {
+                        return (
+                          <VStack
+                            justifyContent={"center"}
+                            alignItems={"center"}
+                          >
+                            <HStack
+                              space={2}
+                              justifyContent={"center"}
+                              alignItems={"center"}
+                            >
+                              <Text fontSize={30} color={color}>
+                                $40
+                              </Text>
+                              <Text fontSize={12} color={color}>
+                                /Weekly
+                              </Text>
+                            </HStack>
+                            <Text
+                              textAlign={"center"}
+                              fontSize={10}
+                              color={color}
+                            >
+                              $160 Billed Monthly
+                            </Text>
+                          </VStack>
+                        );
+                      }}
+                    />
+                    <SelectionButton
+                      w={120}
+                      h={100}
+                      variant="custom"
+                      active={false}
+                      text2={(color) => {
+                        return (
+                          <VStack
                             justifyContent={"center"}
                             alignItems={"center"}
                           >
                             <Text fontSize={30} color={color}>
-                              $40
+                              $55
                             </Text>
-                            <Text fontSize={12} color={color}>
-                              /Weekly
+                            <Text
+                              textAlign={"center"}
+                              fontSize={10}
+                              color={color}
+                            >
+                              One-time Service
                             </Text>
-                          </HStack>
-                          <Text
-                            textAlign={"center"}
-                            fontSize={10}
-                            color={color}
-                          >
-                            $160 Billed Monthly
-                          </Text>
-                        </VStack>
-                      );
-                    }}
-                  />
-                  <SelectionButton
-                    w={120}
-                    h={100}
-                    variant="custom"
-                    active={false}
-                    text2={(color) => {
-                      return (
-                        <VStack justifyContent={"center"} alignItems={"center"}>
-                          <Text fontSize={30} color={color}>
-                            $55
-                          </Text>
-                          <Text
-                            textAlign={"center"}
-                            fontSize={10}
-                            color={color}
-                          >
-                            One-time Service
-                          </Text>
-                        </VStack>
-                      );
-                    }}
-                  />
-                </HStack>
-                {SectionDivider(0)}
-                {Title("Choose Frequency")}
-                {SectionDivider(0)}
-                <HStack space={2}>
-                  <SelectionButton text={"Weekly"} active={true} />
-                  <SelectionButton text={"Bi-weekly"} active={false} />
-                  <SelectionButton text={"Monthly"} active={false} />
-                </HStack>
-                {SectionDivider(0)}
-                {Title("Choose Date")}
-                {SectionDivider(0)}
-                <HStack space={2}>
-                  <SelectionButton
-                    w={75}
-                    h={75}
-                    variant="custom"
-                    active={true}
-                    text2={(color) => {
-                      return (
-                        <VStack justifyContent={"center"} alignItems={"center"}>
-                          <Text color={color}>Mon</Text>
-                          <Text color={color}>Aug 2</Text>
-                        </VStack>
-                      );
-                    }}
-                  />
-                  <SelectionButton
-                    w={75}
-                    h={75}
-                    variant="custom"
-                    active={false}
-                    text2={(color) => {
-                      return (
-                        <VStack justifyContent={"center"} alignItems={"center"}>
-                          <Text color={color}>Tue</Text>
-                          <Text color={color}>Aug 3</Text>
-                        </VStack>
-                      );
-                    }}
-                  />
-                </HStack>
-                {SectionDivider(0)}
-                {Title("Choose Timeslot")}
-                {SectionDivider(0)}
-                <VStack space={2}>
-                  <HStack space={2}>
-                    <SelectionButton
-                      w={120}
-                      active={true}
-                      text="8 AM - 10 AM"
-                    />
-                    <SelectionButton
-                      w={120}
-                      active={false}
-                      text="10 AM - 2 PM"
-                    />
-                  </HStack>
-                  <HStack space={2}>
-                    <SelectionButton
-                      w={120}
-                      active={false}
-                      text="2 PM - 6 PM"
-                    />
-                    <SelectionButton
-                      w={120}
-                      active={false}
-                      text="6 PM - 8 PM"
+                          </VStack>
+                        );
+                      }}
                     />
                   </HStack>
                   {SectionDivider(0)}
-                  {Title("Add Service Note")}
-                  <Divider thickness={0} mt={1}></Divider>
-                  <KeyboardAwareScrollView>
+                  {Title("Choose Frequency")}
+                  {SectionDivider(0)}
+                  <HStack space={2}>
+                    <SelectionButton text={"Weekly"} active={true} />
+                    <SelectionButton text={"Bi-weekly"} active={false} />
+                    <SelectionButton text={"Monthly"} active={false} />
+                  </HStack>
+                  {SectionDivider(0)}
+                  {Title("Choose Date")}
+                  {SectionDivider(0)}
+                  <HStack space={2}>
+                    <SelectionButton
+                      w={75}
+                      h={75}
+                      variant="custom"
+                      active={true}
+                      text2={(color) => {
+                        return (
+                          <VStack
+                            justifyContent={"center"}
+                            alignItems={"center"}
+                          >
+                            <Text color={color}>Mon</Text>
+                            <Text color={color}>Aug 2</Text>
+                          </VStack>
+                        );
+                      }}
+                    />
+                    <SelectionButton
+                      w={75}
+                      h={75}
+                      variant="custom"
+                      active={false}
+                      text2={(color) => {
+                        return (
+                          <VStack
+                            justifyContent={"center"}
+                            alignItems={"center"}
+                          >
+                            <Text color={color}>Tue</Text>
+                            <Text color={color}>Aug 3</Text>
+                          </VStack>
+                        );
+                      }}
+                    />
+                  </HStack>
+                  {SectionDivider(0)}
+                  {Title("Choose Timeslot")}
+                  {SectionDivider(0)}
+                  <VStack space={2}>
+                    <HStack space={2}>
+                      <SelectionButton
+                        w={120}
+                        active={true}
+                        text="8 AM - 10 AM"
+                      />
+                      <SelectionButton
+                        w={120}
+                        active={false}
+                        text="10 AM - 2 PM"
+                      />
+                    </HStack>
+                    <HStack space={2}>
+                      <SelectionButton
+                        w={120}
+                        active={false}
+                        text="2 PM - 6 PM"
+                      />
+                      <SelectionButton
+                        w={120}
+                        active={false}
+                        text="6 PM - 8 PM"
+                      />
+                    </HStack>
+                    {SectionDivider(0)}
+                    {Title("Add Service Note")}
+                    <Divider thickness={0} mt={1}></Divider>
+
                     <TextArea numberOfLines={5} mb={50}></TextArea>
-                  </KeyboardAwareScrollView>
-                  <Divider thickness={0} mt={250}></Divider>
+                    <Divider thickness={0} mt={250}></Divider>
+                  </VStack>
                 </VStack>
-              </VStack>
-            </ScrollView>
+              </ScrollView>
+            </KeyboardAvoidingView>
           </VStack>
         </PresenceTransition>
       )}

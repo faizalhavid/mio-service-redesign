@@ -139,3 +139,49 @@ export const CHAT_ICON = (color: string = "#89B682") => `
 <path fill-rule="evenodd" clip-rule="evenodd" d="M24.125 11.2083C24.125 16.9153 18.9203 21.5417 12.5 21.5417C11.2094 21.5417 9.96786 21.3547 8.80788 21.0096L3.20018 24.125L3.95954 18.2189C2.04488 16.3768 0.875 13.914 0.875 11.2083C0.875 5.50139 6.07969 0.875 12.5 0.875C18.9203 0.875 24.125 5.50139 24.125 11.2083Z" fill="${color}"/>
 </svg>
 `;
+
+export const CHEVRON_RIGHT_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-chevron-right" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+</svg>
+`;
+
+export const BOX_ARROW_RIGHT_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+  <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+</svg>
+`;
+
+export const CREDIT_CARD_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-credit-card" viewBox="0 0 16 16">
+  <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1H2zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7z"/>
+  <path d="M2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1z"/>
+</svg>
+`;
+
+export const PERSONAL_DETAILS_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+  <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/>
+</svg>
+`;
+
+export const UPCOMING_SERVICES_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-calendar3" viewBox="0 0 16 16">
+  <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
+  <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+</svg>
+`;
+
+export const ARCHIVE_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-archive" viewBox="0 0 16 16">
+  <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+</svg>
+`;
+
+export const CAMERA_ICON = `
+<svg width="30" height="29" viewBox="0 0 30 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M26.25 21.08C26.25 21.5785 26.0345 22.0566 25.6509 22.4091C25.2673 22.7616 24.747 22.9596 24.2045 22.9596H5.79545C5.25297 22.9596 4.7327 22.7616 4.3491 22.4091C3.9655 22.0566 3.75 21.5785 3.75 21.08V10.742C3.75 10.2435 3.9655 9.76544 4.3491 9.41294C4.7327 9.06045 5.25297 8.86241 5.79545 8.86241H9.88636L11.9318 6.04297H18.0682L20.1136 8.86241H24.2045C24.747 8.86241 25.2673 9.06045 25.6509 9.41294C26.0345 9.76544 26.25 10.2435 26.25 10.742V21.08Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M15 19.332C17.0711 19.332 18.75 17.7091 18.75 15.707C18.75 13.705 17.0711 12.082 15 12.082C12.9289 12.082 11.25 13.705 11.25 15.707C11.25 17.7091 12.9289 19.332 15 19.332Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`;

@@ -10,7 +10,7 @@ import { navigate, popToPop } from "../../navigations/rootNavigation";
 const Booked = (): JSX.Element => {
   return (
     <AppSafeAreaView>
-      <ScrollView mt={120}>
+      <ScrollView mt={10}>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={22} fontWeight={"semibold"}>
             Your Service has {"\n"}Been Booked!

@@ -1,23 +1,14 @@
 import {
-  ArrowForwardIcon,
   Button,
-  CheckIcon,
-  ChevronRightIcon,
-  Divider,
   HStack,
-  Icon,
-  InfoIcon,
   Pressable,
-  Stack,
   Text,
   useContrastText,
   VStack,
 } from "native-base";
 import React from "react";
-import { SvgCss } from "react-native-svg";
 import { AppColors } from "../../commons/colors";
 import { navigate } from "../../navigations/rootNavigation";
-import { SERVICES } from "../../screens/Home/ChooseService";
 
 type FooterButtonProps = {
   label: string;

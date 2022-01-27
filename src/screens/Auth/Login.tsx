@@ -16,8 +16,7 @@ import Spacer from "../../components/Spacer";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
 
 const content = (
-  <AppSafeAreaView statusBarColor="#fff">
-    {Platform.OS === "android" && <Divider thickness={0} mt={100} />}
+  <AppSafeAreaView mt={0} statusBarColor="#fff">
     <Flex mt={100} flexDirection={"column"} flex={1} paddingX={5}>
       <Center width={"100%"}>
         <Text fontSize={20}>Login</Text>

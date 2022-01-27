@@ -27,9 +27,9 @@ const AppSafeAreaView = ({
       <AppStatusBar
         color={statusBarColor || useColorModeValue("white", "black")}
       />
-      {/* {Platform.OS === "android" && (
+      {Platform.OS === "android" && (
         <Divider thickness={0} mt={mt === undefined ? 100 : mt} />
-      )} */}
+      )}
       {children}
     </SafeAreaView>
   );

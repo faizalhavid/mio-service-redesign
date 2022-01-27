@@ -17,6 +17,11 @@ import EditServiceDetails from "../screens/Home/EditServiceDetails";
 import Payment from "../screens/Home/Payment";
 import Booked from "../screens/Home/Booked";
 import DashboardTab from "./DashboardTab";
+import PersonalDetails from "../screens/Home/PersonalDetails";
+import PaymentMethods from "../screens/Home/PaymentMethods";
+import UpcomingServices from "../screens/Home/UpcomingServices";
+import ServiceHistory from "../screens/Home/ServiceHistory";
+import ViewServiceDetails from "../screens/Home/ViewServiceDetails";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
@@ -29,6 +34,11 @@ export type SuperRootStackParamList = {
   Payment: undefined;
   Booked: undefined;
   Dashboard: undefined;
+  PersonalDetails: undefined;
+  PaymentMethods: undefined;
+  UpcomingServices: undefined;
+  ServiceHistory: undefined;
+  ViewServiceDetails: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
@@ -49,7 +59,7 @@ const index = (): JSX.Element => {
       onReady={() => RNBootSplash.hide()}
     >
       <RootStack.Navigator
-        initialRouteName="Welcome"
+        initialRouteName="Dashboard"
         screenOptions={navigationOptions}
       >
         <RootStack.Screen
@@ -82,6 +92,17 @@ const index = (): JSX.Element => {
         <RootStack.Screen name="Payment" component={Payment} />
         <RootStack.Screen name="Booked" component={Booked} />
         <RootStack.Screen name="Dashboard" component={DashboardTab} />
+        <RootStack.Screen name="PersonalDetails" component={PersonalDetails} />
+        <RootStack.Screen name="PaymentMethods" component={PaymentMethods} />
+        <RootStack.Screen
+          name="UpcomingServices"
+          component={UpcomingServices}
+        />
+        <RootStack.Screen name="ServiceHistory" component={ServiceHistory} />
+        <RootStack.Screen
+          name="ViewServiceDetails"
+          component={ViewServiceDetails}
+        />
       </RootStack.Navigator>
     </NavigationContainer>
   );

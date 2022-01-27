@@ -12,6 +12,7 @@ import { TabBarComponent } from "../components/BottomTabBar";
 import Home from "../screens/Dashboard/Home";
 import Profile from "../screens/Dashboard/Profile";
 import Services from "../screens/Dashboard/Services";
+import PersonalDetails from "../screens/Home/PersonalDetails";
 
 export type DashboardTabParamList = {
   Home: undefined;
