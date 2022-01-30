@@ -12,6 +12,7 @@ import {
 import React from "react";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
+import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { SuperRootStackParamList } from "../../navigations";
@@ -31,56 +32,32 @@ const Address = ({ route }: AddressProps): JSX.Element => {
             {isUpdate ? "Update" : "Enter"} your address
           </Text>
         </Center>
-        <VStack mt={10} space={5}>
-          <Input
-            _focus={{
-              borderBottomColor: AppColors.SECONDARY,
-            }}
-            returnKeyType="next"
-            clearButtonMode="always"
-            autoCapitalize="none"
-            placeholder="ADDRESS"
-            variant={"underlined"}
-            autoCorrect={false}
-          />
-          <Input
-            _focus={{
-              borderBottomColor: AppColors.SECONDARY,
-            }}
-            returnKeyType="next"
-            clearButtonMode="always"
-            autoCapitalize="none"
-            placeholder="CITY"
-            variant={"underlined"}
-            autoCorrect={false}
-          />
-          <Select
+        <VStack mt={10} space={0}>
+          <AppInput type="text" label="Address" />
+          <AppInput type="text" label="City" />
+          <AppInput type="text" label="State" lineWidth={1} />
+          {/* <Select
             minWidth="200"
             accessibilityLabel="STATE"
-            placeholder="STATE"
+            placeholder="State"
+            borderBottomWidth={1.5}
+            borderBottomColor={"#ddd"}
             _selectedItem={{
               bg: AppColors.PRIMARY,
               endIcon: <CheckIcon size="5" />,
             }}
+            fontSize={14}
+            p={0}
+            m={0}
             variant="underlined"
           >
-            <Select.Item label="UX Research" value="ux" />
+            <Select.Item pl={0} m={0} label="UX Research" value="ux" />
             <Select.Item label="Web Development" value="web" />
             <Select.Item label="Cross Platform Development" value="cross" />
             <Select.Item label="UI Designing" value="ui" />
             <Select.Item label="Backend Development" value="backend" />
-          </Select>
-          <Input
-            _focus={{
-              borderBottomColor: AppColors.SECONDARY,
-            }}
-            returnKeyType="next"
-            clearButtonMode="always"
-            autoCapitalize="none"
-            placeholder="ZIPCODE"
-            variant={"underlined"}
-            autoCorrect={false}
-          />
+          </Select> */}
+          <AppInput type="number" label="Zipcode" />
         </VStack>
       </VStack>
       <FooterButton

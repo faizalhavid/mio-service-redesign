@@ -11,6 +11,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		33B9207B27A41954003E687E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 33B9207A27A41954003E687E /* GoogleService-Info.plist */; };
 		33ED1639278AEB6300C80D73 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 33ED1638278AEB6300C80D73 /* BootSplash.storyboard */; };
 		6172F2D35A4C3AA820D92908 /* libPods-MioHomeServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6423831EA8574132BED9D8CC /* libPods-MioHomeServices.a */; };
 		7EF68E3733C33B6898317E18 /* libPods-MioHomeServices-MioHomeServicesTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFE59519B596E51CEFDCCC0 /* libPods-MioHomeServices-MioHomeServicesTests.a */; };
@@ -38,6 +39,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MioHomeServices/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MioHomeServices/main.m; sourceTree = "<group>"; };
 		1D0AE47A65C8663E3B452821 /* Pods-MioHomeServices-MioHomeServicesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MioHomeServices-MioHomeServicesTests.release.xcconfig"; path = "Target Support Files/Pods-MioHomeServices-MioHomeServicesTests/Pods-MioHomeServices-MioHomeServicesTests.release.xcconfig"; sourceTree = "<group>"; };
+		33B9207A27A41954003E687E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		33ED1638278AEB6300C80D73 /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = MioHomeServices/BootSplash.storyboard; sourceTree = "<group>"; };
 		6423831EA8574132BED9D8CC /* libPods-MioHomeServices.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MioHomeServices.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C97AB639B58BBB4B15BBE30 /* Pods-MioHomeServices-MioHomeServicesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MioHomeServices-MioHomeServicesTests.debug.xcconfig"; path = "Target Support Files/Pods-MioHomeServices-MioHomeServicesTests/Pods-MioHomeServices-MioHomeServicesTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 		13B07FAE1A68108700A75B9A /* MioHomeServices */ = {
 			isa = PBXGroup;
 			children = (
+				33B9207A27A41954003E687E /* GoogleService-Info.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				33ED1638278AEB6300C80D73 /* BootSplash.storyboard */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -247,6 +250,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				33ED1639278AEB6300C80D73 /* BootSplash.storyboard in Resources */,
+				33B9207B27A41954003E687E /* GoogleService-Info.plist in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);

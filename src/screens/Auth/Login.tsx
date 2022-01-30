@@ -11,6 +11,7 @@ import React from "react";
 import { Platform } from "react-native";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
+import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import Spacer from "../../components/Spacer";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
@@ -22,29 +23,8 @@ const content = (
         <Text fontSize={20}>Login</Text>
       </Center>
       <VStack mt={10}>
-        <Input
-          _focus={{
-            borderBottomColor: AppColors.SECONDARY,
-          }}
-          returnKeyType="next"
-          clearButtonMode="always"
-          autoCapitalize="none"
-          placeholder="EMAIL"
-          variant={"underlined"}
-          autoCorrect={false}
-        />
-        <Spacer top={20} />
-        <Input
-          _focus={{
-            borderBottomColor: AppColors.SECONDARY,
-          }}
-          returnKeyType="next"
-          clearButtonMode="always"
-          autoCapitalize="none"
-          placeholder="PASSWORD"
-          variant={"underlined"}
-          autoCorrect={false}
-        />
+        <AppInput type="email" label="Email" lineWidth={1} />
+        <AppInput type="password" label="Password" lineWidth={1} />
         <Spacer top={40} />
         <Center>
           <AppButton label="SIGN IN" onPress={() => popToPop("Dashboard")} />
