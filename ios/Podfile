@@ -12,6 +12,8 @@ target 'MioHomeServices' do
     :hermes_enabled => false
   )
 
+  pod 'GoogleSignIn', '~> 6.0.2'
+
   target 'MioHomeServicesTests' do
     inherit! :complete
     # Pods for testing

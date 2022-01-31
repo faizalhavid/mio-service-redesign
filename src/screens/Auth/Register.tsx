@@ -50,7 +50,8 @@ const Register = (): JSX.Element => {
         const googleCredential = auth.GoogleAuthProvider.credential(
           userInfo.idToken
         );
-        const credential = auth().signInWithCredential(googleCredential);
+        const credential = await auth().signInWithCredential(googleCredential);
+        console.log(credential);
       }
       // const currentUser = await GoogleSignin.getCurrentUser();
       // console.log(currentUser);
