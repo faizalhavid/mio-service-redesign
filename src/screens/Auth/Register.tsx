@@ -26,6 +26,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import AppInput from "../../components/AppInput";
+import appleAuth from "@invertase/react-native-apple-authentication";
 
 const Register = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
@@ -72,6 +73,35 @@ const Register = (): JSX.Element => {
     }
   };
 
+  const loginWithApple = async () => {
+    setLoading(true);
+    try {
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+
+      // Ensure Apple returned a user identityToken
+      if (!appleAuthRequestResponse.identityToken) {
+        console.log("Apple Sign-In failed - no identify token returned");
+      }
+
+      // Create a Firebase credential from the response
+      const { identityToken, nonce } = appleAuthRequestResponse;
+      const appleCredential = auth.AppleAuthProvider.credential(
+        identityToken,
+        nonce
+      );
+
+      // Sign the user in with the credential
+      const credential = await auth().signInWithCredential(appleCredential);
+      console.log(credential);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AppSafeAreaView loading={loading}>
       <Center width={"100%"}>
@@ -101,8 +131,10 @@ const Register = (): JSX.Element => {
           <Spacer top={40} />
           <VStack justifyContent={"center"} space={2} width={"100%"}>
             <SocialLoginButton type="Google" onPress={loginWithGoogle} />
-            <SocialLoginButton type="Facebook" onPress={() => {}} />
-            <SocialLoginButton type="Apple" onPress={() => {}} />
+            {/* <SocialLoginButton type="Facebook" onPress={() => {}} /> */}
+            {Platform.OS === "ios" && (
+              <SocialLoginButton type="Apple" onPress={loginWithApple} />
+            )}
           </VStack>
         </Flex>
         <Divider thickness={0} mt={100} />
