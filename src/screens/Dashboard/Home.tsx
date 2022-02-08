@@ -15,8 +15,10 @@ import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
 import { navigate } from "../../navigations/rootNavigation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Home = (): JSX.Element => {
+  AsyncStorage.setItem("verified", "true");
   return (
     <AppSafeAreaView mt={0}>
       <ScrollView>

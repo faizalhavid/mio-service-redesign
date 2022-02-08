@@ -14,8 +14,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RootStackNavigation from "./src/navigations";
 import { extendTheme, NativeBaseProvider, StatusBar } from "native-base";
 import { LogBox } from "react-native";
+import { QueryClient, QueryClientProvider } from "react-query";
+import "@react-native-firebase/app";
+import auth from "@react-native-firebase/auth";
+import { AuthProvider } from "./src/contexts/AuthContext";
 
 LogBox.ignoreLogs(["contrast ratio"]);
+
+if (__DEV__) {
+  auth().useEmulator("http://192.168.0.248:9099");
+}
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -25,10 +33,17 @@ const App = () => {
       // initialColorMode: useColorScheme(),
     },
   });
+
+  const queryClient = new QueryClient();
+
   return (
-    <NativeBaseProvider theme={customTheme}>
-      <RootStackNavigation />
-    </NativeBaseProvider>
+    <QueryClientProvider client={queryClient}>
+      <NativeBaseProvider theme={customTheme}>
+        <AuthProvider>
+          <RootStackNavigation />
+        </AuthProvider>
+      </NativeBaseProvider>
+    </QueryClientProvider>
   );
 };
 

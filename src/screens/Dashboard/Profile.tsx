@@ -25,10 +25,14 @@ import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import { navigate } from "../../navigations/rootNavigation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Profile = (): JSX.Element => {
+  const { logout } = useAuth();
+  const [loading, setLoading] = React.useState(false);
   return (
-    <AppSafeAreaView>
+    <AppSafeAreaView loading={loading}>
       <VStack>
         <Center>
           <Circle
@@ -110,7 +114,13 @@ const Profile = (): JSX.Element => {
             _pressed={{
               backgroundColor: "#eee",
             }}
-            onPress={() => navigate("Welcome")}
+            onPress={async () => {
+              setLoading(true);
+              await AsyncStorage.setItem("verified", "false");
+              await logout();
+              // setLoading(false);
+              navigate("Welcome");
+            }}
           >
             <HStack justifyContent={"space-between"} alignItems={"center"}>
               <HStack px={5} space={3} alignItems={"center"}>

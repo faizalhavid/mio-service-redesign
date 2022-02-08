@@ -179,6 +179,13 @@ export const ARCHIVE_ICON = (color: string = "#000") => `
 </svg>
 `;
 
+export const EXCLAMATION_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-exclamation-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+  <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+</svg>
+`;
+
 export const CAMERA_ICON = `
 <svg width="30" height="29" viewBox="0 0 30 29" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M26.25 21.08C26.25 21.5785 26.0345 22.0566 25.6509 22.4091C25.2673 22.7616 24.747 22.9596 24.2045 22.9596H5.79545C5.25297 22.9596 4.7327 22.7616 4.3491 22.4091C3.9655 22.0566 3.75 21.5785 3.75 21.08V10.742C3.75 10.2435 3.9655 9.76544 4.3491 9.41294C4.7327 9.06045 5.25297 8.86241 5.79545 8.86241H9.88636L11.9318 6.04297H18.0682L20.1136 8.86241H24.2045C24.747 8.86241 25.2673 9.06045 25.6509 9.41294C26.0345 9.76544 26.25 10.2435 26.25 10.742V21.08Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

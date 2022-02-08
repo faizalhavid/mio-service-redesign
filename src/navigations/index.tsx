@@ -22,6 +22,8 @@ import PaymentMethods from "../screens/Home/PaymentMethods";
 import UpcomingServices from "../screens/Home/UpcomingServices";
 import ServiceHistory from "../screens/Home/ServiceHistory";
 import ViewServiceDetails from "../screens/Home/ViewServiceDetails";
+import VerifyEmail from "../screens/Auth/VerifyEmail";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
@@ -39,9 +41,17 @@ export type SuperRootStackParamList = {
   UpcomingServices: undefined;
   ServiceHistory: undefined;
   ViewServiceDetails: undefined;
+  VerifyEmail: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
+  const [verified, setVerified] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+  AsyncStorage.getItem("verified").then((value) => {
+    console.log("ve", value);
+    setVerified(value === "true");
+    setLoading(false);
+  });
   const navigationOptions: NativeStackNavigationOptions = {
     headerTitle: (props) => <TitleBar logoType="color" {...props} />,
     headerStyle: {
@@ -58,52 +68,58 @@ const index = (): JSX.Element => {
       ref={navigationRef}
       onReady={() => RNBootSplash.hide()}
     >
-      <RootStack.Navigator
-        initialRouteName="Register"
-        screenOptions={navigationOptions}
-      >
-        <RootStack.Screen
-          name="Welcome"
-          component={Welcome}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <RootStack.Screen name="Register" component={Register} />
-        <RootStack.Screen name="Login" component={Login} />
-        <RootStack.Screen
-          name="Address"
-          component={Address}
-          initialParams={{ mode: "" }}
-        />
-        <RootStack.Screen name="ChooseService" component={ChooseService} />
-        <RootStack.Screen
-          name="ServiceDetails"
-          component={ServiceDetails}
-          initialParams={{ mode: "" }}
-        />
-        <RootStack.Screen
-          name="EditServiceDetails"
-          component={EditServiceDetails}
-          options={{
-            animation: "slide_from_bottom",
-          }}
-        />
-        <RootStack.Screen name="Payment" component={Payment} />
-        <RootStack.Screen name="Booked" component={Booked} />
-        <RootStack.Screen name="Dashboard" component={DashboardTab} />
-        <RootStack.Screen name="PersonalDetails" component={PersonalDetails} />
-        <RootStack.Screen name="PaymentMethods" component={PaymentMethods} />
-        <RootStack.Screen
-          name="UpcomingServices"
-          component={UpcomingServices}
-        />
-        <RootStack.Screen name="ServiceHistory" component={ServiceHistory} />
-        <RootStack.Screen
-          name="ViewServiceDetails"
-          component={ViewServiceDetails}
-        />
-      </RootStack.Navigator>
+      {!loading && (
+        <RootStack.Navigator
+          initialRouteName={verified ? "Dashboard" : "Welcome"}
+          screenOptions={navigationOptions}
+        >
+          <RootStack.Screen
+            name="Welcome"
+            component={Welcome}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <RootStack.Screen name="Register" component={Register} />
+          <RootStack.Screen name="VerifyEmail" component={VerifyEmail} />
+          <RootStack.Screen name="Login" component={Login} />
+          <RootStack.Screen
+            name="Address"
+            component={Address}
+            initialParams={{ mode: "" }}
+          />
+          <RootStack.Screen name="ChooseService" component={ChooseService} />
+          <RootStack.Screen
+            name="ServiceDetails"
+            component={ServiceDetails}
+            initialParams={{ mode: "" }}
+          />
+          <RootStack.Screen
+            name="EditServiceDetails"
+            component={EditServiceDetails}
+            options={{
+              animation: "slide_from_bottom",
+            }}
+          />
+          <RootStack.Screen name="Payment" component={Payment} />
+          <RootStack.Screen name="Booked" component={Booked} />
+          <RootStack.Screen name="Dashboard" component={DashboardTab} />
+          <RootStack.Screen
+            name="PersonalDetails"
+            component={PersonalDetails}
+          />
+          <RootStack.Screen name="PaymentMethods" component={PaymentMethods} />
+          <RootStack.Screen
+            name="UpcomingServices"
+            component={UpcomingServices}
+          />
+          <RootStack.Screen name="ServiceHistory" component={ServiceHistory} />
+          <RootStack.Screen
+            name="ViewServiceDetails"
+            component={ViewServiceDetails}
+          />
+        </RootStack.Navigator>
+      )}
     </NavigationContainer>
   );
 };

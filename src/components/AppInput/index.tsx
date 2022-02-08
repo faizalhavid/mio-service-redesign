@@ -8,9 +8,17 @@ type AppInputProps = {
   type: "text" | "number" | "email" | "password";
   label: string;
   lineWidth?: number;
+  value?: string;
+  onChange?: (...event: any[]) => void;
 };
 
-const AppInput = ({ type, label, lineWidth }: AppInputProps): JSX.Element => {
+const AppInput = ({
+  type,
+  label,
+  lineWidth,
+  value,
+  onChange,
+}: AppInputProps): JSX.Element => {
   const keyboardType: { [key: string]: KeyboardTypeOptions } = {
     text: "default",
     number: "numeric",
@@ -30,6 +38,8 @@ const AppInput = ({ type, label, lineWidth }: AppInputProps): JSX.Element => {
         // baseColor={AppColors.SECONDARY}
         tintColor={AppColors.SECONDARY}
         textColor={AppColors.SECONDARY}
+        value={value}
+        onChangeText={onChange}
       />
     </>
   );

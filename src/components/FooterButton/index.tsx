@@ -13,6 +13,7 @@ import { navigate } from "../../navigations/rootNavigation";
 type FooterButtonProps = {
   label: string;
   subText?: string;
+  disabled?: boolean;
   v2?: boolean;
   onPress: () => void;
 };
@@ -22,6 +23,7 @@ const FooterButton = ({
   subText,
   onPress,
   v2,
+  disabled,
 }: FooterButtonProps): JSX.Element => {
   return (
     <>
@@ -30,7 +32,11 @@ const FooterButton = ({
           borderRadius={0}
           position={"absolute"}
           bottom={0}
-          backgroundColor={AppColors.SECONDARY}
+          _pressed={{
+            backgroundColor: AppColors.DARK_PRIMARY,
+          }}
+          disabled={disabled}
+          backgroundColor={disabled ? "gray.400" : AppColors.SECONDARY}
           height={75}
           width={"100%"}
           onPress={onPress}
