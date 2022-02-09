@@ -18,9 +18,19 @@ import {
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import OrderSummary from "../../components/OrderSummary";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
+import { useMutation, useQuery } from "react-query";
+import { getServices, postLead } from "../../services/order";
+import { Service } from "../../commons/types";
+import { useLeads } from "../../hooks/useLeads";
+import { useAuth } from "../../contexts/AuthContext";
+
+const LAWN_CARE_ID: string = "lawnCare";
+const POOL_CLEANING_ID: string = "poolCleaning";
+const HOUSE_CLEANING_ID: string = "houseCleaning";
+const PEST_CONTROL_ID: string = "pestControl";
 
 const LAWN_CARE_TEXT: string = "Lawn Care";
 const POOL_CLEANING_TEXT: string = "Pool Cleaning";
@@ -28,35 +38,39 @@ const HOUSE_CLEANING_TEXT: string = "House Cleaning";
 const PEST_CONTROL_TEXT: string = "Pest Control";
 
 export type ServicesType = {
+  id: string;
   icon: (color?: string) => string;
   text: string;
   description: string;
 };
 
 export const SERVICES: { [key: string]: ServicesType } = {
-  [LAWN_CARE_TEXT]: {
+  [LAWN_CARE_ID]: {
+    id: LAWN_CARE_ID,
     icon: (color: string = "white") => LAWN_CARE(color),
     text: LAWN_CARE_TEXT,
     description:
-      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+      "Give your lawn the boost it needs without all of the work. Our providers will bring the best out of your yard.",
   },
-  [POOL_CLEANING_TEXT]: {
+  [POOL_CLEANING_ID]: {
+    id: POOL_CLEANING_ID,
     icon: (color: string = "white") => POOL_CLEANING(color),
     text: POOL_CLEANING_TEXT,
-    description:
-      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+    description: "Let our providers do the work while you relax poolside",
   },
-  [HOUSE_CLEANING_TEXT]: {
+  [HOUSE_CLEANING_ID]: {
+    id: HOUSE_CLEANING_ID,
     icon: (color: string = "white") => HOUSE_CLEANING(color),
     text: HOUSE_CLEANING_TEXT,
     description:
-      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+      "The weekends weren't made for house cleaning. Our cleaning providers will make sure your home shines",
   },
-  [PEST_CONTROL_TEXT]: {
+  [PEST_CONTROL_ID]: {
+    id: PEST_CONTROL_ID,
     icon: (color: string = "white") => PEST_CONTROL(color),
     text: PEST_CONTROL_TEXT,
     description:
-      "Give your lawn the boost it needs without all of the work. Our providers will bring the best of your yard.",
+      "Don't let bugs creep you out. Get a pest control treatment today",
   },
 };
 
@@ -69,6 +83,53 @@ const ChooseService = (): JSX.Element => {
   const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
 
   const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
+
+  const [loading, setLoading] = React.useState(false);
+  const { setLeadDetails } = useAuth();
+  const [services, setServices] = React.useState<Service[]>([{} as Service]);
+
+  const getAllServices = useQuery(
+    "getAllServices",
+    () => {
+      setLoading(true);
+      return getServices();
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setServices(data.data);
+      },
+      onError: (err) => {
+        setLoading(false);
+        console.log(err);
+      },
+    }
+  );
+
+  const createLeadMutation = useMutation(
+    "createLead",
+    (data) => {
+      setLoading(true);
+      let payload = {
+        subOrders: [
+          ...selectedServices.map((service) => {
+            return { serviceId: service };
+          }),
+        ],
+      };
+      return postLead(payload);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setLeadDetails(data.data);
+      },
+      onError: (err) => {
+        setLoading(false);
+        console.log(err);
+      },
+    }
+  );
 
   const chooseService = (serviceName: string = "") => {
     let pos = selectedServices.indexOf(serviceName);
@@ -93,29 +154,29 @@ const ChooseService = (): JSX.Element => {
         </Text>
         <VStack space={0}>
           <HStack justifyContent="center" space={5}>
-            {[SERVICES[LAWN_CARE_TEXT], SERVICES[POOL_CLEANING_TEXT]].map(
+            {[SERVICES[LAWN_CARE_ID], SERVICES[POOL_CLEANING_ID]].map(
               (service, index) => (
                 <ServiceButton
                   key={index}
                   icon={service?.icon()}
                   text={service?.text}
-                  status={selectedServices.indexOf(service?.text) >= 0}
-                  onAdd={() => chooseService(service?.text)}
-                  onPress={() => showServiceInfo(service?.text)}
+                  status={selectedServices.indexOf(service?.id) >= 0}
+                  onAdd={() => chooseService(service?.id)}
+                  onPress={() => showServiceInfo(service?.id)}
                 />
               )
             )}
           </HStack>
           <HStack justifyContent="center" space={5}>
-            {[SERVICES[HOUSE_CLEANING_TEXT], SERVICES[PEST_CONTROL_TEXT]].map(
+            {[SERVICES[HOUSE_CLEANING_ID], SERVICES[PEST_CONTROL_ID]].map(
               (service, index) => (
                 <ServiceButton
                   key={index}
                   icon={service?.icon()}
                   text={service?.text}
-                  status={selectedServices.indexOf(service?.text) >= 0}
-                  onAdd={() => chooseService(service?.text)}
-                  onPress={() => showServiceInfo(service?.text)}
+                  status={selectedServices.indexOf(service?.id) >= 0}
+                  onAdd={() => chooseService(service?.id)}
+                  onPress={() => showServiceInfo(service?.id)}
                 />
               )
             )}
@@ -180,11 +241,14 @@ const ChooseService = (): JSX.Element => {
       <FooterButton
         label="ADD SERVICE DETAILS"
         subText="Provide service details in next step"
-        onPress={() => navigate("ServiceDetails", { mode: "EDIT" })}
+        onPress={async () => {
+          await createLeadMutation.mutateAsync();
+          navigate("ServiceDetails", { mode: "EDIT" });
+        }}
       />
     </>
   );
-  return <AppSafeAreaView>{content}</AppSafeAreaView>;
+  return <AppSafeAreaView loading={loading}>{content}</AppSafeAreaView>;
 };
 
 export default ChooseService;

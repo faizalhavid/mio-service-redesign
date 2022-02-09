@@ -68,8 +68,8 @@ const PersonalDetails = (): JSX.Element => {
               <AppInput type="text" label="PHONE NUMBER" />
               <AppInput type="text" label="EMAIL ADDRESS" />
             </VStack>
-            <Divider thickness={0} mt={150}></Divider>
           </VStack>
+          <Divider thickness={0} mt={220}></Divider>
         </ScrollView>
       </KeyboardAvoidingView>
       <FooterButton

@@ -21,19 +21,59 @@ import ChooseServiceDetailsButton from "../../components/ChooseServiceDetailsBut
 import FooterButton from "../../components/FooterButton";
 import OrderSummary from "../../components/OrderSummary";
 import ServiceDetailsSection from "../../components/ServiceDetailsSection";
+import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
+import { useLeads } from "../../hooks/useLeads";
 import { SuperRootStackParamList } from "../../navigations";
 import { navigate } from "../../navigations/rootNavigation";
-import PriceBreakdown from "./PriceBreakdown";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMutation } from "react-query";
+import { getCustomer } from "../../services/customer";
+import { SERVICES } from "./ChooseService";
 
 type ServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
   "ServiceDetails"
 >;
 const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
+  const [loading, setLoading] = React.useState(false);
   const { mode } = route.params;
   const [isPreview, setIsPreview] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [showServiceDesc, setShowServiceDesc] = React.useState(false);
+  const [customerId, setCustomerId] = React.useState<string | null>(null);
+  const { leadDetails } = useAuth();
+
+  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
+    {} as CustomerProfile
+  );
+
+  const getCustomerMutation = useMutation(
+    "getCustomer",
+    () => {
+      setLoading(true);
+      return getCustomer(customerId);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        console.log(data);
+        setCustomerProfile(data.data);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
+
+  const fetchCustomerProfile = React.useCallback(async () => {
+    let cId = await AsyncStorage.getItem("customerId");
+    setCustomerId(cId);
+    await getCustomerMutation.mutateAsync();
+  }, []);
+
+  React.useEffect(() => {
+    fetchCustomerProfile();
+  }, [fetchCustomerProfile]);
 
   React.useEffect(() => {
     if (mode) {
@@ -55,10 +95,15 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
             bg={"amber.300"}
             py={3}
           >
-            <Text>
-              123 Main Street {"\n"}
-              Austin, TX 77777
-            </Text>
+            {customerProfile?.addresses &&
+              customerProfile?.addresses.length > 0 && (
+                <Text>
+                  {customerProfile?.addresses[0]?.street} {"\n"}
+                  {customerProfile?.addresses[0]?.city},{" "}
+                  {customerProfile?.addresses[0]?.state}{" "}
+                  {customerProfile?.addresses[0]?.zip}
+                </Text>
+              )}
             <Button
               bg="white"
               borderWidth={0}
@@ -79,19 +124,26 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
             </Text>
           </Center>
           <VStack space={1}>
-            <ServiceDetailsSection title="Lawn Care" noData={true}>
-              <ChooseServiceDetailsButton
-                title="Choose Lot Size, Service Type & Schedule"
-                onPress={() => {
-                  navigate("EditServiceDetails");
-                }}
-              />
-            </ServiceDetailsSection>
-            <ServiceDetailsSection title="Pool Cleaning" noData={false}>
-              {/* <ChooseServiceDetailsButton
-                title="Choose Lot Size, Service Type & Schedule"
-                onPress={() => {}}
-              /> */}
+            {leadDetails?.subOrders?.map((lead, index) => {
+              return (
+                <ServiceDetailsSection
+                  key={index}
+                  title={SERVICES[lead.serviceId].text}
+                  noData={true}
+                >
+                  <ChooseServiceDetailsButton
+                    title="Choose Service Details & Schedule"
+                    onPress={() => {
+                      navigate("EditServiceDetails", {
+                        serviceId: lead.serviceId,
+                      });
+                    }}
+                  />
+                </ServiceDetailsSection>
+              );
+            })}
+
+            {/*  <ServiceDetailsSection title="Pool Cleaning" noData={false}>
               <HStack space={2} alignItems={"center"} pl={3}>
                 <SvgCss xml={INFO_ICON} width={20} height={20} />
                 <Text color={AppColors.SECONDARY} fontSize={14}>
@@ -122,7 +174,7 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
                 title="Choose Lot Size, Service Type & Schedule"
                 onPress={() => {}}
               />
-            </ServiceDetailsSection>
+            </ServiceDetailsSection> */}
           </VStack>
           {/* <Divider thickness={10} /> */}
           {/* <PriceBreakdown /> */}

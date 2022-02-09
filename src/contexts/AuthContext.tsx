@@ -1,6 +1,7 @@
 import React from "react";
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LeadDetails } from "../commons/types";
 
 export type RegisterForm = {
   firstName: string;
@@ -72,6 +73,8 @@ type AuthContextType = {
   updateEmail: (email: string) => Promise<any>;
   updatePassword: (password: string) => Promise<any>;
   getCurrentUser: () => string | null;
+  leadDetails: LeadDetails;
+  setLeadDetails: (leadDetails: LeadDetails) => void;
 };
 
 const AuthContext = React.createContext<AuthContextType>({} as AuthContextType);
@@ -117,6 +120,9 @@ type AuthProviderType = {
 export function AuthProvider({ children }: AuthProviderType) {
   const [currentUser, setCurrentUser] = React.useState<FirebaseAuthTypes.User>(
     {} as FirebaseAuthTypes.User
+  );
+  const [leadDetails, setLeadDetails] = React.useState<LeadDetails>(
+    {} as LeadDetails
   );
   const [loading, setLoading] = React.useState(false);
 
@@ -242,10 +248,10 @@ export function AuthProvider({ children }: AuthProviderType) {
         : currentUser.email;
     return displayName;
   }
-  // http://127.0.0.1:9099/emulator/action?mode=verifyEmail&lang=en&oobCode=YuCSW4iyh14U9GEzSn0DRn5NEUhRfnDX6E9h2lm97XGX7WUUPIILEx&apiKey=fake-api-key
+
   React.useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
-      console.log("on authstate change", user);
+      //   console.log("on authstate change", user);
       if (user) {
         setCurrentUser(user);
       }
@@ -264,6 +270,8 @@ export function AuthProvider({ children }: AuthProviderType) {
     getCurrentUser,
     reload,
     resendEmail,
+    leadDetails,
+    setLeadDetails,
   };
 
   return (

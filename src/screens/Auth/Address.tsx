@@ -9,23 +9,154 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useMutation, useQuery } from "react-query";
 import { AppColors } from "../../commons/colors";
+import { STATES } from "../../commons/dropdown-values";
+import {
+  FormattedAddress,
+  HouseInfoAddressRequest,
+  HouseInfoRequest,
+} from "../../commons/types";
 import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { SuperRootStackParamList } from "../../navigations";
-import { navigate } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
+import {
+  getCustomer,
+  getHouseInfo,
+  putCustomer,
+} from "../../services/customer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CustomerProfile } from "../../contexts/AuthContext";
 
 type AddressProps = NativeStackScreenProps<SuperRootStackParamList, "Address">;
 const Address = ({ route }: AddressProps): JSX.Element => {
   const { mode } = route.params;
+  const [loading, setLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState("");
+  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
+    {} as CustomerProfile
+  );
+  const [customerId, setCustomerId] = React.useState<string | null>(null);
+
+  const fetchCustomerProfile = useCallback(async () => {
+    let cId = await AsyncStorage.getItem("customerId");
+    setCustomerId(cId);
+    await getCustomerMutation.mutateAsync();
+  }, []);
+
+  useEffect(() => {
+    fetchCustomerProfile();
+  }, [fetchCustomerProfile]);
 
   const isUpdate = mode === "UPDATE";
 
+  const getCustomerMutation = useMutation(
+    "getCustomer",
+    () => {
+      setLoading(true);
+      return getCustomer(customerId);
+    },
+    {
+      onSuccess: (data) => {
+        setCustomerProfile(data.data);
+        setLoading(false);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
+
+  const getHouseInfoMutation = useMutation(
+    "getHouseInfo",
+    (data: HouseInfoRequest): any => {
+      setLoading(true);
+      return getHouseInfo(data);
+    },
+    {
+      onSuccess: (response: any) => {
+        setLoading(false);
+        console.log("data", response);
+
+        putAddressMutation.mutate({
+          ...customerProfile,
+          addresses: [
+            {
+              ...response.data,
+            },
+          ],
+        });
+      },
+      onError: (err: any) => {
+        setLoading(false);
+        setErrorMsg(
+          "Something went wrong while creating profile. Please try again."
+        );
+        console.log(err);
+      },
+    }
+  );
+
+  const putAddressMutation = useMutation(
+    "putAddressMutation",
+    (data: CustomerProfile): any => {
+      setLoading(true);
+      return putCustomer(data);
+    },
+    {
+      onSuccess: (data: FormattedAddress) => {
+        setLoading(false);
+        if (isUpdate) {
+          navigate("ChooseService");
+        } else {
+          popToPop("Dashboard");
+        }
+      },
+      onError: (err: any) => {
+        setLoading(false);
+        setErrorMsg(
+          "Something went wrong while creating profile. Please try again."
+        );
+        console.log(err);
+      },
+    }
+  );
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isDirty, isValid },
+  } = useForm<HouseInfoAddressRequest>({
+    defaultValues: {
+      city: "Edison",
+      state: "NJ",
+      street: "21 Keen Ln",
+      zip: "08820",
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = async (data: HouseInfoAddressRequest) => {
+    setLoading(true);
+    setErrorMsg("");
+
+    getHouseInfoMutation.mutate({
+      nva: data.street,
+      addresses: [
+        {
+          ...data,
+        },
+      ],
+    });
+  };
+
   return (
-    <AppSafeAreaView>
+    <AppSafeAreaView loading={loading}>
       <VStack paddingX={5} mt={10}>
         <Center width={"100%"}>
           <Text fontSize={20}>
@@ -33,37 +164,105 @@ const Address = ({ route }: AddressProps): JSX.Element => {
           </Text>
         </Center>
         <VStack mt={10} space={0}>
-          <AppInput type="text" label="Address" />
-          <AppInput type="text" label="City" />
-          <AppInput type="text" label="State" lineWidth={1} />
-          {/* <Select
-            minWidth="200"
-            accessibilityLabel="STATE"
-            placeholder="State"
-            borderBottomWidth={1.5}
-            borderBottomColor={"#ddd"}
-            _selectedItem={{
-              bg: AppColors.PRIMARY,
-              endIcon: <CheckIcon size="5" />,
+          <Controller
+            control={control}
+            rules={{
+              required: true,
             }}
-            fontSize={14}
-            p={0}
-            m={0}
-            variant="underlined"
-          >
-            <Select.Item pl={0} m={0} label="UX Research" value="ux" />
-            <Select.Item label="Web Development" value="web" />
-            <Select.Item label="Cross Platform Development" value="cross" />
-            <Select.Item label="UI Designing" value="ui" />
-            <Select.Item label="Backend Development" value="backend" />
-          </Select> */}
-          <AppInput type="number" label="Zipcode" />
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                type="text"
+                label="Street"
+                lineWidth={1}
+                onChange={onChange}
+                value={value}
+              />
+            )}
+            name="street"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                type="text"
+                label="City"
+                lineWidth={1}
+                onChange={onChange}
+                value={value}
+              />
+            )}
+            name="city"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <>
+                {value ? (
+                  <Text color={"gray.400"} fontSize={14}>
+                    State
+                  </Text>
+                ) : (
+                  <></>
+                )}
+                <Select
+                  accessibilityLabel="STATE"
+                  placeholder="State"
+                  borderBottomWidth={1.5}
+                  borderBottomColor={"#bbb"}
+                  _selectedItem={{
+                    bg: AppColors.PRIMARY,
+                    endIcon: <CheckIcon size="5" />,
+                  }}
+                  pl={-10}
+                  mt={value ? -2 : 2}
+                  fontSize={14}
+                  variant="underlined"
+                  onValueChange={onChange}
+                  selectedValue={value}
+                >
+                  {STATES.map((state) => {
+                    return (
+                      <Select.Item
+                        pl={0}
+                        key={state.code}
+                        label={state.name}
+                        value={state.code}
+                      />
+                    );
+                  })}
+                </Select>
+              </>
+            )}
+            name="state"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                type="text"
+                label="Zipcode"
+                lineWidth={1}
+                onChange={onChange}
+                value={value}
+              />
+            )}
+            name="zip"
+          />
         </VStack>
       </VStack>
       <FooterButton
         label={(isUpdate ? "UPDATE" : "SAVE") + " ADDRESS"}
         subText="Choose Service in next step"
-        onPress={() => navigate("ChooseService")}
+        onPress={handleSubmit(onSubmit)}
       />
     </AppSafeAreaView>
   );

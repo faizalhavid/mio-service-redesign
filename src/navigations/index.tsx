@@ -32,7 +32,7 @@ export type SuperRootStackParamList = {
   Address: { mode: string };
   ChooseService: undefined;
   ServiceDetails: { mode: string };
-  EditServiceDetails: undefined;
+  EditServiceDetails: { serviceId: string };
   Payment: undefined;
   Booked: undefined;
   Dashboard: undefined;
@@ -48,7 +48,6 @@ const index = (): JSX.Element => {
   const [verified, setVerified] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   AsyncStorage.getItem("verified").then((value) => {
-    console.log("ve", value);
     setVerified(value === "true");
     setLoading(false);
   });
@@ -97,6 +96,7 @@ const index = (): JSX.Element => {
           <RootStack.Screen
             name="EditServiceDetails"
             component={EditServiceDetails}
+            initialParams={{ serviceId: "" }}
             options={{
               animation: "slide_from_bottom",
             }}
