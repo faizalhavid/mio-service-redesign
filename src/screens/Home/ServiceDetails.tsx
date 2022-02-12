@@ -111,7 +111,7 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
               variant={"outline"}
               borderRadius={25}
               size={"xs"}
-              onPress={() => navigate("Address", { mode: "UPDATE" })}
+              onPress={() => navigate("Address", { mode: "ServiceDetails" })}
             >
               <Text color={"black"} fontSize={10}>
                 CHANGE ADDRESS

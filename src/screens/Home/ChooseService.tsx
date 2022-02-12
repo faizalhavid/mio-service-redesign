@@ -22,10 +22,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
 import { useMutation, useQuery } from "react-query";
-import { getServices, postLead } from "../../services/order";
+import { getLead, getServices, postLead } from "../../services/order";
 import { Service } from "../../commons/types";
 import { useLeads } from "../../hooks/useLeads";
 import { useAuth } from "../../contexts/AuthContext";
+import OrderSummary from "../../components/OrderSummary";
 
 const LAWN_CARE_ID: string = "lawnCare";
 const POOL_CLEANING_ID: string = "poolCleaning";
@@ -106,6 +107,38 @@ const ChooseService = (): JSX.Element => {
     }
   );
 
+  const getLeadMutation = useMutation(
+    "getLeadById",
+    (leadId: string) => {
+      setLoading(true);
+      return getLead(leadId);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setLeadDetails(data.data);
+        data.data.subOrders.forEach((order: any) => {
+          setSelectedServices([...selectedServices, order.serviceId]);
+        });
+      },
+      onError: (err) => {
+        setLoading(false);
+        console.log(err);
+      },
+    }
+  );
+
+  const fetchLead = React.useCallback(async () => {
+    let leadId = await AsyncStorage.getItem("leadId");
+    if (leadId) {
+      await getLeadMutation.mutateAsync(leadId);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchLead();
+  }, [fetchLead]);
+
   const createLeadMutation = useMutation(
     "createLead",
     (data) => {
@@ -120,9 +153,10 @@ const ChooseService = (): JSX.Element => {
       return postLead(payload);
     },
     {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         setLoading(false);
         setLeadDetails(data.data);
+        await AsyncStorage.setItem("leadId", data.data.leadId);
       },
       onError: (err) => {
         setLoading(false);
@@ -183,7 +217,7 @@ const ChooseService = (): JSX.Element => {
           </HStack>
         </VStack>
       </VStack>
-      {/* <OrderSummary selectedServices={selectedServices} /> */}
+      <OrderSummary selectedServices={selectedServices} />
       <Actionsheet
         isOpen={toggleServiceInfo}
         onClose={() => setToggleServiceInfo(false)}
@@ -242,7 +276,10 @@ const ChooseService = (): JSX.Element => {
         label="ADD SERVICE DETAILS"
         subText="Provide service details in next step"
         onPress={async () => {
-          await createLeadMutation.mutateAsync();
+          const leadId = await AsyncStorage.getItem("leadId");
+          if (!leadId) {
+            await createLeadMutation.mutateAsync();
+          }
           navigate("ServiceDetails", { mode: "EDIT" });
         }}
       />

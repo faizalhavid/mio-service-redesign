@@ -90,7 +90,7 @@ const Home = (): JSX.Element => {
                     <Button
                       bg={AppColors.SECONDARY}
                       onPress={() => {
-                        navigate("Address");
+                        navigate("Address", { returnTo: "Dashboard" });
                       }}
                     >
                       Update

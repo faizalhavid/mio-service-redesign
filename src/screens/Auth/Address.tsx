@@ -35,7 +35,7 @@ import { CustomerProfile } from "../../contexts/AuthContext";
 
 type AddressProps = NativeStackScreenProps<SuperRootStackParamList, "Address">;
 const Address = ({ route }: AddressProps): JSX.Element => {
-  const { mode } = route.params;
+  const { returnTo } = route.params;
   const [loading, setLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
   const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
@@ -52,8 +52,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
   useEffect(() => {
     fetchCustomerProfile();
   }, [fetchCustomerProfile]);
-
-  const isUpdate = mode === "UPDATE";
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -111,11 +109,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
     {
       onSuccess: (data: FormattedAddress) => {
         setLoading(false);
-        if (isUpdate) {
-          navigate("ChooseService");
-        } else {
-          popToPop("Dashboard");
-        }
+        navigate(returnTo);
       },
       onError: (err: any) => {
         setLoading(false);
@@ -159,9 +153,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
     <AppSafeAreaView loading={loading}>
       <VStack paddingX={5} mt={10}>
         <Center width={"100%"}>
-          <Text fontSize={20}>
-            {isUpdate ? "Update" : "Enter"} your address
-          </Text>
+          <Text fontSize={20}>Update Address</Text>
         </Center>
         <VStack mt={10} space={0}>
           <Controller
@@ -260,7 +252,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
         </VStack>
       </VStack>
       <FooterButton
-        label={(isUpdate ? "UPDATE" : "SAVE") + " ADDRESS"}
+        label={"SAVE ADDRESS"}
         subText="Choose Service in next step"
         onPress={handleSubmit(onSubmit)}
       />

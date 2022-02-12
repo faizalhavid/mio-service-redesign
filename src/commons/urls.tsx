@@ -8,4 +8,5 @@ export const API = {
   GET_SERVICES: "/services",
   POST_LEAD: "/leads",
   PUT_LEAD: "/leads",
+  GET_LEAD: "/leads",
 };
