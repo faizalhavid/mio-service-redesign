@@ -115,8 +115,8 @@ const Profile = (): JSX.Element => {
               backgroundColor: "#eee",
             }}
             onPress={async () => {
+              await AsyncStorage.clear();
               setLoading(true);
-              await AsyncStorage.setItem("verified", "false");
               await logout();
               // setLoading(false);
               navigate("Welcome");

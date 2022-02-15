@@ -56,7 +56,6 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
     {
       onSuccess: (data) => {
         setLoading(false);
-        console.log(data);
         setCustomerProfile(data.data);
       },
       onError: (err) => {
@@ -66,7 +65,7 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
   );
 
   const fetchCustomerProfile = React.useCallback(async () => {
-    let cId = await AsyncStorage.getItem("customerId");
+    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
     setCustomerId(cId);
     await getCustomerMutation.mutateAsync();
   }, []);

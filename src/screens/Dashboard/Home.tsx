@@ -12,20 +12,24 @@ import { ImageBackground } from "react-native";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
-import { navigate } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CustomerProfile } from "../../contexts/AuthContext";
+import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import { useMutation } from "react-query";
 import { getCustomer } from "../../services/customer";
 import { AppColors } from "../../commons/colors";
+import { useIsFocused } from "@react-navigation/native";
 
 const Home = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
-  AsyncStorage.setItem("verified", "true");
   const [customerId, setCustomerId] = React.useState<string | null>(null);
   const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
     {} as CustomerProfile
   );
+
+  const isFocused = useIsFocused();
+
+  const { reload } = useAuth();
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -36,7 +40,6 @@ const Home = (): JSX.Element => {
     {
       onSuccess: (data) => {
         setLoading(false);
-        console.log(data);
         setCustomerProfile(data.data);
       },
       onError: (err) => {
@@ -46,14 +49,23 @@ const Home = (): JSX.Element => {
   );
 
   const fetchCustomerProfile = React.useCallback(async () => {
-    let cId = await AsyncStorage.getItem("customerId");
+    let APP_STATUS = await AsyncStorage.getItem("APP_START_STATUS");
+    if (APP_STATUS !== "SETUP_COMPLETED") {
+      console.log("Current APP_STATUS", APP_STATUS);
+      AsyncStorage.clear();
+      popToPop("Welcome");
+      return;
+    }
+    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
     setCustomerId(cId);
     await getCustomerMutation.mutateAsync();
   }, []);
 
   React.useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
+    if (isFocused) {
+      fetchCustomerProfile();
+    }
+  }, [fetchCustomerProfile, isFocused]);
 
   return (
     <AppSafeAreaView mt={0} loading={loading}>
@@ -67,7 +79,8 @@ const Home = (): JSX.Element => {
             source={require("../../assets/images/dashboard-bg.png")}
           >
             <VStack pt={10}>
-              {customerProfile?.addresses &&
+              {false &&
+                customerProfile?.addresses &&
                 (customerProfile?.addresses.length === 0 ||
                   (customerProfile?.addresses.length > 0 &&
                     !Boolean(customerProfile?.addresses[0].street))) && (
@@ -103,7 +116,7 @@ const Home = (): JSX.Element => {
                 </Text>
                 <Text mt={2} textAlign={"center"}>
                   Get ready for a beautiful lawn! {"\n"} Your next service is
-                  scheduled for
+                  scheduled for {String(isFocused)}
                 </Text>
               </Center>
               <ServiceCard

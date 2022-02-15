@@ -45,10 +45,18 @@ export type SuperRootStackParamList = {
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
-  const [verified, setVerified] = React.useState(false);
+  const [initialScreen, setInitialScreen] = React.useState<
+    "Address" | "VerifyEmail" | "Dashboard" | "Welcome"
+  >("Welcome");
   const [loading, setLoading] = React.useState(true);
-  AsyncStorage.getItem("verified").then((value) => {
-    setVerified(value === "true");
+  AsyncStorage.getItem("APP_START_STATUS").then((value) => {
+    if (value === "UPDATE_ADDRESS_PENDING") {
+      setInitialScreen("Address");
+    } else if (value === "EMAIL_VERIFICATION_PENDING") {
+      setInitialScreen("VerifyEmail");
+    } else if (value === "SETUP_COMPLETED") {
+      setInitialScreen("Dashboard");
+    }
     setLoading(false);
   });
   const navigationOptions: NativeStackNavigationOptions = {
@@ -69,7 +77,7 @@ const index = (): JSX.Element => {
     >
       {!loading && (
         <RootStack.Navigator
-          initialRouteName={verified ? "Dashboard" : "Welcome"}
+          initialRouteName={initialScreen}
           screenOptions={navigationOptions}
         >
           <RootStack.Screen

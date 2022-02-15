@@ -353,7 +353,7 @@ const EditServiceDetails = ({
                   {SectionDivider(0)}
                   {Title("Choose Date")}
                   {SectionDivider(0)}
-                  {/*   <HStack space={2}>
+                  <HStack space={2}>
                     <SelectionButton
                       w={75}
                       h={75}
@@ -370,6 +370,10 @@ const EditServiceDetails = ({
                           </VStack>
                         );
                       }}
+                      onPress={function (index: number): void {
+                        throw new Error("Function not implemented.");
+                      }}
+                      index={0}
                     />
                     <SelectionButton
                       w={75}
@@ -387,22 +391,34 @@ const EditServiceDetails = ({
                           </VStack>
                         );
                       }}
+                      onPress={function (index: number): void {
+                        throw new Error("Function not implemented.");
+                      }}
+                      index={0}
                     />
-                  </HStack> */}
+                  </HStack>
                   {SectionDivider(0)}
                   {Title("Choose Timeslot")}
                   {SectionDivider(0)}
-                  {/* <VStack space={2}>
+                  <VStack space={2}>
                     <HStack space={2}>
                       <SelectionButton
                         w={120}
                         active={true}
                         text="8 AM - 10 AM"
+                        onPress={function (index: number): void {
+                          throw new Error("Function not implemented.");
+                        }}
+                        index={0}
                       />
                       <SelectionButton
                         w={120}
                         active={false}
                         text="10 AM - 2 PM"
+                        onPress={function (index: number): void {
+                          throw new Error("Function not implemented.");
+                        }}
+                        index={0}
                       />
                     </HStack>
                     <HStack space={2}>
@@ -410,11 +426,19 @@ const EditServiceDetails = ({
                         w={120}
                         active={false}
                         text="2 PM - 6 PM"
+                        onPress={function (index: number): void {
+                          throw new Error("Function not implemented.");
+                        }}
+                        index={0}
                       />
                       <SelectionButton
                         w={120}
                         active={false}
                         text="6 PM - 8 PM"
+                        onPress={function (index: number): void {
+                          throw new Error("Function not implemented.");
+                        }}
+                        index={0}
                       />
                     </HStack>
                     {SectionDivider(0)}
@@ -423,7 +447,7 @@ const EditServiceDetails = ({
 
                     <TextArea numberOfLines={5} mb={50}></TextArea>
                     <Divider thickness={0} mt={250}></Divider>
-                  </VStack>  */}
+                  </VStack>
                 </VStack>
               </ScrollView>
             </KeyboardAvoidingView>

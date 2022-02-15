@@ -129,7 +129,7 @@ const ChooseService = (): JSX.Element => {
   );
 
   const fetchLead = React.useCallback(async () => {
-    let leadId = await AsyncStorage.getItem("leadId");
+    let leadId = await AsyncStorage.getItem("LEAD_ID");
     if (leadId) {
       await getLeadMutation.mutateAsync(leadId);
     }
@@ -156,7 +156,7 @@ const ChooseService = (): JSX.Element => {
       onSuccess: async (data) => {
         setLoading(false);
         setLeadDetails(data.data);
-        await AsyncStorage.setItem("leadId", data.data.leadId);
+        await AsyncStorage.setItem("LEAD_ID", data.data.leadId);
       },
       onError: (err) => {
         setLoading(false);
@@ -217,7 +217,7 @@ const ChooseService = (): JSX.Element => {
           </HStack>
         </VStack>
       </VStack>
-      <OrderSummary selectedServices={selectedServices} />
+      {/* <OrderSummary selectedServices={selectedServices} /> */}
       <Actionsheet
         isOpen={toggleServiceInfo}
         onClose={() => setToggleServiceInfo(false)}
@@ -274,9 +274,10 @@ const ChooseService = (): JSX.Element => {
       </Actionsheet>
       <FooterButton
         label="ADD SERVICE DETAILS"
+        disabled={selectedServices.length === 0}
         subText="Provide service details in next step"
         onPress={async () => {
-          const leadId = await AsyncStorage.getItem("leadId");
+          const leadId = await AsyncStorage.getItem("LEAD_ID");
           if (!leadId) {
             await createLeadMutation.mutateAsync();
           }

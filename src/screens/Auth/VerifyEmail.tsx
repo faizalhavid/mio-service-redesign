@@ -14,7 +14,7 @@ import { navigate, popToPop } from "../../navigations/rootNavigation";
 const VerifyEmail = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [customerId, setCustomerId] = React.useState(null);
-  AsyncStorage.getItem("customerId").then((value: any) => {
+  AsyncStorage.getItem("CUSTOMER_ID").then((value: any) => {
     setCustomerId(value);
   });
   const getCustomerMutation = useMutation(
@@ -26,7 +26,6 @@ const VerifyEmail = (): JSX.Element => {
     {
       onSuccess: (data) => {
         setLoading(false);
-        console.log("data", data);
         popToPop("Address");
       },
       onError: (err) => {

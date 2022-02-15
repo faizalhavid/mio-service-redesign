@@ -18,6 +18,8 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import "@react-native-firebase/app";
 import auth from "@react-native-firebase/auth";
 import { AuthProvider } from "./src/contexts/AuthContext";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { ENV } from "./src/commons/environment";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
@@ -26,6 +28,9 @@ if (__DEV__) {
 }
 
 const App = () => {
+  GoogleSignin.configure({
+    webClientId: ENV.GOOGLE_WEB_CLIENT_ID,
+  });
   const isDarkMode = useColorScheme() === "dark";
   const Stack = createNativeStackNavigator();
   const customTheme = extendTheme({

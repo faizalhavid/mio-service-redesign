@@ -1,3 +1,4 @@
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import {
   Center,
   Divider,
@@ -15,9 +16,13 @@ import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
+import SocialLogin from "../../components/SocialLogin";
+import SocialLoginButton from "../../components/SocialLoginButton";
 import Spacer from "../../components/Spacer";
 import { useAuth } from "../../contexts/AuthContext";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
+import auth from "@react-native-firebase/auth";
+import { getCustomer } from "../../services/customer";
 
 type LoginFormType = {
   email: string;
@@ -27,7 +32,7 @@ type LoginFormType = {
 const Login = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
 
-  const { login } = useAuth();
+  const { login, currentUser } = useAuth();
 
   const {
     control,
@@ -41,6 +46,22 @@ const Login = (): JSX.Element => {
     mode: "onChange",
   });
 
+  const getCustomerMutation = useMutation(
+    "getCustomer",
+    (customerId) => {
+      setLoading(true);
+      return getCustomer(customerId);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
+
   const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: LoginFormType) => {
     setLoading(true);
@@ -48,9 +69,6 @@ const Login = (): JSX.Element => {
     login(data.email, data.password)
       .then((status) => {
         switch (status) {
-          case "NEW_USER":
-            navigate("Register");
-            break;
           case "VERIFY_EMAIL":
             popToPop("VerifyEmail");
             break;
@@ -67,7 +85,7 @@ const Login = (): JSX.Element => {
   };
   return (
     <AppSafeAreaView statusBarColor="#fff" loading={loading}>
-      <Flex mt={100} flexDirection={"column"} flex={1} paddingX={5}>
+      <VStack mt={100} paddingX={5}>
         <Center width={"100%"}>
           <Text fontSize={20}>Login</Text>
         </Center>
@@ -115,24 +133,33 @@ const Login = (): JSX.Element => {
             <AppButton label="SIGN IN" onPress={handleSubmit(onSubmit)} />
           </Center>
         </VStack>
-        <VStack
-          space="1"
-          position={"absolute"}
-          bottom={10}
-          alignSelf={"center"}
-        >
-          <Center size="16" width={"100%"}>
-            Already have an account?
-          </Center>
-          <Center>
-            <AppButton
-              color={AppColors.SECONDARY}
-              label="SIGN UP FOR FREE"
-              onPress={() => navigate("Register")}
-            />
-          </Center>
-        </VStack>
-      </Flex>
+        <Spacer top={20} />
+        <SocialLogin
+          label={"Login"}
+          loginWithGoogle={async () => {
+            const userInfo = await GoogleSignin.signIn();
+
+            const googleCredential = auth.GoogleAuthProvider.credential(
+              userInfo.idToken
+            );
+            const userCredential = await auth().signInWithCredential(
+              googleCredential
+            );
+          }}
+        />
+      </VStack>
+      <VStack space="1" position={"absolute"} bottom={10} alignSelf={"center"}>
+        <Center size="16" width={"100%"}>
+          Already have an account?
+        </Center>
+        <Center>
+          <AppButton
+            color={AppColors.SECONDARY}
+            label="SIGN UP FOR FREE"
+            onPress={() => navigate("Register")}
+          />
+        </Center>
+      </VStack>
     </AppSafeAreaView>
   );
 };

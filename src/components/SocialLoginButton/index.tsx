@@ -4,12 +4,14 @@ import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { AppColors } from "../../commons/colors";
 
 type SocialLoginButtonProps = {
+  label: "Signup" | "Login";
   type: "Google" | "Facebook" | "Apple" | undefined;
   onPress: () => void;
 };
 
 const SocialLoginButton = ({
   type,
+  label,
   onPress,
 }: SocialLoginButtonProps): JSX.Element => {
   const LOGO = () => {
@@ -64,7 +66,9 @@ const SocialLoginButton = ({
       >
         <HStack space={2}>
           <View>{LOGO()}</View>
-          <Text>Signup with {type}</Text>
+          <Text>
+            {label} with {type}
+          </Text>
         </HStack>
       </Button>
     </TouchableOpacity>

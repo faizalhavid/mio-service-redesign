@@ -32,52 +32,59 @@ import {
   RegisterForm,
   useAuth,
 } from "../../contexts/AuthContext";
+import { ENV } from "../../commons/environment";
+import SocialLogin from "../../components/SocialLogin";
 
 const Register = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
-  const { currentUser, signup, login } = useAuth();
-
-  GoogleSignin.configure({
-    webClientId:
-      "528727320506-qnn462uhd5d3bac306fg6bkdhs156mhp.apps.googleusercontent.com",
-  });
+  const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
+  const { currentUser, signup, login, logout } = useAuth();
 
   const loginWithGoogle = async () => {
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
       const isSignedin = await GoogleSignin.isSignedIn();
+      console.log(isSignedin);
       if (isSignedin) {
+        // await logout();
         await GoogleSignin.signOut();
         return;
       }
       if (!isSignedin) {
         const userInfo = await GoogleSignin.signIn();
-        console.log(userInfo);
-        console.log("----------");
+        console.log("userInfo", userInfo.user);
+
         const googleCredential = auth.GoogleAuthProvider.credential(
           userInfo.idToken
         );
         const userCredential = await auth().signInWithCredential(
           googleCredential
         );
-        await AsyncStorage.setItem(
-          "idToken",
-          await userCredential.user.getIdToken()
-        );
-        await AsyncStorage.setItem("customerId", currentUser?.email || "");
-        socialRegisterCustomerMutation.mutate({
-          ...dummyProfile,
-          firstName: currentUser?.displayName || "",
-          email: currentUser?.email || "",
-        });
-        console.log(userCredential);
+        setSocialLoginCompleted(true);
+        if (
+          userCredential &&
+          userCredential.user &&
+          userCredential.user.displayName
+        ) {
+          let names = userCredential.user.displayName.split(" ");
+          setValue("firstName", names[0] || "");
+          setValue("lastName", names[1] || "");
+        }
+        setValue("email", userCredential.user.email || "");
+        setValue("phone", "");
+
+        // socialRegisterCustomerMutation.mutate({
+        //   ...dummyProfile,
+        //   firstName: currentUser?.displayName || "",
+        //   email: currentUser?.email || "",
+        // });
       }
       // const currentUser = await GoogleSignin.getCurrentUser();
-      // console.log(currentUser);
 
       // Sign-in the user with the credential
     } catch (error: any) {
+      console.log(error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -124,16 +131,17 @@ const Register = (): JSX.Element => {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors, isDirty, isValid },
   } = useForm<RegisterForm>({
     defaultValues: {
-      firstName: "T",
-      lastName: "K",
-      phone: "7845715615",
-      email: "kthilagarajan@gmail.com",
-      password: "test@123",
+      // firstName: "T",
+      // lastName: "K",
+      // phone: "7845715615",
+      // email: "kthilagarajan@gmail.com",
+      // password: "test@123",
     },
-    mode: "onChange",
+    mode: "all",
   });
 
   const registerCustomerMutation = useMutation(
@@ -143,10 +151,13 @@ const Register = (): JSX.Element => {
       return postCustomer(data);
     },
     {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
+        await AsyncStorage.setItem(
+          "APP_START_STATUS",
+          "UPDATE_ADDRESS_PENDING"
+        );
         setLoading(false);
-        console.log("data", data);
-        popToPop("VerifyEmail");
+        popToPop("Address", { returnTo: "VerifyEmail" });
       },
       onError: (err) => {
         setLoading(false);
@@ -183,6 +194,15 @@ const Register = (): JSX.Element => {
   const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: RegisterForm) => {
     setLoading(true);
+    if (socialLoginCompleted) {
+      let payload: CustomerProfile = {
+        ...dummyProfile,
+        ...data,
+        customerId: data.email,
+      };
+      registerCustomerMutation.mutate(payload);
+      return;
+    }
     setErrorMsg("");
     signup(data)
       .then((payload) => {
@@ -196,16 +216,19 @@ const Register = (): JSX.Element => {
       });
   };
 
-  // const loginWithEmailPassword = async () => {
-  //   const signIn = await auth().signInWithEmailAndPassword(control)
-  //   console.log(signIn)
-  // }
-
   return (
     <AppSafeAreaView loading={loading}>
       <Center width={"100%"}>
-        <Text fontSize={20}>Create an account</Text>
-        <Text fontSize={20}>to manage your service</Text>
+        {!socialLoginCompleted && (
+          <Text fontSize={20} textAlign="center">
+            Create an account {"\n"}to manage your service
+          </Text>
+        )}
+        {socialLoginCompleted && (
+          <Text fontSize={20} textAlign="center">
+            Please provide the {"\n"}required information
+          </Text>
+        )}
       </Center>
       <ScrollView>
         <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
@@ -234,7 +257,6 @@ const Register = (): JSX.Element => {
               <AppInput
                 type="text"
                 label="Lastname"
-                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />
@@ -250,6 +272,7 @@ const Register = (): JSX.Element => {
               <AppInput
                 type="number"
                 label="Phone"
+                lineWidth={0.7}
                 onChange={onChange}
                 value={value}
               />
@@ -265,61 +288,46 @@ const Register = (): JSX.Element => {
               <AppInput
                 type="email"
                 label="Email"
+                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />
             )}
             name="email"
           />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AppInput
-                type="password"
-                label="Password"
-                lineWidth={1}
-                onChange={onChange}
-                value={value}
-              />
-            )}
-            name="password"
-          />
-          <Spacer top={20} />
-          {errorMsg.length > 0 && (
-            <Center>
-              <Text color={"red.500"} fontWeight="semibold">
-                {errorMsg}
-              </Text>
-            </Center>
+          {!socialLoginCompleted && (
+            <Controller
+              control={control}
+              rules={{
+                required: !socialLoginCompleted,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="password"
+                  label="Password"
+                  lineWidth={1}
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="password"
+            />
           )}
 
-          <Spacer top={40} />
-          {Platform.OS === "android" && (
-            <HStack justifyContent={"center"}>
-              <Divider my="5" />
-              <Center
-                position={"absolute"}
-                top={2}
-                background={"white"}
-                _text={{
-                  color: "gray.400",
-                }}
-              >
-                or
+          {errorMsg.length > 0 && (
+            <>
+              <Spacer top={20} />
+              <Center>
+                <Text color={"red.500"} fontWeight="semibold">
+                  {errorMsg}
+                </Text>
               </Center>
-            </HStack>
+            </>
           )}
-          <Spacer top={40} />
-          <VStack justifyContent={"center"} space={2} width={"100%"}>
-            {Platform.OS === "android" && (
-              <SocialLoginButton type="Google" onPress={loginWithGoogle} />
-            )}
-            {/* <SocialLoginButton type="Facebook" onPress={() => {}} /> */}
-            {/* <SocialLoginButton type="Apple" onPress={loginWithApple} /> */}
-          </VStack>
+          <Spacer top={20} />
+          {!socialLoginCompleted && (
+            <SocialLogin label="Signup" loginWithGoogle={loginWithGoogle} />
+          )}
         </Flex>
         <Divider thickness={0} mt={150} />
       </ScrollView>

@@ -26,7 +26,8 @@ const AuthButton = ({
       onPress={onPress}
       tintColor={"transparent"}
       _pressed={{
-        backgroundColor: type == "solid" ? "#F3CB51E6" : "#F3CB51",
+        backgroundColor: type == "solid" ? "#F3CB51E6" : "#F3CB518F",
+        borderColor: "#F3CB51",
       }}
     >
       <Text

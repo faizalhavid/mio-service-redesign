@@ -1,5 +1,5 @@
 import React from "react";
-import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import auth, { firebase, FirebaseAuthTypes } from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LeadDetails } from "../commons/types";
 
@@ -136,11 +136,7 @@ export function AuthProvider({ children }: AuthProviderType) {
             url: "",
             android: { packageName: "com.miohomeservices", installApp: true },
           });
-          await AsyncStorage.setItem(
-            "idToken",
-            await credential.user.getIdToken()
-          );
-          await AsyncStorage.setItem("customerId", data.email);
+          await AsyncStorage.setItem("CUSTOMER_ID", data.email);
 
           let payload: CustomerProfile = {
             ...dummyProfile,
@@ -150,7 +146,7 @@ export function AuthProvider({ children }: AuthProviderType) {
           resolve(payload);
         })
         .catch((error: any) => {
-          console.log(error);
+          console.log(error?.message);
           if (
             error &&
             error.message &&
@@ -171,24 +167,31 @@ export function AuthProvider({ children }: AuthProviderType) {
       auth()
         .signInWithEmailAndPassword(email, password)
         .then(async (userCredential: any) => {
-          await AsyncStorage.setItem("customerId", email);
-          console.log("userCredential", userCredential);
-          if (userCredential.additionalUserInfo.isNewUser) {
-            res("NEW_USER");
-          } else if (!userCredential.user.emailVerified) {
+          if (!userCredential.user.emailVerified) {
+            await AsyncStorage.setItem(
+              "APP_START_STATUS",
+              "EMAIL_VERIFICATION_PENDING"
+            );
             res("VERIFY_EMAIL");
           } else {
+            await AsyncStorage.setItem("APP_START_STATUS", "SETUP_COMPLETED");
             res("HOME");
           }
         })
         .catch((error) => {
-          console.log(error);
+          console.log(error?.message);
           if (
             error &&
             error.message &&
             error.message.indexOf("user-not-found") > 0
           ) {
             rej("Please Signup and try to Login");
+          } else if (
+            error &&
+            error.message &&
+            error.message.indexOf("the user does not have a password") > 0
+          ) {
+            rej("Invalid Password/Invalid Sign-in Method");
           } else {
             rej("Something went wrong.");
           }
@@ -198,7 +201,7 @@ export function AuthProvider({ children }: AuthProviderType) {
 
   function logout(): Promise<any> {
     return new Promise(async (res, rej) => {
-      await auth().signOut();
+      await firebase.auth().signOut();
       res("");
     });
   }
@@ -251,8 +254,17 @@ export function AuthProvider({ children }: AuthProviderType) {
 
   React.useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
-      //   console.log("on authstate change", user);
+      console.log("on authstate change", user);
       if (user) {
+        AsyncStorage.setItem("CUSTOMER_ID", user.email || "");
+        user
+          .getIdToken()
+          .then((token) => {
+            AsyncStorage.setItem("TOKEN", token);
+          })
+          .catch((error) => {
+            console.log(error.message);
+          });
         setCurrentUser(user);
       }
     });

@@ -44,7 +44,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
   const [customerId, setCustomerId] = React.useState<string | null>(null);
 
   const fetchCustomerProfile = useCallback(async () => {
-    let cId = await AsyncStorage.getItem("customerId");
+    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
     setCustomerId(cId);
     await getCustomerMutation.mutateAsync();
   }, []);
@@ -79,8 +79,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
     {
       onSuccess: (response: any) => {
         setLoading(false);
-        console.log("data", response);
-
         putAddressMutation.mutate({
           ...customerProfile,
           addresses: [
@@ -107,9 +105,13 @@ const Address = ({ route }: AddressProps): JSX.Element => {
       return putCustomer(data);
     },
     {
-      onSuccess: (data: FormattedAddress) => {
+      onSuccess: async (data: FormattedAddress) => {
+        await AsyncStorage.setItem(
+          "APP_START_STATUS",
+          "EMAIL_VERIFICATION_PENDING"
+        );
         setLoading(false);
-        navigate(returnTo);
+        popToPop("VerifyEmail");
       },
       onError: (err: any) => {
         setLoading(false);
