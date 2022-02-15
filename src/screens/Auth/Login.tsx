@@ -1,23 +1,14 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import {
-  Center,
-  Divider,
-  Flex,
-  Input,
-  StatusBar,
-  Text,
-  VStack,
-} from "native-base";
+import { Center, Text, VStack } from "native-base";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Platform } from "react-native";
 import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import SocialLogin from "../../components/SocialLogin";
-import SocialLoginButton from "../../components/SocialLoginButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spacer from "../../components/Spacer";
 import { useAuth } from "../../contexts/AuthContext";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
@@ -145,6 +136,8 @@ const Login = (): JSX.Element => {
             const userCredential = await auth().signInWithCredential(
               googleCredential
             );
+            await AsyncStorage.setItem("APP_START_STATUS", "SETUP_COMPLETED");
+            popToPop("Dashboard");
           }}
         />
       </VStack>
