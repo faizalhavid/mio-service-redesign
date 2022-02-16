@@ -30,28 +30,9 @@ const Login = (): JSX.Element => {
     handleSubmit,
     formState: { errors, isDirty, isValid },
   } = useForm<LoginFormType>({
-    defaultValues: {
-      email: "kthilagarajan@gmail.com",
-      password: "test@123",
-    },
+    defaultValues: {},
     mode: "onChange",
   });
-
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    (customerId) => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
 
   const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: LoginFormType) => {
@@ -105,7 +86,6 @@ const Login = (): JSX.Element => {
               <AppInput
                 type="password"
                 label="Password"
-                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />

@@ -167,7 +167,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
               <AppInput
                 type="text"
                 label="Street"
-                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />
@@ -183,7 +182,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
               <AppInput
                 type="text"
                 label="City"
-                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />
@@ -244,7 +242,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
               <AppInput
                 type="text"
                 label="Zipcode"
-                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />

@@ -2,6 +2,7 @@ import React from "react";
 import auth, { firebase, FirebaseAuthTypes } from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LeadDetails } from "../commons/types";
+import { navigate } from "../navigations/rootNavigation";
 
 export type RegisterForm = {
   firstName: string;
@@ -264,6 +265,7 @@ export function AuthProvider({ children }: AuthProviderType) {
           })
           .catch((error) => {
             console.log(error.message);
+            navigate("Welcome");
           });
         setCurrentUser(user);
       }

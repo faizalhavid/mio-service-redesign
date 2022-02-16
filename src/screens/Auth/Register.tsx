@@ -29,6 +29,7 @@ import { navigate, popToPop } from "../../navigations/rootNavigation";
 import {
   CustomerProfile,
   dummyProfile,
+  Phone,
   RegisterForm,
   useAuth,
 } from "../../contexts/AuthContext";
@@ -44,42 +45,42 @@ const Register = (): JSX.Element => {
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
-      const isSignedin = await GoogleSignin.isSignedIn();
-      console.log(isSignedin);
-      if (isSignedin) {
-        // await logout();
-        await GoogleSignin.signOut();
-        return;
-      }
-      if (!isSignedin) {
-        const userInfo = await GoogleSignin.signIn();
-        console.log("userInfo", userInfo.user);
+      // const isSignedin = await GoogleSignin.isSignedIn();
+      // console.log(isSignedin);
+      // if (isSignedin) {
+      //   // await logout();
+      //   await GoogleSignin.signOut();
+      //   return;
+      // }
+      // if (!isSignedin) {
+      const userInfo = await GoogleSignin.signIn();
+      console.log("userInfo", userInfo.user);
 
-        const googleCredential = auth.GoogleAuthProvider.credential(
-          userInfo.idToken
-        );
-        const userCredential = await auth().signInWithCredential(
-          googleCredential
-        );
-        setSocialLoginCompleted(true);
-        if (
-          userCredential &&
-          userCredential.user &&
-          userCredential.user.displayName
-        ) {
-          let names = userCredential.user.displayName.split(" ");
-          setValue("firstName", names[0] || "");
-          setValue("lastName", names[1] || "");
-        }
-        setValue("email", userCredential.user.email || "");
-        setValue("phone", "");
-
-        // socialRegisterCustomerMutation.mutate({
-        //   ...dummyProfile,
-        //   firstName: currentUser?.displayName || "",
-        //   email: currentUser?.email || "",
-        // });
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        userInfo.idToken
+      );
+      const userCredential = await auth().signInWithCredential(
+        googleCredential
+      );
+      setSocialLoginCompleted(true);
+      if (
+        userCredential &&
+        userCredential.user &&
+        userCredential.user.displayName
+      ) {
+        let names = userCredential.user.displayName.split(" ");
+        setValue("firstName", names[0] || "");
+        setValue("lastName", names[1] || "");
       }
+      setValue("email", userCredential.user.email || "");
+      setValue("phone", "");
+
+      // socialRegisterCustomerMutation.mutate({
+      //   ...dummyProfile,
+      //   firstName: currentUser?.displayName || "",
+      //   email: currentUser?.email || "",
+      // });
+      // }
       // const currentUser = await GoogleSignin.getCurrentUser();
 
       // Sign-in the user with the credential
@@ -198,6 +199,12 @@ const Register = (): JSX.Element => {
       let payload: CustomerProfile = {
         ...dummyProfile,
         ...data,
+        phones: [
+          {
+            ...({} as Phone),
+            number: data.phone,
+          },
+        ],
         customerId: data.email,
       };
       registerCustomerMutation.mutate(payload);
@@ -241,7 +248,6 @@ const Register = (): JSX.Element => {
               <AppInput
                 type="text"
                 label="Firstname"
-                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />
@@ -272,7 +278,6 @@ const Register = (): JSX.Element => {
               <AppInput
                 type="number"
                 label="Phone"
-                lineWidth={0.7}
                 onChange={onChange}
                 value={value}
               />
@@ -288,7 +293,6 @@ const Register = (): JSX.Element => {
               <AppInput
                 type="email"
                 label="Email"
-                lineWidth={1}
                 onChange={onChange}
                 value={value}
               />
@@ -305,7 +309,6 @@ const Register = (): JSX.Element => {
                 <AppInput
                   type="password"
                   label="Password"
-                  lineWidth={1}
                   onChange={onChange}
                   value={value}
                 />
@@ -334,7 +337,7 @@ const Register = (): JSX.Element => {
       <FooterButton
         label={"CREATE ACCOUNT"}
         disabled={!isValid}
-        subText="Provide address in next step"
+        subText="Provide provide the required fields"
         onPress={handleSubmit(onSubmit)}
       />
     </AppSafeAreaView>

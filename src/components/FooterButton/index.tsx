@@ -52,16 +52,16 @@ const FooterButton = ({
             </Text>
             {/* <ChevronRightIcon size="8" color={"white"} /> */}
           </HStack>
-          {/* {subText && (
-          <Text
-            alignSelf={"center"}
-            fontSize={12}
-            fontWeight={"semibold"}
-            color={"teal.100"}
-          >
-            ({subText})
-          </Text>
-        )} */}
+          {disabled && subText && (
+            <Text
+              alignSelf={"center"}
+              fontSize={12}
+              fontWeight={"semibold"}
+              color={useContrastText(AppColors.SECONDARY)}
+            >
+              {subText}
+            </Text>
+          )}
         </Button>
       )}
       {v2 && (
