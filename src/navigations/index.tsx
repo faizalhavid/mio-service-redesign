@@ -31,7 +31,7 @@ export type SuperRootStackParamList = {
   Login: undefined;
   Address: { returnTo: string };
   ChooseService: undefined;
-  ServiceDetails: { mode: string };
+  ServiceDetails: undefined;
   EditServiceDetails: { serviceId: string };
   Payment: undefined;
   Booked: undefined;
@@ -96,11 +96,7 @@ const index = (): JSX.Element => {
             initialParams={{ returnTo: "" }}
           />
           <RootStack.Screen name="ChooseService" component={ChooseService} />
-          <RootStack.Screen
-            name="ServiceDetails"
-            component={ServiceDetails}
-            initialParams={{ mode: "" }}
-          />
+          <RootStack.Screen name="ServiceDetails" component={ServiceDetails} />
           <RootStack.Screen
             name="EditServiceDetails"
             component={EditServiceDetails}

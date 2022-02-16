@@ -1,9 +1,7 @@
 import {
   Button,
   Center,
-  Checkbox,
   Divider,
-  Flex,
   HStack,
   Input,
   Radio,
@@ -17,61 +15,30 @@ import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import TermsAndConditions from "../../components/TermsAndConditions";
-import { navigate } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
 import PriceBreakdown from "./PriceBreakdown";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AppInput from "../../components/AppInput";
 
 const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
+  const [selectedCreditcard, setSelectedCreditcard] = React.useState("1234");
 
   return (
     <AppSafeAreaView>
       <ScrollView>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
-            Order Summary
-          </Text>
-          <Divider thickness={1} />
-          <PriceBreakdown />
-          <Divider thickness={10} />
-          {/* <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
-            Choose Payment Option
-          </Text>
-          <Divider thickness={1} />
-          <Radio.Group
-            defaultValue="1"
-            name="myRadioGroup"
-            accessibilityLabel="Pick your favorite number"
-          >
-            <VStack
-              //   borderColor={"#ddd"}
-              //   borderWidth={1}
-              //   borderRadius={5}
-              width={"98%"}
-              mx={5}
-              alignItems={"flex-start"}
-              alignSelf={"center"}
-              justifyContent={"space-around"}
-              //   divider={<Divider thickness={1} borderColor={"#eee"} />}
-            >
-              <Radio ml={2} my={1} value="1">
-                Credit Card
-              </Radio>
-              <Radio ml={2} my={1} value="2">
-                Apple Pay
-              </Radio>
-              <Radio ml={2} my={1} value="3">
-                Google Pay
-              </Radio>
-            </VStack>
-          </Radio.Group> */}
-          <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Credit Card
           </Text>
           <Divider thickness={1} />
           <Radio.Group
-            defaultValue="1"
+            defaultValue={selectedCreditcard}
             name="myRadioGroup"
-            accessibilityLabel="Pick your favorite number"
+            accessibilityLabel="Choose"
+            onChange={(nextValue) => {
+              setSelectedCreditcard(nextValue);
+            }}
           >
             <VStack
               width={"98%"}
@@ -79,140 +46,49 @@ const Payment = (): JSX.Element => {
               alignItems={"flex-start"}
               alignSelf={"center"}
               justifyContent={"space-around"}
-              //   divider={<Divider thickness={1} borderColor={"#eee"} />}
             >
-              <Radio ml={2} my={1} value="1">
-                Use saved card ending with XX 1234
+              <Radio ml={2} my={1} value="1234">
+                <Text fontSize={15} pl={2}>
+                  Use Saved Card{" "}
+                  <Text color={"gray.400"}>XXXX-XXXX-XXX-1234</Text>
+                </Text>
               </Radio>
-              <Radio ml={2} my={1} value="2">
-                Add new card
+              <Radio ml={2} my={1} value="NEW">
+                <Text fontSize={15} pl={2}>
+                  Add Credit Card
+                </Text>
               </Radio>
             </VStack>
           </Radio.Group>
-          <HStack
-            bg={AppColors.PRIMARY}
-            shadow={2}
-            px={6}
-            py={2}
-            justifyContent={"space-between"}
-            alignContent={"center"}
-          >
-            <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
-              Add Credit Card
-            </Text>
-          </HStack>
-          <View px={5}>
-            <VStack space={5}>
-              <Input
-                _focus={{
-                  borderBottomColor: AppColors.SECONDARY,
-                }}
-                returnKeyType="next"
-                clearButtonMode="always"
-                autoCapitalize="none"
-                placeholder="CARD NO"
-                variant={"underlined"}
-                autoCorrect={false}
-              />
-              <Input
-                _focus={{
-                  borderBottomColor: AppColors.SECONDARY,
-                }}
-                returnKeyType="next"
-                clearButtonMode="always"
-                autoCapitalize="none"
-                placeholder="MM/YYYY"
-                variant={"underlined"}
-                autoCorrect={false}
-              />
-              <Input
-                _focus={{
-                  borderBottomColor: AppColors.SECONDARY,
-                }}
-                returnKeyType="next"
-                clearButtonMode="always"
-                autoCapitalize="none"
-                placeholder="CVV"
-                variant={"underlined"}
-                autoCorrect={false}
-              />
-            </VStack>
-          </View>
-          <Divider thickness={10} />
-          <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
-            Choose Billing Address
-          </Text>
-          <Divider thickness={1} />
-          <Radio.Group
-            alignSelf={"center"}
-            defaultValue="1"
-            name="myRadioGroup"
-            accessibilityLabel="Pick your favorite number"
-          >
-            <Radio value="1" my={1}>
-              Billing address is same as service address
-            </Radio>
-            <Radio value="2" my={1}>
-              Update Billing Address
-            </Radio>
-          </Radio.Group>
-          <VStack px={5} space={5}>
-            <Input
-              _focus={{
-                borderBottomColor: AppColors.SECONDARY,
-              }}
-              returnKeyType="next"
-              clearButtonMode="always"
-              autoCapitalize="none"
-              placeholder="NAME"
-              variant={"underlined"}
-              autoCorrect={false}
-            />
-            <Input
-              _focus={{
-                borderBottomColor: AppColors.SECONDARY,
-              }}
-              returnKeyType="next"
-              clearButtonMode="always"
-              autoCapitalize="none"
-              placeholder="ADDRESS"
-              variant={"underlined"}
-              autoCorrect={false}
-            />
-            <Input
-              _focus={{
-                borderBottomColor: AppColors.SECONDARY,
-              }}
-              returnKeyType="next"
-              clearButtonMode="always"
-              autoCapitalize="none"
-              placeholder="CITY"
-              variant={"underlined"}
-              autoCorrect={false}
-            />
-            <Input
-              _focus={{
-                borderBottomColor: AppColors.SECONDARY,
-              }}
-              returnKeyType="next"
-              clearButtonMode="always"
-              autoCapitalize="none"
-              placeholder="STATE"
-              variant={"underlined"}
-              autoCorrect={false}
-            />
-            <Input
-              _focus={{
-                borderBottomColor: AppColors.SECONDARY,
-              }}
-              returnKeyType="next"
-              clearButtonMode="always"
-              autoCapitalize="none"
-              placeholder="ZIPCODE"
-              variant={"underlined"}
-              autoCorrect={false}
-            />
-          </VStack>
+          {selectedCreditcard === "NEW" && (
+            <>
+              <HStack
+                bg={AppColors.PRIMARY}
+                shadow={2}
+                px={6}
+                py={2}
+                justifyContent={"space-between"}
+                alignContent={"center"}
+              >
+                <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
+                  Add Credit Card
+                </Text>
+              </HStack>
+              <View px={5}>
+                <AppInput type="number" label="Card Number" />
+                <AppInput
+                  type="number"
+                  expiry={true}
+                  label="Valid thru (MM/YYYY)"
+                />
+                <AppInput type="password" label="CVV" />
+                <Button mt={5} bg={AppColors.DARK_PRIMARY}>
+                  <Text color={"#fff"}>Add</Text>
+                </Button>
+              </View>
+            </>
+          )}
+
           <Divider thickness={10} />
         </VStack>
         <Center px={5} py={5}>
@@ -233,8 +109,12 @@ const Payment = (): JSX.Element => {
       <TermsAndConditions show={showTNC} setShow={setShowTNC} />
       <FooterButton
         label="SUBMIT PAYMENT"
-        subText="Provide payment information in next step"
-        onPress={() => navigate("Booked")}
+        disabled={selectedCreditcard === "NEW"}
+        subText="Choose credit card for payment"
+        onPress={async () => {
+          await AsyncStorage.removeItem("LEAD_ID");
+          popToPop("Booked");
+        }}
       />
     </AppSafeAreaView>
   );

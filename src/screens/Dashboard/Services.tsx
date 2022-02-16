@@ -18,6 +18,7 @@ import {
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
+import FloatingButton from "../../components/FloatingButton";
 import { navigate } from "../../navigations/rootNavigation";
 
 const Services = (): JSX.Element => {
@@ -71,6 +72,7 @@ const Services = (): JSX.Element => {
         </Pressable>
         <Divider thickness={1} borderColor={AppColors.SECONDARY} />
       </VStack>
+      <FloatingButton onPress={() => navigate("ChooseService")} />
     </AppSafeAreaView>
   );
 };

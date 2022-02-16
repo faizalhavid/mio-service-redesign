@@ -1,4 +1,3 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   Button,
   Center,
@@ -9,37 +8,20 @@ import {
   VStack,
 } from "native-base";
 import React from "react";
-import { SvgCss } from "react-native-svg";
-import {
-  CALENDAR_ICON,
-  CIRCLE_TICK_ICON,
-  INFO_ICON,
-} from "../../commons/assets";
-import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ChooseServiceDetailsButton from "../../components/ChooseServiceDetailsButton";
 import FooterButton from "../../components/FooterButton";
-import OrderSummary from "../../components/OrderSummary";
 import ServiceDetailsSection from "../../components/ServiceDetailsSection";
 import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
-import { useLeads } from "../../hooks/useLeads";
-import { SuperRootStackParamList } from "../../navigations";
 import { navigate } from "../../navigations/rootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation } from "react-query";
 import { getCustomer } from "../../services/customer";
 import { SERVICES } from "./ChooseService";
+import { getLead } from "../../services/order";
 
-type ServiceDetailsProps = NativeStackScreenProps<
-  SuperRootStackParamList,
-  "ServiceDetails"
->;
-const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
+const ServiceDetails = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
-  const { mode } = route.params;
-  const [isPreview, setIsPreview] = React.useState(false);
-  const [isEdit, setIsEdit] = React.useState(false);
-  const [showServiceDesc, setShowServiceDesc] = React.useState(false);
   const [customerId, setCustomerId] = React.useState<string | null>(null);
   const { leadDetails } = useAuth();
 
@@ -74,15 +56,8 @@ const ServiceDetails = ({ route }: ServiceDetailsProps): JSX.Element => {
     fetchCustomerProfile();
   }, [fetchCustomerProfile]);
 
-  React.useEffect(() => {
-    if (mode) {
-      setIsPreview(mode === "PREVIEW");
-      setIsEdit(mode === "EDIT");
-    }
-  }, [mode]);
-  const selectedServices = ["Lawn Care", "House Cleaning"];
   return (
-    <AppSafeAreaView>
+    <AppSafeAreaView loading={loading}>
       <ScrollView>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={18}>

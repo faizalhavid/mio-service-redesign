@@ -1,4 +1,3 @@
-import { Input, Text, View } from "native-base";
 import React from "react";
 import { AppColors } from "../../commons/colors";
 import { TextField } from "rn-material-ui-textfield";
@@ -9,6 +8,7 @@ type AppInputProps = {
   label: string;
   value?: string;
   disabled?: boolean;
+  expiry?: boolean;
   onChange?: (...event: any[]) => void;
 };
 
@@ -17,6 +17,7 @@ const AppInput = ({
   label,
   value,
   disabled,
+  expiry,
   onChange,
 }: AppInputProps): JSX.Element => {
   const keyboardType: { [key: string]: KeyboardTypeOptions } = {
@@ -24,11 +25,21 @@ const AppInput = ({
     number: "numeric",
     email: "email-address",
   };
+
+  const formatText = (text: string) => {
+    if (text && text.length >= 2) {
+      let inputText = text.replace(/\//gi, "");
+      return `${inputText.substring(0, 2)}/${inputText.substring(2)}`;
+    }
+    return text;
+  };
+
   const [focussed, setFocussed] = React.useState(false);
   return (
     <>
       <TextField
         label={label}
+        formatText={expiry ? formatText : undefined}
         labelFontSize={14}
         keyboardType={keyboardType[type]}
         inputContainerStyle={{

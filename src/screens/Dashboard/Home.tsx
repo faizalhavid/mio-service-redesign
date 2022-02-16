@@ -121,9 +121,9 @@ const Home = (): JSX.Element => {
               </Center>
               <ServiceCard
                 variant="solid"
-                showAddToCalendar={true}
-                showReschedule={true}
-                showChat={true}
+                showAddToCalendar={false}
+                showReschedule={false}
+                showChat={false}
               />
               <Divider my={5} thickness={1} />
               <Text fontSize={18} pl={2} fontWeight={"semibold"}>
@@ -131,9 +131,9 @@ const Home = (): JSX.Element => {
               </Text>
               <ScrollView width={400} horizontal={true}>
                 <HStack mr={20} space={3}>
-                  <ServiceCard variant="outline" showAddToCalendar={true} />
-                  <ServiceCard variant="outline" showAddToCalendar={true} />
-                  <ServiceCard variant="outline" showAddToCalendar={true} />
+                  <ServiceCard variant="outline" showAddToCalendar={false} />
+                  <ServiceCard variant="outline" showAddToCalendar={false} />
+                  <ServiceCard variant="outline" showAddToCalendar={false} />
                 </HStack>
               </ScrollView>
               <Divider my={5} thickness={1} />

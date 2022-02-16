@@ -86,7 +86,7 @@ const FooterButton = ({
               backgroundColor: "teal.100",
             }}
             onPress={() => {
-              navigate("ServiceDetails", { mode: "PREVIEW" });
+              navigate("ServiceDetails");
             }}
           >
             <VStack>

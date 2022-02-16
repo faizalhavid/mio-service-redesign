@@ -22,9 +22,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
 import { useMutation, useQuery } from "react-query";
-import { getLead, getServices, postLead } from "../../services/order";
+import { getLead, getServices, postLead, putLead } from "../../services/order";
 import { Service } from "../../commons/types";
-import { useLeads } from "../../hooks/useLeads";
 import { useAuth } from "../../contexts/AuthContext";
 import OrderSummary from "../../components/OrderSummary";
 
@@ -86,7 +85,7 @@ const ChooseService = (): JSX.Element => {
   const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
 
   const [loading, setLoading] = React.useState(false);
-  const { setLeadDetails } = useAuth();
+  const { leadDetails, setLeadDetails } = useAuth();
   const [services, setServices] = React.useState<Service[]>([{} as Service]);
 
   const getAllServices = useQuery(
@@ -157,6 +156,32 @@ const ChooseService = (): JSX.Element => {
         setLoading(false);
         setLeadDetails(data.data);
         await AsyncStorage.setItem("LEAD_ID", data.data.leadId);
+      },
+      onError: (err) => {
+        setLoading(false);
+        console.log(err);
+      },
+    }
+  );
+
+  const updateLeadMutation = useMutation(
+    "updateLead",
+    (data) => {
+      setLoading(true);
+      let payload = {
+        ...leadDetails,
+        subOrders: [
+          ...selectedServices.map((service) => {
+            return { serviceId: service };
+          }),
+        ],
+      };
+      return putLead(payload);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setLeadDetails(data.data);
       },
       onError: (err) => {
         setLoading(false);
@@ -275,13 +300,15 @@ const ChooseService = (): JSX.Element => {
       <FooterButton
         label="ADD SERVICE DETAILS"
         disabled={selectedServices.length === 0}
-        subText="Provide service details in next step"
+        subText="Please add required services"
         onPress={async () => {
           const leadId = await AsyncStorage.getItem("LEAD_ID");
           if (!leadId) {
             await createLeadMutation.mutateAsync();
+          } else {
+            await updateLeadMutation.mutateAsync();
           }
-          navigate("ServiceDetails", { mode: "EDIT" });
+          navigate("ServiceDetails");
         }}
       />
     </>

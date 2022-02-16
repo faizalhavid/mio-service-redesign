@@ -45,7 +45,7 @@ const OrderSummary = ({ selectedServices }: OrderSummaryProps): JSX.Element => {
               backgroundColor: "teal.100",
             }}
             onPress={() => {
-              navigate("ServiceDetails", { mode: "PREVIEW" });
+              navigate("ServiceDetails");
             }}
           >
             <VStack>

@@ -18,6 +18,7 @@ import FooterButton from "../../components/FooterButton";
 import { goBack } from "../../navigations/rootNavigation";
 
 const PaymentMethods = (): JSX.Element => {
+  const [selectedCreditcard, setSelectedCreditcard] = React.useState("1234");
   return (
     <AppSafeAreaView>
       <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}>
@@ -40,69 +41,66 @@ const PaymentMethods = (): JSX.Element => {
               Default Payment Source
             </Text>
           </HStack>
-          <View px={5} py={5}>
+          <View px={2} pt={4}>
             <Radio.Group
-              defaultValue="1"
+              defaultValue={selectedCreditcard}
               name="myRadioGroup"
-              accessibilityLabel="Pick your favorite number"
+              accessibilityLabel="Choose"
+              onChange={(nextValue) => {
+                setSelectedCreditcard(nextValue);
+              }}
             >
-              <Radio value="1" my={1}>
-                <HStack
-                  ml={2}
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                  width={"90%"}
-                >
-                  <Text>XXXX-XXXX-XXXX-1234</Text>
-                  <Text fontSize={12} color={"amber.600"}>
-                    DELETE
-                  </Text>
-                </HStack>
-              </Radio>
-              <Radio value="2" my={1}>
-                <HStack
-                  ml={2}
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                  width={"90%"}
-                >
-                  <Text>XXXX-XXXX-XXXX-1234</Text>
-                  <Text fontSize={12} color={"amber.600"}>
-                    DELETE
-                  </Text>
-                </HStack>
-              </Radio>
+              <VStack
+                width={"98%"}
+                mx={5}
+                alignItems={"flex-start"}
+                alignSelf={"center"}
+                justifyContent={"space-around"}
+              >
+                <Radio ml={2} my={1} value="1234">
+                  XXXX-XXXX-XXXX-1234
+                </Radio>
+                <Radio ml={2} my={1} value="NEW">
+                  Add Credit Card
+                </Radio>
+              </VStack>
             </Radio.Group>
           </View>
           <Divider thickness={0} mt={5} />
-          <HStack
-            bg={AppColors.PRIMARY}
-            shadow={2}
-            px={6}
-            py={2}
-            justifyContent={"space-between"}
-            alignContent={"center"}
-          >
-            <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
-              Add New Credit Card
-            </Text>
-          </HStack>
-          <View px={5} py={5}>
-            <VStack>
-              <AppInput type={"number"} label={"CREDIT CARD"} />
-              <AppInput type={"number"} label={"EXPIRATION"} />
-              <AppInput type={"number"} label={"SECURITY CODE"} />
-              <Divider thickness={0} mt={10} />
-              <Button bg={AppColors.DARK_PRIMARY}>
-                <Text color={"#fff"}>Add</Text>
-              </Button>
-            </VStack>
-          </View>
+          {selectedCreditcard === "NEW" && (
+            <>
+              <HStack
+                bg={AppColors.PRIMARY}
+                shadow={2}
+                px={6}
+                py={2}
+                justifyContent={"space-between"}
+                alignContent={"center"}
+              >
+                <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
+                  Add Credit Card
+                </Text>
+              </HStack>
+              <View px={5}>
+                <AppInput type="number" label="Card Number" />
+                <AppInput
+                  type="number"
+                  expiry={true}
+                  label="Valid thru (MM/YYYY)"
+                />
+                <AppInput type="password" label="CVV" />
+                <Button mt={5} bg={AppColors.DARK_PRIMARY}>
+                  <Text color={"#fff"}>Add</Text>
+                </Button>
+              </View>
+            </>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
       <FooterButton
         label="SAVE PAYMENT METHOD"
-        subText="Provide payment information in next step"
+        disabled={selectedCreditcard === "NEW"}
+        subText="Choose default payment method or add new card"
         onPress={() => goBack()}
       />
     </AppSafeAreaView>

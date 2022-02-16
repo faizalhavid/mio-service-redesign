@@ -378,8 +378,10 @@ const PersonalDetails = (): JSX.Element => {
       </KeyboardAvoidingView>
       <FooterButton
         label={"UPDATE"}
-        disabled={!isValid}
-        subText={!isValid ? "Please provide all required fields" : ""}
+        disabled={!isValid && isDirty}
+        subText={
+          !isValid && isDirty ? "Please provide all required fields" : ""
+        }
         onPress={handleSubmit(onSubmit)}
       />
     </AppSafeAreaView>
