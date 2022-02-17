@@ -272,7 +272,6 @@ export function AuthProvider({ children }: AuthProviderType) {
         user
           .getIdToken()
           .then((token) => {
-            console.log(token);
             AsyncStorage.setItem("TOKEN", token);
           })
           .catch((error) => {

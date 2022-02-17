@@ -246,7 +246,7 @@ const Register = (): JSX.Element => {
         )}
       </Center>
       {/* <ScrollView> */}
-      <KeyboardAwareScrollView>
+      <KeyboardAwareScrollView enableOnAndroid={true}>
         <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
           <Controller
             control={control}

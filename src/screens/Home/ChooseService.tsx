@@ -296,7 +296,7 @@ const ChooseService = (): JSX.Element => {
                     width={"100%"}
                     height={50}
                     onPress={() => {
-                      chooseService(selectedServiceInfo?.text);
+                      chooseService(selectedServiceInfo?.id);
                       setToggleServiceInfo(false);
                     }}
                     _text={{

@@ -10,7 +10,8 @@ import {
   View,
   VStack,
 } from "native-base";
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
@@ -18,11 +19,13 @@ import FooterButton from "../../components/FooterButton";
 import { goBack } from "../../navigations/rootNavigation";
 
 const PaymentMethods = (): JSX.Element => {
-  const [selectedCreditcard, setSelectedCreditcard] = React.useState("1234");
+  const [loading, setLoading] = React.useState(false);
+  const [selectedCreditcard, setSelectedCreditcard] = useState<string>("1234");
   return (
-    <AppSafeAreaView>
-      <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}>
+    <AppSafeAreaView loading={loading}>
+      <KeyboardAwareScrollView enableOnAndroid={true}>
         <ScrollView>
+          {/* <ScrollView> */}
           <Center>
             <Text fontSize={20} pt={5}>
               Payment Methods
@@ -89,20 +92,24 @@ const PaymentMethods = (): JSX.Element => {
                   label="Valid thru (MM/YYYY)"
                 />
                 <AppInput type="password" label="CVV" />
+                <AppInput type="password" label="CVV" />
+                <AppInput type="password" label="CVV" />
                 <Button mt={5} bg={AppColors.DARK_PRIMARY}>
                   <Text color={"#fff"}>Add</Text>
                 </Button>
               </View>
             </>
           )}
+          {/* </ScrollView> */}
         </ScrollView>
-      </KeyboardAvoidingView>
-      <FooterButton
-        label="SAVE PAYMENT METHOD"
-        disabled={selectedCreditcard === "NEW"}
-        subText="Choose default payment method or add new card"
-        onPress={() => goBack()}
-      />
+      </KeyboardAwareScrollView>
+      {selectedCreditcard && selectedCreditcard !== "NEW" && (
+        <FooterButton
+          label="SAVE PAYMENT METHOD"
+          subText="Choose default payment method or add new card"
+          onPress={() => goBack()}
+        />
+      )}
     </AppSafeAreaView>
   );
 };

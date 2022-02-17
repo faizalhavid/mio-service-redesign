@@ -26,6 +26,7 @@ import { getServices, putLead } from "../../services/order";
 import { SERVICES } from "./ChooseService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCustomer } from "../../services/customer";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type LawnSizeType = {
   rangeMin: number | null;
@@ -322,7 +323,7 @@ const EditServiceDetails = ({
           }}
         >
           <VStack paddingX={5}>
-            <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}>
+            <KeyboardAwareScrollView enableOnAndroid={true}>
               <ScrollView>
                 <Divider thickness={0}></Divider>
                 <HStack justifyContent={"space-between"} alignItems={"center"}>
@@ -543,19 +544,22 @@ const EditServiceDetails = ({
                         flexWrap={"wrap"}
                         flexDirection="row"
                       >
-                        {["Weekly", "Bi-Weekly", "Monthly"].map((name) => {
-                          return (
-                            <SelectionButton
-                              w={(screenWidth - 60) / 3.07}
-                              active={false}
-                              text={name}
-                              onPress={function (index: number): void {
-                                throw new Error("Function not implemented.");
-                              }}
-                              index={0}
-                            />
-                          );
-                        })}
+                        {["Weekly", "Bi-Weekly", "Monthly"].map(
+                          (name, index) => {
+                            return (
+                              <SelectionButton
+                                key={index}
+                                w={(screenWidth - 60) / 3.07}
+                                active={false}
+                                text={name}
+                                onPress={function (index: number): void {
+                                  throw new Error("Function not implemented.");
+                                }}
+                                index={0}
+                              />
+                            );
+                          }
+                        )}
                       </HStack>
                     </VStack>
                   </ScrollView>
@@ -627,7 +631,7 @@ const EditServiceDetails = ({
                   </VStack>
                 </VStack>
               </ScrollView>
-            </KeyboardAvoidingView>
+            </KeyboardAwareScrollView>
           </VStack>
         </PresenceTransition>
       )}

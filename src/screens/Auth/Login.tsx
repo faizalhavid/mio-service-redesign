@@ -172,7 +172,6 @@ const Login = (): JSX.Element => {
               }
             }}
           />
-
           <Divider my="5" />
           <Center size="16" width={"100%"}>
             Already have an account?

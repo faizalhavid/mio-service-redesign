@@ -205,13 +205,14 @@ const Address = ({ route }: AddressProps): JSX.Element => {
                 <Select
                   accessibilityLabel="STATE"
                   placeholder="State"
-                  borderBottomWidth={1.5}
-                  borderBottomColor={"#bbb"}
+                  borderBottomWidth={1}
+                  borderBottomColor={"#ccc"}
                   _selectedItem={{
                     bg: AppColors.PRIMARY,
                     endIcon: <CheckIcon size="5" />,
                   }}
                   pl={-10}
+                  pb={1}
                   mt={value ? -3 : 2}
                   fontSize={14}
                   variant="underlined"

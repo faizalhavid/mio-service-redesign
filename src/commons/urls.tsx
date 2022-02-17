@@ -9,4 +9,5 @@ export const API = {
   POST_LEAD: "/leads",
   PUT_LEAD: "/leads",
   GET_LEAD: "/leads",
+  GET_SERVICE_COST: "/services/cost",
 };

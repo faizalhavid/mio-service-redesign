@@ -25,6 +25,7 @@ import {
 import { FormattedAddress, HouseInfoRequest } from "../../commons/types";
 import { Controller, useForm } from "react-hook-form";
 import { STATES } from "../../commons/dropdown-values";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -186,196 +187,198 @@ const PersonalDetails = (): JSX.Element => {
   };
   return (
     <AppSafeAreaView loading={loading}>
-      <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}>
-        <ScrollView>
-          <VStack>
-            <Center>
-              <Text fontSize={20} pt={5}>
-                Personal Details
-              </Text>
-            </Center>
-            <Divider thickness={0} mt={10} />
-            {Header("Current Information")}
-            <Center>
-              <Divider thickness={0} mt={5} />
-              <Text fontWeight={"semibold"}>
-                {customerProfile.firstName} {customerProfile.lastName}
-              </Text>
-              {customerProfile.addresses &&
-                customerProfile.addresses.length > 0 && (
-                  <>
-                    <Text>{customerProfile.addresses[0].street}</Text>
-                    <Text>
-                      {customerProfile.addresses[0].state},{" "}
-                      {customerProfile.addresses[0].city}{" "}
-                      {customerProfile.addresses[0].zip}
-                    </Text>
-                    <Text>{customerProfile.phones[0].number}</Text>
-                    <Text>{customerProfile.customerId}</Text>
-                  </>
-                )}
-            </Center>
-            <Divider thickness={0} mt={10} />
-            {Header("Update")}
-            {/* <Divider thickness={0} mt={10} /> */}
-            <VStack px={5}>
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Firstname"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="firstName"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Lastname"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="lastName"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="number"
-                    label="Phone"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="phone"
-              />
+      {/* <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}> */}
+      <KeyboardAwareScrollView enableOnAndroid={true}>
+        {/* <ScrollView> */}
+        <VStack>
+          <Center>
+            <Text fontSize={20} pt={5}>
+              Personal Details
+            </Text>
+          </Center>
+          <Divider thickness={0} mt={10} />
+          {Header("Current Information")}
+          <Center>
+            <Divider thickness={0} mt={5} />
+            <Text fontWeight={"semibold"}>
+              {customerProfile.firstName} {customerProfile.lastName}
+            </Text>
+            {customerProfile.addresses && customerProfile.addresses.length > 0 && (
+              <>
+                <Text>{customerProfile.addresses[0].street}</Text>
+                <Text>
+                  {customerProfile.addresses[0].state},{" "}
+                  {customerProfile.addresses[0].city}{" "}
+                  {customerProfile.addresses[0].zip}
+                </Text>
+                <Text>{customerProfile.phones[0].number}</Text>
+                <Text>{customerProfile.customerId}</Text>
+              </>
+            )}
+          </Center>
+          <Divider thickness={0} mt={10} />
+          {Header("Update")}
+          {/* <Divider thickness={0} mt={10} /> */}
+          <VStack px={5}>
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="text"
+                  label="Firstname"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="firstName"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="text"
+                  label="Lastname"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="lastName"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="number"
+                  label="Phone"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="phone"
+            />
 
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Street"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="street"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="City"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="city"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <>
-                    {value ? (
-                      <Text color={"gray.400"} fontSize={14}>
-                        State
-                      </Text>
-                    ) : (
-                      <></>
-                    )}
-                    <Select
-                      accessibilityLabel="STATE"
-                      placeholder="State"
-                      borderBottomWidth={1}
-                      borderBottomColor={"#ccc"}
-                      _selectedItem={{
-                        bg: AppColors.PRIMARY,
-                        endIcon: <CheckIcon size="5" />,
-                      }}
-                      pl={-10}
-                      mt={value ? -3 : 2}
-                      fontSize={14}
-                      variant="underlined"
-                      onValueChange={onChange}
-                      selectedValue={value}
-                    >
-                      {STATES.map((state) => {
-                        return (
-                          <Select.Item
-                            pl={0}
-                            key={state.code}
-                            label={state.name}
-                            value={state.code}
-                          />
-                        );
-                      })}
-                    </Select>
-                  </>
-                )}
-                name="state"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Zipcode"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="zip"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="email"
-                    label="Email"
-                    onChange={onChange}
-                    disabled={true}
-                    value={value}
-                  />
-                )}
-                name="email"
-              />
-            </VStack>
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="text"
+                  label="Street"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="street"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="text"
+                  label="City"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="city"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  {value ? (
+                    <Text color={"gray.400"} fontSize={14}>
+                      State
+                    </Text>
+                  ) : (
+                    <></>
+                  )}
+                  <Select
+                    accessibilityLabel="STATE"
+                    placeholder="State"
+                    borderBottomWidth={1}
+                    borderBottomColor={"#ccc"}
+                    _selectedItem={{
+                      bg: AppColors.PRIMARY,
+                      endIcon: <CheckIcon size="5" />,
+                    }}
+                    pl={-10}
+                    pb={1}
+                    mt={value ? -3 : 2}
+                    fontSize={14}
+                    variant="underlined"
+                    onValueChange={onChange}
+                    selectedValue={value}
+                  >
+                    {STATES.map((state) => {
+                      return (
+                        <Select.Item
+                          pl={0}
+                          key={state.code}
+                          label={state.name}
+                          value={state.code}
+                        />
+                      );
+                    })}
+                  </Select>
+                </>
+              )}
+              name="state"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="text"
+                  label="Zipcode"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="zip"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="email"
+                  label="Email"
+                  onChange={onChange}
+                  disabled={true}
+                  value={value}
+                />
+              )}
+              name="email"
+            />
           </VStack>
-          <Divider thickness={0} mt={220}></Divider>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </VStack>
+        <Divider thickness={0} mt={220}></Divider>
+        {/* </ScrollView> */}
+      </KeyboardAwareScrollView>
+      {/* </KeyboardAvoidingView> */}
       <FooterButton
         label={"UPDATE"}
         disabled={!isValid && isDirty}
