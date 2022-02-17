@@ -3,6 +3,7 @@ import auth, { firebase, FirebaseAuthTypes } from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LeadDetails } from "../commons/types";
 import { navigate } from "../navigations/rootNavigation";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 export type RegisterForm = {
   firstName: string;
@@ -202,6 +203,9 @@ export function AuthProvider({ children }: AuthProviderType) {
 
   function logout(): Promise<any> {
     return new Promise(async (res, rej) => {
+      if (currentUser.providerId === "google.com") {
+        await GoogleSignin.signOut();
+      }
       await firebase.auth().signOut();
       res("");
     });

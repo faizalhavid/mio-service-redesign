@@ -116,7 +116,7 @@ const Home = (): JSX.Element => {
                 </Text>
                 <Text mt={2} textAlign={"center"}>
                   Get ready for a beautiful lawn! {"\n"} Your next service is
-                  scheduled for {String(isFocused)}
+                  scheduled for
                 </Text>
               </Center>
               <ServiceCard

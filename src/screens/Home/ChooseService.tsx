@@ -88,23 +88,23 @@ const ChooseService = (): JSX.Element => {
   const { leadDetails, setLeadDetails } = useAuth();
   const [services, setServices] = React.useState<Service[]>([{} as Service]);
 
-  const getAllServices = useQuery(
-    "getAllServices",
-    () => {
-      setLoading(true);
-      return getServices();
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setServices(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
+  // const getAllServices = useQuery(
+  //   "getAllServices",
+  //   () => {
+  //     setLoading(true);
+  //     return getServices();
+  //   },
+  //   {
+  //     onSuccess: (data) => {
+  //       setLoading(false);
+  //       setServices(data.data);
+  //     },
+  //     onError: (err) => {
+  //       setLoading(false);
+  //       console.log(err);
+  //     },
+  //   }
+  // );
 
   const getLeadMutation = useMutation(
     "getLeadById",
@@ -116,9 +116,11 @@ const ChooseService = (): JSX.Element => {
       onSuccess: (data) => {
         setLoading(false);
         setLeadDetails(data.data);
-        data.data.subOrders.forEach((order: any) => {
-          setSelectedServices([...selectedServices, order.serviceId]);
+        let _selectedServices: string[] = [];
+        data.data.subOrders.forEach((subOrder: any) => {
+          _selectedServices.push(subOrder.serviceId);
         });
+        setSelectedServices(_selectedServices);
       },
       onError: (err) => {
         setLoading(false);
@@ -168,10 +170,17 @@ const ChooseService = (): JSX.Element => {
     "updateLead",
     (data) => {
       setLoading(true);
+      let existingServices = leadDetails.subOrders.map(
+        (subOrder) => subOrder.serviceId
+      );
+      let filteredServices = selectedServices.filter(
+        (serviceId) => !existingServices.includes(serviceId)
+      );
       let payload = {
         ...leadDetails,
         subOrders: [
-          ...selectedServices.map((service) => {
+          ...leadDetails.subOrders,
+          ...filteredServices.map((service) => {
             return { serviceId: service };
           }),
         ],
