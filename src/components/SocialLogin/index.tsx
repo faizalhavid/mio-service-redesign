@@ -7,40 +7,48 @@ import Spacer from "../Spacer";
 type SocialLoginProps = {
   label: "Signup" | "Login";
   loginWithGoogle?: () => void;
+  loginWithApple?: () => void;
 };
 
 const SocialLogin = ({
   label,
   loginWithGoogle,
+  loginWithApple,
 }: SocialLoginProps): JSX.Element => {
   return (
     <>
-      {Platform.OS === "android" && (
-        <HStack justifyContent={"center"}>
-          <Divider my="5" />
-          <Center
-            position={"absolute"}
-            top={2}
-            background={"white"}
-            _text={{
-              color: "gray.400",
-            }}
-          >
-            or
-          </Center>
-        </HStack>
-      )}
+      {/* {Platform.OS === "android" && ( */}
+      <HStack justifyContent={"center"}>
+        <Divider my="5" />
+        <Center
+          position={"absolute"}
+          top={2}
+          background={"white"}
+          _text={{
+            color: "gray.400",
+          }}
+        >
+          or
+        </Center>
+      </HStack>
+      {/* )} */}
       <Spacer top={20} />
       <VStack justifyContent={"center"} space={2} width={"100%"}>
-        {Platform.OS === "android" && loginWithGoogle && (
+        {loginWithGoogle && (
           <SocialLoginButton
             label={label}
             type="Google"
             onPress={loginWithGoogle}
           />
         )}
+        {Platform.OS === "ios" && loginWithApple && (
+          <SocialLoginButton
+            type="Apple"
+            onPress={loginWithApple}
+            label={label}
+          />
+        )}
         {/* <SocialLoginButton type="Facebook" onPress={() => {}} /> */}
-        {/* <SocialLoginButton type="Apple" onPress={loginWithApple} /> */}
       </VStack>
     </>
   );

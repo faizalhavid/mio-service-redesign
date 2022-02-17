@@ -9,7 +9,7 @@ import {
   VStack,
 } from "native-base";
 import React from "react";
-import { Platform, SafeAreaView } from "react-native";
+import { Dimensions, Platform, SafeAreaView } from "react-native";
 import { AppColors } from "../../commons/colors";
 import { AppStatusBar } from "../../components/AppStatusBar";
 
@@ -46,7 +46,7 @@ const AppSafeAreaView = ({
         <View
           position={"absolute"}
           width={"100%"}
-          height={"100%"}
+          height={Dimensions.get("screen").height}
           bg={"rgba(0,0,0,0.5)"}
           zIndex={999}
           justifyContent={"center"}

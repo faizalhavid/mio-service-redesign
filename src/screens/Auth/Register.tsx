@@ -35,6 +35,7 @@ import {
 } from "../../contexts/AuthContext";
 import { ENV } from "../../commons/environment";
 import SocialLogin from "../../components/SocialLogin";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const Register = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
@@ -75,14 +76,6 @@ const Register = (): JSX.Element => {
       setValue("email", userCredential.user.email || "");
       setValue("phone", "");
 
-      // socialRegisterCustomerMutation.mutate({
-      //   ...dummyProfile,
-      //   firstName: currentUser?.displayName || "",
-      //   email: currentUser?.email || "",
-      // });
-      // }
-      // const currentUser = await GoogleSignin.getCurrentUser();
-
       // Sign-in the user with the credential
     } catch (error: any) {
       console.log(error);
@@ -121,9 +114,23 @@ const Register = (): JSX.Element => {
       );
 
       // Sign the user in with the credential
-      const credential = await auth().signInWithCredential(appleCredential);
-      console.log(credential);
+      const userCredential = await auth().signInWithCredential(appleCredential);
+      console.log("credential", userCredential);
+
+      setSocialLoginCompleted(true);
+      if (
+        userCredential &&
+        userCredential.user &&
+        userCredential.user.displayName
+      ) {
+        let names = userCredential.user.displayName.split(" ");
+        setValue("firstName", names[0] || "");
+        setValue("lastName", names[1] || "");
+      }
+      setValue("email", userCredential.user.email || "");
+      setValue("phone", "");
     } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -149,6 +156,7 @@ const Register = (): JSX.Element => {
     "registerCustomer",
     (data: CustomerProfile) => {
       setLoading(true);
+      console.log(data);
       return postCustomer(data);
     },
     {
@@ -237,7 +245,8 @@ const Register = (): JSX.Element => {
           </Text>
         )}
       </Center>
-      <ScrollView>
+      {/* <ScrollView> */}
+      <KeyboardAwareScrollView>
         <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
           <Controller
             control={control}
@@ -329,11 +338,16 @@ const Register = (): JSX.Element => {
           )}
           <Spacer top={20} />
           {!socialLoginCompleted && (
-            <SocialLogin label="Signup" loginWithGoogle={loginWithGoogle} />
+            <SocialLogin
+              label="Signup"
+              loginWithGoogle={loginWithGoogle}
+              loginWithApple={loginWithApple}
+            />
           )}
         </Flex>
-        <Divider thickness={0} mt={150} />
-      </ScrollView>
+        <Divider thickness={0} mt={200} />
+        {/* </ScrollView> */}
+      </KeyboardAwareScrollView>
       <FooterButton
         label={"CREATE ACCOUNT"}
         disabled={!isValid}

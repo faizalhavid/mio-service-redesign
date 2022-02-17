@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LeadDetails } from "../commons/types";
 import { navigate } from "../navigations/rootNavigation";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import appleAuth from "@invertase/react-native-apple-authentication";
 
 export type RegisterForm = {
   firstName: string;
@@ -203,8 +204,14 @@ export function AuthProvider({ children }: AuthProviderType) {
 
   function logout(): Promise<any> {
     return new Promise(async (res, rej) => {
+      await AsyncStorage.clear();
       if (currentUser.providerId === "google.com") {
         await GoogleSignin.signOut();
+      }
+      if (currentUser.providerId === "apple.com") {
+        await appleAuth.performRequest({
+          requestedOperation: appleAuth.Operation.LOGOUT,
+        });
       }
       await firebase.auth().signOut();
       res("");
@@ -265,10 +272,12 @@ export function AuthProvider({ children }: AuthProviderType) {
         user
           .getIdToken()
           .then((token) => {
+            console.log(token);
             AsyncStorage.setItem("TOKEN", token);
           })
           .catch((error) => {
             console.log(error.message);
+            logout();
             navigate("Welcome");
           });
         setCurrentUser(user);

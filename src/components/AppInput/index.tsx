@@ -47,6 +47,7 @@ const AppInput = ({
           borderColor: "#ccc",
         }}
         disabled={disabled}
+        returnKeyType="done"
         onFocus={() => setFocussed(true)}
         onBlur={() => setFocussed(false)}
         fontSize={14}

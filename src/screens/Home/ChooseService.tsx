@@ -2,7 +2,9 @@ import {
   Actionsheet,
   Button,
   Circle,
+  Divider,
   HStack,
+  ScrollView,
   Text,
   View,
   VStack,
@@ -170,18 +172,21 @@ const ChooseService = (): JSX.Element => {
     "updateLead",
     (data) => {
       setLoading(true);
-      let existingServices = leadDetails.subOrders.map(
+      let existingServiceIds = leadDetails.subOrders.map(
         (subOrder) => subOrder.serviceId
       );
-      let filteredServices = selectedServices.filter(
-        (serviceId) => !existingServices.includes(serviceId)
+      let newlyAddedServiceIds = selectedServices.filter(
+        (serviceId) => !existingServiceIds.includes(serviceId)
       );
+      let subOrders = leadDetails.subOrders.filter((subOrder) => {
+        return selectedServices.includes(subOrder.serviceId);
+      });
       let payload = {
         ...leadDetails,
         subOrders: [
-          ...leadDetails.subOrders,
-          ...filteredServices.map((service) => {
-            return { serviceId: service };
+          ...subOrders,
+          ...newlyAddedServiceIds.map((serviceId) => {
+            return { serviceId };
           }),
         ],
       };
@@ -214,98 +219,103 @@ const ChooseService = (): JSX.Element => {
     setToggleServiceInfo(true);
   };
 
-  const content = (
-    <>
-      <VStack mt={5} space={5}>
-        <Text textAlign={"center"} fontSize={20}>
-          Which services are {"\n"} you interested in?
-        </Text>
-        <VStack space={0}>
-          <HStack justifyContent="center" space={5}>
-            {[SERVICES[LAWN_CARE_ID], SERVICES[POOL_CLEANING_ID]].map(
-              (service, index) => (
-                <ServiceButton
-                  key={index}
-                  icon={service?.icon()}
-                  text={service?.text}
-                  status={selectedServices.indexOf(service?.id) >= 0}
-                  onAdd={() => chooseService(service?.id)}
-                  onPress={() => showServiceInfo(service?.id)}
-                />
-              )
-            )}
-          </HStack>
-          <HStack justifyContent="center" space={5}>
-            {[SERVICES[HOUSE_CLEANING_ID], SERVICES[PEST_CONTROL_ID]].map(
-              (service, index) => (
-                <ServiceButton
-                  key={index}
-                  icon={service?.icon()}
-                  text={service?.text}
-                  status={selectedServices.indexOf(service?.id) >= 0}
-                  onAdd={() => chooseService(service?.id)}
-                  onPress={() => showServiceInfo(service?.id)}
-                />
-              )
-            )}
-          </HStack>
-        </VStack>
-      </VStack>
-      {/* <OrderSummary selectedServices={selectedServices} /> */}
-      <Actionsheet
-        isOpen={toggleServiceInfo}
-        onClose={() => setToggleServiceInfo(false)}
-      >
-        <Actionsheet.Content>
-          <HStack justifyContent="center" space={5}>
-            <VStack space="5" p={10}>
-              <View alignSelf={"center"}>
-                {selectedServiceInfo?.icon && (
-                  <Circle size={120} bg={AppColors.PRIMARY} p={10}>
-                    <SvgCss xml={selectedServiceInfo?.icon()} />
-                  </Circle>
+  return (
+    <AppSafeAreaView loading={loading}>
+      <ScrollView>
+        <>
+          <VStack mt={5} space={5}>
+            <Text textAlign={"center"} fontSize={20}>
+              Which services are {"\n"} you interested in?
+            </Text>
+            <VStack space={0}>
+              <HStack justifyContent="center" space={5}>
+                {[SERVICES[LAWN_CARE_ID], SERVICES[POOL_CLEANING_ID]].map(
+                  (service, index) => (
+                    <ServiceButton
+                      key={index}
+                      icon={service?.icon()}
+                      text={service?.text}
+                      status={selectedServices.indexOf(service?.id) >= 0}
+                      onAdd={() => chooseService(service?.id)}
+                      onPress={() => showServiceInfo(service?.id)}
+                    />
+                  )
                 )}
-              </View>
-              <Text
-                textAlign={"center"}
-                color={AppColors.SECONDARY}
-                fontWeight={"bold"}
-                fontSize={16}
-              >
-                {selectedServiceInfo?.text}
-              </Text>
-              <Text
-                textAlign={"center"}
-                fontSize={14}
-                color={AppColors.SECONDARY}
-              >
-                {selectedServiceInfo?.description}
-              </Text>
-              <Button
-                mt={5}
-                bg={AppColors.DARK_PRIMARY}
-                borderColor={AppColors.DARK_PRIMARY}
-                borderRadius={50}
-                width={"100%"}
-                height={50}
-                onPress={() => {
-                  chooseService(selectedServiceInfo?.text);
-                  setToggleServiceInfo(false);
-                }}
-                _text={{
-                  color: "white",
-                }}
-                alignSelf={"center"}
-                _pressed={{
-                  backgroundColor: `${AppColors.DARK_PRIMARY}E6`,
-                }}
-              >
-                Add
-              </Button>
+              </HStack>
+              <HStack justifyContent="center" space={5}>
+                {[SERVICES[HOUSE_CLEANING_ID], SERVICES[PEST_CONTROL_ID]].map(
+                  (service, index) => (
+                    <ServiceButton
+                      key={index}
+                      icon={service?.icon()}
+                      text={service?.text}
+                      status={selectedServices.indexOf(service?.id) >= 0}
+                      onAdd={() => chooseService(service?.id)}
+                      onPress={() => showServiceInfo(service?.id)}
+                    />
+                  )
+                )}
+              </HStack>
             </VStack>
-          </HStack>
-        </Actionsheet.Content>
-      </Actionsheet>
+          </VStack>
+          {/* <OrderSummary selectedServices={selectedServices} /> */}
+          <Actionsheet
+            isOpen={toggleServiceInfo}
+            onClose={() => setToggleServiceInfo(false)}
+          >
+            <Actionsheet.Content>
+              <HStack justifyContent="center" space={5}>
+                <VStack space="5" p={10}>
+                  <View alignSelf={"center"}>
+                    {selectedServiceInfo?.icon && (
+                      <Circle size={120} bg={AppColors.PRIMARY} p={10}>
+                        <SvgCss xml={selectedServiceInfo?.icon()} />
+                      </Circle>
+                    )}
+                  </View>
+                  <Text
+                    textAlign={"center"}
+                    color={AppColors.SECONDARY}
+                    fontWeight={"bold"}
+                    fontSize={16}
+                  >
+                    {selectedServiceInfo?.text}
+                  </Text>
+                  <Text
+                    textAlign={"center"}
+                    fontSize={14}
+                    color={AppColors.SECONDARY}
+                  >
+                    {selectedServiceInfo?.description}
+                  </Text>
+                  <Button
+                    mt={5}
+                    bg={AppColors.DARK_PRIMARY}
+                    borderColor={AppColors.DARK_PRIMARY}
+                    borderRadius={50}
+                    width={"100%"}
+                    height={50}
+                    onPress={() => {
+                      chooseService(selectedServiceInfo?.text);
+                      setToggleServiceInfo(false);
+                    }}
+                    _text={{
+                      color: "white",
+                    }}
+                    alignSelf={"center"}
+                    _pressed={{
+                      backgroundColor: `${AppColors.DARK_PRIMARY}E6`,
+                    }}
+                  >
+                    Add
+                  </Button>
+                </VStack>
+              </HStack>
+            </Actionsheet.Content>
+          </Actionsheet>
+          <Divider thickness={0} mt={20} />
+        </>
+      </ScrollView>
       <FooterButton
         label="ADD SERVICE DETAILS"
         disabled={selectedServices.length === 0}
@@ -320,9 +330,8 @@ const ChooseService = (): JSX.Element => {
           navigate("ServiceDetails");
         }}
       />
-    </>
+    </AppSafeAreaView>
   );
-  return <AppSafeAreaView loading={loading}>{content}</AppSafeAreaView>;
 };
 
 export default ChooseService;
