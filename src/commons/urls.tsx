@@ -10,4 +10,6 @@ export const API = {
   PUT_LEAD: "/leads",
   GET_LEAD: "/leads",
   GET_SERVICE_COST: "/services/cost",
+  GET_SAVED_CARDS: "/payment/cards",
+  SAVE_CARD: "/payment/savecard",
 };

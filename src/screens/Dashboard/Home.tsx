@@ -79,7 +79,7 @@ const Home = (): JSX.Element => {
             source={require("../../assets/images/dashboard-bg.png")}
           >
             <VStack pt={10}>
-              {false &&
+              {/* {false &&
                 customerProfile?.addresses &&
                 (customerProfile?.addresses.length === 0 ||
                   (customerProfile?.addresses.length > 0 &&
@@ -109,7 +109,7 @@ const Home = (): JSX.Element => {
                       Update
                     </Button>
                   </HStack>
-                )}
+                )} */}
               <Center>
                 <Text fontWeight={"semibold"} fontSize={16}>
                   Welcome Back {customerProfile?.firstName}

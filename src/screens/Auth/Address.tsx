@@ -24,7 +24,7 @@ import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { SuperRootStackParamList } from "../../navigations";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
+import { goBack, navigate, popToPop } from "../../navigations/rootNavigation";
 import {
   getCustomer,
   getHouseInfo,
@@ -111,7 +111,11 @@ const Address = ({ route }: AddressProps): JSX.Element => {
           "EMAIL_VERIFICATION_PENDING"
         );
         setLoading(false);
-        popToPop("VerifyEmail");
+        if (returnTo) {
+          goBack();
+        } else {
+          popToPop("VerifyEmail");
+        }
       },
       onError: (err: any) => {
         setLoading(false);
@@ -212,7 +216,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
                     endIcon: <CheckIcon size="5" />,
                   }}
                   pl={-10}
-                  pb={1}
                   mt={value ? -3 : 2}
                   fontSize={14}
                   variant="underlined"

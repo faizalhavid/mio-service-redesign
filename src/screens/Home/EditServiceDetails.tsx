@@ -22,7 +22,7 @@ import SelectionButton from "../../components/SelectionButton";
 import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
-import { getServices, putLead } from "../../services/order";
+import { getServiceCost, getServices, putLead } from "../../services/order";
 import { SERVICES } from "./ChooseService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCustomer } from "../../services/customer";
@@ -58,6 +58,8 @@ type AppointmentTimeOptionType = {
   selected: boolean;
 };
 
+type BathBedOptions = { number: number; selected: boolean };
+
 type EditServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
   "EditServiceDetails"
@@ -66,24 +68,12 @@ const EditServiceDetails = ({
   route,
 }: EditServiceDetailsProps): JSX.Element => {
   const { serviceId } = route.params;
-  // const LAWN_CARE_INFO = <ServiceDetailsOptions title="HOW BIG IS YOUR LOT?" />;
-  // const POOL_LEANING_INFO = (
-  //   <ServiceDetailsOptions title="WHAT TYPE OF POOL DO YOU HAVE?" />
-  // );
-  // const HOUSE_CLEANING_INFO = (
-  //   <>
-  //     <ServiceDetailsOptions title="HOW MANY STORIES IN YOUR HOME?" />
-  //     <Divider thickness={0} mt={3} />
-  //     <ServiceDetailsOptions title="HOW MANY BEDROOMS?" />
-  //     <Divider thickness={0} mt={3} />
-  //     <ServiceDetailsOptions title="HOW MANY BATHROOMS?" />
-  //   </>
-  // );
-  // const PES_CONTROL_INFO = (
-  //   <ServiceDetailsOptions title="WHAT TYPE OF PESTS ARE YOU DEALING WITH?" />
-  // );
 
   const [loading, setLoading] = React.useState(false);
+
+  const [serviceNotes, setServiceNotes] = React.useState("");
+  const [selectedDate, setSelectedDate] = React.useState("");
+  const [selectedTime, setSelectedTime] = React.useState("");
 
   const { leadDetails, setLeadDetails } = useAuth();
 
@@ -123,6 +113,45 @@ const EditServiceDetails = ({
   useEffect(() => {
     fetchCustomerProfile();
   }, [fetchCustomerProfile]);
+
+  const [bathroomOptions, setBathroomOptions] = React.useState<
+    BathBedOptions[]
+  >([]);
+  const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
+    []
+  );
+  useEffect(() => {
+    if (Object.keys(customerProfile).length === 0) {
+      return;
+    }
+    setBathroomOptions([]);
+    setBedroomOptions([]);
+    let houseInfo = customerProfile?.addresses[0]?.houseInfo;
+    let bathOptions: BathBedOptions[] = [];
+    let bedOptions: BathBedOptions[] = [];
+    console.log();
+    for (let i of [1, 2, 3, 4, 5]) {
+      bathOptions.push({
+        number: i,
+        selected:
+          (houseInfo &&
+            houseInfo?.bathrooms &&
+            parseInt(houseInfo?.bathrooms) == i) ||
+          false,
+      });
+
+      bedOptions.push({
+        number: i,
+        selected:
+          (houseInfo &&
+            houseInfo?.bedrooms &&
+            parseInt(houseInfo?.bedrooms) == i) ||
+          false,
+      });
+    }
+    setBathroomOptions(bathOptions);
+    setBedroomOptions(bedOptions);
+  }, [customerProfile]);
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -164,23 +193,6 @@ const EditServiceDetails = ({
     }
   );
 
-  const Title = (text: string) => {
-    return (
-      <Text
-        fontSize={14}
-        fontWeight={"semibold"}
-        width={"100%"}
-        color={AppColors.SECONDARY}
-      >
-        {text}
-      </Text>
-    );
-  };
-
-  const SectionDivider = (t: number) => {
-    return <Divider thickness={t} mt={4}></Divider>;
-  };
-
   const [showFields, setShowFields] = React.useState(false);
 
   const [selectedPriceMap, setSelectedPriceMap] = React.useState<PriceMap>();
@@ -197,63 +209,130 @@ const EditServiceDetails = ({
 
   const [priceMap, setPriceMap] = React.useState<PriceMap[]>([]);
 
+  const [serviceCostOptions, setServiceCostOptions] = React.useState([]);
+  // "WEEKLY","ONCE","MONTHLY","BIWEEKLY"
+  const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
+    React.useState({});
+  let structure = [
+    {
+      method: "RECURRING",
+      label: "pricepermonth Billed Monthly",
+      selected: true,
+      activeOption: {
+        perCost: "40",
+        monthlyCost: "80",
+        type: "WEEKLY",
+        label: "Weekly",
+        selected: true,
+      },
+      options: [
+        {
+          perCost: "40",
+          type: "WEEKLY",
+          label: "Weekly",
+          selected: true,
+        },
+        {
+          perCost: "40",
+          type: "BIWEEKLY",
+          label: "Bi-Weekly",
+          selected: false,
+        },
+        {
+          perCost: "40",
+          type: "MONTHLY",
+          label: "Monthly",
+          selected: false,
+        },
+      ],
+    },
+    {
+      method: "ONCE",
+      cost: "40",
+      label: "One-time Service",
+      selected: false,
+    },
+  ];
+  const getServiceCostMutation = useMutation(
+    "getServiceCost",
+    (payload: any) => {
+      setLoading(true);
+      return getServiceCost(payload);
+    },
+    {
+      onSuccess: (data) => {
+        let priceMap: PriceMap[] = data.data;
+
+        if (priceMap[0]) {
+          if (
+            priceMap[0].pricePerWeek &&
+            parseInt(priceMap[0].pricePerOnetime) !== 0
+          )
+            if (
+              priceMap[0].pricePerOnetime &&
+              parseInt(priceMap[0].pricePerOnetime) !== 0
+            ) {
+            }
+        }
+
+        setLoading(false);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
+
   React.useEffect(() => {
+    if (Object.keys(customerProfile).length === 0) {
+      return;
+    }
     if (serviceId && services) {
+      setLoading(true);
       services.forEach((service) => {
-        if (service.serviceId === serviceId) {
-          setPriceMap(service.priceMap);
+        if (
+          ["lawnCare", "houseCleaning"].includes(serviceId) &&
+          service.serviceId === serviceId
+        ) {
+          if (customerProfile.addresses[0].houseInfo?.lotSize) {
+            let priceMap: PriceMap[] = [];
+            let lotsize: number = parseInt(
+              customerProfile.addresses[0].houseInfo?.lotSize
+            );
+            service.priceMap.forEach((price) => {
+              if (
+                price.rangeMin &&
+                price.rangeMax &&
+                lotsize > price.rangeMin &&
+                lotsize < price.rangeMax
+              ) {
+                priceMap.push({
+                  ...price,
+                  selected: true,
+                });
+                if (serviceId === "lawnCare") {
+                  getServiceCostMutation.mutate([
+                    {
+                      serviceId: serviceId,
+                      serviceParameters: {
+                        area: lotsize,
+                      },
+                    },
+                  ]);
+                }
+              } else {
+                priceMap.push(price);
+              }
+            });
+            setPriceMap(priceMap);
+          } else {
+            setPriceMap(service.priceMap);
+          }
+          setLoading(false);
         }
       });
     }
-  }, [serviceId, services]);
-
-  const frequencyType: any = {
-    pricePer2Weeks: {
-      key: "BIWEEKLY",
-      multiplyBy: 2,
-      position: 2,
-    },
-    pricePerMonth: {
-      key: "MONTHLY",
-      multiplyBy: 1,
-      position: 3,
-    },
-    pricePerOnetime: {
-      key: "ONCE",
-      multiplyBy: 1,
-      position: 0,
-    },
-    pricePerWeek: {
-      key: "WEEKLY",
-      multiplyBy: 4,
-      position: 1,
-    },
-  };
-  // const [priceList, setPriceList] = React.useState<PriceListType[]>([]);
-  const [priceType, setPriceType] = React.useState<PriceListType>();
-  const priceList: PriceListType[] = React.useMemo(() => {
-    let _priceList: PriceListType[] = [];
-    if (selectedPriceMap) {
-      for (const [key, value] of Object.entries(selectedPriceMap)) {
-        if (frequencyType[key]) {
-          _priceList.push({
-            frequency: frequencyType[key].key || "",
-            cost: value,
-            monthlyCost: frequencyType[key].multiplyBy * value,
-            position: frequencyType[key].position,
-            selected:
-              priceType && priceType.frequency === frequencyType[key].key
-                ? true
-                : false,
-          });
-        }
-      }
-    }
-
-    _priceList.sort((a, b) => (a.position > b.position ? 1 : -1));
-
-    return _priceList;
-  }, [selectedPriceMap, priceType]);
+  }, [serviceId, services, customerProfile]);
 
   const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTH = [
@@ -307,6 +386,23 @@ const EditServiceDetails = ({
     setAppointmentTimeOptions(times);
   }, []);
 
+  const Title = (text: string) => {
+    return (
+      <Text
+        fontSize={14}
+        fontWeight={"semibold"}
+        width={"100%"}
+        color={AppColors.SECONDARY}
+      >
+        {text}
+      </Text>
+    );
+  };
+
+  const SectionDivider = (t: number) => {
+    return <Divider thickness={t} mt={4}></Divider>;
+  };
+
   return (
     <AppSafeAreaView loading={loading}>
       {showFields && serviceId && (
@@ -341,7 +437,6 @@ const EditServiceDetails = ({
                   />
                 </HStack>
                 {SectionDivider(1)}
-
                 <VStack>
                   {serviceId === "lawnCare" && (
                     <>
@@ -363,7 +458,6 @@ const EditServiceDetails = ({
                                 h={38}
                                 index={index}
                                 onPress={(index1) => {
-                                  setPriceType({} as PriceListType);
                                   let updatedList = priceMap.map(
                                     (pm2, index2) => {
                                       if (index1 == index2) {
@@ -371,7 +465,14 @@ const EditServiceDetails = ({
                                           ...pm2,
                                           selected: true,
                                         };
-                                        setSelectedPriceMap(selected);
+                                        getServiceCostMutation.mutate([
+                                          {
+                                            serviceId,
+                                            serviceParameters: {
+                                              area: pm2.rangeMax,
+                                            },
+                                          },
+                                        ]);
                                         return selected;
                                       }
                                       return { ...pm2, selected: false };
@@ -400,16 +501,32 @@ const EditServiceDetails = ({
                         flexWrap={"wrap"}
                         flexDirection="row"
                       >
-                        {[1, 2, 3, 4, 5].map((number, index) => {
+                        {bedroomOptions.map((option, index) => {
                           return (
                             <View mb={1} key={index}>
                               <SelectionButton
                                 w={(screenWidth - 60) / 7}
                                 h={38}
                                 index={index}
-                                onPress={(index1) => {}}
-                                active={false}
-                                text={`${number}`}
+                                onPress={(index1) => {
+                                  let updatedOptions = bedroomOptions.map(
+                                    (opt, i) => {
+                                      if (i === index1) {
+                                        return {
+                                          ...opt,
+                                          selected: true,
+                                        };
+                                      }
+                                      return {
+                                        ...opt,
+                                        selected: false,
+                                      };
+                                    }
+                                  );
+                                  setBedroomOptions(updatedOptions);
+                                }}
+                                active={option.selected}
+                                text={`${option.number}`}
                               />
                             </View>
                           );
@@ -424,16 +541,32 @@ const EditServiceDetails = ({
                         flexWrap={"wrap"}
                         flexDirection="row"
                       >
-                        {[1, 2, 3, 4, 5].map((number, index) => {
+                        {bathroomOptions.map((option, index) => {
                           return (
                             <View mb={1} key={index}>
                               <SelectionButton
                                 w={(screenWidth - 60) / 7}
                                 h={38}
                                 index={index}
-                                onPress={(index1) => {}}
-                                active={false}
-                                text={`${number}`}
+                                onPress={(index1) => {
+                                  let updatedOptions = bathroomOptions.map(
+                                    (opt, i) => {
+                                      if (i === index1) {
+                                        return {
+                                          ...opt,
+                                          selected: true,
+                                        };
+                                      }
+                                      return {
+                                        ...opt,
+                                        selected: false,
+                                      };
+                                    }
+                                  );
+                                  setBathroomOptions(updatedOptions);
+                                }}
+                                active={option.selected}
+                                text={`${option.number}`}
                               />
                             </View>
                           );
@@ -456,19 +589,7 @@ const EditServiceDetails = ({
                           variant="custom"
                           active={true}
                           index={0}
-                          onPress={(index1) => {
-                            let updatedList = priceList.map((p2, index2) => {
-                              if (index1 == index2) {
-                                let selected: PriceListType = {
-                                  ...p2,
-                                  selected: true,
-                                };
-                                setPriceType(selected);
-                                return selected;
-                              }
-                              return { ...p2, selected: false };
-                            });
-                          }}
+                          onPress={(index1) => {}}
                           text2={(color) => {
                             return (
                               <VStack space={1} justifyContent="center">
@@ -501,19 +622,7 @@ const EditServiceDetails = ({
                           variant="custom"
                           active={false}
                           index={0}
-                          onPress={(index1) => {
-                            let updatedList = priceList.map((p2, index2) => {
-                              if (index1 == index2) {
-                                let selected: PriceListType = {
-                                  ...p2,
-                                  selected: true,
-                                };
-                                setPriceType(selected);
-                                return selected;
-                              }
-                              return { ...p2, selected: false };
-                            });
-                          }}
+                          onPress={(index1) => {}}
                           text2={(color) => {
                             return (
                               <VStack
@@ -589,9 +698,24 @@ const EditServiceDetails = ({
                             );
                           }}
                           onPress={function (index: number): void {
-                            throw new Error("Function not implemented.");
+                            let updatedAppointmentDateOptions =
+                              appointmentDateOptions.map(
+                                (option, optionIndex) => {
+                                  if (optionIndex === index) {
+                                    setSelectedDate(option.fullDate);
+                                    return {
+                                      ...option,
+                                      selected: true,
+                                    };
+                                  }
+                                  return { ...option, selected: false };
+                                }
+                              );
+                            setAppointmentDateOptions(
+                              updatedAppointmentDateOptions
+                            );
                           }}
-                          index={0}
+                          index={index}
                         />
                       );
                     })}
@@ -614,9 +738,24 @@ const EditServiceDetails = ({
                               active={timeslot.selected}
                               text={`${timeslot.rangeMin} ${timeslot.minMeridian} - ${timeslot.rangeMax} ${timeslot.maxMaxidian}`}
                               onPress={function (index: number): void {
-                                throw new Error("Function not implemented.");
+                                let updatedAppointmentTimeOptions =
+                                  appointmentTimeOptions.map(
+                                    (option, optionIndex) => {
+                                      if (optionIndex === index) {
+                                        setSelectedTime(option.rangeMin);
+                                        return {
+                                          ...option,
+                                          selected: true,
+                                        };
+                                      }
+                                      return { ...option, selected: false };
+                                    }
+                                  );
+                                setAppointmentTimeOptions(
+                                  updatedAppointmentTimeOptions
+                                );
                               }}
-                              index={0}
+                              index={index}
                             />
                           </View>
                         );
@@ -625,8 +764,14 @@ const EditServiceDetails = ({
                     {SectionDivider(0)}
                     {Title("Add Service Note")}
                     <Divider thickness={0} mt={1}></Divider>
-
-                    <TextArea numberOfLines={5} mb={50}></TextArea>
+                    <TextArea
+                      onChangeText={(text) => {
+                        setServiceNotes(text);
+                      }}
+                      keyboardType="default"
+                      numberOfLines={5}
+                      mb={20}
+                    />
                     <Divider thickness={0} mt={250}></Divider>
                   </VStack>
                 </VStack>

@@ -37,7 +37,7 @@ const VerifyEmail = (): JSX.Element => {
 
   return (
     <AppSafeAreaView>
-      <VStack mt={20}>
+      <VStack mt={5}>
         <Center p={10}>
           <View mt={20}>
             <SvgCss width={75} height={75} xml={EXCLAMATION_ICON("#9fd297")} />

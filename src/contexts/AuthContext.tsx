@@ -19,6 +19,11 @@ export type Address = {
   city: string;
   state: string;
   zip: string;
+  houseInfo?: {
+    bathrooms?: string;
+    bedrooms?: string;
+    lotSize?: string;
+  };
 };
 
 export type CreditCard = {

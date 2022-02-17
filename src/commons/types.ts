@@ -41,16 +41,17 @@ export type HouseInfoRequest = {
 };
 
 export interface PriceMap {
-  pricePerMonth: number;
   selected?: boolean;
   bathrooms: number;
   bedrooms: number;
   duration: number;
-  pricePerWeek: number;
-  pricePerOnetime: number;
-  pricePer2Weeks: number;
+  pricePerWeek: string;
+  pricePer2Weeks: string;
+  pricePerMonth: string;
+  pricePerOnetime: string;
   rangeMin?: number;
   rangeMax?: number;
+  serviceId: number;
   pricePerQuarterly?: number;
 }
 
