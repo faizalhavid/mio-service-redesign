@@ -20,9 +20,15 @@ import PriceBreakdown from "./PriceBreakdown";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppInput from "../../components/AppInput";
 import { useMutation } from "react-query";
-import { getSavedCards, saveCard } from "../../services/order";
+import {
+  createOrderFromLead,
+  getSavedCards,
+  putLead,
+  saveCard,
+} from "../../services/order";
 import { Card, SaveCardType } from "./PaymentMethods";
 import { Controller, useForm } from "react-hook-form";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
@@ -31,6 +37,8 @@ const Payment = (): JSX.Element => {
   const [selectedCreditcard, setSelectedCreditcard] = useState<string>();
   const [errorMsg, setErrorMsg] = React.useState("");
   const [savedCards, setSavedCards] = React.useState<Card[]>([]);
+  const { leadDetails, setLeadDetails } = useAuth();
+
   const fetchCustomerProfile = useCallback(async () => {
     let cId = await AsyncStorage.getItem("CUSTOMER_ID");
     setCustomerId(cId);
@@ -51,7 +59,7 @@ const Payment = (): JSX.Element => {
       onSuccess: (data) => {
         setSavedCards(data.data);
         if (data.data.length > 0) {
-          setSelectedCreditcard(data.data[0].number);
+          setSelectedCreditcard(data.data[0].id);
         }
         setLoading(false);
       },
@@ -83,20 +91,40 @@ const Payment = (): JSX.Element => {
     }
   );
 
+  const updateLeadMutation = useMutation(
+    "updateLead",
+    () => {
+      setLoading(true);
+      let payload = {
+        ...leadDetails,
+        creditCard: {
+          ...leadDetails.creditCard,
+          qbCardId: selectedCreditcard,
+        },
+      };
+      return putLead(payload);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setLeadDetails(data.data);
+      },
+      onError: (err) => {
+        setLoading(false);
+        console.log(err);
+      },
+    }
+  );
+
   const createOrderFromLeadMutation = useMutation(
     "createOrderFromLead",
     () => {
       setErrorMsg("");
       setLoading(true);
-      return saveCard(customerId || "", { card: "payload" });
+      return createOrderFromLead(leadDetails.leadId);
     },
     {
       onSuccess: (data) => {
-        if (data.data?.message) {
-          setErrorMsg("Invalid Card Credentials!");
-        } else {
-          getSavedCardsMutation.mutate();
-        }
         setLoading(false);
       },
       onError: (err) => {
@@ -156,7 +184,7 @@ const Payment = (): JSX.Element => {
               >
                 {savedCards.map((card, index) => {
                   return (
-                    <Radio key={index} ml={2} my={1} value={card.number}>
+                    <Radio key={index} ml={2} my={1} value={card.id}>
                       {formatNumber(card.number)}
                     </Radio>
                   );
@@ -283,6 +311,8 @@ const Payment = (): JSX.Element => {
           disabled={selectedCreditcard === "NEW"}
           subText="Choose credit card for payment"
           onPress={async () => {
+            await updateLeadMutation.mutateAsync();
+            await createOrderFromLeadMutation.mutateAsync();
             await AsyncStorage.removeItem("LEAD_ID");
             popToPop("Booked");
           }}

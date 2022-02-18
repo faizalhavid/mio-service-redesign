@@ -15,6 +15,13 @@ type ServiceCardProps = {
   showReschedule?: boolean;
   showChat?: boolean;
   w?: string;
+  serviceName: string;
+  date: string;
+  day: string;
+  slot: string;
+  year: string;
+  orderId: string;
+  subOrderId: string;
 };
 
 const ServiceCard = ({
@@ -23,6 +30,13 @@ const ServiceCard = ({
   showReschedule,
   showChat,
   w,
+  serviceName,
+  date,
+  day,
+  slot,
+  year,
+  orderId,
+  subOrderId,
 }: ServiceCardProps): JSX.Element => {
   // const outlineColor = "#43a4ab";
   const outlineColor = AppColors.SECONDARY;
@@ -46,17 +60,17 @@ const ServiceCard = ({
       >
         <HStack justifyContent={"space-between"}>
           <Text fontWeight={"semibold"} fontSize={14} color={textColor}>
-            Basic Lawn Service
+            {serviceName}
           </Text>
           <Text fontWeight={"semibold"} fontSize={14} color={textColor}>
-            8 AM - 10 AM
+            {slot}
           </Text>
         </HStack>
         <Text fontSize={18} color={textColor}>
-          May 25, 2021
+          {date}, {year}
         </Text>
         <Text fontSize={14} color={textColor}>
-          Sunday
+          {day}
         </Text>
         {showAddToCalendar && <Divider thickness={1} marginY={3} />}
         <HStack justifyContent={"space-between"}>

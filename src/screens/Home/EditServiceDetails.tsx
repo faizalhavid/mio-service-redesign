@@ -64,6 +64,22 @@ type EditServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
   "EditServiceDetails"
 >;
+
+export const MONTH = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sept",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 const EditServiceDetails = ({
   route,
 }: EditServiceDetailsProps): JSX.Element => {
@@ -159,7 +175,7 @@ const EditServiceDetails = ({
           }
           if (serviceId === "houseCleaning") {
             subOrder.bedrooms = String(selectedBedroomNo);
-            subOrder.bathrooms = String(selectedBedroomNo);
+            subOrder.bathrooms = String(selectedBathroomNo);
           }
           subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
           subOrder.serviceNotes = [serviceNotes];
@@ -411,20 +427,6 @@ const EditServiceDetails = ({
   }, [selectedBathroomNo, selectedBedroomNo]);
 
   const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const MONTH = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sept",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
 
   const [appointmentDateOptions, setAppointmentDateOptions] =
     useState<AppointmentDateOptionType[]>();

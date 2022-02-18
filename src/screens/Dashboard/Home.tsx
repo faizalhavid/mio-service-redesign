@@ -19,8 +19,16 @@ import { useMutation, useQuery } from "react-query";
 import { getCustomer } from "../../services/customer";
 import { AppColors } from "../../commons/colors";
 import { useIsFocused } from "@react-navigation/native";
-import { getAppointments } from "../../services/order";
+import { getAllOrders, getAppointments } from "../../services/order";
+import { SERVICES } from "../Home/ChooseService";
+import { getReadableDateTime } from "../../services/utils";
 
+export type Order = {
+  orderId: string;
+  subOrderId: string;
+  appointmentDateTime: string;
+  serviceId: string;
+};
 export interface Appointment {
   customerId: string;
   providerId: string;
@@ -68,22 +76,41 @@ const Home = (): JSX.Element => {
     }
   );
 
-  // const getAppointmentsQuery = useQuery(
-  //   "getAppointments",
-  //   () => {
-  //     setLoading(true);
-  //     return getAppointments();
-  //   },
-  //   {
-  //     onSuccess: (data) => {
-  //       setLoading(false);
-  //       setCustomerProfile(data.data);
-  //     },
-  //     onError: (err) => {
-  //       setLoading(false);
-  //     },
-  //   }
-  // );
+  const [upcomingOrders, setUpcomingOrders] = React.useState<Order[]>([]);
+  const getAllUpcomingOrdersQuery = useQuery(
+    "getAllUpcomingOrders",
+    () => {
+      setLoading(true);
+      return getAllOrders("upcoming");
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setUpcomingOrders(data.data[0]);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
+
+  const [pastOrders, setPastOrders] = React.useState<Order[]>([]);
+  const getAllPastOrdersQuery = useQuery(
+    "getAllPastOrders",
+    () => {
+      setLoading(true);
+      return getAllOrders("past");
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setPastOrders(data.data[0]);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
 
   const fetchCustomerProfile = React.useCallback(async () => {
     let APP_STATUS = await AsyncStorage.getItem("APP_START_STATUS");
@@ -116,61 +143,86 @@ const Home = (): JSX.Element => {
             source={require("../../assets/images/dashboard-bg.png")}
           >
             <VStack pt={10}>
-              {/* {false &&
-                customerProfile?.addresses &&
-                (customerProfile?.addresses.length === 0 ||
-                  (customerProfile?.addresses.length > 0 &&
-                    !Boolean(customerProfile?.addresses[0].street))) && (
-                  <HStack
-                    mb={5}
-                    borderWidth={1}
-                    borderRadius={7}
-                    bg={"#ccfbf133"}
-                    p={2}
-                    justifyContent="space-between"
-                    alignItems={"center"}
-                  >
-                    <Text
-                      color={AppColors.SECONDARY}
-                      fontSize={14}
-                      fontWeight={"semibold"}
-                    >
-                      Please update address before {"\n"}creating a order
-                    </Text>
-                    <Button
-                      bg={AppColors.SECONDARY}
-                      onPress={() => {
-                        navigate("Address", { returnTo: "Dashboard" });
-                      }}
-                    >
-                      Update
-                    </Button>
-                  </HStack>
-                )} */}
               <Center>
                 <Text fontWeight={"semibold"} fontSize={16}>
                   Welcome Back {customerProfile?.firstName}
                 </Text>
                 <Text mt={2} textAlign={"center"}>
-                  Get ready for a beautiful lawn! {"\n"} Your next service is
+                  Get ready for a beautiful service! {"\n"} Your next service is
                   scheduled for
                 </Text>
               </Center>
-              <ServiceCard
-                variant="solid"
-                showAddToCalendar={false}
-                showReschedule={false}
-                showChat={false}
-              />
+              {upcomingOrders.length > 0 ? (
+                <ServiceCard
+                  variant="solid"
+                  showAddToCalendar={false}
+                  showReschedule={false}
+                  showChat={false}
+                  serviceName={SERVICES[upcomingOrders[0].serviceId].text}
+                  orderId={upcomingOrders[0].orderId}
+                  subOrderId={upcomingOrders[0].subOrderId}
+                  year={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .year
+                  }
+                  date={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .date
+                  }
+                  day={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .day
+                  }
+                  slot={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .slot
+                  }
+                />
+              ) : (
+                <VStack
+                  paddingY={4}
+                  paddingX={5}
+                  mt={5}
+                  borderRadius={10}
+                  borderWidth={1}
+                  borderColor={AppColors.SECONDARY}
+                  bg={"#fff"}
+                  shadow={3}
+                  width={"100%"}
+                >
+                  <Center>
+                    <Text>Create your first service</Text>
+                  </Center>
+                </VStack>
+              )}
               <Divider my={5} thickness={1} />
               <Text fontSize={18} pl={2} fontWeight={"semibold"}>
                 Upcoming Services
               </Text>
               <ScrollView width={400} horizontal={true}>
                 <HStack mr={20} space={3}>
-                  <ServiceCard variant="outline" showAddToCalendar={false} />
-                  <ServiceCard variant="outline" showAddToCalendar={false} />
-                  <ServiceCard variant="outline" showAddToCalendar={false} />
+                  {upcomingOrders.map((order: Order, index: number) => {
+                    return (
+                      <ServiceCard
+                        key={index}
+                        variant="outline"
+                        showAddToCalendar={false}
+                        serviceName={SERVICES[order.serviceId].text}
+                        orderId={order.orderId}
+                        subOrderId={order.subOrderId}
+                        year={
+                          getReadableDateTime(order.appointmentDateTime).year
+                        }
+                        date={
+                          getReadableDateTime(order.appointmentDateTime).date
+                        }
+                        day={getReadableDateTime(order.appointmentDateTime).day}
+                        slot={
+                          getReadableDateTime(order.appointmentDateTime).slot
+                        }
+                      />
+                    );
+                  })}
                 </HStack>
               </ScrollView>
               <Divider my={5} thickness={1} />
@@ -179,9 +231,28 @@ const Home = (): JSX.Element => {
               </Text>
               <ScrollView width={400} horizontal={true}>
                 <HStack mr={20} space={3}>
-                  <ServiceCard variant="outline" />
-                  <ServiceCard variant="outline" />
-                  <ServiceCard variant="outline" />
+                  {pastOrders.map((order: any, index: number) => {
+                    return (
+                      <ServiceCard
+                        key={index}
+                        variant="outline"
+                        showAddToCalendar={false}
+                        serviceName={SERVICES[order.serviceId].text}
+                        orderId={order.orderId}
+                        subOrderId={order.subOrderId}
+                        year={
+                          getReadableDateTime(order.appointmentDateTime).year
+                        }
+                        date={
+                          getReadableDateTime(order.appointmentDateTime).date
+                        }
+                        day={getReadableDateTime(order.appointmentDateTime).day}
+                        slot={
+                          getReadableDateTime(order.appointmentDateTime).slot
+                        }
+                      />
+                    );
+                  })}
                 </HStack>
               </ScrollView>
             </VStack>

@@ -14,4 +14,6 @@ export const API = {
   GET_SAVED_CARDS: "/payment/cards",
   SAVE_CARD: "/payment/savecard",
   CREATE_ORDER_FROM_LEAD: "/orders",
+  GET_ALL_ORDERS: "/orders/all",
+  GET_ORDER_DETAILS: "/orders",
 };
