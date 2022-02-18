@@ -145,7 +145,7 @@ const Home = (): JSX.Element => {
             <VStack pt={10}>
               <Center>
                 <Text fontWeight={"semibold"} fontSize={16}>
-                  Welcome Back {customerProfile?.firstName}
+                  Welcome {customerProfile?.firstName}
                 </Text>
                 <Text mt={2} textAlign={"center"}>
                   Get ready for a beautiful service! {"\n"} Your next service is

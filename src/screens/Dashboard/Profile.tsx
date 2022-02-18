@@ -27,115 +27,128 @@ import FloatingButton from "../../components/FloatingButton";
 import { navigate } from "../../navigations/rootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../../contexts/AuthContext";
+import { ImageBackground } from "react-native";
 
 const Profile = (): JSX.Element => {
   const { logout } = useAuth();
   const [loading, setLoading] = React.useState(false);
   return (
-    <AppSafeAreaView loading={loading}>
-      <VStack>
-        <Center>
-          <Circle
-            size={120}
-            bg={AppColors.PRIMARY}
-            children={
-              <Image
-                source={{ uri: "https://reactjs.org/logo-og.png" }}
-                width={120}
-                height={120}
-                alt="Profile"
-                borderRadius={200}
-              />
-            }
-          ></Circle>
-          <Circle
-            marginTop={-10}
-            marginLeft={20}
-            size={5}
-            bg={AppColors.SECONDARY}
-            p={5}
-          >
-            <SvgCss xml={CAMERA_ICON} />
-          </Circle>
-        </Center>
-        <VStack mt={10}>
-          <Divider thickness={1} borderColor={AppColors.SECONDARY} />
-          <Pressable
-            _pressed={{
-              backgroundColor: "#eee",
-            }}
-            onPress={() => navigate("PersonalDetails")}
-          >
-            <HStack justifyContent={"space-between"} alignItems={"center"}>
-              <HStack px={5} space={3} alignItems={"center"}>
-                <SvgCss
-                  xml={PERSONAL_DETAILS_ICON("#000")}
-                  width={20}
-                  height={20}
+    <AppSafeAreaView mt={0} loading={loading}>
+      <VStack pb={150}>
+        <ImageBackground
+          resizeMode="cover"
+          style={{
+            padding: 10,
+          }}
+          source={require("../../assets/images/dashboard-bg.png")}
+        >
+          <Center pt={20}>
+            <Circle
+              size={120}
+              bg={AppColors.PRIMARY}
+              children={
+                <Image
+                  source={{ uri: "https://reactjs.org/logo-og.png" }}
+                  width={120}
+                  height={120}
+                  alt="Profile"
+                  borderRadius={200}
                 />
-                <Text py={5} fontWeight={"semibold"}>
-                  Personal Details
-                </Text>
+              }
+            ></Circle>
+            <Circle
+              marginTop={-10}
+              marginLeft={20}
+              size={5}
+              bg={AppColors.SECONDARY}
+              p={5}
+            >
+              <SvgCss xml={CAMERA_ICON} />
+            </Circle>
+          </Center>
+          <VStack mt={10}>
+            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
+            <Pressable
+              _pressed={{
+                backgroundColor: "#eee",
+              }}
+              onPress={() => navigate("PersonalDetails")}
+            >
+              <HStack justifyContent={"space-between"} alignItems={"center"}>
+                <HStack px={5} space={3} alignItems={"center"}>
+                  <SvgCss
+                    xml={PERSONAL_DETAILS_ICON("#000")}
+                    width={20}
+                    height={20}
+                  />
+                  <Text py={5} fontWeight={"semibold"}>
+                    Personal Details
+                  </Text>
+                </HStack>
+                <View pr={5}>
+                  <SvgCss
+                    xml={CHEVRON_RIGHT_ICON("#aaa")}
+                    width={20}
+                    height={20}
+                  />
+                </View>
               </HStack>
-              <View pr={5}>
-                <SvgCss
-                  xml={CHEVRON_RIGHT_ICON("#aaa")}
-                  width={20}
-                  height={20}
-                />
-              </View>
-            </HStack>
-          </Pressable>
-          <Divider thickness={1} borderColor={AppColors.SECONDARY} />
-          <Pressable
-            _pressed={{
-              backgroundColor: "#eee",
-            }}
-            onPress={() => navigate("PaymentMethods")}
-          >
-            <HStack justifyContent={"space-between"} alignItems={"center"}>
-              <HStack px={5} space={3} alignItems={"center"}>
-                <SvgCss xml={CREDIT_CARD_ICON("#000")} width={20} height={20} />
-                <Text py={5} fontWeight={"semibold"}>
-                  Payment Methods
-                </Text>
+            </Pressable>
+            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
+            <Pressable
+              _pressed={{
+                backgroundColor: "#eee",
+              }}
+              onPress={() => navigate("PaymentMethods")}
+            >
+              <HStack justifyContent={"space-between"} alignItems={"center"}>
+                <HStack px={5} space={3} alignItems={"center"}>
+                  <SvgCss
+                    xml={CREDIT_CARD_ICON("#000")}
+                    width={20}
+                    height={20}
+                  />
+                  <Text py={5} fontWeight={"semibold"}>
+                    Payment Methods
+                  </Text>
+                </HStack>
+                <View pr={5}>
+                  <SvgCss
+                    xml={CHEVRON_RIGHT_ICON("#aaa")}
+                    width={20}
+                    height={20}
+                  />
+                </View>
               </HStack>
-              <View pr={5}>
-                <SvgCss
-                  xml={CHEVRON_RIGHT_ICON("#aaa")}
-                  width={20}
-                  height={20}
-                />
-              </View>
-            </HStack>
-          </Pressable>
-          <Divider thickness={1} borderColor={AppColors.SECONDARY} />
-          <Pressable
-            _pressed={{
-              backgroundColor: "#eee",
-            }}
-            onPress={async () => {
-              setLoading(true);
-              await logout();
-              // setLoading(false);
-              navigate("Welcome");
-            }}
-          >
-            <HStack justifyContent={"space-between"} alignItems={"center"}>
-              <HStack px={5} space={3} alignItems={"center"}>
-                <SvgCss
-                  xml={BOX_ARROW_RIGHT_ICON("#900C3F")}
-                  width={20}
-                  height={20}
-                />
-                <Text py={5} fontWeight={"semibold"} color={"#900C3F"}>
-                  Logout
-                </Text>
+            </Pressable>
+            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
+            <Pressable
+              _pressed={{
+                backgroundColor: "#eee",
+              }}
+              onPress={async () => {
+                setLoading(true);
+                await logout();
+                // setLoading(false);
+                navigate("Welcome");
+              }}
+            >
+              <HStack justifyContent={"space-between"} alignItems={"center"}>
+                <HStack px={5} space={3} alignItems={"center"}>
+                  <SvgCss
+                    xml={BOX_ARROW_RIGHT_ICON("#900C3F")}
+                    width={20}
+                    height={20}
+                  />
+                  <Text py={5} fontWeight={"semibold"} color={"#900C3F"}>
+                    Logout
+                  </Text>
+                </HStack>
               </HStack>
-            </HStack>
-          </Pressable>
-          <Divider thickness={1} borderColor={AppColors.SECONDARY} />
-        </VStack>
+            </Pressable>
+            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
+          </VStack>
+        </ImageBackground>
       </VStack>
       <FloatingButton onPress={() => navigate("ChooseService")} />
     </AppSafeAreaView>
