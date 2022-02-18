@@ -132,12 +132,12 @@ const Address = ({ route }: AddressProps): JSX.Element => {
     handleSubmit,
     formState: { errors, isDirty, isValid },
   } = useForm<HouseInfoAddressRequest>({
-    defaultValues: {
-      city: "Edison",
-      state: "NJ",
-      street: "21 Keen Ln",
-      zip: "08820",
-    },
+    // defaultValues: {
+    //   city: "Edison",
+    //   state: "NJ",
+    //   street: "21 Keen Ln",
+    //   zip: "08820",
+    // },
     mode: "onChange",
   });
 

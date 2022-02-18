@@ -23,9 +23,9 @@ import { ENV } from "./src/commons/environment";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
-if (__DEV__) {
-  auth().useEmulator("http://192.168.0.248:9099");
-}
+// if (__DEV__) {
+//   auth().useEmulator("http://192.168.0.248:9099");
+// }
 
 const App = () => {
   GoogleSignin.configure({

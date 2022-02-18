@@ -23,6 +23,7 @@ import { SubOrder } from "../../commons/types";
 import { SvgCss } from "react-native-svg";
 import {
   CALENDAR_ICON,
+  CHAT_OUTLINE_ICON,
   CIRCLE_TICK_ICON,
   INFO_ICON,
 } from "../../commons/assets";
@@ -198,6 +199,17 @@ const ServiceDetails = (): JSX.Element => {
                                   ?.appointmentInfo?.appointmentDateTime
                               ).all
                             }
+                          </Text>
+                        </HStack>
+                        <HStack space={2} alignItems={"center"} pl={3}>
+                          <SvgCss
+                            xml={CHAT_OUTLINE_ICON(AppColors.SECONDARY)}
+                            width={20}
+                            height={20}
+                          />
+                          <Text color={AppColors.SECONDARY} fontSize={14}>
+                            {groupedLeadDetails[lead.serviceId]
+                              ?.serviceNotes[0] || "-"}
                           </Text>
                         </HStack>
                       </VStack>

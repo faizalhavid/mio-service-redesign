@@ -15,6 +15,8 @@ import {
   INFO_ICON,
   CIRCLE_TICK_ICON,
   CALENDAR_ICON,
+  CHAT_ICON,
+  CHAT_OUTLINE_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import { SubOrder } from "../../commons/types";
@@ -121,10 +123,14 @@ const ViewServiceDetails = ({
               borderColor={AppColors.PRIMARY}
             >
               <Center>
-                <Text fontSize={16} fontWeight={"semibold"}>
+                <Text
+                  color={AppColors.SECONDARY}
+                  fontSize={16}
+                  fontWeight={"semibold"}
+                >
                   {SERVICES[orderDetail.serviceId].text}
                 </Text>
-                <Text fontSize={14}>
+                <Text color={AppColors.SECONDARY} fontSize={14}>
                   {
                     getReadableDateTime(
                       orderDetail?.appointmentInfo?.appointmentDateTime
@@ -135,10 +141,14 @@ const ViewServiceDetails = ({
                 {customerProfile?.addresses &&
                   customerProfile?.addresses.length > 0 && (
                     <>
-                      <Text fontSize={16} fontWeight={"semibold"}>
+                      <Text
+                        color={AppColors.SECONDARY}
+                        fontSize={16}
+                        fontWeight={"semibold"}
+                      >
                         {customerProfile?.addresses[0]?.street}
                       </Text>
-                      <Text fontSize={14}>
+                      <Text color={AppColors.SECONDARY} fontSize={14}>
                         {customerProfile?.addresses[0]?.city},{" "}
                         {customerProfile?.addresses[0]?.state}{" "}
                         {customerProfile?.addresses[0]?.zip}
@@ -162,7 +172,11 @@ const ViewServiceDetails = ({
               borderColor={AppColors.PRIMARY}
             >
               <Center>
-                <Text fontSize={16} fontWeight={"semibold"}>
+                <Text
+                  fontSize={16}
+                  color={AppColors.SECONDARY}
+                  fontWeight={"semibold"}
+                >
                   Mio Home Services
                 </Text>
                 {/* <Text fontSize={14}>Jay's Green Lawns</Text>
@@ -175,7 +189,7 @@ const ViewServiceDetails = ({
             </VStack>
             <Center bg={AppColors.PRIMARY} shadow={2} px={6} py={2}>
               <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
-                Service Frequency
+                Service Details
               </Text>
             </Center>
             <VStack
@@ -222,6 +236,16 @@ const ViewServiceDetails = ({
                       orderDetail?.appointmentInfo?.appointmentDateTime
                     ).all
                   }
+                </Text>
+              </HStack>
+              <HStack space={2} alignItems={"center"} pl={3}>
+                <SvgCss
+                  xml={CHAT_OUTLINE_ICON(AppColors.SECONDARY)}
+                  width={20}
+                  height={20}
+                />
+                <Text color={AppColors.SECONDARY} fontSize={14}>
+                  {orderDetail?.serviceNotes[0]}
                 </Text>
               </HStack>
             </VStack>
