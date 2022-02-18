@@ -40,7 +40,7 @@ export type SuperRootStackParamList = {
   PaymentMethods: undefined;
   UpcomingServices: undefined;
   ServiceHistory: undefined;
-  ViewServiceDetails: undefined;
+  ViewServiceDetails: { orderId: string; subOrderId: string };
   VerifyEmail: undefined;
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
@@ -120,6 +120,7 @@ const index = (): JSX.Element => {
           <RootStack.Screen name="ServiceHistory" component={ServiceHistory} />
           <RootStack.Screen
             name="ViewServiceDetails"
+            initialParams={{ orderId: "", subOrderId: "" }}
             component={ViewServiceDetails}
           />
         </RootStack.Navigator>

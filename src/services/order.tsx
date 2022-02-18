@@ -19,6 +19,4 @@ export const createOrderFromLead = (leadId: string) =>
 export const getAllOrders = (type: string) =>
   AxiosClient.get(`${API.GET_ALL_ORDERS}/${type}`);
 export const getOrderDetails = (orderId: string, subOrderId: string) =>
-  AxiosClient.get(
-    `${API.GET_ORDER_DETAILS}/orders/${orderId}/detail/${subOrderId}`
-  );
+  AxiosClient.get(`${API.GET_ORDER_DETAILS}/${orderId}/detail/${subOrderId}`);

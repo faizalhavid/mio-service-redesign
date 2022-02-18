@@ -46,7 +46,9 @@ const ServiceCard = ({
   const textColor = isOutline ? outlineColor : "#fff";
   const width = w || (isOutline ? 300 : "100%");
   return (
-    <Pressable onPress={() => navigate("ViewServiceDetails")}>
+    <Pressable
+      onPress={() => navigate("ViewServiceDetails", { orderId, subOrderId })}
+    >
       <VStack
         paddingY={4}
         paddingX={5}
