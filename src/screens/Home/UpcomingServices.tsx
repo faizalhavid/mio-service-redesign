@@ -21,7 +21,7 @@ const UpcomingServices = (): JSX.Element => {
     {
       onSuccess: (data) => {
         setLoading(false);
-        setUpcomingOrders(data.data[0]);
+        setUpcomingOrders(data.data);
       },
       onError: (err) => {
         setLoading(false);

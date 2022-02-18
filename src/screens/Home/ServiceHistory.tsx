@@ -21,7 +21,7 @@ const ServiceHistory = (): JSX.Element => {
     {
       onSuccess: (data) => {
         setLoading(false);
-        setPastOrders(data.data[0]);
+        setPastOrders(data.data);
       },
       onError: (err) => {
         setLoading(false);
