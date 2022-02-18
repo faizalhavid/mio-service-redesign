@@ -15,7 +15,7 @@ import { SvgCss } from "react-native-svg";
 import { useMutation, useQuery } from "react-query";
 import { LAWN_CARE } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
-import { PriceMap, Service } from "../../commons/types";
+import { PriceMap, Service, SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import SelectionButton from "../../components/SelectionButton";
@@ -74,8 +74,9 @@ const EditServiceDetails = ({
   const [serviceNotes, setServiceNotes] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState("");
   const [selectedTime, setSelectedTime] = React.useState("");
-  const [selectedBathroomNo, setSelectedBathroomNo] = React.useState();
-  const [selectedBedroomNo, setSelectedBedroomNo] = React.useState();
+  const [selectedArea, setSelectedArea] = React.useState<number>();
+  const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>();
+  const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>();
   const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
     React.useState<any>({});
 
@@ -143,13 +144,45 @@ const EditServiceDetails = ({
   );
 
   const updateLeadMutation = useMutation(
-    "createLead",
-    (data) => {
+    "updateLead",
+    () => {
       setLoading(true);
+      let selectedSubOrder: SubOrder = {} as SubOrder;
+      let updatedSuborders = leadDetails.subOrders.map((subOrder) => {
+        if (subOrder.serviceId === serviceId) {
+          selectedSubOrder = subOrder;
+          subOrder.appointmentInfo.appointmentDateTime = new Date(
+            `${selectedDate} ${selectedTime}:00:00`
+          ).toISOString();
+          if (serviceId === "lawnCare") {
+            subOrder.area = String(selectedArea);
+          }
+          if (serviceId === "houseCleaning") {
+            subOrder.bedrooms = String(selectedBedroomNo);
+            subOrder.bathrooms = String(selectedBedroomNo);
+          }
+          subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
+          subOrder.serviceNotes = [serviceNotes];
+
+          if (selectedSubscriptionMethod.method === "RECURRING") {
+            subOrder.servicePrice.cost =
+              selectedSubscriptionMethod?.activeOption?.perCost;
+            subOrder.flags.recurringDuration =
+              selectedSubscriptionMethod?.activeOption?.type;
+            subOrder.flags.isRecurring = true;
+          } else {
+            subOrder.servicePrice.cost = selectedSubscriptionMethod.cost;
+            subOrder.flags.recurringDuration = "ONCE";
+            subOrder.flags.isRecurring = false;
+          }
+
+          return subOrder;
+        }
+        return subOrder;
+      });
       let payload = {
-        subOrders: [
-          // ...leadDetails
-        ],
+        ...leadDetails,
+        subOrders: updatedSuborders,
       };
       return putLead(payload);
     },
@@ -166,8 +199,6 @@ const EditServiceDetails = ({
   );
 
   const [showFields, setShowFields] = React.useState(false);
-
-  const [selectedPriceMap, setSelectedPriceMap] = React.useState<PriceMap>();
 
   const updateShowFields = React.useCallback(async () => {
     setTimeout(() => {
@@ -240,13 +271,15 @@ const EditServiceDetails = ({
               ...recurringOptions[0],
               selected: true,
             };
-            subscriptionMethods.push({
+            let sub = {
               method: "RECURRING",
               label: `$${pricePerMonth} Billed Monthly`,
               selected: true,
               activeOption: recurringOptions[0],
               options: recurringOptions,
-            });
+            };
+            subscriptionMethods.push(sub);
+            setSelectedSubscriptionMethod(sub);
           }
 
           if (
@@ -295,6 +328,7 @@ const EditServiceDetails = ({
                   lotsize > price.rangeMin &&
                   lotsize < price.rangeMax
                 ) {
+                  setSelectedArea(lotsize);
                   priceMap.push({
                     ...price,
                     selected: true,
@@ -358,6 +392,7 @@ const EditServiceDetails = ({
           },
         ]);
       }
+      setLoading(false);
     }
   }, [serviceId, services, customerProfile]);
 
@@ -502,6 +537,7 @@ const EditServiceDetails = ({
                                   let updatedList = priceMap.map(
                                     (pm2, index2) => {
                                       if (index1 == index2) {
+                                        setSelectedArea(pm2.rangeMax);
                                         let selected: PriceMap = {
                                           ...pm2,
                                           selected: true,
@@ -553,6 +589,7 @@ const EditServiceDetails = ({
                                   let updatedOptions = bedroomOptions.map(
                                     (opt, i) => {
                                       if (i === index1) {
+                                        setSelectedBedroomNo(option.number);
                                         return {
                                           ...opt,
                                           selected: true,
@@ -593,6 +630,7 @@ const EditServiceDetails = ({
                                   let updatedOptions = bathroomOptions.map(
                                     (opt, i) => {
                                       if (i === index1) {
+                                        setSelectedBathroomNo(opt.number);
                                         return {
                                           ...opt,
                                           selected: true,
@@ -638,6 +676,7 @@ const EditServiceDetails = ({
                                   let updatedOptions =
                                     subscriptionMethodOptions.map((opt, i) => {
                                       if (i === index1) {
+                                        setSelectedSubscriptionMethod(opt);
                                         return {
                                           ...opt,
                                           selected: true,
@@ -738,14 +777,19 @@ const EditServiceDetails = ({
                                               };
                                             }
                                           );
-                                        setSubscriptionMethodOptions([
+                                        let updatedRecurringSubscriptionOption =
                                           {
                                             ...subscriptionMethodOptions[0],
                                             activeOption,
                                             options: updatedOptions,
-                                          },
+                                          };
+                                        setSubscriptionMethodOptions([
+                                          updatedRecurringSubscriptionOption,
                                           subscriptionMethodOptions[1],
                                         ]);
+                                        setSelectedSubscriptionMethod(
+                                          updatedRecurringSubscriptionOption
+                                        );
                                       }}
                                       index={index}
                                     />
@@ -865,7 +909,13 @@ const EditServiceDetails = ({
           </VStack>
         </PresenceTransition>
       )}
-      <FooterButton label="SAVE" onPress={() => goBack()} />
+      <FooterButton
+        label="SAVE"
+        onPress={async () => {
+          await updateLeadMutation.mutateAsync();
+          goBack();
+        }}
+      />
     </AppSafeAreaView>
   );
 };

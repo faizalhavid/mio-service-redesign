@@ -68,22 +68,22 @@ const Home = (): JSX.Element => {
     }
   );
 
-  const getAppointmentsQuery = useQuery(
-    "getAppointments",
-    () => {
-      setLoading(true);
-      return getAppointments();
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setCustomerProfile(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  // const getAppointmentsQuery = useQuery(
+  //   "getAppointments",
+  //   () => {
+  //     setLoading(true);
+  //     return getAppointments();
+  //   },
+  //   {
+  //     onSuccess: (data) => {
+  //       setLoading(false);
+  //       setCustomerProfile(data.data);
+  //     },
+  //     onError: (err) => {
+  //       setLoading(false);
+  //     },
+  //   }
+  // );
 
   const fetchCustomerProfile = React.useCallback(async () => {
     let APP_STATUS = await AsyncStorage.getItem("APP_START_STATUS");

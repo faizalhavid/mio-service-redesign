@@ -28,7 +28,7 @@ const ServiceDetailsSection = ({
             {title}
           </Text>
           <HStack space={10}>
-            <Pressable onPress={() => {}} alignSelf={"center"}>
+            {/* <Pressable onPress={() => {}} alignSelf={"center"}>
               <Text
                 color={AppColors.SECONDARY}
                 fontWeight={"semibold"}
@@ -36,12 +36,12 @@ const ServiceDetailsSection = ({
               >
                 EDIT
               </Text>
-            </Pressable>
-            <Pressable onPress={() => {}} alignSelf={"center"}>
+            </Pressable> */}
+            {/* <Pressable onPress={() => {}} alignSelf={"center"}>
               <Text color={"red.700"} fontWeight={"semibold"} fontSize={10}>
                 REMOVE
               </Text>
-            </Pressable>
+            </Pressable> */}
           </HStack>
         </HStack>
         {!noData && (

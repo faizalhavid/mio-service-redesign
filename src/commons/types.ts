@@ -165,6 +165,9 @@ export interface SubOrder {
   serviceId: string;
   selectedAddons: any[];
   flags: Flags2;
+  area?: string;
+  bedrooms?: string;
+  bathrooms?: string;
   servicePrice: ServicePrice;
   chargeResponse: ChargeResponse;
   serviceNotes: string[];
