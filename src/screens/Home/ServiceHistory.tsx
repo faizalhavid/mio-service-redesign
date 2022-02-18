@@ -34,6 +34,13 @@ const ServiceHistory = (): JSX.Element => {
         <Text fontSize={20}>Service History</Text>
       </Center>
       <ScrollView px={3}>
+        {pastOrders.length === 0 && (
+          <>
+            <Center mt={2} fontStyle={"italic"}>
+              No past services are there!
+            </Center>
+          </>
+        )}
         {pastOrders.map((order: Order, index: number) => {
           return (
             <ServiceCard

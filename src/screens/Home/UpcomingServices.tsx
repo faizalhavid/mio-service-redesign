@@ -34,6 +34,13 @@ const UpcomingServices = (): JSX.Element => {
         <Text fontSize={20}>Upcoming Services</Text>
       </Center>
       <ScrollView px={3}>
+        {upcomingOrders.length === 0 && (
+          <>
+            <Center mt={2} fontStyle={"italic"}>
+              No upcoming services are there!
+            </Center>
+          </>
+        )}
         {upcomingOrders.map((order: Order, index: number) => {
           return (
             <ServiceCard
