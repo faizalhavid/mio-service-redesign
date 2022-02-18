@@ -83,6 +83,28 @@ const Payment = (): JSX.Element => {
     }
   );
 
+  const createOrderFromLeadMutation = useMutation(
+    "createOrderFromLead",
+    () => {
+      setErrorMsg("");
+      setLoading(true);
+      return saveCard(customerId || "", { card: "payload" });
+    },
+    {
+      onSuccess: (data) => {
+        if (data.data?.message) {
+          setErrorMsg("Invalid Card Credentials!");
+        } else {
+          getSavedCardsMutation.mutate();
+        }
+        setLoading(false);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
+
   const formatNumber = (number: string) => {
     return number
       .split(/(.{4})/)

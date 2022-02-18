@@ -74,6 +74,10 @@ const EditServiceDetails = ({
   const [serviceNotes, setServiceNotes] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState("");
   const [selectedTime, setSelectedTime] = React.useState("");
+  const [selectedBathroomNo, setSelectedBathroomNo] = React.useState();
+  const [selectedBedroomNo, setSelectedBedroomNo] = React.useState();
+  const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
+    React.useState<any>({});
 
   const { leadDetails, setLeadDetails } = useAuth();
 
@@ -120,38 +124,6 @@ const EditServiceDetails = ({
   const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
     []
   );
-  useEffect(() => {
-    if (Object.keys(customerProfile).length === 0) {
-      return;
-    }
-    setBathroomOptions([]);
-    setBedroomOptions([]);
-    let houseInfo = customerProfile?.addresses[0]?.houseInfo;
-    let bathOptions: BathBedOptions[] = [];
-    let bedOptions: BathBedOptions[] = [];
-    console.log();
-    for (let i of [1, 2, 3, 4, 5]) {
-      bathOptions.push({
-        number: i,
-        selected:
-          (houseInfo &&
-            houseInfo?.bathrooms &&
-            parseInt(houseInfo?.bathrooms) == i) ||
-          false,
-      });
-
-      bedOptions.push({
-        number: i,
-        selected:
-          (houseInfo &&
-            houseInfo?.bedrooms &&
-            parseInt(houseInfo?.bedrooms) == i) ||
-          false,
-      });
-    }
-    setBathroomOptions(bathOptions);
-    setBedroomOptions(bedOptions);
-  }, [customerProfile]);
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -209,50 +181,8 @@ const EditServiceDetails = ({
 
   const [priceMap, setPriceMap] = React.useState<PriceMap[]>([]);
 
-  const [serviceCostOptions, setServiceCostOptions] = React.useState([]);
-  // "WEEKLY","ONCE","MONTHLY","BIWEEKLY"
-  const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
-    React.useState({});
-  let structure = [
-    {
-      method: "RECURRING",
-      label: "pricepermonth Billed Monthly",
-      selected: true,
-      activeOption: {
-        perCost: "40",
-        monthlyCost: "80",
-        type: "WEEKLY",
-        label: "Weekly",
-        selected: true,
-      },
-      options: [
-        {
-          perCost: "40",
-          type: "WEEKLY",
-          label: "Weekly",
-          selected: true,
-        },
-        {
-          perCost: "40",
-          type: "BIWEEKLY",
-          label: "Bi-Weekly",
-          selected: false,
-        },
-        {
-          perCost: "40",
-          type: "MONTHLY",
-          label: "Monthly",
-          selected: false,
-        },
-      ],
-    },
-    {
-      method: "ONCE",
-      cost: "40",
-      label: "One-time Service",
-      selected: false,
-    },
-  ];
+  const [subscriptionMethodOptions, setSubscriptionMethodOptions] =
+    React.useState<any[]>([]);
   const getServiceCostMutation = useMutation(
     "getServiceCost",
     (payload: any) => {
@@ -261,20 +191,77 @@ const EditServiceDetails = ({
     },
     {
       onSuccess: (data) => {
+        let subscriptionMethods: any[] = [];
+        let recurringOptions: any[] = [];
         let priceMap: PriceMap[] = data.data;
-
-        if (priceMap[0]) {
-          if (
+        let pricePerMonth = "";
+        if (priceMap && priceMap[0]) {
+          let pricePerWeekExists =
             priceMap[0].pricePerWeek &&
-            parseInt(priceMap[0].pricePerOnetime) !== 0
-          )
-            if (
-              priceMap[0].pricePerOnetime &&
-              parseInt(priceMap[0].pricePerOnetime) !== 0
-            ) {
-            }
-        }
+            parseInt(priceMap[0].pricePerWeek) !== 0;
+          let pricePer2WeeksExists =
+            priceMap[0].pricePer2Weeks &&
+            parseInt(priceMap[0].pricePer2Weeks) !== 0;
+          let pricePerMonthExists =
+            priceMap[0].pricePerMonth &&
+            parseInt(priceMap[0].pricePerMonth) !== 0;
 
+          if (pricePerWeekExists) {
+            recurringOptions.push({
+              perCost: priceMap[0].pricePerWeek,
+              type: "WEEKLY",
+              label: "Weekly",
+              selected: false,
+            });
+          }
+          if (pricePer2WeeksExists) {
+            recurringOptions.push({
+              perCost: priceMap[0].pricePer2Weeks,
+              type: "BIWEEKLY",
+              label: "Bi-Weekly",
+              selected: false,
+            });
+          }
+          if (pricePerMonthExists) {
+            pricePerMonth = priceMap[0].pricePerMonth;
+            recurringOptions.push({
+              perCost: pricePerMonth,
+              type: "MONTHLY",
+              label: "Monthly",
+              selected: false,
+            });
+          }
+          if (
+            pricePerWeekExists ||
+            pricePer2WeeksExists ||
+            pricePerMonthExists
+          ) {
+            recurringOptions[0] = {
+              ...recurringOptions[0],
+              selected: true,
+            };
+            subscriptionMethods.push({
+              method: "RECURRING",
+              label: `$${pricePerMonth} Billed Monthly`,
+              selected: true,
+              activeOption: recurringOptions[0],
+              options: recurringOptions,
+            });
+          }
+
+          if (
+            priceMap[0].pricePerOnetime &&
+            parseInt(priceMap[0].pricePerOnetime) !== 0
+          ) {
+            subscriptionMethods.push({
+              method: "ONCE",
+              cost: priceMap[0].pricePerOnetime,
+              label: "One-time Service",
+              selected: false,
+            });
+          }
+        }
+        setSubscriptionMethodOptions(subscriptionMethods);
         setLoading(false);
       },
       onError: (err) => {
@@ -291,7 +278,7 @@ const EditServiceDetails = ({
       setLoading(true);
       services.forEach((service) => {
         if (
-          ["lawnCare", "houseCleaning"].includes(serviceId) &&
+          ["lawnCare"].includes(serviceId) &&
           service.serviceId === serviceId
         ) {
           if (customerProfile.addresses[0].houseInfo?.lotSize) {
@@ -300,28 +287,29 @@ const EditServiceDetails = ({
               customerProfile.addresses[0].houseInfo?.lotSize
             );
             service.priceMap.forEach((price) => {
-              if (
-                price.rangeMin &&
-                price.rangeMax &&
-                lotsize > price.rangeMin &&
-                lotsize < price.rangeMax
-              ) {
-                priceMap.push({
-                  ...price,
-                  selected: true,
-                });
-                if (serviceId === "lawnCare") {
+              if (serviceId === "lawnCare") {
+                if (
+                  price.rangeMin &&
+                  price.rangeMax &&
+                  lotsize &&
+                  lotsize > price.rangeMin &&
+                  lotsize < price.rangeMax
+                ) {
+                  priceMap.push({
+                    ...price,
+                    selected: true,
+                  });
                   getServiceCostMutation.mutate([
                     {
-                      serviceId: serviceId,
+                      serviceId,
                       serviceParameters: {
                         area: lotsize,
                       },
                     },
                   ]);
+                } else {
+                  priceMap.push(price);
                 }
-              } else {
-                priceMap.push(price);
               }
             });
             setPriceMap(priceMap);
@@ -331,8 +319,61 @@ const EditServiceDetails = ({
           setLoading(false);
         }
       });
+
+      if (serviceId === "houseCleaning") {
+        setBathroomOptions([]);
+        setBedroomOptions([]);
+        let houseInfo = customerProfile?.addresses[0]?.houseInfo;
+        let bathOptions: BathBedOptions[] = [];
+        let bedOptions: BathBedOptions[] = [];
+        console.log();
+        for (let i of [1, 2, 3, 4, 5]) {
+          bathOptions.push({
+            number: i,
+            selected:
+              (houseInfo &&
+                houseInfo?.bathrooms &&
+                parseInt(houseInfo?.bathrooms) == i) ||
+              false,
+          });
+
+          bedOptions.push({
+            number: i,
+            selected:
+              (houseInfo &&
+                houseInfo?.bedrooms &&
+                parseInt(houseInfo?.bedrooms) == i) ||
+              false,
+          });
+        }
+        setBathroomOptions(bathOptions);
+        setBedroomOptions(bedOptions);
+      }
+
+      if (["pestControl", "poolCleaning"].includes(serviceId)) {
+        getServiceCostMutation.mutate([
+          {
+            serviceId,
+            serviceParameters: {},
+          },
+        ]);
+      }
     }
   }, [serviceId, services, customerProfile]);
+
+  React.useEffect(() => {
+    if (selectedBathroomNo && selectedBedroomNo) {
+      getServiceCostMutation.mutate([
+        {
+          serviceId,
+          serviceParameters: {
+            bedrooms: selectedBedroomNo,
+            bathrooms: selectedBathroomNo,
+          },
+        },
+      ]);
+    }
+  }, [selectedBathroomNo, selectedBedroomNo]);
 
   const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTH = [
@@ -583,93 +624,137 @@ const EditServiceDetails = ({
                   >
                     <VStack>
                       <HStack space={2}>
-                        <SelectionButton
-                          w={(screenWidth - 60) / 2}
-                          h={90}
-                          variant="custom"
-                          active={true}
-                          index={0}
-                          onPress={(index1) => {}}
-                          text2={(color) => {
-                            return (
-                              <VStack space={1} justifyContent="center">
-                                <HStack
-                                  space={2}
-                                  justifyContent="center"
-                                  alignItems={"center"}
-                                >
-                                  <Text fontSize={30} color={color}>
-                                    $40
-                                  </Text>
-                                  <Text fontSize={12} color={color}>
-                                    / Weekly
-                                  </Text>
-                                </HStack>
-                                <Text
-                                  textAlign={"center"}
-                                  fontSize={12}
-                                  color={color}
-                                >
-                                  $80 Billed Monthly
-                                </Text>
-                              </VStack>
-                            );
-                          }}
-                        />
-                        <SelectionButton
-                          w={(screenWidth - 60) / 2}
-                          h={90}
-                          variant="custom"
-                          active={false}
-                          index={0}
-                          onPress={(index1) => {}}
-                          text2={(color) => {
-                            return (
-                              <VStack
-                                space={1}
-                                justifyContent="center"
-                                alignItems={"center"}
-                              >
-                                <Text fontSize={30} color={color}>
-                                  $40
-                                </Text>
-
-                                <Text
-                                  textAlign={"center"}
-                                  fontSize={12}
-                                  color={color}
-                                >
-                                  One-time Service
-                                </Text>
-                              </VStack>
-                            );
-                          }}
-                        />
-                      </HStack>
-                      {SectionDivider(0)}
-                      <HStack
-                        space={2}
-                        maxWidth={screenWidth - 40}
-                        flexWrap={"wrap"}
-                        flexDirection="row"
-                      >
-                        {["Weekly", "Bi-Weekly", "Monthly"].map(
-                          (name, index) => {
+                        {subscriptionMethodOptions.length > 0 &&
+                          subscriptionMethodOptions.map((sub, index) => {
                             return (
                               <SelectionButton
+                                w={(screenWidth - 60) / 2}
+                                h={90}
+                                variant="custom"
+                                active={sub.selected}
+                                index={index}
                                 key={index}
-                                w={(screenWidth - 60) / 3.07}
-                                active={false}
-                                text={name}
-                                onPress={function (index: number): void {
-                                  throw new Error("Function not implemented.");
+                                onPress={(index1) => {
+                                  let updatedOptions =
+                                    subscriptionMethodOptions.map((opt, i) => {
+                                      if (i === index1) {
+                                        return {
+                                          ...opt,
+                                          selected: true,
+                                        };
+                                      }
+                                      return {
+                                        ...opt,
+                                        selected: false,
+                                      };
+                                    });
+                                  setSubscriptionMethodOptions(updatedOptions);
                                 }}
-                                index={0}
+                                text2={(color) => {
+                                  if (sub.method === "RECURRING") {
+                                    return (
+                                      <VStack space={1} justifyContent="center">
+                                        <HStack
+                                          space={2}
+                                          justifyContent="center"
+                                          alignItems={"center"}
+                                        >
+                                          <Text fontSize={30} color={color}>
+                                            ${sub.activeOption?.perCost}
+                                          </Text>
+                                          <Text fontSize={12} color={color}>
+                                            / {sub.activeOption?.label}
+                                          </Text>
+                                        </HStack>
+                                        <Text
+                                          textAlign={"center"}
+                                          fontSize={12}
+                                          color={color}
+                                        >
+                                          {sub.label}
+                                        </Text>
+                                      </VStack>
+                                    );
+                                  } else {
+                                    return (
+                                      <VStack
+                                        space={1}
+                                        justifyContent="center"
+                                        alignItems={"center"}
+                                      >
+                                        <Text fontSize={30} color={color}>
+                                          ${sub.cost}
+                                        </Text>
+
+                                        <Text
+                                          textAlign={"center"}
+                                          fontSize={12}
+                                          color={color}
+                                        >
+                                          {sub.label}
+                                        </Text>
+                                      </VStack>
+                                    );
+                                  }
+                                }}
                               />
                             );
-                          }
-                        )}
+                          })}
                       </HStack>
+                      {subscriptionMethodOptions.length > 0 &&
+                        subscriptionMethodOptions[0].selected === true &&
+                        subscriptionMethodOptions[0].method === "RECURRING" && (
+                          <>
+                            {SectionDivider(0)}
+                            <HStack
+                              space={2}
+                              maxWidth={screenWidth - 40}
+                              flexWrap={"wrap"}
+                              flexDirection="row"
+                            >
+                              {subscriptionMethodOptions[0].options.map(
+                                (option: any, index: number) => {
+                                  return (
+                                    <SelectionButton
+                                      key={index}
+                                      w={(screenWidth - 60) / 3.07}
+                                      active={option.selected}
+                                      text={option.label}
+                                      onPress={(index: number) => {
+                                        let activeOption = {};
+                                        let updatedOptions =
+                                          subscriptionMethodOptions[0].options.map(
+                                            (opt: any, i: number) => {
+                                              if (i === index) {
+                                                activeOption = {
+                                                  ...opt,
+                                                  selected: true,
+                                                };
+                                                return activeOption;
+                                              }
+                                              return {
+                                                ...opt,
+                                                selected: false,
+                                              };
+                                            }
+                                          );
+                                        setSubscriptionMethodOptions([
+                                          {
+                                            ...subscriptionMethodOptions[0],
+                                            activeOption,
+                                            options: updatedOptions,
+                                          },
+                                          subscriptionMethodOptions[1],
+                                        ]);
+                                      }}
+                                      index={index}
+                                    />
+                                  );
+                                }
+                              )}
+                            </HStack>
+                          </>
+                        )}
                     </VStack>
                   </ScrollView>
                   {SectionDivider(0)}

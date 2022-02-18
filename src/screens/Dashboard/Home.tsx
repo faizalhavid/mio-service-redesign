@@ -15,14 +15,34 @@ import ServiceCard from "../../components/ServiceCard";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { getCustomer } from "../../services/customer";
 import { AppColors } from "../../commons/colors";
 import { useIsFocused } from "@react-navigation/native";
+import { getAppointments } from "../../services/order";
+
+export interface Appointment {
+  customerId: string;
+  providerId: string;
+  serviceId: string;
+  eaApptId: number;
+  book: string;
+  start: string;
+  end: string;
+  temperature: number;
+  forecast: string;
+  hash: string;
+  notes?: any;
+  eaCustomerId: number;
+  eaProviderId: number;
+  eaServiceId: number;
+  googleCalendarId?: any;
+}
 
 const Home = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [customerId, setCustomerId] = React.useState<string | null>(null);
+
   const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
     {} as CustomerProfile
   );
@@ -36,6 +56,23 @@ const Home = (): JSX.Element => {
     () => {
       setLoading(true);
       return getCustomer(customerId);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setCustomerProfile(data.data);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
+
+  const getAppointmentsQuery = useQuery(
+    "getAppointments",
+    () => {
+      setLoading(true);
+      return getAppointments();
     },
     {
       onSuccess: (data) => {
