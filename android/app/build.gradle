@@ -175,20 +175,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        // debug {
-        //     storeFile file('/Users/th    ilagarajankamarajan/mio/playstore/mio-prod-key.keystore')
-        //     storePassword 'Mio@2022'
-        //     keyAlias 'mio-prod-key'
-        //     keyPassword 'Mio@2022'
+        // release {
+        //     if (project.hasProperty('MIO_UPLOAD_STORE_FILE')) {
+        //         storeFile file(MIO_UPLOAD_STORE_FILE)
+        //         storePassword MIO_UPLOAD_STORE_PASSWORD
+        //         keyAlias MIO_UPLOAD_KEY_ALIAS
+        //         keyPassword MIO_UPLOAD_KEY_PASSWORD
+        //     }
         // }
-        release {
-            if (project.hasProperty('MIO_UPLOAD_STORE_FILE')) {
-                storeFile file(MIO_UPLOAD_STORE_FILE)
-                storePassword MIO_UPLOAD_STORE_PASSWORD
-                keyAlias MIO_UPLOAD_KEY_ALIAS
-                keyPassword MIO_UPLOAD_KEY_PASSWORD
-            }
-        }
     }
     dexOptions  {
         javaMaxHeapSize "4g"

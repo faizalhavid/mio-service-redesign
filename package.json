@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "clean:android": "cd android && ./gradlew clean",
-    "android:dev": "react-native run-android --variant=developmentdebug --appIdSuffix=dev",
-    "android:prod": "react-native run-android --variant=productionDebug",
+    "android:dev-debug": "react-native run-android --variant=developmentdebug --appIdSuffix=dev",
+    "android:prod-debug": "react-native run-android --variant=productionDebug",
+    "android:prod-release": "cd android && ./gradlew bundleProductionRelease",
     "ios:dev": "ENVFILE=.env.development react-native run-ios",
+    "ios:prod": "ENVFILE=.env.production react-native run-ios",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "release-android": "cd android && ./gradlew assembleRelease",
-    "bundle-android": "cd android && ./gradlew bundleRelease"
+    "release-android": "cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
     "@invertase/react-native-apple-authentication": "^2.1.5",
