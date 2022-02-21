@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "CURRENT_ENV=LOCAL && react-native run-android",
+    "clean:android": "cd android && ./gradlew clean",
+    "android:dev": "react-native run-android --variant=developmentdebug --appIdSuffix=dev",
+    "android:prod": "react-native run-android --variant=productionDebug",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
@@ -27,6 +29,7 @@
     "react-hook-form": "^7.26.0",
     "react-native": "0.66.4",
     "react-native-bootsplash": "^4.0.2",
+    "react-native-config": "^1.4.5",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.1",

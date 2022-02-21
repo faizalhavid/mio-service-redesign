@@ -1,5 +1,14 @@
 apply plugin: "com.android.application"
 
+project.ext.envConfigFiles = [
+  developmentdebug: ".env.development",
+  developmentrelease: ".env.development",
+  productiondebug: ".env.production",
+  productionrelease: ".env.production"
+]
+
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
 apply plugin: 'com.google.gms.google-services'
 
 import com.android.build.OutputFile
@@ -147,12 +156,38 @@ android {
             include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
     }
+    flavorDimensions "default"
+    productFlavors {
+        development {
+            applicationIdSuffix  ".dev"
+            resValue "string", "build_config_package", "com.miohomeservices"
+            println "Using debug google-service.json"
+        }
+        production {
+            resValue "string", "build_config_package", "com.miohomeservices"
+            println "Using Production google-service.json"
+        }
+    }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
+        }
+        // debug {
+        //     storeFile file('/Users/th    ilagarajankamarajan/mio/playstore/mio-prod-key.keystore')
+        //     storePassword 'Mio@2022'
+        //     keyAlias 'mio-prod-key'
+        //     keyPassword 'Mio@2022'
+        // }
+        release {
+            if (project.hasProperty('MIO_UPLOAD_STORE_FILE')) {
+                storeFile file(MIO_UPLOAD_STORE_FILE)
+                storePassword MIO_UPLOAD_STORE_PASSWORD
+                keyAlias MIO_UPLOAD_KEY_ALIAS
+                keyPassword MIO_UPLOAD_KEY_PASSWORD
+            }
         }
     }
     dexOptions  {
@@ -166,11 +201,12 @@ android {
                     abiFilters nativeArchitectures.split(',')
                 }
             }
+            matchingFallbacks = ['debug', 'release']
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -197,6 +233,8 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    implementation project(':react-native-config')
 
     implementation platform('com.google.firebase:firebase-bom:29.0.4')
 
