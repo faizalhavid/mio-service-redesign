@@ -58,3 +58,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# Ignore Google Credentials
+
+android/app/src/production/google-services.json
