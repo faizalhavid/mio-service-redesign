@@ -14,7 +14,6 @@ target 'MioHomeServices' do
 
   pod 'GoogleSignIn', '~> 6.0.2'
 
-  pod 'react-native-config', :path => '../node_modules/react-native-config'
 
   target 'MioHomeServicesTests' do
     inherit! :complete
