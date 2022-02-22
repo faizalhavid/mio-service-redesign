@@ -15,7 +15,7 @@ import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import { CustomerProfile, Phone } from "../../contexts/AuthContext";
+import { CustomerProfile, Phone, useAuth } from "../../contexts/AuthContext";
 import { goBack, navigate } from "../../navigations/rootNavigation";
 import {
   getCustomer,
@@ -40,9 +40,7 @@ type PersonalDetailsForm = {
 
 const PersonalDetails = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
+  const { customerProfile, setCustomerProfile } = useAuth();
   const [customerId, setCustomerId] = React.useState<string | null>(null);
   const [errorMsg, setErrorMsg] = React.useState("");
   const getCustomerMutation = useMutation(

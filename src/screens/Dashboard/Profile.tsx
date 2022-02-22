@@ -20,6 +20,7 @@ import {
   CREDIT_CARD_ICON,
   PERSONAL_DETAILS_ICON,
   PROFILE_ICON,
+  USER_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
@@ -45,18 +46,12 @@ const Profile = (): JSX.Element => {
           <Center pt={20}>
             <Circle
               size={120}
-              bg={AppColors.PRIMARY}
+              bg={AppColors.SECONDARY}
               children={
-                <Image
-                  source={{ uri: "https://reactjs.org/logo-og.png" }}
-                  width={120}
-                  height={120}
-                  alt="Profile"
-                  borderRadius={200}
-                />
+                <SvgCss width={70} height={70} xml={USER_ICON("#eee")} />
               }
             ></Circle>
-            <Circle
+            {/* <Circle
               marginTop={-10}
               marginLeft={20}
               size={5}
@@ -64,7 +59,7 @@ const Profile = (): JSX.Element => {
               p={5}
             >
               <SvgCss xml={CAMERA_ICON} />
-            </Circle>
+            </Circle> */}
           </Center>
           <VStack mt={10}>
             <Divider thickness={1} borderColor={AppColors.SECONDARY} />

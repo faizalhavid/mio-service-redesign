@@ -34,11 +34,7 @@ import { getReadableDateTime } from "../../services/utils";
 const ServiceDetails = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [customerId, setCustomerId] = React.useState<string | null>(null);
-  const { leadDetails } = useAuth();
-
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
+  const { leadDetails, customerProfile, setCustomerProfile } = useAuth();
 
   const getCustomerMutation = useMutation(
     "getCustomer",

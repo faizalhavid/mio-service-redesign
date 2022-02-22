@@ -32,16 +32,14 @@ import {
   putCustomer,
 } from "../../services/customer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CustomerProfile } from "../../contexts/AuthContext";
+import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 
 type AddressProps = NativeStackScreenProps<SuperRootStackParamList, "Address">;
 const Address = ({ route }: AddressProps): JSX.Element => {
   const { returnTo } = route.params;
   const [loading, setLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
+  const { customerProfile, setCustomerProfile } = useAuth();
   const [customerId, setCustomerId] = React.useState<string | null>(null);
 
   const fetchCustomerProfile = useCallback(async () => {

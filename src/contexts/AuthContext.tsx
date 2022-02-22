@@ -83,6 +83,8 @@ type AuthContextType = {
   getCurrentUser: () => string | null;
   leadDetails: LeadDetails;
   setLeadDetails: (leadDetails: LeadDetails) => void;
+  customerProfile: CustomerProfile;
+  setCustomerProfile: (customerProfile: CustomerProfile) => void;
 };
 
 const AuthContext = React.createContext<AuthContextType>({} as AuthContextType);
@@ -131,6 +133,9 @@ export function AuthProvider({ children }: AuthProviderType) {
   );
   const [leadDetails, setLeadDetails] = React.useState<LeadDetails>(
     {} as LeadDetails
+  );
+  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
+    {} as CustomerProfile
   );
   const [loading, setLoading] = React.useState(false);
 
@@ -303,6 +308,8 @@ export function AuthProvider({ children }: AuthProviderType) {
     resendEmail,
     leadDetails,
     setLeadDetails,
+    customerProfile,
+    setCustomerProfile,
   };
 
   return (

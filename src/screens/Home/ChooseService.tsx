@@ -25,14 +25,16 @@ import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
 import { useMutation, useQuery } from "react-query";
 import { getLead, getServices, postLead, putLead } from "../../services/order";
-import { Service } from "../../commons/types";
-import { useAuth } from "../../contexts/AuthContext";
+import { PriceMap, Service } from "../../commons/types";
+import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import OrderSummary from "../../components/OrderSummary";
+import AddServiceBottomSheet from "../../components/AddServiceBottomSheet";
+import { putCustomer } from "../../services/customer";
 
-const LAWN_CARE_ID: string = "lawnCare";
-const POOL_CLEANING_ID: string = "poolCleaning";
-const HOUSE_CLEANING_ID: string = "houseCleaning";
-const PEST_CONTROL_ID: string = "pestControl";
+export const LAWN_CARE_ID: string = "lawnCare";
+export const POOL_CLEANING_ID: string = "poolCleaning";
+export const HOUSE_CLEANING_ID: string = "houseCleaning";
+export const PEST_CONTROL_ID: string = "pestControl";
 
 const LAWN_CARE_TEXT: string = "Lawn Care";
 const POOL_CLEANING_TEXT: string = "Pool Cleaning";
@@ -76,6 +78,8 @@ export const SERVICES: { [key: string]: ServicesType } = {
   },
 };
 
+export type BathBedOptions = { number: number; selected: boolean };
+
 const ChooseService = (): JSX.Element => {
   const [toggleServiceInfo, setToggleServiceInfo] = React.useState(false);
 
@@ -84,29 +88,43 @@ const ChooseService = (): JSX.Element => {
 
   const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
 
-  const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
+  // const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
 
   const [loading, setLoading] = React.useState(false);
-  const { leadDetails, setLeadDetails } = useAuth();
+  const { leadDetails, setLeadDetails, customerProfile, setCustomerProfile } =
+    useAuth();
   const [services, setServices] = React.useState<Service[]>([{} as Service]);
 
-  // const getAllServices = useQuery(
-  //   "getAllServices",
-  //   () => {
-  //     setLoading(true);
-  //     return getServices();
-  //   },
-  //   {
-  //     onSuccess: (data) => {
-  //       setLoading(false);
-  //       setServices(data.data);
-  //     },
-  //     onError: (err) => {
-  //       setLoading(false);
-  //       console.log(err);
-  //     },
-  //   }
-  // );
+  const [selectedArea, setSelectedArea] = React.useState<number>(0);
+  const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>(0);
+  const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>(0);
+  const [areaOptions, setAreaOptions] = React.useState<PriceMap[]>([]);
+  const [propertyDetailsNeeded, setPropertyDetailsNeeded] =
+    React.useState<boolean>(false);
+  const [bathroomOptions, setBathroomOptions] = React.useState<
+    BathBedOptions[]
+  >([]);
+  const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
+    []
+  );
+
+  const getAllServices = useQuery(
+    "getAllServices",
+    () => {
+      setLoading(true);
+      return getServices();
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        setServices(data.data);
+      },
+      onError: (err) => {
+        setLoading(false);
+        console.log(err);
+      },
+    }
+  );
 
   const getLeadMutation = useMutation(
     "getLeadById",
@@ -148,8 +166,20 @@ const ChooseService = (): JSX.Element => {
       setLoading(true);
       let payload = {
         subOrders: [
-          ...selectedServices.map((service) => {
-            return { serviceId: service };
+          ...selectedServices.map((serviceId) => {
+            if (serviceId === LAWN_CARE_ID) {
+              return {
+                area: customerProfile.addresses[0].houseInfo?.lotSize,
+                serviceId,
+              };
+            } else if (serviceId === HOUSE_CLEANING_ID) {
+              return {
+                bedrooms: customerProfile.addresses[0].houseInfo?.bedrooms,
+                bathrooms: customerProfile.addresses[0].houseInfo?.bathrooms,
+                serviceId,
+              };
+            }
+            return { serviceId };
           }),
         ],
       };
@@ -204,18 +234,154 @@ const ChooseService = (): JSX.Element => {
     }
   );
 
-  const chooseService = (serviceName: string = "") => {
-    let pos = selectedServices.indexOf(serviceName);
+  const chooseService = async (
+    serviceId: string = "",
+    fromBottomSheet: boolean = false
+  ) => {
+    let pos = selectedServices.indexOf(serviceId);
     if (~pos) {
       selectedServices.splice(pos, 1);
       setSelectedServices([...selectedServices]);
       return;
     }
-    setSelectedServices([...selectedServices, serviceName]);
+
+    if (fromBottomSheet) {
+      if (propertyDetailsNeeded) {
+        let houseInfo = {
+          ...customerProfile.addresses[0].houseInfo,
+        };
+        if (serviceId === LAWN_CARE_ID) {
+          houseInfo = {
+            ...houseInfo,
+            lotSize: String(selectedArea),
+          };
+        } else if (serviceId === HOUSE_CLEANING_ID) {
+          houseInfo = {
+            ...houseInfo,
+            bedrooms: String(selectedBedroomNo),
+            bathrooms: String(selectedBathroomNo),
+          };
+        }
+      }
+    } else {
+      let isNeeded = await checkNeedForPropertyDetails(serviceId);
+      if (isNeeded) {
+        setPropertyDetailsNeeded(true);
+        toggleServiceInfoSheet(serviceId);
+        return;
+      }
+    }
+    setSelectedServices([...selectedServices, serviceId]);
   };
 
-  const showServiceInfo = (serviceName: string) => {
-    setSelectedServiceInfo(SERVICES[serviceName]);
+  const checkNeedForPropertyDetails = async (serviceId: string) => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (services.length > 0 && serviceId === LAWN_CARE_ID) {
+          setLoading(true);
+          let hasArea = false;
+          for (const service of services) {
+            if (service.serviceId === LAWN_CARE_ID) {
+              if (customerProfile.addresses[0].houseInfo?.lotSize) {
+                let priceMap: PriceMap[] = [];
+                let lotsize: number = parseInt(
+                  customerProfile.addresses[0].houseInfo?.lotSize
+                );
+                for (const price of service.priceMap) {
+                  if (
+                    price.rangeMin &&
+                    price.rangeMax &&
+                    lotsize &&
+                    lotsize > price.rangeMin &&
+                    lotsize < price.rangeMax
+                  ) {
+                    hasArea = true;
+                    setSelectedArea(lotsize);
+                    priceMap.push({
+                      ...price,
+                      selected: hasArea,
+                    });
+                  } else {
+                    priceMap.push(price);
+                  }
+                }
+                setAreaOptions(priceMap);
+              } else {
+                setAreaOptions(service.priceMap);
+              }
+              break;
+            }
+          }
+          // if (!hasArea) {
+          resolve(true);
+          return;
+          // } else {
+          //   resolve(false);
+          //   return;
+          // }
+        } else if (services.length > 0 && serviceId === HOUSE_CLEANING_ID) {
+          setBathroomOptions([]);
+          setBedroomOptions([]);
+          let houseInfo = customerProfile?.addresses[0]?.houseInfo;
+          let bathOptions: BathBedOptions[] = [];
+          let bedOptions: BathBedOptions[] = [];
+          for (let i of [1, 2, 3, 4, 5]) {
+            let _bathRoomNo: number =
+              houseInfo &&
+              houseInfo?.bedrooms &&
+              parseInt(houseInfo?.bedrooms) == i
+                ? parseInt(houseInfo?.bedrooms)
+                : 0;
+            setSelectedBathroomNo(_bathRoomNo);
+            bathOptions.push({
+              number: i,
+              selected: _bathRoomNo === i,
+            });
+
+            let _bedRoomNo: number =
+              houseInfo &&
+              houseInfo?.bedrooms &&
+              parseInt(houseInfo?.bedrooms) == i
+                ? parseInt(houseInfo?.bedrooms)
+                : 0;
+            setSelectedBedroomNo(_bedRoomNo);
+            bedOptions.push({
+              number: i,
+              selected: _bedRoomNo === i,
+            });
+          }
+          setBathroomOptions(bathOptions);
+          setBedroomOptions(bedOptions);
+          if (selectedBathroomNo === 0 || selectedBedroomNo === 0) {
+            resolve(true);
+            return;
+          } else {
+            resolve(false);
+          }
+        } else {
+          resolve(false);
+        }
+      } catch (error) {
+        resolve(false);
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    });
+  };
+
+  const showServiceInfo = async (serviceId: string) => {
+    let isNeeded = await checkNeedForPropertyDetails(serviceId);
+    if (isNeeded) {
+      setPropertyDetailsNeeded(true);
+    } else {
+      setPropertyDetailsNeeded(false);
+    }
+    toggleServiceInfoSheet(serviceId);
+  };
+
+  const toggleServiceInfoSheet = (serviceId: string) => {
+    setSelectedServiceInfo(SERVICES[serviceId]);
     setToggleServiceInfo(true);
   };
 
@@ -259,60 +425,30 @@ const ChooseService = (): JSX.Element => {
             </VStack>
           </VStack>
           {/* <OrderSummary selectedServices={selectedServices} /> */}
-          <Actionsheet
-            isOpen={toggleServiceInfo}
-            onClose={() => setToggleServiceInfo(false)}
-          >
-            <Actionsheet.Content>
-              <HStack justifyContent="center" space={5}>
-                <VStack space="5" p={10}>
-                  <View alignSelf={"center"}>
-                    {selectedServiceInfo?.icon && (
-                      <Circle size={120} bg={AppColors.PRIMARY} p={10}>
-                        <SvgCss xml={selectedServiceInfo?.icon()} />
-                      </Circle>
-                    )}
-                  </View>
-                  <Text
-                    textAlign={"center"}
-                    color={AppColors.SECONDARY}
-                    fontWeight={"bold"}
-                    fontSize={16}
-                  >
-                    {selectedServiceInfo?.text}
-                  </Text>
-                  <Text
-                    textAlign={"center"}
-                    fontSize={14}
-                    color={AppColors.SECONDARY}
-                  >
-                    {selectedServiceInfo?.description}
-                  </Text>
-                  <Button
-                    mt={5}
-                    bg={AppColors.DARK_PRIMARY}
-                    borderColor={AppColors.DARK_PRIMARY}
-                    borderRadius={50}
-                    width={"100%"}
-                    height={50}
-                    onPress={() => {
-                      chooseService(selectedServiceInfo?.id);
-                      setToggleServiceInfo(false);
-                    }}
-                    _text={{
-                      color: "white",
-                    }}
-                    alignSelf={"center"}
-                    _pressed={{
-                      backgroundColor: `${AppColors.DARK_PRIMARY}E6`,
-                    }}
-                  >
-                    Add
-                  </Button>
-                </VStack>
-              </HStack>
-            </Actionsheet.Content>
-          </Actionsheet>
+          <AddServiceBottomSheet
+            toggleServiceInfo={toggleServiceInfo}
+            status={
+              selectedServiceInfo
+                ? selectedServices.indexOf(selectedServiceInfo?.id) >= 0
+                : false
+            }
+            setToggleServiceInfo={setToggleServiceInfo}
+            chooseService={chooseService}
+            selectedServiceInfo={selectedServiceInfo}
+            propertyDetailsNeeded={propertyDetailsNeeded}
+            // Area
+            areaOptions={areaOptions}
+            setAreaOptions={setAreaOptions}
+            setSelectedArea={setSelectedArea}
+            // Bedroom
+            bedroomOptions={bedroomOptions}
+            setBedroomOptions={setBedroomOptions}
+            setSelectedBathroomNo={setSelectedBathroomNo}
+            // Bathroom
+            bathroomOptions={bathroomOptions}
+            setBathroomOptions={setBathroomOptions}
+            setSelectedBedroomNo={setSelectedBedroomNo}
+          />
           <Divider thickness={0} mt={20} />
         </>
       </ScrollView>

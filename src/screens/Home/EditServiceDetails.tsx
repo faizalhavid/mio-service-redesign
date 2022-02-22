@@ -23,7 +23,7 @@ import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
 import { getServiceCost, getServices, putLead } from "../../services/order";
-import { SERVICES } from "./ChooseService";
+import { HOUSE_CLEANING_ID, LAWN_CARE_ID, SERVICES } from "./ChooseService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCustomer } from "../../services/customer";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -90,39 +90,13 @@ const EditServiceDetails = ({
   const [serviceNotes, setServiceNotes] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState("");
   const [selectedTime, setSelectedTime] = React.useState("");
-  const [selectedArea, setSelectedArea] = React.useState<number>();
-  const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>();
-  const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>();
   const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
     React.useState<any>({});
 
-  const { leadDetails, setLeadDetails } = useAuth();
-
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
-
-  const [services, setServices] = React.useState<Service[]>([{} as Service]);
+  const { leadDetails, setLeadDetails, customerProfile, setCustomerProfile } =
+    useAuth();
 
   const screenWidth = Dimensions.get("screen").width;
-
-  const getAllServices = useQuery(
-    "getAllServices",
-    () => {
-      setLoading(true);
-      return getServices();
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setServices(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
 
   const [customerId, setCustomerId] = React.useState<string | null>(null);
   const fetchCustomerProfile = useCallback(async () => {
@@ -134,13 +108,6 @@ const EditServiceDetails = ({
   useEffect(() => {
     fetchCustomerProfile();
   }, [fetchCustomerProfile]);
-
-  const [bathroomOptions, setBathroomOptions] = React.useState<
-    BathBedOptions[]
-  >([]);
-  const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
-    []
-  );
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -170,13 +137,6 @@ const EditServiceDetails = ({
           subOrder.appointmentInfo.appointmentDateTime = new Date(
             `${selectedDate} ${selectedTime}:00:00`
           ).toISOString();
-          if (serviceId === "lawnCare") {
-            subOrder.area = String(selectedArea);
-          }
-          if (serviceId === "houseCleaning") {
-            subOrder.bedrooms = String(selectedBedroomNo);
-            subOrder.bathrooms = String(selectedBathroomNo);
-          }
           subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
           subOrder.serviceNotes = [serviceNotes];
 
@@ -323,108 +283,54 @@ const EditServiceDetails = ({
     if (Object.keys(customerProfile).length === 0) {
       return;
     }
-    if (serviceId && services) {
+    if (serviceId) {
       setLoading(true);
-      services.forEach((service) => {
+      for (let subOrder of leadDetails.subOrders) {
         if (
-          ["lawnCare"].includes(serviceId) &&
-          service.serviceId === serviceId
+          subOrder.serviceId === serviceId &&
+          serviceId === LAWN_CARE_ID &&
+          subOrder.area
         ) {
-          if (customerProfile.addresses[0].houseInfo?.lotSize) {
-            let priceMap: PriceMap[] = [];
-            let lotsize: number = parseInt(
-              customerProfile.addresses[0].houseInfo?.lotSize
-            );
-            service.priceMap.forEach((price) => {
-              if (serviceId === "lawnCare") {
-                if (
-                  price.rangeMin &&
-                  price.rangeMax &&
-                  lotsize &&
-                  lotsize > price.rangeMin &&
-                  lotsize < price.rangeMax
-                ) {
-                  setSelectedArea(lotsize);
-                  priceMap.push({
-                    ...price,
-                    selected: true,
-                  });
-                  getServiceCostMutation.mutate([
-                    {
-                      serviceId,
-                      serviceParameters: {
-                        area: lotsize,
-                      },
-                    },
-                  ]);
-                } else {
-                  priceMap.push(price);
-                }
-              }
-            });
-            setPriceMap(priceMap);
-          } else {
-            setPriceMap(service.priceMap);
-          }
-          setLoading(false);
+          let lotsize: number = parseInt(subOrder.area);
+          getServiceCostMutation.mutate([
+            {
+              serviceId,
+              serviceParameters: {
+                area: lotsize,
+              },
+            },
+          ]);
+          break;
+        } else if (
+          subOrder.serviceId === serviceId &&
+          serviceId === HOUSE_CLEANING_ID &&
+          subOrder.bathrooms &&
+          subOrder.bedrooms
+        ) {
+          getServiceCostMutation.mutate([
+            {
+              serviceId,
+              serviceParameters: {
+                bedrooms: subOrder.bedrooms,
+                bathrooms: subOrder.bathrooms,
+              },
+            },
+          ]);
+          break;
+        } else if (["pestControl", "poolCleaning"].includes(serviceId)) {
+          getServiceCostMutation.mutate([
+            {
+              serviceId,
+              serviceParameters: {},
+            },
+          ]);
+          break;
         }
-      });
-
-      if (serviceId === "houseCleaning") {
-        setBathroomOptions([]);
-        setBedroomOptions([]);
-        let houseInfo = customerProfile?.addresses[0]?.houseInfo;
-        let bathOptions: BathBedOptions[] = [];
-        let bedOptions: BathBedOptions[] = [];
-        console.log();
-        for (let i of [1, 2, 3, 4, 5]) {
-          bathOptions.push({
-            number: i,
-            selected:
-              (houseInfo &&
-                houseInfo?.bathrooms &&
-                parseInt(houseInfo?.bathrooms) == i) ||
-              false,
-          });
-
-          bedOptions.push({
-            number: i,
-            selected:
-              (houseInfo &&
-                houseInfo?.bedrooms &&
-                parseInt(houseInfo?.bedrooms) == i) ||
-              false,
-          });
-        }
-        setBathroomOptions(bathOptions);
-        setBedroomOptions(bedOptions);
       }
 
-      if (["pestControl", "poolCleaning"].includes(serviceId)) {
-        getServiceCostMutation.mutate([
-          {
-            serviceId,
-            serviceParameters: {},
-          },
-        ]);
-      }
       setLoading(false);
     }
-  }, [serviceId, services, customerProfile]);
-
-  React.useEffect(() => {
-    if (selectedBathroomNo && selectedBedroomNo) {
-      getServiceCostMutation.mutate([
-        {
-          serviceId,
-          serviceParameters: {
-            bedrooms: selectedBedroomNo,
-            bathrooms: selectedBathroomNo,
-          },
-        },
-      ]);
-    }
-  }, [selectedBathroomNo, selectedBedroomNo]);
+  }, [serviceId, customerProfile]);
 
   const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -516,145 +422,6 @@ const EditServiceDetails = ({
                 </HStack>
                 {SectionDivider(1)}
                 <VStack>
-                  {serviceId === "lawnCare" && (
-                    <>
-                      {SectionDivider(0)}
-                      {Title("Choose Lawn Size (Sq Ft)")}
-                      {SectionDivider(0)}
-
-                      <HStack
-                        space={2}
-                        maxWidth={screenWidth - 40}
-                        flexWrap={"wrap"}
-                        flexDirection="row"
-                      >
-                        {priceMap?.map((pm0, index) => {
-                          return (
-                            <View mb={1} key={index}>
-                              <SelectionButton
-                                w={(screenWidth - 60) / 2}
-                                h={38}
-                                index={index}
-                                onPress={(index1) => {
-                                  let updatedList = priceMap.map(
-                                    (pm2, index2) => {
-                                      if (index1 == index2) {
-                                        setSelectedArea(pm2.rangeMax);
-                                        let selected: PriceMap = {
-                                          ...pm2,
-                                          selected: true,
-                                        };
-                                        getServiceCostMutation.mutate([
-                                          {
-                                            serviceId,
-                                            serviceParameters: {
-                                              area: pm2.rangeMax,
-                                            },
-                                          },
-                                        ]);
-                                        return selected;
-                                      }
-                                      return { ...pm2, selected: false };
-                                    }
-                                  );
-                                  setPriceMap(updatedList);
-                                }}
-                                active={pm0.selected}
-                                text={`${pm0.rangeMin} - ${pm0.rangeMax}`}
-                              />
-                            </View>
-                          );
-                        })}
-                      </HStack>
-                    </>
-                  )}
-                  {serviceId === "houseCleaning" && (
-                    <>
-                      {SectionDivider(0)}
-                      {Title("Choose Number of Bedrooms")}
-                      {SectionDivider(0)}
-
-                      <HStack
-                        space={2}
-                        maxWidth={screenWidth - 40}
-                        flexWrap={"wrap"}
-                        flexDirection="row"
-                      >
-                        {bedroomOptions.map((option, index) => {
-                          return (
-                            <View mb={1} key={index}>
-                              <SelectionButton
-                                w={(screenWidth - 60) / 7}
-                                h={38}
-                                index={index}
-                                onPress={(index1) => {
-                                  let updatedOptions = bedroomOptions.map(
-                                    (opt, i) => {
-                                      if (i === index1) {
-                                        setSelectedBedroomNo(option.number);
-                                        return {
-                                          ...opt,
-                                          selected: true,
-                                        };
-                                      }
-                                      return {
-                                        ...opt,
-                                        selected: false,
-                                      };
-                                    }
-                                  );
-                                  setBedroomOptions(updatedOptions);
-                                }}
-                                active={option.selected}
-                                text={`${option.number}`}
-                              />
-                            </View>
-                          );
-                        })}
-                      </HStack>
-                      {SectionDivider(0)}
-                      {Title("Choose Number of Bathrooms")}
-                      {SectionDivider(0)}
-                      <HStack
-                        space={2}
-                        maxWidth={screenWidth - 40}
-                        flexWrap={"wrap"}
-                        flexDirection="row"
-                      >
-                        {bathroomOptions.map((option, index) => {
-                          return (
-                            <View mb={1} key={index}>
-                              <SelectionButton
-                                w={(screenWidth - 60) / 7}
-                                h={38}
-                                index={index}
-                                onPress={(index1) => {
-                                  let updatedOptions = bathroomOptions.map(
-                                    (opt, i) => {
-                                      if (i === index1) {
-                                        setSelectedBathroomNo(opt.number);
-                                        return {
-                                          ...opt,
-                                          selected: true,
-                                        };
-                                      }
-                                      return {
-                                        ...opt,
-                                        selected: false,
-                                      };
-                                    }
-                                  );
-                                  setBathroomOptions(updatedOptions);
-                                }}
-                                active={option.selected}
-                                text={`${option.number}`}
-                              />
-                            </View>
-                          );
-                        })}
-                      </HStack>
-                    </>
-                  )}
                   {SectionDivider(0)}
                   {Title("Choose Subscription Method")}
                   {SectionDivider(0)}
