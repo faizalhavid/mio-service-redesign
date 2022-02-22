@@ -349,7 +349,7 @@ const PersonalDetails = (): JSX.Element => {
               }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <AppInput
-                  type="text"
+                  type="number"
                   label="Zipcode"
                   onChange={onChange}
                   value={value}

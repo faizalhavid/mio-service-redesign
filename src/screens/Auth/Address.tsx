@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   Center,
   CheckIcon,
+  Divider,
   Flex,
   Input,
   Select,
@@ -200,11 +201,11 @@ const Address = ({ route }: AddressProps): JSX.Element => {
             render={({ field: { onChange, onBlur, value } }) => (
               <>
                 {value ? (
-                  <Text color={"gray.400"} fontSize={14}>
+                  <Text mt={2} color={"gray.400"} fontSize={14}>
                     State
                   </Text>
                 ) : (
-                  <></>
+                  <Divider thickness={0} mt={2} />
                 )}
                 <Select
                   accessibilityLabel="STATE"
@@ -244,7 +245,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <AppInput
-                type="text"
+                type="number"
                 label="Zipcode"
                 onChange={onChange}
                 value={value}

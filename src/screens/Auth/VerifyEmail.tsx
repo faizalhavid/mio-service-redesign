@@ -1,5 +1,5 @@
 import { Button, Center, Text, View, VStack } from "native-base";
-import React from "react";
+import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
 import { useMutation } from "react-query";
 import { EXCLAMATION_ICON } from "../../commons/assets";
@@ -34,6 +34,12 @@ const VerifyEmail = (): JSX.Element => {
     }
   );
   const { currentUser, reload, resendEmail } = useAuth();
+
+  useEffect(() => {
+    if (currentUser) {
+      resendEmail();
+    }
+  }, [currentUser]);
 
   return (
     <AppSafeAreaView>
