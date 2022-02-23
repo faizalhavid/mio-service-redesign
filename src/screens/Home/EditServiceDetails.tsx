@@ -58,8 +58,6 @@ type AppointmentTimeOptionType = {
   selected: boolean;
 };
 
-type BathBedOptions = { number: number; selected: boolean };
-
 type EditServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
   "EditServiceDetails"
@@ -97,14 +95,28 @@ const EditServiceDetails = ({
 
   const screenWidth = Dimensions.get("screen").width;
 
+  const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
+    [key: string]: SubOrder;
+  }>({});
+
+  React.useEffect(() => {
+    if (!leadDetails) {
+      return;
+    }
+    let details: { [key: string]: SubOrder } = {};
+    leadDetails.subOrders.forEach((subOrder) => {
+      details[subOrder.serviceId] = subOrder;
+    });
+
+    setGroupedLeadDetails(details);
+  }, [leadDetails]);
+
   const updateLeadMutation = useMutation(
     "updateLead",
     () => {
       setLoading(true);
-      let selectedSubOrder: SubOrder = {} as SubOrder;
       let updatedSuborders = leadDetails.subOrders.map((subOrder) => {
         if (subOrder.serviceId === serviceId) {
-          selectedSubOrder = subOrder;
           subOrder.appointmentInfo.appointmentDateTime = new Date(
             `${selectedDate} ${selectedTime}:00:00`
           ).toISOString();
@@ -167,6 +179,8 @@ const EditServiceDetails = ({
     },
     {
       onSuccess: (data) => {
+        let isUpdate = mode === "UPDATE";
+        let subOrder = groupedLeadDetails[serviceId];
         let subscriptionMethods: any[] = [];
         let recurringOptions: any[] = [];
         let priceMap: PriceMap[] = data.data;
@@ -212,31 +226,64 @@ const EditServiceDetails = ({
             pricePer2WeeksExists ||
             pricePerMonthExists
           ) {
-            recurringOptions[0] = {
-              ...recurringOptions[0],
-              selected: true,
-            };
-            let sub = {
-              method: "RECURRING",
-              label: `$${pricePerMonth} Billed Monthly`,
-              selected: true,
-              activeOption: recurringOptions[0],
-              options: recurringOptions,
-            };
-            subscriptionMethods.push(sub);
-            setSelectedSubscriptionMethod(sub);
+            if (isUpdate) {
+              let selectedIndex: number = 0;
+              for (let i = 0; i < recurringOptions.length; i++) {
+                if (
+                  recurringOptions[i].type ===
+                  subOrder?.flags?.recurringDuration
+                ) {
+                  selectedIndex = i;
+                }
+              }
+              recurringOptions[selectedIndex] = {
+                ...recurringOptions[selectedIndex],
+                selected: true,
+              };
+              let sub = {
+                method: "RECURRING",
+                label: `$${pricePerMonth} Billed Monthly`,
+                selected: subOrder?.flags.isRecurring,
+                activeOption: recurringOptions[selectedIndex],
+                options: recurringOptions,
+              };
+              subscriptionMethods.push(sub);
+              setSelectedSubscriptionMethod(sub);
+            } else {
+              recurringOptions[0] = {
+                ...recurringOptions[0],
+                selected: true,
+              };
+              let sub = {
+                method: "RECURRING",
+                label: `$${pricePerMonth} Billed Monthly`,
+                selected: true,
+                activeOption: recurringOptions[0],
+                options: recurringOptions,
+              };
+              subscriptionMethods.push(sub);
+              setSelectedSubscriptionMethod(sub);
+            }
           }
 
           if (
             priceMap[0].pricePerOnetime &&
             parseInt(priceMap[0].pricePerOnetime) !== 0
           ) {
-            subscriptionMethods.push({
+            let sub = {
               method: "ONCE",
               cost: priceMap[0].pricePerOnetime,
               label: "One-time Service",
-              selected: false,
-            });
+              selected: isUpdate
+                ? subOrder?.flags.isRecurring
+                  ? false
+                  : true
+                : false,
+            };
+            subscriptionMethods.push(sub);
+            if (isUpdate && !subOrder.flags.isRecurring) {
+              setSelectedSubscriptionMethod(sub);
+            }
           }
         }
         setSubscriptionMethodOptions(subscriptionMethods);
@@ -249,7 +296,10 @@ const EditServiceDetails = ({
   );
 
   React.useEffect(() => {
-    if (Object.keys(customerProfile).length === 0) {
+    if (
+      Object.keys(customerProfile).length === 0 ||
+      Object.keys(groupedLeadDetails).length === 0
+    ) {
       return;
     }
     if (serviceId) {
@@ -296,10 +346,10 @@ const EditServiceDetails = ({
           break;
         }
       }
-
       setLoading(false);
     }
-  }, [serviceId, customerProfile]);
+    return;
+  }, [serviceId, customerProfile, groupedLeadDetails]);
 
   const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -310,38 +360,68 @@ const EditServiceDetails = ({
     useState<AppointmentTimeOptionType[]>();
 
   React.useEffect(() => {
-    if (!mode) {
+    if (
+      !mode ||
+      !groupedLeadDetails ||
+      Object.keys(groupedLeadDetails).length === 0
+    ) {
       return;
     }
     let isUpdate = mode === "UPDATE";
+
+    let subOrder = groupedLeadDetails[serviceId];
+    if (isUpdate) {
+      setServiceNotes(subOrder?.serviceNotes[0] || "");
+    }
+
     let dates: AppointmentDateOptionType[] = [];
     [7, 8, 9, 10].forEach((number) => {
       let date = new Date();
       date.setDate(date.getDate() + number);
       let month = date.getMonth() + 1;
+      let fullDate = `${date.getFullYear()}-${
+        month > 9 ? month : "0" + month
+      }-${date.getDate()}`;
+      let isSelected = false;
+      if (isUpdate) {
+        isSelected =
+          date.getDate() ===
+          new Date(subOrder.appointmentInfo.appointmentDateTime).getDate();
+        if (isSelected) {
+          setSelectedDate(fullDate);
+        }
+      }
       dates.push({
-        fullDate: `${date.getFullYear()}-${
-          month > 9 ? month : "0" + month
-        }-${date.getDate()}`,
+        fullDate,
         date: date.getDate(),
         day: DAY[date.getDay()],
         month: MONTH[date.getMonth()],
-        selected: false,
+        selected: isSelected,
       });
     });
     setAppointmentDateOptions(dates);
     let times: AppointmentTimeOptionType[] = [];
     [8, 10, 12, 14].forEach((number) => {
+      let rangeMin = `${number > 12 ? number - 12 : number}`;
+      let isSelected = false;
+      if (isUpdate) {
+        isSelected =
+          parseInt(rangeMin) ===
+          new Date(subOrder.appointmentInfo.appointmentDateTime).getHours();
+        if (isSelected) {
+          setSelectedTime(rangeMin);
+        }
+      }
       times.push({
-        rangeMin: `${number > 12 ? number - 12 : number}`,
+        rangeMin,
         rangeMax: `${number + 4 > 12 ? number + 4 - 12 : number + 4}`,
         minMeridian: `${number >= 12 ? "PM" : "AM"}`,
         maxMaxidian: `${number + 4 >= 12 ? "PM" : "AM"}`,
-        selected: false,
+        selected: isSelected,
       });
     });
     setAppointmentTimeOptions(times);
-  }, [mode]);
+  }, [groupedLeadDetails, mode]);
 
   const Title = (text: string) => {
     return (
@@ -639,6 +719,8 @@ const EditServiceDetails = ({
                       onChangeText={(text) => {
                         setServiceNotes(text);
                       }}
+                      fontSize={14}
+                      value={serviceNotes}
                       keyboardType="default"
                       numberOfLines={5}
                       mb={20}

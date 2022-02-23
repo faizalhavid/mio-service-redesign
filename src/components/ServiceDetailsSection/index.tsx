@@ -4,6 +4,7 @@ import { AppColors } from "../../commons/colors";
 
 type ServiceDetailsSectionProps = {
   title: string;
+  showEdit: boolean;
   onEdit: () => void;
   children: React.ReactNode;
 };
@@ -11,6 +12,7 @@ type ServiceDetailsSectionProps = {
 const ServiceDetailsSection = ({
   title,
   children,
+  showEdit,
   onEdit,
 }: ServiceDetailsSectionProps): JSX.Element => {
   return (
@@ -28,15 +30,17 @@ const ServiceDetailsSection = ({
             {title}
           </Text>
           <HStack space={10}>
-            <Pressable onPress={onEdit} alignSelf={"center"}>
-              <Text
-                color={AppColors.SECONDARY}
-                fontWeight={"semibold"}
-                fontSize={10}
-              >
-                EDIT
-              </Text>
-            </Pressable>
+            {showEdit && (
+              <Pressable onPress={onEdit} alignSelf={"center"}>
+                <Text
+                  color={AppColors.SECONDARY}
+                  fontWeight={"semibold"}
+                  fontSize={12}
+                >
+                  EDIT
+                </Text>
+              </Pressable>
+            )}
             {/* <Pressable onPress={() => {}} alignSelf={"center"}>
               <Text color={"red.700"} fontWeight={"semibold"} fontSize={10}>
                 REMOVE

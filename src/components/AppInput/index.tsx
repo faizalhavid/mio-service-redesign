@@ -61,7 +61,6 @@ const AppInput = ({
         disabledLineWidth={0}
         secureTextEntry={type === "password"}
         renderRightAccessory={() => {
-          console.log(type);
           switch (type) {
             case "password":
               return <></>;

@@ -99,6 +99,10 @@ const ServiceDetails = (): JSX.Element => {
                 <ServiceDetailsSection
                   key={index}
                   title={SERVICES[lead.serviceId].text}
+                  showEdit={
+                    groupedLeadDetails[lead.serviceId]?.appointmentInfo
+                      ?.providerProfile?.eaProviderId
+                  }
                   onEdit={() => {
                     navigate("EditServiceDetails", {
                       serviceId: lead.serviceId,
