@@ -211,6 +211,12 @@ export const FILLED_CIRCLE_TICK_ICON = (color: string = "#000") => `
 </svg>
 `;
 
+export const FILLED_CIRCLE_CLOSE_ICON = (color: string = "#000") => `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+</svg>
+`;
+
 export const CAMERA_ICON = `
 <svg width="30" height="29" viewBox="0 0 30 29" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M26.25 21.08C26.25 21.5785 26.0345 22.0566 25.6509 22.4091C25.2673 22.7616 24.747 22.9596 24.2045 22.9596H5.79545C5.25297 22.9596 4.7327 22.7616 4.3491 22.4091C3.9655 22.0566 3.75 21.5785 3.75 21.08V10.742C3.75 10.2435 3.9655 9.76544 4.3491 9.41294C4.7327 9.06045 5.25297 8.86241 5.79545 8.86241H9.88636L11.9318 6.04297H18.0682L20.1136 8.86241H24.2045C24.747 8.86241 25.2673 9.06045 25.6509 9.41294C26.0345 9.76544 26.25 10.2435 26.25 10.742V21.08Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

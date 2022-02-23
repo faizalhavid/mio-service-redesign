@@ -20,3 +20,5 @@ export const getAllOrders = (type: string) =>
   AxiosClient.get(`${API.GET_ALL_ORDERS}/${type}`);
 export const getOrderDetails = (orderId: string, subOrderId: string) =>
   AxiosClient.get(`${API.GET_ORDER_DETAILS}/${orderId}/detail/${subOrderId}`);
+export const validateCoupon = (code: string) =>
+  AxiosClient.get(`${API.VALIDATE_COUPON}/${code}`);

@@ -114,7 +114,9 @@ export interface Flags {
   orderStatus: string;
 }
 
-export interface PromoCode {}
+export interface PromoCode {
+  id: string;
+}
 
 export interface Flags2 {
   isRecurring: boolean;
