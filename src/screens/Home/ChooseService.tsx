@@ -169,13 +169,13 @@ const ChooseService = (): JSX.Element => {
           ...selectedServices.map((serviceId) => {
             if (serviceId === LAWN_CARE_ID) {
               return {
-                area: customerProfile.addresses[0].houseInfo?.lotSize,
+                area: selectedArea,
                 serviceId,
               };
             } else if (serviceId === HOUSE_CLEANING_ID) {
               return {
-                bedrooms: customerProfile.addresses[0].houseInfo?.bedrooms,
-                bathrooms: customerProfile.addresses[0].houseInfo?.bathrooms,
+                bedrooms: selectedBedroomNo,
+                bathrooms: selectedBathroomNo,
                 serviceId,
               };
             }
@@ -211,7 +211,6 @@ const ChooseService = (): JSX.Element => {
       let subOrders = leadDetails.subOrders.filter((subOrder) => {
         return selectedServices.includes(subOrder.serviceId);
       });
-
       let payload = {
         ...leadDetails,
         subOrders: [
@@ -244,6 +243,24 @@ const ChooseService = (): JSX.Element => {
     }
   );
 
+  const putAddressMutation = useMutation(
+    "putAddressMutation",
+    (data: CustomerProfile): any => {
+      setLoading(true);
+      return putCustomer(data);
+    },
+    {
+      onSuccess: async (data: any) => {
+        setLoading(false);
+        setCustomerProfile(data.data);
+      },
+      onError: (err: any) => {
+        setLoading(false);
+        console.log(err);
+      },
+    }
+  );
+
   const chooseService = async (
     serviceId: string = "",
     fromBottomSheet: boolean = false
@@ -256,7 +273,41 @@ const ChooseService = (): JSX.Element => {
     }
 
     if (fromBottomSheet) {
-      // Do nothing
+      if (propertyDetailsNeeded) {
+        let houseInfo = {
+          ...customerProfile.addresses[0].houseInfo,
+        };
+        if (serviceId === LAWN_CARE_ID) {
+          houseInfo = {
+            ...houseInfo,
+            lotSize: selectedArea,
+          };
+          putAddressMutation.mutate({
+            ...customerProfile,
+            addresses: [
+              {
+                ...customerProfile.addresses[0],
+                houseInfo,
+              },
+            ],
+          });
+        } else if (serviceId === HOUSE_CLEANING_ID) {
+          houseInfo = {
+            ...houseInfo,
+            bedrooms: selectedBedroomNo,
+            bathrooms: selectedBathroomNo,
+          };
+          putAddressMutation.mutate({
+            ...customerProfile,
+            addresses: [
+              {
+                ...customerProfile.addresses[0],
+                houseInfo,
+              },
+            ],
+          });
+        }
+      }
     } else {
       let isNeeded = await checkNeedForPropertyDetails(serviceId);
       if (isNeeded) {
@@ -278,9 +329,8 @@ const ChooseService = (): JSX.Element => {
             if (service.serviceId === LAWN_CARE_ID) {
               if (customerProfile.addresses[0].houseInfo?.lotSize) {
                 let priceMap: PriceMap[] = [];
-                let lotsize: number = parseInt(
-                  customerProfile.addresses[0].houseInfo?.lotSize
-                );
+                let lotsize: number =
+                  customerProfile.addresses[0].houseInfo?.lotSize;
                 for (const price of service.priceMap) {
                   if (
                     price.rangeMin &&
@@ -321,10 +371,8 @@ const ChooseService = (): JSX.Element => {
           let bedOptions: BathBedOptions[] = [];
           for (let i of [1, 2, 3, 4, 5]) {
             let _bathRoomNo: number =
-              houseInfo &&
-              houseInfo?.bedrooms &&
-              parseInt(houseInfo?.bedrooms) == i
-                ? parseInt(houseInfo?.bedrooms)
+              houseInfo && houseInfo?.bedrooms && houseInfo?.bedrooms == i
+                ? houseInfo?.bedrooms
                 : 0;
             setSelectedBathroomNo(_bathRoomNo);
             bathOptions.push({
@@ -333,10 +381,8 @@ const ChooseService = (): JSX.Element => {
             });
 
             let _bedRoomNo: number =
-              houseInfo &&
-              houseInfo?.bedrooms &&
-              parseInt(houseInfo?.bedrooms) == i
-                ? parseInt(houseInfo?.bedrooms)
+              houseInfo && houseInfo?.bedrooms && houseInfo?.bedrooms == i
+                ? houseInfo?.bedrooms
                 : 0;
             setSelectedBedroomNo(_bedRoomNo);
             bedOptions.push({

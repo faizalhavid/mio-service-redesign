@@ -98,7 +98,7 @@ const AddServiceBottomSheet = ({
                   fontWeight={"bold"}
                   fontSize={16}
                 >
-                  Choose Property Details
+                  Update Property Details
                 </Text>
                 {/* <Divider my="2" /> */}
                 {selectedServiceInfo?.id === LAWN_CARE_ID && (

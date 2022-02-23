@@ -20,9 +20,9 @@ export type Address = {
   state: string;
   zip: string;
   houseInfo?: {
-    bathrooms?: string;
-    bedrooms?: string;
-    lotSize?: string;
+    bathrooms?: number;
+    bedrooms?: number;
+    lotSize?: number;
   };
 };
 
@@ -54,7 +54,7 @@ export type CustomerProfile = {
   firstName: string;
   lastName: string;
   pictureURL: string;
-  profileComplete: boolean;
+  profileComplete?: boolean;
   paymentCardSaved: boolean;
   firstServiceAdded: boolean;
   phones: Phone[];
@@ -100,7 +100,6 @@ export let dummyProfile: CustomerProfile = {
   firstName: "",
   lastName: "",
   pictureURL: "",
-  profileComplete: false,
   paymentCardSaved: false,
   firstServiceAdded: false,
   phones: [],
@@ -111,7 +110,7 @@ export let dummyProfile: CustomerProfile = {
     {
       street: "",
       city: "",
-      state: "AL",
+      state: "",
       zip: "",
     },
   ],
