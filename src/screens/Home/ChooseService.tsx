@@ -211,11 +211,21 @@ const ChooseService = (): JSX.Element => {
       let subOrders = leadDetails.subOrders.filter((subOrder) => {
         return selectedServices.includes(subOrder.serviceId);
       });
+
       let payload = {
         ...leadDetails,
         subOrders: [
           ...subOrders,
           ...newlyAddedServiceIds.map((serviceId) => {
+            if (serviceId === LAWN_CARE_ID) {
+              return { serviceId, area: String(selectedArea) };
+            } else if (serviceId === HOUSE_CLEANING_ID) {
+              return {
+                serviceId,
+                bedrooms: String(selectedBedroomNo),
+                bathrooms: String(selectedBathroomNo),
+              };
+            }
             return { serviceId };
           }),
         ],
@@ -246,23 +256,7 @@ const ChooseService = (): JSX.Element => {
     }
 
     if (fromBottomSheet) {
-      if (propertyDetailsNeeded) {
-        let houseInfo = {
-          ...customerProfile.addresses[0].houseInfo,
-        };
-        if (serviceId === LAWN_CARE_ID) {
-          houseInfo = {
-            ...houseInfo,
-            lotSize: String(selectedArea),
-          };
-        } else if (serviceId === HOUSE_CLEANING_ID) {
-          houseInfo = {
-            ...houseInfo,
-            bedrooms: String(selectedBedroomNo),
-            bathrooms: String(selectedBathroomNo),
-          };
-        }
-      }
+      // Do nothing
     } else {
       let isNeeded = await checkNeedForPropertyDetails(serviceId);
       if (isNeeded) {
@@ -460,6 +454,7 @@ const ChooseService = (): JSX.Element => {
           const leadId = await AsyncStorage.getItem("LEAD_ID");
           if (!leadId) {
             await createLeadMutation.mutateAsync();
+            await updateLeadMutation.mutateAsync();
           } else {
             await updateLeadMutation.mutateAsync();
           }

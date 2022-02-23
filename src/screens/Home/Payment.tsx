@@ -29,6 +29,11 @@ import {
 import { Card, SaveCardType } from "./PaymentMethods";
 import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
+import { SvgCss } from "react-native-svg";
+import {
+  CIRCLE_TICK_ICON,
+  FILLED_CIRCLE_TICK_ICON,
+} from "../../commons/assets";
 
 const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
@@ -287,6 +292,39 @@ const Payment = (): JSX.Element => {
             </>
           )}
 
+          <Divider thickness={10} />
+          <VStack>
+            <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
+              Apply Promo Code
+            </Text>
+            <Divider thickness={1} mt={5} />
+            <VStack px={5}>
+              <AppInput
+                type={"text"}
+                label={"Code"}
+                suffix={
+                  <Button
+                    _pressed={{
+                      backgroundColor: "#eee",
+                    }}
+                    _text={{
+                      color: AppColors.SECONDARY,
+                    }}
+                    p={1}
+                    variant={"ghost"}
+                  >
+                    Apply
+                  </Button>
+                }
+              />
+              <HStack space={1.5} alignItems="center">
+                <SvgCss xml={FILLED_CIRCLE_TICK_ICON(AppColors.DARK_PRIMARY)} />
+                <Text fontWeight={"semibold"} color={AppColors.DARK_PRIMARY}>
+                  Coupon Applied Successfully
+                </Text>
+              </HStack>
+            </VStack>
+          </VStack>
           <Divider thickness={10} />
         </VStack>
         <Center px={5} py={5}>

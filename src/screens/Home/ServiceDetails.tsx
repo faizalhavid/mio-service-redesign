@@ -28,40 +28,11 @@ import {
   INFO_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
-import { MONTH } from "./EditServiceDetails";
 import { getReadableDateTime } from "../../services/utils";
 
 const ServiceDetails = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
-  const { leadDetails, customerProfile, setCustomerProfile } = useAuth();
-
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setCustomerProfile(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-
-  const fetchCustomerProfile = React.useCallback(async () => {
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
-    setCustomerId(cId);
-    await getCustomerMutation.mutateAsync();
-  }, []);
-
-  React.useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
+  const { leadDetails, customerProfile } = useAuth();
 
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
@@ -128,7 +99,12 @@ const ServiceDetails = (): JSX.Element => {
                 <ServiceDetailsSection
                   key={index}
                   title={SERVICES[lead.serviceId].text}
-                  noData={true}
+                  onEdit={() => {
+                    navigate("EditServiceDetails", {
+                      serviceId: lead.serviceId,
+                      mode: "UPDATE",
+                    });
+                  }}
                 >
                   {groupedLeadDetails[lead.serviceId]?.appointmentInfo
                     ?.providerProfile?.eaProviderId ? (
@@ -211,14 +187,65 @@ const ServiceDetails = (): JSX.Element => {
                       </VStack>
                     </>
                   ) : (
-                    <ChooseServiceDetailsButton
-                      title="Choose Service Details & Schedule"
-                      onPress={() => {
-                        navigate("EditServiceDetails", {
-                          serviceId: lead.serviceId,
-                        });
-                      }}
-                    />
+                    <>
+                      {["lawnCare", "houseCleaning"].includes(
+                        lead.serviceId
+                      ) && (
+                        <>
+                          <VStack
+                            my={1}
+                            mx={1}
+                            space={2}
+                            borderWidth={1}
+                            py={3}
+                            borderRadius={10}
+                            borderColor={AppColors.PRIMARY}
+                          >
+                            {lead.serviceId === "lawnCare" && (
+                              <HStack space={2} alignItems={"center"} pl={3}>
+                                <SvgCss
+                                  xml={INFO_ICON}
+                                  width={20}
+                                  height={20}
+                                />
+                                <Text color={AppColors.SECONDARY} fontSize={14}>
+                                  {groupedLeadDetails[lead.serviceId]?.area +
+                                    " Sq. Ft."}
+                                </Text>
+                              </HStack>
+                            )}
+                            {lead.serviceId === "houseCleaning" && (
+                              <HStack space={2} alignItems={"center"} pl={3}>
+                                <SvgCss
+                                  xml={INFO_ICON}
+                                  width={20}
+                                  height={20}
+                                />
+                                <Text color={AppColors.SECONDARY} fontSize={14}>
+                                  Bedroom -{" "}
+                                  {groupedLeadDetails[lead.serviceId]?.bedrooms}{" "}
+                                  | Bathrooms -{" "}
+                                  {
+                                    groupedLeadDetails[lead.serviceId]
+                                      ?.bathrooms
+                                  }
+                                </Text>
+                              </HStack>
+                            )}
+                          </VStack>
+                          <Divider thickness={0} my={1} />
+                        </>
+                      )}
+
+                      <ChooseServiceDetailsButton
+                        title="Choose Subscription & Schedule"
+                        onPress={() => {
+                          navigate("EditServiceDetails", {
+                            serviceId: lead.serviceId,
+                          });
+                        }}
+                      />
+                    </>
                   )}
                 </ServiceDetailsSection>
               );

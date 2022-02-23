@@ -83,7 +83,7 @@ export const MONTH = [
 const EditServiceDetails = ({
   route,
 }: EditServiceDetailsProps): JSX.Element => {
-  const { serviceId } = route.params;
+  const { serviceId, mode } = route.params;
 
   const [loading, setLoading] = React.useState(false);
 
@@ -93,38 +93,9 @@ const EditServiceDetails = ({
   const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
     React.useState<any>({});
 
-  const { leadDetails, setLeadDetails, customerProfile, setCustomerProfile } =
-    useAuth();
+  const { leadDetails, setLeadDetails, customerProfile } = useAuth();
 
   const screenWidth = Dimensions.get("screen").width;
-
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
-  const fetchCustomerProfile = useCallback(async () => {
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
-    setCustomerId(cId);
-    await getCustomerMutation.mutateAsync();
-  }, []);
-
-  useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
-
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setCustomerProfile(data.data);
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
 
   const updateLeadMutation = useMutation(
     "updateLead",
@@ -185,8 +156,6 @@ const EditServiceDetails = ({
   React.useEffect(() => {
     updateShowFields();
   }, [updateShowFields]);
-
-  const [priceMap, setPriceMap] = React.useState<PriceMap[]>([]);
 
   const [subscriptionMethodOptions, setSubscriptionMethodOptions] =
     React.useState<any[]>([]);
@@ -311,8 +280,8 @@ const EditServiceDetails = ({
             {
               serviceId,
               serviceParameters: {
-                bedrooms: subOrder.bedrooms,
-                bathrooms: subOrder.bathrooms,
+                bedrooms: parseInt(subOrder.bedrooms),
+                bathrooms: parseInt(subOrder.bathrooms),
               },
             },
           ]);
@@ -341,6 +310,10 @@ const EditServiceDetails = ({
     useState<AppointmentTimeOptionType[]>();
 
   React.useEffect(() => {
+    if (!mode) {
+      return;
+    }
+    let isUpdate = mode === "UPDATE";
     let dates: AppointmentDateOptionType[] = [];
     [7, 8, 9, 10].forEach((number) => {
       let date = new Date();
@@ -368,7 +341,7 @@ const EditServiceDetails = ({
       });
     });
     setAppointmentTimeOptions(times);
-  }, []);
+  }, [mode]);
 
   const Title = (text: string) => {
     return (

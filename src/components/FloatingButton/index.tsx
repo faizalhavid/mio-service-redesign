@@ -21,7 +21,7 @@ const FloatingButton = ({ onPress }: FloatingButtonProps): JSX.Element => {
         bg={"amber.400"}
         onPress={onPress}
       >
-        <SvgCss xml={PLUS_ICON} />
+        <SvgCss xml={PLUS_ICON()} />
       </Button>
     </>
   );

@@ -23,8 +23,6 @@ import { useIsFocused } from "@react-navigation/native";
 import { getAllOrders, getAppointments } from "../../services/order";
 import { SERVICES } from "../Home/ChooseService";
 import { getReadableDateTime } from "../../services/utils";
-import { SvgCss } from "react-native-svg";
-import { PLUS_ICON } from "../../commons/assets";
 
 export type Order = {
   orderId: string;
