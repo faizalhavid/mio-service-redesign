@@ -1,6 +1,15 @@
-import { Center, Divider, ScrollView, Text } from "native-base";
-import React from "react";
-import { useQuery } from "react-query";
+import {
+  Center,
+  Divider,
+  FlatList,
+  ScrollView,
+  Spinner,
+  Text,
+  VStack,
+} from "native-base";
+import React, { useEffect } from "react";
+import { ListViewComponent } from "react-native";
+import { useMutation, useQuery } from "react-query";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ServiceCard from "../../components/ServiceCard";
 import { getAllOrders } from "../../services/order";
@@ -12,54 +21,75 @@ const ServiceHistory = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
 
   const [pastOrders, setPastOrders] = React.useState<Order[]>([]);
-  const getAllPastOrdersQuery = useQuery(
+  const [page, setPage] = React.useState<number>(1);
+  const [total, setTotal] = React.useState<number>(0);
+  const limit = 10;
+  const getAllPastOrdersMutation = useMutation(
     "getAllPastOrders",
-    () => {
+    (page: number) => {
       setLoading(true);
-      return getAllOrders("past");
+      return getAllOrders("past", page, limit);
     },
     {
       onSuccess: (data) => {
         setLoading(false);
-        setPastOrders(data.data);
+        setPastOrders([...pastOrders, ...data.data.data]);
+        setTotal(data.data.total);
       },
       onError: (err) => {
         setLoading(false);
       },
     }
   );
+
+  useEffect(() => {
+    getAllPastOrdersMutation.mutate(page);
+  }, [page]);
+
   return (
     <AppSafeAreaView loading={loading}>
       <Center mb={2}>
         <Text fontSize={20}>Service History</Text>
       </Center>
-      <ScrollView px={3}>
-        {pastOrders.length === 0 && (
-          <>
+
+      <VStack px={3}>
+        <FlatList
+          ListFooterComponent={
+            <>
+              {/* <Center>
+                <Spinner size="sm" />
+              </Center> */}
+              <Divider thickness={0} mt={200} />
+            </>
+          }
+          ListEmptyComponent={
             <Center mt={2} fontStyle={"italic"}>
               No past services are there!
             </Center>
-          </>
-        )}
-        {pastOrders.map((order: Order, index: number) => {
-          return (
+          }
+          onEndReached={() => {
+            if (page * limit < total) {
+              setPage(page + 1);
+            }
+          }}
+          data={pastOrders}
+          renderItem={({ item, index }: { item: Order; index: number }) => (
             <ServiceCard
               key={index}
               variant="outline"
               w={"100%"}
               showAddToCalendar={false}
-              serviceName={SERVICES[order.serviceId].text}
-              orderId={order.orderId}
-              subOrderId={order.subOrderId}
-              year={getReadableDateTime(order.appointmentDateTime).year}
-              date={getReadableDateTime(order.appointmentDateTime).date}
-              day={getReadableDateTime(order.appointmentDateTime).day}
-              slot={getReadableDateTime(order.appointmentDateTime).slot}
+              serviceName={SERVICES[item.serviceId]?.text}
+              orderId={item.orderId}
+              subOrderId={item.subOrderId}
+              year={getReadableDateTime(item.appointmentDateTime).year}
+              date={getReadableDateTime(item.appointmentDateTime).date}
+              day={getReadableDateTime(item.appointmentDateTime).day}
+              slot={getReadableDateTime(item.appointmentDateTime).slot}
             />
-          );
-        })}
-        <Divider thickness={0} mt={200} />
-      </ScrollView>
+          )}
+        />
+      </VStack>
     </AppSafeAreaView>
   );
 };

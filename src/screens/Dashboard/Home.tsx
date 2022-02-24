@@ -4,8 +4,10 @@ import {
   Divider,
   HStack,
   Image,
+  Pressable,
   ScrollView,
   Text,
+  View,
   VStack,
 } from "native-base";
 import React from "react";
@@ -83,7 +85,7 @@ const Home = (): JSX.Element => {
     {
       onSuccess: (data) => {
         setLoading(false);
-        setUpcomingOrders(data.data);
+        setUpcomingOrders(data.data.data);
       },
       onError: (err) => {
         setLoading(false);
@@ -101,7 +103,7 @@ const Home = (): JSX.Element => {
     {
       onSuccess: (data) => {
         setLoading(false);
-        setPastOrders(data.data);
+        setPastOrders(data.data.data);
       },
       onError: (err) => {
         setLoading(false);
@@ -129,6 +131,39 @@ const Home = (): JSX.Element => {
       init();
     }
   }, [init, isFocused]);
+
+  const ViewMore = (navigateTo: string) => {
+    return (
+      <Pressable
+        justifyContent="center"
+        alignItems={"center"}
+        onPress={() => navigate(navigateTo)}
+      >
+        <View
+          paddingY={4}
+          paddingX={5}
+          mt={5}
+          height={100}
+          borderRadius={10}
+          borderWidth={1}
+          borderColor={AppColors.SECONDARY}
+          width={300}
+          justifyContent="center"
+          alignItems={"center"}
+        >
+          <Center>
+            <Text
+              color={AppColors.SECONDARY}
+              fontSize={"16"}
+              fontWeight={"semibold"}
+            >
+              View More
+            </Text>
+          </Center>
+        </View>
+      </Pressable>
+    );
+  };
 
   return (
     <AppSafeAreaView mt={0} loading={loading}>
@@ -254,6 +289,7 @@ const Home = (): JSX.Element => {
                       />
                     );
                   })}
+                  {upcomingOrders.length > 0 && ViewMore("UpcomingServices")}
                 </HStack>
               </ScrollView>
               <Divider my={5} thickness={1} />
@@ -291,6 +327,7 @@ const Home = (): JSX.Element => {
                       />
                     );
                   })}
+                  {pastOrders.length > 0 && ViewMore("ServiceHistory")}
                 </HStack>
               </ScrollView>
             </VStack>
