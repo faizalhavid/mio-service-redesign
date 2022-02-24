@@ -5,6 +5,7 @@
   "scripts": {
     "clean:android": "cd android && ./gradlew clean",
     "android:dev-debug": "react-native run-android --variant=developmentdebug --appIdSuffix=dev",
+    "android:dev-release": "cd android && ./gradlew bundleDevelopmentRelease",
     "android:prod-debug": "react-native run-android --variant=productionDebug",
     "android:prod-release": "cd android && ./gradlew bundleProductionRelease",
     "ios:dev": "ENVFILE=.env.development react-native run-ios",
