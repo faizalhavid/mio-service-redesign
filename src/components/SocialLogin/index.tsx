@@ -1,6 +1,6 @@
 import { HStack, Divider, Center, VStack } from "native-base";
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import SocialLoginButton from "../SocialLoginButton";
 import Spacer from "../Spacer";
 

@@ -15,7 +15,7 @@ import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import { CustomerProfile, Phone } from "../../contexts/AuthContext";
+import { CustomerProfile, Phone, useAuth } from "../../contexts/AuthContext";
 import { goBack, navigate } from "../../navigations/rootNavigation";
 import {
   getCustomer,
@@ -36,13 +36,14 @@ type PersonalDetailsForm = {
   state: string;
   street: string;
   zip: string;
+  lotSize: string;
+  bedrooms: string;
+  bathrooms: string;
 };
 
 const PersonalDetails = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
+  const { customerProfile, setCustomerProfile } = useAuth();
   const [customerId, setCustomerId] = React.useState<string | null>(null);
   const [errorMsg, setErrorMsg] = React.useState("");
   const getCustomerMutation = useMutation(
@@ -62,6 +63,15 @@ const PersonalDetails = (): JSX.Element => {
         setValue("city", data.data.addresses[0].city);
         setValue("state", data.data.addresses[0].state);
         setValue("zip", data.data.addresses[0].zip);
+        setValue("lotSize", String(data.data.addresses[0].houseInfo?.lotSize));
+        setValue(
+          "bedrooms",
+          String(data.data.addresses[0].houseInfo?.bedrooms)
+        );
+        setValue(
+          "bathrooms",
+          String(data.data.addresses[0].houseInfo?.bathrooms)
+        );
         setLoading(false);
       },
       onError: (err) => {
@@ -93,6 +103,11 @@ const PersonalDetails = (): JSX.Element => {
           addresses: [
             {
               ...response.data,
+              houseInfo: {
+                lotSize: parseInt(formValues.lotSize),
+                bedrooms: parseInt(formValues.bedrooms),
+                bathrooms: parseInt(formValues.bathrooms),
+              },
             },
           ],
           ...{
@@ -176,7 +191,10 @@ const PersonalDetails = (): JSX.Element => {
             color: AppColors.SECONDARY,
             fontSize: 12,
           }}
-          width={"40%"}
+          _pressed={{
+            backgroundColor: "#fff",
+          }}
+          width={"50%"}
           variant={"outline"}
           borderRadius={20}
         >
@@ -217,7 +235,7 @@ const PersonalDetails = (): JSX.Element => {
             )}
           </Center>
           <Divider thickness={0} mt={10} />
-          {Header("Update")}
+          {Header("Update Personal Information")}
           {/* <Divider thickness={0} mt={10} /> */}
           <VStack px={5}>
             <Controller
@@ -375,7 +393,57 @@ const PersonalDetails = (): JSX.Element => {
             />
           </VStack>
         </VStack>
-        <Divider thickness={0} mt={220}></Divider>
+        <Divider thickness={0} mt={10} />
+        {Header("Update Property Details")}
+        <VStack px={5}>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                type="number"
+                label="Lawn Size (Sq. Ft)"
+                onChange={onChange}
+                value={value}
+              />
+            )}
+            name="lotSize"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                type="number"
+                label="Number of Bedrooms"
+                onChange={onChange}
+                value={value}
+              />
+            )}
+            name="bedrooms"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                type="number"
+                label="Number of Bathrooms"
+                onChange={onChange}
+                value={value}
+              />
+            )}
+            name="bathrooms"
+          />
+          <Divider thickness={0} mt={220} />
+        </VStack>
+
         {/* </ScrollView> */}
       </KeyboardAwareScrollView>
       {/* </KeyboardAvoidingView> */}

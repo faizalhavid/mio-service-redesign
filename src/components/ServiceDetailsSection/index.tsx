@@ -4,14 +4,16 @@ import { AppColors } from "../../commons/colors";
 
 type ServiceDetailsSectionProps = {
   title: string;
-  noData: boolean;
+  showEdit: boolean;
+  onEdit: () => void;
   children: React.ReactNode;
 };
 
 const ServiceDetailsSection = ({
   title,
   children,
-  noData,
+  showEdit,
+  onEdit,
 }: ServiceDetailsSectionProps): JSX.Element => {
   return (
     <>
@@ -28,15 +30,17 @@ const ServiceDetailsSection = ({
             {title}
           </Text>
           <HStack space={10}>
-            {/* <Pressable onPress={() => {}} alignSelf={"center"}>
-              <Text
-                color={AppColors.SECONDARY}
-                fontWeight={"semibold"}
-                fontSize={10}
-              >
-                EDIT
-              </Text>
-            </Pressable> */}
+            {showEdit && (
+              <Pressable onPress={onEdit} alignSelf={"center"}>
+                <Text
+                  color={AppColors.SECONDARY}
+                  fontWeight={"semibold"}
+                  fontSize={12}
+                >
+                  EDIT
+                </Text>
+              </Pressable>
+            )}
             {/* <Pressable onPress={() => {}} alignSelf={"center"}>
               <Text color={"red.700"} fontWeight={"semibold"} fontSize={10}>
                 REMOVE
@@ -44,24 +48,9 @@ const ServiceDetailsSection = ({
             </Pressable> */}
           </HStack>
         </HStack>
-        {!noData && (
-          <VStack
-            my={3}
-            mx={2}
-            space={2}
-            borderWidth={1}
-            py={3}
-            borderRadius={10}
-            borderColor={AppColors.PRIMARY}
-          >
-            {children}
-          </VStack>
-        )}
-        {noData && (
-          <VStack my={3} mx={2} space={2}>
-            {children}
-          </VStack>
-        )}
+        <VStack my={2} mx={1} space={2}>
+          {children}
+        </VStack>
       </VStack>
     </>
   );

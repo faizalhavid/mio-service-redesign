@@ -1,5 +1,7 @@
-import { Button, Text } from "native-base";
+import { Button, HStack, Text } from "native-base";
 import React from "react";
+import { SvgCss } from "react-native-svg";
+import { DOTTED_PLUS_ICON, PLUS_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 
@@ -19,21 +21,23 @@ const ChooseServiceDetailsButton = ({
       _pressed={{
         backgroundColor: "#eee",
       }}
-      shadow={1}
+      shadow={0}
       width={"95%"}
       bg={"#fff"}
-      borderColor={"#eee"}
       alignSelf={"center"}
+      borderColor={"#eee"}
       onPress={onPress}
     >
-      <Text
-        color={AppColors.SECONDARY}
-        px={4}
-        fontSize={12}
-        fontWeight={"semibold"}
-      >
-        {title}
-      </Text>
+      <HStack space={2} alignItems={"center"} pl={2}>
+        <SvgCss
+          xml={DOTTED_PLUS_ICON(AppColors.SECONDARY)}
+          width={15}
+          height={15}
+        />
+        <Text color={AppColors.SECONDARY} fontWeight="semibold" fontSize={12}>
+          {title}
+        </Text>
+      </HStack>
     </Button>
   );
 };

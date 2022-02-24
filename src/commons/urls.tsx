@@ -17,4 +17,5 @@ export const API = {
   CREATE_ORDER_FROM_LEAD: "/orders",
   GET_ALL_ORDERS: "/orders/all",
   GET_ORDER_DETAILS: "/orders",
+  VALIDATE_COUPON: "/coupon/validate",
 };

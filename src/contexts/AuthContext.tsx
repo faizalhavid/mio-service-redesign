@@ -20,9 +20,9 @@ export type Address = {
   state: string;
   zip: string;
   houseInfo?: {
-    bathrooms?: string;
-    bedrooms?: string;
-    lotSize?: string;
+    bathrooms?: number;
+    bedrooms?: number;
+    lotSize?: number;
   };
 };
 
@@ -54,7 +54,7 @@ export type CustomerProfile = {
   firstName: string;
   lastName: string;
   pictureURL: string;
-  profileComplete: boolean;
+  profileComplete?: boolean;
   paymentCardSaved: boolean;
   firstServiceAdded: boolean;
   phones: Phone[];
@@ -83,6 +83,8 @@ type AuthContextType = {
   getCurrentUser: () => string | null;
   leadDetails: LeadDetails;
   setLeadDetails: (leadDetails: LeadDetails) => void;
+  customerProfile: CustomerProfile;
+  setCustomerProfile: (customerProfile: CustomerProfile) => void;
 };
 
 const AuthContext = React.createContext<AuthContextType>({} as AuthContextType);
@@ -98,7 +100,6 @@ export let dummyProfile: CustomerProfile = {
   firstName: "",
   lastName: "",
   pictureURL: "",
-  profileComplete: false,
   paymentCardSaved: false,
   firstServiceAdded: false,
   phones: [],
@@ -109,7 +110,7 @@ export let dummyProfile: CustomerProfile = {
     {
       street: "",
       city: "",
-      state: "AL",
+      state: "",
       zip: "",
     },
   ],
@@ -131,6 +132,9 @@ export function AuthProvider({ children }: AuthProviderType) {
   );
   const [leadDetails, setLeadDetails] = React.useState<LeadDetails>(
     {} as LeadDetails
+  );
+  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
+    {} as CustomerProfile
   );
   const [loading, setLoading] = React.useState(false);
 
@@ -303,6 +307,8 @@ export function AuthProvider({ children }: AuthProviderType) {
     resendEmail,
     leadDetails,
     setLeadDetails,
+    customerProfile,
+    setCustomerProfile,
   };
 
   return (

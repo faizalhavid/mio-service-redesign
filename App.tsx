@@ -28,7 +28,6 @@ LogBox.ignoreLogs(["contrast ratio"]);
 // }
 
 const App = () => {
-  console.log(Config);
   GoogleSignin.configure({
     webClientId: Config.GOOGLE_WEB_CLIENT_ID,
   });

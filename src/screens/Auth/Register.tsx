@@ -33,7 +33,6 @@ import {
   RegisterForm,
   useAuth,
 } from "../../contexts/AuthContext";
-import { ENV } from "../../commons/environment";
 import SocialLogin from "../../components/SocialLogin";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 

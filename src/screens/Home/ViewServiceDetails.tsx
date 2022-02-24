@@ -21,7 +21,7 @@ import {
 import { AppColors } from "../../commons/colors";
 import { SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import { CustomerProfile } from "../../contexts/AuthContext";
+import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { getCustomer } from "../../services/customer";
 import { getOrderDetails } from "../../services/order";
@@ -40,9 +40,7 @@ const ViewServiceDetails = ({
   const { orderId, subOrderId } = route.params;
   const [customerId, setCustomerId] = React.useState<string | null>(null);
 
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
+  const { customerProfile, setCustomerProfile } = useAuth();
 
   const getCustomerMutation = useMutation(
     "getCustomer",

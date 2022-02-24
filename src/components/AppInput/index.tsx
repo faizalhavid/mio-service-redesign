@@ -2,6 +2,7 @@ import React from "react";
 import { AppColors } from "../../commons/colors";
 import { TextField } from "rn-material-ui-textfield";
 import { KeyboardTypeOptions } from "react-native";
+import { Text } from "native-base";
 
 type AppInputProps = {
   type: "text" | "number" | "email" | "password";
@@ -9,6 +10,7 @@ type AppInputProps = {
   value?: string;
   disabled?: boolean;
   expiry?: boolean;
+  suffix?: React.ReactNode;
   onChange?: (...event: any[]) => void;
 };
 
@@ -18,6 +20,7 @@ const AppInput = ({
   value,
   disabled,
   expiry,
+  suffix,
   onChange,
 }: AppInputProps): JSX.Element => {
   const keyboardType: { [key: string]: KeyboardTypeOptions } = {
@@ -35,6 +38,9 @@ const AppInput = ({
   };
 
   const [focussed, setFocussed] = React.useState(false);
+
+  const [showPassword, setShowPassword] = React.useState(false);
+
   return (
     <>
       <TextField
@@ -54,7 +60,18 @@ const AppInput = ({
         lineWidth={focussed ? 1 : 0}
         disabledLineWidth={0}
         secureTextEntry={type === "password"}
-        renderRightAccessory={() => (type === "password" ? <></> : <></>)}
+        renderRightAccessory={() => {
+          switch (type) {
+            case "password":
+              return <></>;
+              break;
+            case "text":
+              return <>{suffix || <></>}</>;
+              break;
+            default:
+              return <></>;
+          }
+        }}
         // baseColor={AppColors.SECONDARY}
         tintColor={AppColors.SECONDARY}
         textColor={AppColors.SECONDARY}

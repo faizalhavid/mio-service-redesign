@@ -25,10 +25,17 @@ import {
   getSavedCards,
   putLead,
   saveCard,
+  validateCoupon,
 } from "../../services/order";
 import { Card, SaveCardType } from "./PaymentMethods";
 import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
+import { SvgCss } from "react-native-svg";
+import {
+  CIRCLE_TICK_ICON,
+  FILLED_CIRCLE_CLOSE_ICON,
+  FILLED_CIRCLE_TICK_ICON,
+} from "../../commons/assets";
 
 const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
@@ -36,6 +43,11 @@ const Payment = (): JSX.Element => {
   const [customerId, setCustomerId] = React.useState<string | null>(null);
   const [selectedCreditcard, setSelectedCreditcard] = useState<string>();
   const [errorMsg, setErrorMsg] = React.useState("");
+  const [couponCode, setCouponCode] = React.useState("");
+  const [couponValidity, setCouponValidity] = React.useState<
+    "INIT" | "VALID" | "INVALID"
+  >("INIT");
+  const [couponMsg, setCouponMsg] = React.useState("");
   const [savedCards, setSavedCards] = React.useState<Card[]>([]);
   const { leadDetails, setLeadDetails } = useAuth();
 
@@ -48,6 +60,29 @@ const Payment = (): JSX.Element => {
   useEffect(() => {
     fetchCustomerProfile();
   }, [fetchCustomerProfile]);
+
+  const validateCouponMutation = useMutation(
+    "validateCoupon",
+    () => {
+      setCouponValidity("INIT");
+      setLoading(true);
+      return validateCoupon(couponCode);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+        if (data.data.isValid) {
+          setCouponValidity("VALID");
+        } else {
+          setCouponValidity("INVALID");
+        }
+        setCouponMsg(data.data.message);
+      },
+      onError: (err) => {
+        setLoading(false);
+      },
+    }
+  );
 
   const getSavedCardsMutation = useMutation(
     "getSavedCards",
@@ -78,7 +113,7 @@ const Payment = (): JSX.Element => {
     },
     {
       onSuccess: (data) => {
-        if (data.data?.message) {
+        if (![200, 201].includes(data.data?.status)) {
           setErrorMsg("Invalid Card Credentials!");
         } else {
           getSavedCardsMutation.mutate();
@@ -100,6 +135,9 @@ const Payment = (): JSX.Element => {
         creditCard: {
           ...leadDetails.creditCard,
           qbCardId: selectedCreditcard,
+        },
+        promoCode: {
+          id: couponValidity === "VALID" ? couponCode : undefined,
         },
       };
       return putLead(payload);
@@ -166,7 +204,7 @@ const Payment = (): JSX.Element => {
             Choose Credit Card
           </Text>
           <Divider thickness={1} />
-          <View pl={3}>
+          <View pl={0}>
             <Radio.Group
               value={selectedCreditcard || ""}
               name="myRadioGroup"
@@ -287,6 +325,57 @@ const Payment = (): JSX.Element => {
             </>
           )}
 
+          <Divider thickness={10} />
+          <VStack>
+            <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
+              Apply Promo Code
+            </Text>
+            <Divider thickness={1} mt={5} />
+            <VStack px={5}>
+              <AppInput
+                type={"text"}
+                label={"Code"}
+                onChange={(text) => {
+                  setCouponCode(text);
+                }}
+                suffix={
+                  <Button
+                    _pressed={{
+                      backgroundColor: "#eee",
+                    }}
+                    _text={{
+                      color: AppColors.SECONDARY,
+                    }}
+                    p={1}
+                    variant={"ghost"}
+                    onPress={() => {
+                      validateCouponMutation.mutate();
+                    }}
+                  >
+                    Apply
+                  </Button>
+                }
+              />
+              {couponValidity === "VALID" && (
+                <HStack space={1.5} alignItems="center">
+                  <SvgCss
+                    xml={FILLED_CIRCLE_TICK_ICON(AppColors.DARK_PRIMARY)}
+                  />
+                  <Text fontWeight={"semibold"} color={AppColors.DARK_PRIMARY}>
+                    {couponMsg}
+                  </Text>
+                </HStack>
+              )}
+              {couponValidity === "INVALID" && (
+                <HStack space={1.5} alignItems="center">
+                  <SvgCss xml={FILLED_CIRCLE_CLOSE_ICON("#FF5733")} />
+                  <Text fontWeight={"semibold"} color={"#FF5733"}>
+                    {couponMsg}
+                  </Text>
+                </HStack>
+              )}
+            </VStack>
+          </VStack>
           <Divider thickness={10} />
         </VStack>
         <Center px={5} py={5}>

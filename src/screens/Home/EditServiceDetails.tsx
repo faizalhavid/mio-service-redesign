@@ -23,7 +23,7 @@ import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
 import { getServiceCost, getServices, putLead } from "../../services/order";
-import { SERVICES } from "./ChooseService";
+import { HOUSE_CLEANING_ID, LAWN_CARE_ID, SERVICES } from "./ChooseService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCustomer } from "../../services/customer";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -58,8 +58,6 @@ type AppointmentTimeOptionType = {
   selected: boolean;
 };
 
-type BathBedOptions = { number: number; selected: boolean };
-
 type EditServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
   "EditServiceDetails"
@@ -83,100 +81,45 @@ export const MONTH = [
 const EditServiceDetails = ({
   route,
 }: EditServiceDetailsProps): JSX.Element => {
-  const { serviceId } = route.params;
+  const { serviceId, mode } = route.params;
 
   const [loading, setLoading] = React.useState(false);
 
   const [serviceNotes, setServiceNotes] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState("");
   const [selectedTime, setSelectedTime] = React.useState("");
-  const [selectedArea, setSelectedArea] = React.useState<number>();
-  const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>();
-  const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>();
   const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
     React.useState<any>({});
 
-  const { leadDetails, setLeadDetails } = useAuth();
-
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
-
-  const [services, setServices] = React.useState<Service[]>([{} as Service]);
+  const { leadDetails, setLeadDetails, customerProfile } = useAuth();
 
   const screenWidth = Dimensions.get("screen").width;
 
-  const getAllServices = useQuery(
-    "getAllServices",
-    () => {
-      setLoading(true);
-      return getServices();
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setServices(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
+  const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
+    [key: string]: SubOrder;
+  }>({});
+
+  React.useEffect(() => {
+    if (!leadDetails) {
+      return;
     }
-  );
+    let details: { [key: string]: SubOrder } = {};
+    leadDetails.subOrders.forEach((subOrder) => {
+      details[subOrder.serviceId] = subOrder;
+    });
 
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
-  const fetchCustomerProfile = useCallback(async () => {
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
-    setCustomerId(cId);
-    await getCustomerMutation.mutateAsync();
-  }, []);
-
-  useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
-
-  const [bathroomOptions, setBathroomOptions] = React.useState<
-    BathBedOptions[]
-  >([]);
-  const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
-    []
-  );
-
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setCustomerProfile(data.data);
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+    setGroupedLeadDetails(details);
+  }, [leadDetails]);
 
   const updateLeadMutation = useMutation(
     "updateLead",
     () => {
       setLoading(true);
-      let selectedSubOrder: SubOrder = {} as SubOrder;
       let updatedSuborders = leadDetails.subOrders.map((subOrder) => {
         if (subOrder.serviceId === serviceId) {
-          selectedSubOrder = subOrder;
           subOrder.appointmentInfo.appointmentDateTime = new Date(
             `${selectedDate} ${selectedTime}:00:00`
           ).toISOString();
-          if (serviceId === "lawnCare") {
-            subOrder.area = String(selectedArea);
-          }
-          if (serviceId === "houseCleaning") {
-            subOrder.bedrooms = String(selectedBedroomNo);
-            subOrder.bathrooms = String(selectedBathroomNo);
-          }
           subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
           subOrder.serviceNotes = [serviceNotes];
 
@@ -226,8 +169,6 @@ const EditServiceDetails = ({
     updateShowFields();
   }, [updateShowFields]);
 
-  const [priceMap, setPriceMap] = React.useState<PriceMap[]>([]);
-
   const [subscriptionMethodOptions, setSubscriptionMethodOptions] =
     React.useState<any[]>([]);
   const getServiceCostMutation = useMutation(
@@ -238,6 +179,8 @@ const EditServiceDetails = ({
     },
     {
       onSuccess: (data) => {
+        let isUpdate = mode === "UPDATE";
+        let subOrder = groupedLeadDetails[serviceId];
         let subscriptionMethods: any[] = [];
         let recurringOptions: any[] = [];
         let priceMap: PriceMap[] = data.data;
@@ -283,31 +226,64 @@ const EditServiceDetails = ({
             pricePer2WeeksExists ||
             pricePerMonthExists
           ) {
-            recurringOptions[0] = {
-              ...recurringOptions[0],
-              selected: true,
-            };
-            let sub = {
-              method: "RECURRING",
-              label: `$${pricePerMonth} Billed Monthly`,
-              selected: true,
-              activeOption: recurringOptions[0],
-              options: recurringOptions,
-            };
-            subscriptionMethods.push(sub);
-            setSelectedSubscriptionMethod(sub);
+            if (isUpdate) {
+              let selectedIndex: number = 0;
+              for (let i = 0; i < recurringOptions.length; i++) {
+                if (
+                  recurringOptions[i].type ===
+                  subOrder?.flags?.recurringDuration
+                ) {
+                  selectedIndex = i;
+                }
+              }
+              recurringOptions[selectedIndex] = {
+                ...recurringOptions[selectedIndex],
+                selected: true,
+              };
+              let sub = {
+                method: "RECURRING",
+                label: `$${pricePerMonth} Billed Monthly`,
+                selected: subOrder?.flags.isRecurring,
+                activeOption: recurringOptions[selectedIndex],
+                options: recurringOptions,
+              };
+              subscriptionMethods.push(sub);
+              setSelectedSubscriptionMethod(sub);
+            } else {
+              recurringOptions[0] = {
+                ...recurringOptions[0],
+                selected: true,
+              };
+              let sub = {
+                method: "RECURRING",
+                label: `$${pricePerMonth} Billed Monthly`,
+                selected: true,
+                activeOption: recurringOptions[0],
+                options: recurringOptions,
+              };
+              subscriptionMethods.push(sub);
+              setSelectedSubscriptionMethod(sub);
+            }
           }
 
           if (
             priceMap[0].pricePerOnetime &&
             parseInt(priceMap[0].pricePerOnetime) !== 0
           ) {
-            subscriptionMethods.push({
+            let sub = {
               method: "ONCE",
               cost: priceMap[0].pricePerOnetime,
               label: "One-time Service",
-              selected: false,
-            });
+              selected: isUpdate
+                ? subOrder?.flags.isRecurring
+                  ? false
+                  : true
+                : false,
+            };
+            subscriptionMethods.push(sub);
+            if (isUpdate && !subOrder.flags.isRecurring) {
+              setSelectedSubscriptionMethod(sub);
+            }
           }
         }
         setSubscriptionMethodOptions(subscriptionMethods);
@@ -320,111 +296,60 @@ const EditServiceDetails = ({
   );
 
   React.useEffect(() => {
-    if (Object.keys(customerProfile).length === 0) {
+    if (
+      Object.keys(customerProfile).length === 0 ||
+      Object.keys(groupedLeadDetails).length === 0
+    ) {
       return;
     }
-    if (serviceId && services) {
+    if (serviceId) {
       setLoading(true);
-      services.forEach((service) => {
+      for (let subOrder of leadDetails.subOrders) {
         if (
-          ["lawnCare"].includes(serviceId) &&
-          service.serviceId === serviceId
+          subOrder.serviceId === serviceId &&
+          serviceId === LAWN_CARE_ID &&
+          subOrder.area
         ) {
-          if (customerProfile.addresses[0].houseInfo?.lotSize) {
-            let priceMap: PriceMap[] = [];
-            let lotsize: number = parseInt(
-              customerProfile.addresses[0].houseInfo?.lotSize
-            );
-            service.priceMap.forEach((price) => {
-              if (serviceId === "lawnCare") {
-                if (
-                  price.rangeMin &&
-                  price.rangeMax &&
-                  lotsize &&
-                  lotsize > price.rangeMin &&
-                  lotsize < price.rangeMax
-                ) {
-                  setSelectedArea(lotsize);
-                  priceMap.push({
-                    ...price,
-                    selected: true,
-                  });
-                  getServiceCostMutation.mutate([
-                    {
-                      serviceId,
-                      serviceParameters: {
-                        area: lotsize,
-                      },
-                    },
-                  ]);
-                } else {
-                  priceMap.push(price);
-                }
-              }
-            });
-            setPriceMap(priceMap);
-          } else {
-            setPriceMap(service.priceMap);
-          }
-          setLoading(false);
+          let lotsize: number = parseInt(subOrder.area);
+          getServiceCostMutation.mutate([
+            {
+              serviceId,
+              serviceParameters: {
+                area: lotsize,
+              },
+            },
+          ]);
+          break;
+        } else if (
+          subOrder.serviceId === serviceId &&
+          serviceId === HOUSE_CLEANING_ID &&
+          subOrder.bathrooms &&
+          subOrder.bedrooms
+        ) {
+          getServiceCostMutation.mutate([
+            {
+              serviceId,
+              serviceParameters: {
+                bedrooms: parseInt(subOrder.bedrooms),
+                bathrooms: parseInt(subOrder.bathrooms),
+              },
+            },
+          ]);
+          break;
+        } else if (["pestControl", "poolCleaning"].includes(serviceId)) {
+          getServiceCostMutation.mutate([
+            {
+              serviceId,
+              serviceParameters: {},
+            },
+          ]);
+          break;
         }
-      });
-
-      if (serviceId === "houseCleaning") {
-        setBathroomOptions([]);
-        setBedroomOptions([]);
-        let houseInfo = customerProfile?.addresses[0]?.houseInfo;
-        let bathOptions: BathBedOptions[] = [];
-        let bedOptions: BathBedOptions[] = [];
-        console.log();
-        for (let i of [1, 2, 3, 4, 5]) {
-          bathOptions.push({
-            number: i,
-            selected:
-              (houseInfo &&
-                houseInfo?.bathrooms &&
-                parseInt(houseInfo?.bathrooms) == i) ||
-              false,
-          });
-
-          bedOptions.push({
-            number: i,
-            selected:
-              (houseInfo &&
-                houseInfo?.bedrooms &&
-                parseInt(houseInfo?.bedrooms) == i) ||
-              false,
-          });
-        }
-        setBathroomOptions(bathOptions);
-        setBedroomOptions(bedOptions);
-      }
-
-      if (["pestControl", "poolCleaning"].includes(serviceId)) {
-        getServiceCostMutation.mutate([
-          {
-            serviceId,
-            serviceParameters: {},
-          },
-        ]);
       }
       setLoading(false);
     }
-  }, [serviceId, services, customerProfile]);
-
-  React.useEffect(() => {
-    if (selectedBathroomNo && selectedBedroomNo) {
-      getServiceCostMutation.mutate([
-        {
-          serviceId,
-          serviceParameters: {
-            bedrooms: selectedBedroomNo,
-            bathrooms: selectedBathroomNo,
-          },
-        },
-      ]);
-    }
-  }, [selectedBathroomNo, selectedBedroomNo]);
+    return;
+  }, [serviceId, customerProfile, groupedLeadDetails]);
 
   const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -435,34 +360,68 @@ const EditServiceDetails = ({
     useState<AppointmentTimeOptionType[]>();
 
   React.useEffect(() => {
+    if (
+      !mode ||
+      !groupedLeadDetails ||
+      Object.keys(groupedLeadDetails).length === 0
+    ) {
+      return;
+    }
+    let isUpdate = mode === "UPDATE";
+
+    let subOrder = groupedLeadDetails[serviceId];
+    if (isUpdate) {
+      setServiceNotes(subOrder?.serviceNotes[0] || "");
+    }
+
     let dates: AppointmentDateOptionType[] = [];
     [7, 8, 9, 10].forEach((number) => {
       let date = new Date();
       date.setDate(date.getDate() + number);
       let month = date.getMonth() + 1;
+      let fullDate = `${date.getFullYear()}-${
+        month > 9 ? month : "0" + month
+      }-${date.getDate()}`;
+      let isSelected = false;
+      if (isUpdate) {
+        isSelected =
+          date.getDate() ===
+          new Date(subOrder.appointmentInfo.appointmentDateTime).getDate();
+        if (isSelected) {
+          setSelectedDate(fullDate);
+        }
+      }
       dates.push({
-        fullDate: `${date.getFullYear()}-${
-          month > 9 ? month : "0" + month
-        }-${date.getDate()}`,
+        fullDate,
         date: date.getDate(),
         day: DAY[date.getDay()],
         month: MONTH[date.getMonth()],
-        selected: false,
+        selected: isSelected,
       });
     });
     setAppointmentDateOptions(dates);
     let times: AppointmentTimeOptionType[] = [];
     [8, 10, 12, 14].forEach((number) => {
+      let rangeMin = `${number > 12 ? number - 12 : number}`;
+      let isSelected = false;
+      if (isUpdate) {
+        isSelected =
+          parseInt(rangeMin) ===
+          new Date(subOrder.appointmentInfo.appointmentDateTime).getHours();
+        if (isSelected) {
+          setSelectedTime(rangeMin);
+        }
+      }
       times.push({
-        rangeMin: `${number > 12 ? number - 12 : number}`,
+        rangeMin,
         rangeMax: `${number + 4 > 12 ? number + 4 - 12 : number + 4}`,
         minMeridian: `${number >= 12 ? "PM" : "AM"}`,
         maxMaxidian: `${number + 4 >= 12 ? "PM" : "AM"}`,
-        selected: false,
+        selected: isSelected,
       });
     });
     setAppointmentTimeOptions(times);
-  }, []);
+  }, [groupedLeadDetails, mode]);
 
   const Title = (text: string) => {
     return (
@@ -516,145 +475,6 @@ const EditServiceDetails = ({
                 </HStack>
                 {SectionDivider(1)}
                 <VStack>
-                  {serviceId === "lawnCare" && (
-                    <>
-                      {SectionDivider(0)}
-                      {Title("Choose Lawn Size (Sq Ft)")}
-                      {SectionDivider(0)}
-
-                      <HStack
-                        space={2}
-                        maxWidth={screenWidth - 40}
-                        flexWrap={"wrap"}
-                        flexDirection="row"
-                      >
-                        {priceMap?.map((pm0, index) => {
-                          return (
-                            <View mb={1} key={index}>
-                              <SelectionButton
-                                w={(screenWidth - 60) / 2}
-                                h={38}
-                                index={index}
-                                onPress={(index1) => {
-                                  let updatedList = priceMap.map(
-                                    (pm2, index2) => {
-                                      if (index1 == index2) {
-                                        setSelectedArea(pm2.rangeMax);
-                                        let selected: PriceMap = {
-                                          ...pm2,
-                                          selected: true,
-                                        };
-                                        getServiceCostMutation.mutate([
-                                          {
-                                            serviceId,
-                                            serviceParameters: {
-                                              area: pm2.rangeMax,
-                                            },
-                                          },
-                                        ]);
-                                        return selected;
-                                      }
-                                      return { ...pm2, selected: false };
-                                    }
-                                  );
-                                  setPriceMap(updatedList);
-                                }}
-                                active={pm0.selected}
-                                text={`${pm0.rangeMin} - ${pm0.rangeMax}`}
-                              />
-                            </View>
-                          );
-                        })}
-                      </HStack>
-                    </>
-                  )}
-                  {serviceId === "houseCleaning" && (
-                    <>
-                      {SectionDivider(0)}
-                      {Title("Choose Number of Bedrooms")}
-                      {SectionDivider(0)}
-
-                      <HStack
-                        space={2}
-                        maxWidth={screenWidth - 40}
-                        flexWrap={"wrap"}
-                        flexDirection="row"
-                      >
-                        {bedroomOptions.map((option, index) => {
-                          return (
-                            <View mb={1} key={index}>
-                              <SelectionButton
-                                w={(screenWidth - 60) / 7}
-                                h={38}
-                                index={index}
-                                onPress={(index1) => {
-                                  let updatedOptions = bedroomOptions.map(
-                                    (opt, i) => {
-                                      if (i === index1) {
-                                        setSelectedBedroomNo(option.number);
-                                        return {
-                                          ...opt,
-                                          selected: true,
-                                        };
-                                      }
-                                      return {
-                                        ...opt,
-                                        selected: false,
-                                      };
-                                    }
-                                  );
-                                  setBedroomOptions(updatedOptions);
-                                }}
-                                active={option.selected}
-                                text={`${option.number}`}
-                              />
-                            </View>
-                          );
-                        })}
-                      </HStack>
-                      {SectionDivider(0)}
-                      {Title("Choose Number of Bathrooms")}
-                      {SectionDivider(0)}
-                      <HStack
-                        space={2}
-                        maxWidth={screenWidth - 40}
-                        flexWrap={"wrap"}
-                        flexDirection="row"
-                      >
-                        {bathroomOptions.map((option, index) => {
-                          return (
-                            <View mb={1} key={index}>
-                              <SelectionButton
-                                w={(screenWidth - 60) / 7}
-                                h={38}
-                                index={index}
-                                onPress={(index1) => {
-                                  let updatedOptions = bathroomOptions.map(
-                                    (opt, i) => {
-                                      if (i === index1) {
-                                        setSelectedBathroomNo(opt.number);
-                                        return {
-                                          ...opt,
-                                          selected: true,
-                                        };
-                                      }
-                                      return {
-                                        ...opt,
-                                        selected: false,
-                                      };
-                                    }
-                                  );
-                                  setBathroomOptions(updatedOptions);
-                                }}
-                                active={option.selected}
-                                text={`${option.number}`}
-                              />
-                            </View>
-                          );
-                        })}
-                      </HStack>
-                    </>
-                  )}
                   {SectionDivider(0)}
                   {Title("Choose Subscription Method")}
                   {SectionDivider(0)}
@@ -899,6 +719,8 @@ const EditServiceDetails = ({
                       onChangeText={(text) => {
                         setServiceNotes(text);
                       }}
+                      fontSize={14}
+                      value={serviceNotes}
                       keyboardType="default"
                       numberOfLines={5}
                       mb={20}

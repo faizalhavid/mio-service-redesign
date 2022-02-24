@@ -16,17 +16,17 @@ AxiosClient.interceptors.request.use(async (config: any) => {
   return config;
 });
 
-/* AxiosClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    console.log("responseError", error);
-    console.log("responseError1", error.response.status);
-    // if (error.status === 401) {
-    navigate("Login");
-    // }
-  }
-); */
+// AxiosClient.interceptors.response.use(
+//   (response) => {
+//     return response;
+//   },
+//   (error) => {
+//     console.log("responseError", error);
+//     console.log("responseError1", error.response.status);
+//     if (error.status === 401) {
+//       navigate("Login");
+//     }
+//   }
+// );
 
 export default AxiosClient;

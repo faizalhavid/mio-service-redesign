@@ -23,8 +23,6 @@ import { useIsFocused } from "@react-navigation/native";
 import { getAllOrders, getAppointments } from "../../services/order";
 import { SERVICES } from "../Home/ChooseService";
 import { getReadableDateTime } from "../../services/utils";
-import { SvgCss } from "react-native-svg";
-import { PLUS_ICON } from "../../commons/assets";
 
 export type Order = {
   orderId: string;
@@ -54,13 +52,9 @@ const Home = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [customerId, setCustomerId] = React.useState<string | null>(null);
 
-  const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
-    {} as CustomerProfile
-  );
-
   const isFocused = useIsFocused();
 
-  const { reload } = useAuth();
+  const { customerProfile, setCustomerProfile } = useAuth();
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -80,7 +74,7 @@ const Home = (): JSX.Element => {
   );
 
   const [upcomingOrders, setUpcomingOrders] = React.useState<Order[]>([]);
-  const getAllUpcomingOrdersQuery = useQuery(
+  const getAllUpcomingOrdersMutation = useMutation(
     "getAllUpcomingOrders",
     () => {
       setLoading(true);
@@ -98,7 +92,7 @@ const Home = (): JSX.Element => {
   );
 
   const [pastOrders, setPastOrders] = React.useState<Order[]>([]);
-  const getAllPastOrdersQuery = useQuery(
+  const getAllPastOrdersMutation = useMutation(
     "getAllPastOrders",
     () => {
       setLoading(true);
@@ -115,7 +109,7 @@ const Home = (): JSX.Element => {
     }
   );
 
-  const fetchCustomerProfile = React.useCallback(async () => {
+  const init = React.useCallback(async () => {
     let APP_STATUS = await AsyncStorage.getItem("APP_START_STATUS");
     if (APP_STATUS !== "SETUP_COMPLETED") {
       console.log("Current APP_STATUS", APP_STATUS);
@@ -126,13 +120,15 @@ const Home = (): JSX.Element => {
     let cId = await AsyncStorage.getItem("CUSTOMER_ID");
     setCustomerId(cId);
     await getCustomerMutation.mutateAsync();
+    getAllUpcomingOrdersMutation.mutate();
+    getAllPastOrdersMutation.mutate();
   }, []);
 
   React.useEffect(() => {
     if (isFocused) {
-      fetchCustomerProfile();
+      init();
     }
-  }, [fetchCustomerProfile, isFocused]);
+  }, [init, isFocused]);
 
   return (
     <AppSafeAreaView mt={0} loading={loading}>
@@ -150,9 +146,12 @@ const Home = (): JSX.Element => {
                 <Text fontWeight={"semibold"} fontSize={16}>
                   Welcome {customerProfile?.firstName}
                 </Text>
+
                 <Text mt={2} textAlign={"center"}>
-                  Get ready for a beautiful service! {"\n"} Your next service is
-                  scheduled for
+                  Get ready for a beautiful service!
+                  {upcomingOrders.length > 0 && (
+                    <Text>{"\n"} Your next service is scheduled for</Text>
+                  )}
                 </Text>
               </Center>
               {upcomingOrders.length > 0 ? (
@@ -182,40 +181,43 @@ const Home = (): JSX.Element => {
                   }
                 />
               ) : (
-                <Button
-                  paddingX={5}
-                  mt={5}
-                  borderRadius={10}
-                  borderWidth={1}
-                  borderColor={AppColors.SECONDARY}
-                  bg={AppColors.SECONDARY}
-                  shadow={3}
-                  width={"100%"}
-                  _pressed={{
-                    backgroundColor: AppColors.DARK_PRIMARY,
-                  }}
-                  variant={"ghost"}
-                  onPress={() => navigate("ChooseService")}
-                >
-                  <VStack p={5} space={5}>
-                    <Center>
-                      <Image
-                        w={20}
-                        h={12}
-                        alt="Logo"
-                        source={require("../../assets/images/mio-logo-white.png")}
-                      />
-                    </Center>
-                    <Center>
-                      <Text fontSize={16} color={"#fff"}>
-                        Create your first service
-                      </Text>
-                      <Text fontSize={12} fontStyle={"italic"} color={"#fff"}>
-                        Get 25% off on your first order
-                      </Text>
-                    </Center>
-                  </VStack>
-                </Button>
+                !loading &&
+                upcomingOrders.length === 0 && (
+                  <Button
+                    paddingX={5}
+                    mt={5}
+                    borderRadius={10}
+                    borderWidth={1}
+                    borderColor={AppColors.SECONDARY}
+                    bg={AppColors.SECONDARY}
+                    shadow={3}
+                    width={"100%"}
+                    _pressed={{
+                      backgroundColor: AppColors.DARK_PRIMARY,
+                    }}
+                    variant={"ghost"}
+                    onPress={() => navigate("ChooseService")}
+                  >
+                    <VStack p={5} space={5}>
+                      <Center>
+                        <Image
+                          w={20}
+                          h={12}
+                          alt="Logo"
+                          source={require("../../assets/images/mio-logo-white.png")}
+                        />
+                      </Center>
+                      <Center>
+                        <Text fontSize={16} color={"#fff"}>
+                          Create your first service
+                        </Text>
+                        <Text fontSize={12} fontStyle={"italic"} color={"#fff"}>
+                          Get 20% off on your first order
+                        </Text>
+                      </Center>
+                    </VStack>
+                  </Button>
+                )
               )}
               <Divider my={5} thickness={1} />
               <Text fontSize={18} pl={2} fontWeight={"semibold"}>
