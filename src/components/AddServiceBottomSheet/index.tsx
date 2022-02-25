@@ -59,6 +59,7 @@ const AddServiceBottomSheet = ({
 }: AddServiceBottomSheetProps): JSX.Element => {
   const screenWidth = Dimensions.get("screen").width;
   const btnColor = AppColors.DARK_PRIMARY;
+
   return (
     <Actionsheet
       isOpen={toggleServiceInfo}

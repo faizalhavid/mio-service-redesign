@@ -29,7 +29,7 @@ const Services = (): JSX.Element => {
         <ImageBackground
           resizeMode="cover"
           style={{
-            padding: 10,
+            paddingVertical: 10,
           }}
           source={require("../../assets/images/dashboard-bg.png")}
         >

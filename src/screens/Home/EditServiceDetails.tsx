@@ -6,26 +6,22 @@ import {
   Divider,
   TextArea,
   PresenceTransition,
-  Flex,
   View,
 } from "native-base";
-import React, { useCallback, useEffect, useState } from "react";
-import { Dimensions, KeyboardAvoidingView, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { Dimensions, ScrollView } from "react-native";
 import { SvgCss } from "react-native-svg";
-import { useMutation, useQuery } from "react-query";
-import { LAWN_CARE } from "../../commons/assets";
+import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
-import { PriceMap, Service, SubOrder } from "../../commons/types";
+import { PriceMap, SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import SelectionButton from "../../components/SelectionButton";
-import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
-import { getServiceCost, getServices, putLead } from "../../services/order";
+import { getServiceCost, putLead } from "../../services/order";
 import { HOUSE_CLEANING_ID, LAWN_CARE_ID, SERVICES } from "./ChooseService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getCustomer } from "../../services/customer";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type LawnSizeType = {
@@ -734,6 +730,12 @@ const EditServiceDetails = ({
         </PresenceTransition>
       )}
       <FooterButton
+        disabled={
+          !selectedDate ||
+          !selectedTime ||
+          Object.keys(selectedSubscriptionMethod).length === 0
+        }
+        subText="Choose Subscription Method & Schedule"
         label="SAVE"
         onPress={async () => {
           await updateLeadMutation.mutateAsync();

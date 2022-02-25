@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:528727320506:android:146af6defe760aedb55f83",
+        "mobilesdk_app_id": "1:528727320506:android:faae784bb2db9e0bb55f83",
         "android_client_info": {
-          "package_name": "com.miohomeservices.dev"
+          "package_name": "com.miohomeservices"
         }
       },
       "oauth_client": [

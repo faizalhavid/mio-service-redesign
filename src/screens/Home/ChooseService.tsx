@@ -292,6 +292,7 @@ const ChooseService = (): JSX.Element => {
             ],
           });
         } else if (serviceId === HOUSE_CLEANING_ID) {
+          // console.log(selectedBedroomNo, selectedBathroomNo);
           houseInfo = {
             ...houseInfo,
             bedrooms: selectedBedroomNo,
@@ -310,6 +311,7 @@ const ChooseService = (): JSX.Element => {
       }
     } else {
       let isNeeded = await checkNeedForPropertyDetails(serviceId);
+
       if (isNeeded) {
         setPropertyDetailsNeeded(true);
         toggleServiceInfoSheet(serviceId);
@@ -356,35 +358,44 @@ const ChooseService = (): JSX.Element => {
               break;
             }
           }
-          // if (!hasArea) {
-          resolve(true);
-          return;
-          // } else {
-          //   resolve(false);
-          //   return;
-          // }
+          if (!hasArea) {
+            resolve(true);
+            return;
+          } else {
+            resolve(false);
+            return;
+          }
         } else if (services.length > 0 && serviceId === HOUSE_CLEANING_ID) {
           setBathroomOptions([]);
           setBedroomOptions([]);
           let houseInfo = customerProfile?.addresses[0]?.houseInfo;
+          // console.log(houseInfo);
           let bathOptions: BathBedOptions[] = [];
           let bedOptions: BathBedOptions[] = [];
+          let hasBath = false;
+          let hasBed = false;
           for (let i of [1, 2, 3, 4, 5]) {
             let _bathRoomNo: number =
-              houseInfo && houseInfo?.bedrooms && houseInfo?.bedrooms == i
-                ? houseInfo?.bedrooms
+              houseInfo && houseInfo?.bathrooms && houseInfo?.bathrooms === i
+                ? houseInfo?.bathrooms
                 : 0;
-            setSelectedBathroomNo(_bathRoomNo);
+            if (_bathRoomNo === i) {
+              setSelectedBathroomNo(_bathRoomNo);
+              hasBath = true;
+            }
             bathOptions.push({
               number: i,
               selected: _bathRoomNo === i,
             });
 
             let _bedRoomNo: number =
-              houseInfo && houseInfo?.bedrooms && houseInfo?.bedrooms == i
+              houseInfo && houseInfo?.bedrooms && houseInfo?.bedrooms === i
                 ? houseInfo?.bedrooms
                 : 0;
-            setSelectedBedroomNo(_bedRoomNo);
+            if (_bedRoomNo === i) {
+              setSelectedBedroomNo(_bedRoomNo);
+              hasBed = true;
+            }
             bedOptions.push({
               number: i,
               selected: _bedRoomNo === i,
@@ -392,11 +403,12 @@ const ChooseService = (): JSX.Element => {
           }
           setBathroomOptions(bathOptions);
           setBedroomOptions(bedOptions);
-          if (selectedBathroomNo === 0 || selectedBedroomNo === 0) {
+          if (!hasBath || !hasBed) {
             resolve(true);
             return;
           } else {
             resolve(false);
+            return;
           }
         } else {
           resolve(false);

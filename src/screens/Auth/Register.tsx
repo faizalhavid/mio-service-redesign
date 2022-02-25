@@ -77,7 +77,7 @@ const Register = (): JSX.Element => {
 
       // Sign-in the user with the credential
     } catch (error: any) {
-      console.log(error);
+      console.log("apperror", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {

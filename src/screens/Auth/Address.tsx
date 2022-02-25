@@ -1,18 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  Center,
-  CheckIcon,
-  Divider,
-  Flex,
-  Input,
-  Select,
-  Spacer,
-  Text,
-  VStack,
-} from "native-base";
-import React, { useCallback, useEffect, useRef } from "react";
+import { Center, CheckIcon, Divider, Select, Text, VStack } from "native-base";
+import React, { useCallback, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
 import { STATES } from "../../commons/dropdown-values";
 import {
@@ -20,12 +10,11 @@ import {
   HouseInfoAddressRequest,
   HouseInfoRequest,
 } from "../../commons/types";
-import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { SuperRootStackParamList } from "../../navigations";
-import { goBack, navigate, popToPop } from "../../navigations/rootNavigation";
+import { goBack, popToPop } from "../../navigations/rootNavigation";
 import {
   getCustomer,
   getHouseInfo,
@@ -61,6 +50,12 @@ const Address = ({ route }: AddressProps): JSX.Element => {
     {
       onSuccess: (data) => {
         setCustomerProfile(data.data);
+        if (returnTo === "ServiceDetails") {
+          setValue("street", data.data.addresses[0].street);
+          setValue("city", data.data.addresses[0].city);
+          setValue("state", data.data.addresses[0].state);
+          setValue("zip", data.data.addresses[0].zip);
+        }
         setLoading(false);
       },
       onError: (err) => {
@@ -129,14 +124,9 @@ const Address = ({ route }: AddressProps): JSX.Element => {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors, isDirty, isValid },
   } = useForm<HouseInfoAddressRequest>({
-    // defaultValues: {
-    //   city: "Edison",
-    //   state: "NJ",
-    //   street: "21 Keen Ln",
-    //   zip: "08820",
-    // },
     mode: "onChange",
   });
 
@@ -254,8 +244,8 @@ const Address = ({ route }: AddressProps): JSX.Element => {
         </VStack>
       </VStack>
       <FooterButton
+        disabled={!isValid && isDirty}
         label={"SAVE ADDRESS"}
-        subText="Choose Service in next step"
         onPress={handleSubmit(onSubmit)}
       />
     </AppSafeAreaView>

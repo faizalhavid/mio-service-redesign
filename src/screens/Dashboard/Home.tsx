@@ -84,8 +84,8 @@ const Home = (): JSX.Element => {
     },
     {
       onSuccess: (data) => {
-        setLoading(false);
         setUpcomingOrders(data.data.data);
+        setLoading(false);
       },
       onError: (err) => {
         setLoading(false);
@@ -102,8 +102,8 @@ const Home = (): JSX.Element => {
     },
     {
       onSuccess: (data) => {
-        setLoading(false);
         setPastOrders(data.data.data);
+        setLoading(false);
       },
       onError: (err) => {
         setLoading(false);

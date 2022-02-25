@@ -113,7 +113,8 @@ const Payment = (): JSX.Element => {
     },
     {
       onSuccess: (data) => {
-        if (![200, 201].includes(data.data?.status)) {
+        console.log(data.data);
+        if (![200, 201].includes(data.data?.qbStatus)) {
           setErrorMsg("Invalid Card Credentials!");
         } else {
           getSavedCardsMutation.mutate();

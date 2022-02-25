@@ -1,32 +1,26 @@
 import {
-  Button,
   Center,
-  ChevronRightIcon,
   Circle,
   Divider,
   HStack,
-  Image,
   Pressable,
   Text,
   View,
   VStack,
 } from "native-base";
 import React from "react";
-import Svg, { SvgCss } from "react-native-svg";
+import { SvgCss } from "react-native-svg";
 import {
   BOX_ARROW_RIGHT_ICON,
-  CAMERA_ICON,
   CHEVRON_RIGHT_ICON,
   CREDIT_CARD_ICON,
   PERSONAL_DETAILS_ICON,
-  PROFILE_ICON,
   USER_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import { navigate } from "../../navigations/rootNavigation";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../../contexts/AuthContext";
 import { ImageBackground } from "react-native";
 
@@ -39,7 +33,7 @@ const Profile = (): JSX.Element => {
         <ImageBackground
           resizeMode="cover"
           style={{
-            padding: 10,
+            paddingVertical: 10,
           }}
           source={require("../../assets/images/dashboard-bg.png")}
         >

@@ -7,7 +7,7 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ChooseServiceDetailsButton from "../../components/ChooseServiceDetailsButton";
 import FooterButton from "../../components/FooterButton";
@@ -34,6 +34,9 @@ const ServiceDetails = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const { leadDetails, customerProfile } = useAuth();
 
+  const [requiredDetailsAdded, setRequiredDetailsAdded] =
+    React.useState<boolean>(false);
+
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
   }>({});
@@ -45,6 +48,14 @@ const ServiceDetails = (): JSX.Element => {
     let details: { [key: string]: SubOrder } = {};
     leadDetails.subOrders.forEach((subOrder) => {
       details[subOrder.serviceId] = subOrder;
+      if (
+        details[subOrder.serviceId]?.appointmentInfo?.providerProfile
+          ?.eaProviderId
+      ) {
+        setRequiredDetailsAdded(true);
+      } else {
+        setRequiredDetailsAdded(false);
+      }
     });
 
     setGroupedLeadDetails(details);
@@ -265,8 +276,9 @@ const ServiceDetails = (): JSX.Element => {
       {/* <OrderSummary selectedServices={selectedServices} /> */}
       <FooterButton
         v2={false}
+        disabled={!requiredDetailsAdded}
         label="CHOOSE PAYMENT METHOD"
-        subText="Provide payment information in next step"
+        subText="Choose Subscription Method & Schedule"
         onPress={() => navigate("Payment")}
       />
     </AppSafeAreaView>

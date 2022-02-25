@@ -1,10 +1,9 @@
 import axios from "axios";
-import { BASE_URL } from "../commons/urls";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { navigate } from "../navigations/rootNavigation";
+import { Config } from "react-native-config";
 
 const AxiosClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: "https://homeservices-dev-ab7f9.firebaseapp.com/api/v1",
   headers: {
     "Content-Type": "application/json;charset=utf-8",
   },
