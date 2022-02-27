@@ -142,10 +142,10 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.miohomeservices"
+        applicationId "com.miohomeservices.customer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2011
+        versionCode 1
         versionName "1.0"
     }
     splits {
@@ -159,10 +159,10 @@ android {
     flavorDimensions "default"
     productFlavors {
         development {
-            resValue "string", "build_config_package", "com.miohomeservices"
+            resValue "string", "build_config_package", "com.miohomeservices.customer"
         }
         production {
-            resValue "string", "build_config_package", "com.miohomeservices"
+            resValue "string", "build_config_package", "com.miohomeservices.customer"
         }
     }
     signingConfigs {

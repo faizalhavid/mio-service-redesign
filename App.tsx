@@ -12,11 +12,10 @@ import React from "react";
 import { useColorScheme } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RootStackNavigation from "./src/navigations";
-import { extendTheme, NativeBaseProvider, StatusBar } from "native-base";
+import { extendTheme, NativeBaseProvider } from "native-base";
 import { LogBox } from "react-native";
-import { QueryClient, QueryClientProvider, useQueryClient } from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import "@react-native-firebase/app";
-import auth from "@react-native-firebase/auth";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import Config from "react-native-config";
@@ -26,6 +25,10 @@ LogBox.ignoreLogs(["contrast ratio"]);
 // if (__DEV__) {
 //   auth().useEmulator("http://192.168.0.248:9099");
 // }
+
+if (__DEV__) {
+  import("./ReactotronConfig").then(() => console.log("Reactotron Configured"));
+}
 
 const App = () => {
   console.log("Config.GOOGLE_WEB_CLIENT_ID", Config.GOOGLE_WEB_CLIENT_ID);

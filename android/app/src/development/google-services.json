@@ -7,12 +7,36 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:528727320506:android:faae784bb2db9e0bb55f83",
+        "mobilesdk_app_id": "1:528727320506:android:0cf011f3661f177cb55f83",
         "android_client_info": {
-          "package_name": "com.miohomeservices"
+          "package_name": "com.miohomeservices.customer"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "528727320506-5gdc7g6afii8ao2lca6u6o7sbbqjoon6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miohomeservices.customer",
+            "certificate_hash": "5abbfa11bbd7061d41f51d308c5b79c9a90bfca4"
+          }
+        },
+        {
+          "client_id": "528727320506-77ni0sa8b5e4pnpstr9a7167lerkugan.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miohomeservices.customer",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "528727320506-i2mb3j7jbaosjkh5dm3bp65ceasbgr50.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miohomeservices.customer",
+            "certificate_hash": "e25591e752dac66f5f8ea6907b457891f861fe06"
+          }
+        },
         {
           "client_id": "528727320506-qnn462uhd5d3bac306fg6bkdhs156mhp.apps.googleusercontent.com",
           "client_type": 3
@@ -31,10 +55,10 @@
               "client_type": 3
             },
             {
-              "client_id": "528727320506-ttm3gbck83dvv39o7upj6r13jm5hugq8.apps.googleusercontent.com",
+              "client_id": "528727320506-4jg7tp0pd9tdvr9s6o1er61f0bkt9dbb.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "org.MioHomeServices"
+                "bundle_id": "com.miohomeservices.customer"
               }
             }
           ]
