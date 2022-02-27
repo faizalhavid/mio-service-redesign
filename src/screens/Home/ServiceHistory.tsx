@@ -1,15 +1,6 @@
-import {
-  Center,
-  Divider,
-  FlatList,
-  ScrollView,
-  Spinner,
-  Text,
-  VStack,
-} from "native-base";
+import { Center, Divider, FlatList, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
-import { ListViewComponent } from "react-native";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ServiceCard from "../../components/ServiceCard";
 import { getAllOrders } from "../../services/order";

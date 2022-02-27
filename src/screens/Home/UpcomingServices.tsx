@@ -1,14 +1,6 @@
-import {
-  Center,
-  Divider,
-  FlatList,
-  ScrollView,
-  Spinner,
-  Text,
-  VStack,
-} from "native-base";
-import React, { useEffect, useMemo } from "react";
-import { useMutation, useQuery } from "react-query";
+import { Center, Divider, FlatList, Text, VStack } from "native-base";
+import React, { useEffect } from "react";
+import { useMutation } from "react-query";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ServiceCard from "../../components/ServiceCard";
 import { getAllOrders } from "../../services/order";

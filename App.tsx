@@ -14,7 +14,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RootStackNavigation from "./src/navigations";
 import { extendTheme, NativeBaseProvider, StatusBar } from "native-base";
 import { LogBox } from "react-native";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "react-query";
 import "@react-native-firebase/app";
 import auth from "@react-native-firebase/auth";
 import { AuthProvider } from "./src/contexts/AuthContext";

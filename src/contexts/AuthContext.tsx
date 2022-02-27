@@ -145,7 +145,7 @@ export function AuthProvider({ children }: AuthProviderType) {
         .then(async (credential) => {
           setCurrentUser(credential.user);
           await credential.user.sendEmailVerification({
-            url: "",
+            url: "https://homeservices-dev-ab7f9.web.app",
             android: { packageName: "com.miohomeservices", installApp: true },
           });
           await AsyncStorage.setItem("CUSTOMER_ID", data.email);
