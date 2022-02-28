@@ -2,7 +2,6 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Center, Divider, ScrollView, Text, VStack } from "native-base";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
@@ -13,8 +12,8 @@ import Spacer from "../../components/Spacer";
 import { useAuth } from "../../contexts/AuthContext";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
 import auth from "@react-native-firebase/auth";
-import { getCustomer } from "../../services/customer";
 import appleAuth from "@invertase/react-native-apple-authentication";
+import ErrorView from "../../components/ErrorView";
 
 type LoginFormType = {
   email: string;
@@ -24,14 +23,9 @@ type LoginFormType = {
 const Login = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
 
-  const { login, currentUser } = useAuth();
+  const { login } = useAuth();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm<LoginFormType>({
-    defaultValues: {},
+  const { control, handleSubmit, formState } = useForm<LoginFormType>({
     mode: "onChange",
   });
 
@@ -59,9 +53,11 @@ const Login = (): JSX.Element => {
   return (
     <AppSafeAreaView statusBarColor="#fff" loading={loading}>
       <ScrollView>
-        <VStack mt={100} paddingX={5}>
+        <VStack mt={70} paddingX={5}>
           <Center width={"100%"}>
-            <Text fontSize={20}>Login</Text>
+            <Text color={AppColors.SECONDARY} fontSize={30}>
+              Login
+            </Text>
           </Center>
           <VStack mt={10}>
             <Controller
@@ -69,7 +65,7 @@ const Login = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="email"
                   label="Email"
@@ -84,7 +80,7 @@ const Login = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="password"
                   label="Password"
@@ -94,16 +90,21 @@ const Login = (): JSX.Element => {
               )}
               name="password"
             />
-            <Spacer top={40} />
-            {errorMsg.length > 0 && (
-              <Center mb={10}>
-                <Text color={"red.500"} fontWeight="semibold">
-                  {errorMsg}
-                </Text>
-              </Center>
-            )}
+            <ErrorView message={errorMsg} />
+            <Spacer top={20} />
             <Center>
-              <AppButton label="SIGN IN" onPress={handleSubmit(onSubmit)} />
+              <AppButton
+                label="SIGN IN"
+                onPress={(event) => {
+                  if (!formState.isValid) {
+                    setErrorMsg("Please provide valid email/password");
+                    return;
+                  }
+                  handleSubmit(onSubmit)(event).catch((error) => {
+                    setErrorMsg(error);
+                  });
+                }}
+              />
             </Center>
           </VStack>
           <Spacer top={20} />
@@ -111,14 +112,17 @@ const Login = (): JSX.Element => {
             label={"Login"}
             loginWithGoogle={async () => {
               try {
+                setLoading(true);
                 const userInfo = await GoogleSignin.signIn();
 
                 const googleCredential = auth.GoogleAuthProvider.credential(
                   userInfo.idToken
                 );
+
                 const userCredential = await auth().signInWithCredential(
                   googleCredential
                 );
+
                 await AsyncStorage.setItem(
                   "APP_START_STATUS",
                   "SETUP_COMPLETED"
@@ -158,7 +162,6 @@ const Login = (): JSX.Element => {
                 const userCredential = await auth().signInWithCredential(
                   appleCredential
                 );
-                console.log("credential", userCredential);
 
                 await AsyncStorage.setItem(
                   "APP_START_STATUS",

@@ -1,18 +1,7 @@
-import {
-  Box,
-  Center,
-  Divider,
-  Flex,
-  HStack,
-  ScrollView,
-  Text,
-  VStack,
-} from "native-base";
+import { Center, Divider, Flex, Text } from "native-base";
 import React from "react";
-import { Platform } from "react-native";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import SocialLoginButton from "../../components/SocialLoginButton";
 import Spacer from "../../components/Spacer";
 import auth from "@react-native-firebase/auth";
 import {
@@ -25,7 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { postCustomer } from "../../services/customer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
+import { popToPop } from "../../navigations/rootNavigation";
 import {
   CustomerProfile,
   dummyProfile,
@@ -35,11 +24,13 @@ import {
 } from "../../contexts/AuthContext";
 import SocialLogin from "../../components/SocialLogin";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { AppColors } from "../../commons/colors";
+import ErrorView from "../../components/ErrorView";
 
 const Register = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
-  const { currentUser, signup, login, logout } = useAuth();
+  const { signup } = useAuth();
 
   const loginWithGoogle = async () => {
     setLoading(true);
@@ -139,7 +130,7 @@ const Register = (): JSX.Element => {
     control,
     handleSubmit,
     setValue,
-    formState: { errors, isDirty, isValid },
+    formState: { isValid },
   } = useForm<RegisterForm>({
     defaultValues: {
       // firstName: "T",
@@ -159,35 +150,13 @@ const Register = (): JSX.Element => {
       return postCustomer(data);
     },
     {
-      onSuccess: async (data) => {
+      onSuccess: async () => {
         await AsyncStorage.setItem(
           "APP_START_STATUS",
           "UPDATE_ADDRESS_PENDING"
         );
         setLoading(false);
         popToPop("Address", { returnTo: "VerifyEmail" });
-      },
-      onError: (err) => {
-        setLoading(false);
-        setErrorMsg(
-          "Something went wrong while creating profile. Please try again."
-        );
-        console.log(err);
-      },
-    }
-  );
-
-  const socialRegisterCustomerMutation = useMutation(
-    "socialRegisterCustomer",
-    (data: CustomerProfile) => {
-      setLoading(true);
-      return postCustomer(data);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        console.log("data", data);
-        popToPop("Dashboard");
       },
       onError: (err) => {
         setLoading(false);
@@ -234,12 +203,12 @@ const Register = (): JSX.Element => {
     <AppSafeAreaView loading={loading}>
       <Center width={"100%"}>
         {!socialLoginCompleted && (
-          <Text fontSize={20} textAlign="center">
+          <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
             Create an account {"\n"}to manage your service
           </Text>
         )}
         {socialLoginCompleted && (
-          <Text fontSize={20} textAlign="center">
+          <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
             Please provide the {"\n"}required information
           </Text>
         )}
@@ -252,7 +221,7 @@ const Register = (): JSX.Element => {
             rules={{
               required: true,
             }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <AppInput
                 type="text"
                 label="Firstname"
@@ -267,7 +236,7 @@ const Register = (): JSX.Element => {
             rules={{
               required: true,
             }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <AppInput
                 type="text"
                 label="Lastname"
@@ -282,7 +251,7 @@ const Register = (): JSX.Element => {
             rules={{
               required: true,
             }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <AppInput
                 type="number"
                 label="Phone"
@@ -297,12 +266,13 @@ const Register = (): JSX.Element => {
             rules={{
               required: true,
             }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <AppInput
                 type="email"
                 label="Email"
                 onChange={onChange}
                 value={value}
+                disabled={socialLoginCompleted}
               />
             )}
             name="email"
@@ -313,7 +283,7 @@ const Register = (): JSX.Element => {
               rules={{
                 required: !socialLoginCompleted,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="password"
                   label="Password"
@@ -324,17 +294,7 @@ const Register = (): JSX.Element => {
               name="password"
             />
           )}
-
-          {errorMsg.length > 0 && (
-            <>
-              <Spacer top={20} />
-              <Center>
-                <Text color={"red.500"} fontWeight="semibold">
-                  {errorMsg}
-                </Text>
-              </Center>
-            </>
-          )}
+          <ErrorView message={errorMsg} />
           <Spacer top={20} />
           {!socialLoginCompleted && (
             <SocialLogin

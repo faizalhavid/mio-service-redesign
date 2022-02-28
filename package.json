@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "start:metro": "react-native start",
     "clean:android": "cd android && ./gradlew clean",
     "android:dev-debug": "react-native run-android --variant=developmentdebug",
     "android:dev-bundle-release": "cd android && ./gradlew bundleDevelopmentRelease",

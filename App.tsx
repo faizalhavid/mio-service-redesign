@@ -31,7 +31,6 @@ if (__DEV__) {
 }
 
 const App = () => {
-  console.log("Config.GOOGLE_WEB_CLIENT_ID", Config.GOOGLE_WEB_CLIENT_ID);
   GoogleSignin.configure({
     webClientId:
       "528727320506-qnn462uhd5d3bac306fg6bkdhs156mhp.apps.googleusercontent.com",

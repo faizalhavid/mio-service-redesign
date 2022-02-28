@@ -3,7 +3,7 @@ import React from "react";
 import { AppColors } from "../../commons/colors";
 
 type AppButtonProps = {
-  onPress: () => void;
+  onPress: (param?: any) => void;
   color?: string;
   label: string;
 };

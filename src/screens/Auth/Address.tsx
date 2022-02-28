@@ -22,6 +22,7 @@ import {
 } from "../../services/customer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
+import ErrorView from "../../components/ErrorView";
 
 type AddressProps = NativeStackScreenProps<SuperRootStackParamList, "Address">;
 const Address = ({ route }: AddressProps): JSX.Element => {
@@ -242,6 +243,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
             name="zip"
           />
         </VStack>
+        <ErrorView message={errorMsg} />
       </VStack>
       <FooterButton
         disabled={!isValid && isDirty}

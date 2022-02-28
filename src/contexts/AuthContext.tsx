@@ -200,7 +200,7 @@ export function AuthProvider({ children }: AuthProviderType) {
             error.message &&
             error.message.indexOf("user-not-found") > 0
           ) {
-            rej("Please Signup and try to Login");
+            rej("Please signup and try to Login");
           } else if (
             error &&
             error.message &&
