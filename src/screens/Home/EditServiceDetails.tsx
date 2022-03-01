@@ -23,6 +23,7 @@ import { goBack } from "../../navigations/rootNavigation";
 import { getServiceCost, putLead } from "../../services/order";
 import { HOUSE_CLEANING_ID, LAWN_CARE_ID, SERVICES } from "./ChooseService";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import ErrorView from "../../components/ErrorView";
 
 type LawnSizeType = {
   rangeMin: number | null;
@@ -80,7 +81,7 @@ const EditServiceDetails = ({
   const { serviceId, mode } = route.params;
 
   const [loading, setLoading] = React.useState(false);
-
+  const [errorMsg, setErrorMsg] = React.useState("");
   const [serviceNotes, setServiceNotes] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState("");
   const [selectedTime, setSelectedTime] = React.useState("");
@@ -145,8 +146,10 @@ const EditServiceDetails = ({
       onSuccess: (data) => {
         setLoading(false);
         setLeadDetails(data.data);
+        goBack();
       },
       onError: (err) => {
+        setErrorMsg("Something went wrong!");
         setLoading(false);
         console.log(err);
       },
@@ -471,6 +474,7 @@ const EditServiceDetails = ({
                 </HStack>
                 {SectionDivider(1)}
                 <VStack>
+                  <ErrorView message={errorMsg} />
                   {SectionDivider(0)}
                   {Title("Choose Subscription Method")}
                   {SectionDivider(0)}
@@ -739,7 +743,6 @@ const EditServiceDetails = ({
         label="SAVE"
         onPress={async () => {
           await updateLeadMutation.mutateAsync();
-          goBack();
         }}
       />
     </AppSafeAreaView>
