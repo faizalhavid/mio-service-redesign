@@ -378,9 +378,10 @@ const EditServiceDetails = ({
       let date = new Date();
       date.setDate(date.getDate() + number);
       let month = date.getMonth() + 1;
-      let fullDate = `${date.getFullYear()}-${
+      let numberDate = date.getDate();
+      let fullDate = `${date.getFullYear()}/${
         month > 9 ? month : "0" + month
-      }-${date.getDate()}`;
+      }/${numberDate > 9 ? numberDate : "0" + numberDate}`;
       let isSelected = false;
       if (isUpdate) {
         isSelected =
