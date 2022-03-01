@@ -13,7 +13,6 @@ import appleAuth from "@invertase/react-native-apple-authentication";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { postCustomer } from "../../services/customer";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { popToPop } from "../../navigations/rootNavigation";
 import {
   CustomerProfile,
@@ -26,6 +25,8 @@ import SocialLogin from "../../components/SocialLogin";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import ErrorView from "../../components/ErrorView";
+import { FLAG_TYPE, STATUS } from "../../commons/status";
+import { StorageHelper } from "../../services/storage-helper";
 
 const Register = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
@@ -36,14 +37,7 @@ const Register = (): JSX.Element => {
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
-      // const isSignedin = await GoogleSignin.isSignedIn();
-      // console.log(isSignedin);
-      // if (isSignedin) {
-      //   // await logout();
-      //   await GoogleSignin.signOut();
-      //   return;
-      // }
-      // if (!isSignedin) {
+
       const userInfo = await GoogleSignin.signIn();
       console.log("userInfo", userInfo.user);
 
@@ -65,17 +59,19 @@ const Register = (): JSX.Element => {
       }
       setValue("email", userCredential.user.email || "");
       setValue("phone", "");
-
       // Sign-in the user with the credential
     } catch (error: any) {
       console.log("apperror", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        setErrorMsg("Sign Up Cancelelled");
         // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
         // operation (e.g. sign in) is in progress already
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        setErrorMsg("Google Play Service Not Available");
         // play services not available or outdated
       } else {
+        setErrorMsg("Something went wrong!");
         // some other error happened
       }
     } finally {
@@ -151,12 +147,12 @@ const Register = (): JSX.Element => {
     },
     {
       onSuccess: async () => {
-        await AsyncStorage.setItem(
-          "APP_START_STATUS",
-          "UPDATE_ADDRESS_PENDING"
+        await StorageHelper.setValue(
+          FLAG_TYPE.ADDRESS_DETAILS_STATUS,
+          STATUS.PENDING
         );
         setLoading(false);
-        popToPop("Address", { returnTo: "VerifyEmail" });
+        popToPop("Address");
       },
       onError: (err) => {
         setLoading(false);
@@ -216,6 +212,7 @@ const Register = (): JSX.Element => {
       {/* <ScrollView> */}
       <KeyboardAwareScrollView enableOnAndroid={true}>
         <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
+          <ErrorView message={errorMsg} />
           <Controller
             control={control}
             rules={{
@@ -294,7 +291,7 @@ const Register = (): JSX.Element => {
               name="password"
             />
           )}
-          <ErrorView message={errorMsg} />
+
           <Spacer top={20} />
           {!socialLoginCompleted && (
             <SocialLogin

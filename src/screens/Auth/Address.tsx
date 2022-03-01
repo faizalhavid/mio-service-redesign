@@ -23,6 +23,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import ErrorView from "../../components/ErrorView";
+import { FLAG_TYPE, STATUS } from "../../commons/status";
+import { StorageHelper } from "../../services/storage-helper";
 
 type AddressProps = NativeStackScreenProps<SuperRootStackParamList, "Address">;
 const Address = ({ route }: AddressProps): JSX.Element => {
@@ -33,7 +35,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
   const [customerId, setCustomerId] = React.useState<string | null>(null);
 
   const fetchCustomerProfile = useCallback(async () => {
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
+    let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setCustomerId(cId);
     await getCustomerMutation.mutateAsync();
   }, []);
@@ -51,7 +53,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
     {
       onSuccess: (data) => {
         setCustomerProfile(data.data);
-        if (returnTo === "ServiceDetails") {
+        if (returnTo === "ServiceDetails" || data.data?.addresses[0]) {
           setValue("street", data.data.addresses[0].street);
           setValue("city", data.data.addresses[0].city);
           setValue("state", data.data.addresses[0].state);
@@ -101,15 +103,25 @@ const Address = ({ route }: AddressProps): JSX.Element => {
     },
     {
       onSuccess: async (data: FormattedAddress) => {
-        await AsyncStorage.setItem(
-          "APP_START_STATUS",
-          "EMAIL_VERIFICATION_PENDING"
+        await StorageHelper.setValue(
+          FLAG_TYPE.ADDRESS_DETAILS_STATUS,
+          STATUS.COMPLETED
         );
-        setLoading(false);
         if (returnTo) {
           goBack();
         } else {
-          popToPop("VerifyEmail");
+          let status = await StorageHelper.getValue(
+            FLAG_TYPE.EMAIL_VERIFICATION_STATUS
+          );
+          if (status === STATUS.PENDING) {
+            popToPop("VerifyEmail");
+          } else {
+            await StorageHelper.setValue(
+              FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
+              STATUS.COMPLETED
+            );
+            popToPop("Dashboard");
+          }
         }
       },
       onError: (err: any) => {
@@ -152,6 +164,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
           <Text fontSize={20}>Update Address</Text>
         </Center>
         <VStack mt={10} space={0}>
+          <ErrorView message={errorMsg} />
           <Controller
             control={control}
             rules={{
@@ -243,7 +256,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
             name="zip"
           />
         </VStack>
-        <ErrorView message={errorMsg} />
       </VStack>
       <FooterButton
         disabled={!isValid && isDirty}

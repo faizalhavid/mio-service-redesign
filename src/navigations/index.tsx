@@ -24,6 +24,8 @@ import ServiceHistory from "../screens/Home/ServiceHistory";
 import ViewServiceDetails from "../screens/Home/ViewServiceDetails";
 import VerifyEmail from "../screens/Auth/VerifyEmail";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FLAG_TYPE, STATUS } from "../commons/status";
+import { StorageHelper } from "../services/storage-helper";
 
 export type SuperRootStackParamList = {
   Welcome: undefined;
@@ -49,16 +51,29 @@ const index = (): JSX.Element => {
     "Address" | "VerifyEmail" | "Dashboard" | "Welcome"
   >("Welcome");
   const [loading, setLoading] = React.useState(true);
-  AsyncStorage.getItem("APP_START_STATUS").then((value) => {
-    if (value === "UPDATE_ADDRESS_PENDING") {
-      setInitialScreen("Address");
-    } else if (value === "EMAIL_VERIFICATION_PENDING") {
-      setInitialScreen("VerifyEmail");
-    } else if (value === "SETUP_COMPLETED") {
-      setInitialScreen("Dashboard");
+
+  const setupInitialScreen = React.useCallback(async () => {
+    try {
+      let initialSetupStatus = await StorageHelper.getValue(
+        FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED
+      );
+      if (initialSetupStatus === STATUS.COMPLETED) {
+        setInitialScreen("Dashboard");
+        return;
+      } else {
+        setInitialScreen("Welcome");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+      StorageHelper.printAllValues();
     }
-    setLoading(false);
-  });
+  }, []);
+
+  React.useEffect(() => {
+    setupInitialScreen();
+  }, [setupInitialScreen]);
   const navigationOptions: NativeStackNavigationOptions = {
     headerTitle: (props) => <TitleBar logoType="color" {...props} />,
     headerStyle: {

@@ -48,10 +48,7 @@ const ServiceDetails = (): JSX.Element => {
     let details: { [key: string]: SubOrder } = {};
     leadDetails.subOrders.forEach((subOrder) => {
       details[subOrder.serviceId] = subOrder;
-      if (
-        details[subOrder.serviceId]?.appointmentInfo?.providerProfile
-          ?.eaProviderId
-      ) {
+      if (details[subOrder.serviceId]?.appointmentInfo?.appointmentDateTime) {
         setRequiredDetailsAdded(true);
       } else {
         setRequiredDetailsAdded(false);
@@ -112,7 +109,7 @@ const ServiceDetails = (): JSX.Element => {
                   title={SERVICES[lead.serviceId].text}
                   showEdit={
                     groupedLeadDetails[lead.serviceId]?.appointmentInfo
-                      ?.providerProfile?.eaProviderId
+                      ?.appointmentDateTime
                   }
                   onEdit={() => {
                     navigate("EditServiceDetails", {
@@ -122,7 +119,7 @@ const ServiceDetails = (): JSX.Element => {
                   }}
                 >
                   {groupedLeadDetails[lead.serviceId]?.appointmentInfo
-                    ?.providerProfile?.eaProviderId ? (
+                    ?.appointmentDateTime ? (
                     <>
                       <VStack
                         my={1}

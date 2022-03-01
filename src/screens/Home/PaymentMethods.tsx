@@ -20,6 +20,7 @@ import { goBack } from "../../navigations/rootNavigation";
 import { getSavedCards, saveCard } from "../../services/order";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Controller, useForm } from "react-hook-form";
+import { StorageHelper } from "../../services/storage-helper";
 
 export type SaveCardType = {
   name: string;
@@ -67,7 +68,7 @@ const PaymentMethods = (): JSX.Element => {
   const [errorMsg, setErrorMsg] = React.useState("");
   const [savedCards, setSavedCards] = React.useState<Card[]>([]);
   const fetchCustomerProfile = useCallback(async () => {
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
+    let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setCustomerId(cId);
     getSavedCardsMutation.mutate();
   }, []);

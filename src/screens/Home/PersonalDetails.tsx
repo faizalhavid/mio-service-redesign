@@ -3,8 +3,6 @@ import {
   Center,
   CheckIcon,
   Divider,
-  KeyboardAvoidingView,
-  ScrollView,
   Select,
   Text,
   VStack,
@@ -16,7 +14,7 @@ import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { CustomerProfile, Phone, useAuth } from "../../contexts/AuthContext";
-import { goBack, navigate } from "../../navigations/rootNavigation";
+import { goBack } from "../../navigations/rootNavigation";
 import {
   getCustomer,
   getHouseInfo,
@@ -26,6 +24,7 @@ import { FormattedAddress, HouseInfoRequest } from "../../commons/types";
 import { Controller, useForm } from "react-hook-form";
 import { STATES } from "../../commons/dropdown-values";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import ErrorView from "../../components/ErrorView";
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -44,13 +43,21 @@ type PersonalDetailsForm = {
 const PersonalDetails = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const { customerProfile, setCustomerProfile } = useAuth();
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
   const [errorMsg, setErrorMsg] = React.useState("");
+
+  const fetchCustomerProfile = useCallback(async () => {
+    await getCustomerMutation.mutateAsync();
+  }, []);
+
+  useEffect(() => {
+    fetchCustomerProfile();
+  }, [fetchCustomerProfile]);
+
   const getCustomerMutation = useMutation(
     "getCustomer",
     () => {
       setLoading(true);
-      return getCustomer(customerId);
+      return getCustomer(customerProfile.customerId);
     },
     {
       onSuccess: (data) => {
@@ -79,14 +86,6 @@ const PersonalDetails = (): JSX.Element => {
       },
     }
   );
-
-  const fetchCustomerProfile = useCallback(async () => {
-    await getCustomerMutation.mutateAsync();
-  }, []);
-
-  useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
 
   const getHouseInfoMutation = useMutation(
     "getHouseInfo",
@@ -238,6 +237,7 @@ const PersonalDetails = (): JSX.Element => {
           {Header("Update Personal Information")}
           {/* <Divider thickness={0} mt={10} /> */}
           <VStack px={5}>
+            <ErrorView message={errorMsg} />
             <Controller
               control={control}
               rules={{
@@ -449,11 +449,16 @@ const PersonalDetails = (): JSX.Element => {
       {/* </KeyboardAvoidingView> */}
       <FooterButton
         label={"UPDATE"}
-        disabled={!isValid && isDirty}
-        subText={
-          !isValid && isDirty ? "Please provide all required fields" : ""
-        }
-        onPress={handleSubmit(onSubmit)}
+        onPress={(event) => {
+          setErrorMsg("");
+          if (!isValid) {
+            setErrorMsg("Make sure all fields are filled");
+            return;
+          }
+          handleSubmit(onSubmit)(event).catch((error) => {
+            setErrorMsg(error);
+          });
+        }}
       />
     </AppSafeAreaView>
   );

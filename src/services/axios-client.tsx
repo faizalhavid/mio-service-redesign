@@ -1,6 +1,5 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Config } from "react-native-config";
+import { StorageHelper } from "./storage-helper";
 
 const AxiosClient = axios.create({
   baseURL: "https://homeservices-dev-ab7f9.firebaseapp.com/api/v1",
@@ -10,7 +9,7 @@ const AxiosClient = axios.create({
 });
 
 AxiosClient.interceptors.request.use(async (config: any) => {
-  const token = await AsyncStorage.getItem("TOKEN");
+  const token = await StorageHelper.getValue("TOKEN");
   config.headers.Authorization = `Bearer ${token}`;
   return config;
 });

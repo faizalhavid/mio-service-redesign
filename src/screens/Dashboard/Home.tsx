@@ -22,9 +22,11 @@ import { useMutation, useQuery } from "react-query";
 import { getCustomer } from "../../services/customer";
 import { AppColors } from "../../commons/colors";
 import { useIsFocused } from "@react-navigation/native";
-import { getAllOrders, getAppointments } from "../../services/order";
+import { getAllOrders } from "../../services/order";
 import { SERVICES } from "../Home/ChooseService";
 import { getReadableDateTime } from "../../services/utils";
+import { FLAG_TYPE, STATUS } from "../../commons/status";
+import { StorageHelper } from "../../services/storage-helper";
 
 export type Order = {
   orderId: string;
@@ -56,7 +58,7 @@ const Home = (): JSX.Element => {
 
   const isFocused = useIsFocused();
 
-  const { customerProfile, setCustomerProfile } = useAuth();
+  const { customerProfile, setCustomerProfile, logout } = useAuth();
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -112,14 +114,15 @@ const Home = (): JSX.Element => {
   );
 
   const init = React.useCallback(async () => {
-    let APP_STATUS = await AsyncStorage.getItem("APP_START_STATUS");
-    if (APP_STATUS !== "SETUP_COMPLETED") {
-      console.log("Current APP_STATUS", APP_STATUS);
-      AsyncStorage.clear();
+    let APP_INITIAL_SETUP_COMPLETED = await StorageHelper.getValue(
+      FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED
+    );
+    if (APP_INITIAL_SETUP_COMPLETED !== STATUS.COMPLETED) {
+      logout();
       popToPop("Welcome");
       return;
     }
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
+    let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setCustomerId(cId);
     await getCustomerMutation.mutateAsync();
     getAllUpcomingOrdersMutation.mutate();

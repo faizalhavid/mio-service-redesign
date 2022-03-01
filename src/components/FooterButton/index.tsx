@@ -15,7 +15,7 @@ type FooterButtonProps = {
   subText?: string;
   disabled?: boolean;
   v2?: boolean;
-  onPress: () => void;
+  onPress: (param?: any) => void;
 };
 
 const FooterButton = ({

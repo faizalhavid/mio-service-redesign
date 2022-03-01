@@ -1,7 +1,6 @@
 import { Flex } from "native-base";
 import React from "react";
 import { Image, ImageBackground, StyleSheet } from "react-native";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
 import { AppStatusBar } from "../../components/AppStatusBar";
 import AuthButton from "../../components/AuthButton";
 import Spacer from "../../components/Spacer";

@@ -1,13 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  Center,
-  Divider,
-  HStack,
-  ScrollView,
-  Text,
-  View,
-  VStack,
-} from "native-base";
+import { Center, Divider, HStack, ScrollView, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
 import { useMutation } from "react-query";
@@ -15,19 +7,18 @@ import {
   INFO_ICON,
   CIRCLE_TICK_ICON,
   CALENDAR_ICON,
-  CHAT_ICON,
   CHAT_OUTLINE_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import { SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { getCustomer } from "../../services/customer";
 import { getOrderDetails } from "../../services/order";
 import { getReadableDateTime } from "../../services/utils";
 import { SERVICES } from "./ChooseService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StorageHelper } from "../../services/storage-helper";
 
 type ViewServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
@@ -60,7 +51,7 @@ const ViewServiceDetails = ({
   );
 
   const fetchCustomerProfile = React.useCallback(async () => {
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
+    let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setCustomerId(cId);
     await getCustomerMutation.mutateAsync();
   }, []);

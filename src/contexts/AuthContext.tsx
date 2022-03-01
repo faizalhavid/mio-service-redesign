@@ -5,6 +5,8 @@ import { LeadDetails } from "../commons/types";
 import { navigate } from "../navigations/rootNavigation";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import appleAuth from "@invertase/react-native-apple-authentication";
+import { FLAG_TYPE, STATUS } from "../commons/status";
+import { StorageHelper } from "../services/storage-helper";
 
 export type RegisterForm = {
   firstName: string;
@@ -150,8 +152,11 @@ export function AuthProvider({ children }: AuthProviderType) {
               packageName: "com.miohomeservices.customer",
               installApp: true,
             },
+            iOS: {
+              bundleId: "com.miohomeservices.customer",
+            },
           });
-          await AsyncStorage.setItem("CUSTOMER_ID", data.email);
+          await StorageHelper.setValue("CUSTOMER_ID", data.email);
 
           let payload: CustomerProfile = {
             ...dummyProfile,
@@ -181,17 +186,8 @@ export function AuthProvider({ children }: AuthProviderType) {
     return new Promise((res, rej) => {
       auth()
         .signInWithEmailAndPassword(email, password)
-        .then(async (userCredential: any) => {
-          if (!userCredential.user.emailVerified) {
-            await AsyncStorage.setItem(
-              "APP_START_STATUS",
-              "EMAIL_VERIFICATION_PENDING"
-            );
-            res("VERIFY_EMAIL");
-          } else {
-            await AsyncStorage.setItem("APP_START_STATUS", "SETUP_COMPLETED");
-            res("HOME");
-          }
+        .then(async (userCredential: FirebaseAuthTypes.UserCredential) => {
+          res(userCredential);
         })
         .catch((error) => {
           console.log(error?.message);
@@ -214,9 +210,9 @@ export function AuthProvider({ children }: AuthProviderType) {
     });
   }
 
-  function logout(): Promise<any> {
+  const logout = async (): Promise<any> => {
     return new Promise(async (res, rej) => {
-      await AsyncStorage.clear();
+      await StorageHelper.clear();
       if (currentUser.providerId === "google.com") {
         await GoogleSignin.signOut();
       }
@@ -228,7 +224,7 @@ export function AuthProvider({ children }: AuthProviderType) {
       await firebase.auth().signOut();
       res("");
     });
-  }
+  };
 
   function resetPassword(email: string): Promise<any> {
     return new Promise(async (res, rej) => {
@@ -280,11 +276,15 @@ export function AuthProvider({ children }: AuthProviderType) {
     const unsubscribe = auth().onAuthStateChanged((user) => {
       console.log("on authstate change", user);
       if (user) {
-        AsyncStorage.setItem("CUSTOMER_ID", user.email || "");
+        StorageHelper.setValue(
+          FLAG_TYPE.EMAIL_VERIFICATION_STATUS,
+          user.emailVerified ? STATUS.COMPLETED : STATUS.PENDING
+        );
+        StorageHelper.setValue("CUSTOMER_ID", user.email || "");
         user
           .getIdToken()
           .then((token) => {
-            AsyncStorage.setItem("TOKEN", token);
+            StorageHelper.setValue("TOKEN", token);
           })
           .catch((error) => {
             console.log(error.message);

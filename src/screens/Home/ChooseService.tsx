@@ -30,6 +30,7 @@ import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import OrderSummary from "../../components/OrderSummary";
 import AddServiceBottomSheet from "../../components/AddServiceBottomSheet";
 import { putCustomer } from "../../services/customer";
+import { StorageHelper } from "../../services/storage-helper";
 
 export const LAWN_CARE_ID: string = "lawnCare";
 export const POOL_CLEANING_ID: string = "poolCleaning";
@@ -150,7 +151,7 @@ const ChooseService = (): JSX.Element => {
   );
 
   const fetchLead = React.useCallback(async () => {
-    let leadId = await AsyncStorage.getItem("LEAD_ID");
+    let leadId = await StorageHelper.getValue("LEAD_ID");
     if (leadId) {
       await getLeadMutation.mutateAsync(leadId);
     }
@@ -189,7 +190,7 @@ const ChooseService = (): JSX.Element => {
       onSuccess: async (data) => {
         setLoading(false);
         setLeadDetails(data.data);
-        await AsyncStorage.setItem("LEAD_ID", data.data.leadId);
+        await StorageHelper.setValue("LEAD_ID", data.data.leadId);
       },
       onError: (err) => {
         setLoading(false);
@@ -509,7 +510,7 @@ const ChooseService = (): JSX.Element => {
         disabled={selectedServices.length === 0}
         subText="Please add required services"
         onPress={async () => {
-          const leadId = await AsyncStorage.getItem("LEAD_ID");
+          const leadId = await StorageHelper.getValue("LEAD_ID");
           if (!leadId) {
             await createLeadMutation.mutateAsync();
             await updateLeadMutation.mutateAsync();

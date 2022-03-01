@@ -14,6 +14,13 @@ import { navigate, popToPop } from "../../navigations/rootNavigation";
 import auth from "@react-native-firebase/auth";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import ErrorView from "../../components/ErrorView";
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import { StorageHelper } from "../../services/storage-helper";
+import { FLAG_TYPE, STATUS } from "../../commons/status";
+import { useMutation } from "react-query";
+import { getCustomer } from "../../services/customer";
+import { SvgCss } from "react-native-svg";
+import { FILLED_CIRCLE_TICK_ICON } from "../../commons/assets";
 
 type LoginFormType = {
   email: string;
@@ -29,19 +36,67 @@ const Login = (): JSX.Element => {
     mode: "onChange",
   });
 
+  const { mutateAsync: getCustomerMutation } = useMutation(
+    "getCustomer",
+    (customerId: string | null) => {
+      console.log("Get Customer Profile");
+      setLoading(true);
+      return getCustomer(customerId);
+    },
+    {
+      onSuccess: (data) => {
+        setLoading(false);
+      },
+      onError: (err) => {
+        setErrorMsg("Please register before login");
+        setLoading(false);
+      },
+    }
+  );
+
+  const doLogin = async (userCredential: FirebaseAuthTypes.UserCredential) => {
+    setErrorMsg("");
+    getCustomerMutation(userCredential.user.email).then(async () => {
+      let navigateTo = "";
+      if (!userCredential.user.emailVerified) {
+        await StorageHelper.setValue(
+          FLAG_TYPE.EMAIL_VERIFICATION_STATUS,
+          STATUS.PENDING
+        );
+        navigateTo = "VERIFY_EMAIL";
+      } else {
+        await StorageHelper.setValue(
+          FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
+          STATUS.COMPLETED
+        );
+        navigateTo = "HOME";
+      }
+      let addressDetailsStatus = await StorageHelper.getValue(
+        FLAG_TYPE.ADDRESS_DETAILS_STATUS
+      );
+      if (addressDetailsStatus === STATUS.PENDING) {
+        navigateTo = "UPDATE_ADDRESS";
+      }
+      switch (navigateTo) {
+        case "UPDATE_ADDRESS":
+          popToPop("Address");
+          break;
+        case "VERIFY_EMAIL":
+          popToPop("VerifyEmail");
+          break;
+        case "HOME":
+          popToPop("Dashboard");
+      }
+    });
+  };
+
   const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: LoginFormType) => {
     setLoading(true);
     setErrorMsg("");
     login(data.email, data.password)
-      .then((status) => {
-        switch (status) {
-          case "VERIFY_EMAIL":
-            popToPop("VerifyEmail");
-            break;
-          case "HOME":
-            popToPop("Dashboard");
-        }
+      .then((userCredential) => {
+        doLogin(userCredential);
       })
       .catch((error) => {
         setErrorMsg(error);
@@ -60,6 +115,7 @@ const Login = (): JSX.Element => {
             </Text>
           </Center>
           <VStack mt={10}>
+            <ErrorView message={errorMsg} />
             <Controller
               control={control}
               rules={{
@@ -90,7 +146,6 @@ const Login = (): JSX.Element => {
               )}
               name="password"
             />
-            <ErrorView message={errorMsg} />
             <Spacer top={20} />
             <Center>
               <AppButton
@@ -123,11 +178,7 @@ const Login = (): JSX.Element => {
                   googleCredential
                 );
 
-                await AsyncStorage.setItem(
-                  "APP_START_STATUS",
-                  "SETUP_COMPLETED"
-                );
-                popToPop("Dashboard");
+                doLogin(userCredential);
               } catch (error) {
                 console.log(error);
               }
@@ -163,11 +214,7 @@ const Login = (): JSX.Element => {
                   appleCredential
                 );
 
-                await AsyncStorage.setItem(
-                  "APP_START_STATUS",
-                  "SETUP_COMPLETED"
-                );
-                popToPop("Dashboard");
+                doLogin(userCredential);
               } catch (error) {
                 console.log(error);
               } finally {

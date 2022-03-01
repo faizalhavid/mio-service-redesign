@@ -2,7 +2,13 @@ import React from "react";
 import { AppColors } from "../../commons/colors";
 import { TextField } from "rn-material-ui-textfield";
 import { KeyboardTypeOptions } from "react-native";
-import { Text } from "native-base";
+import { Pressable, Text } from "native-base";
+import { SvgCss } from "react-native-svg";
+import {
+  EYE_ICON,
+  FILLED_CIRCLE_TICK_ICON,
+  SLASHED_EYE_ICON,
+} from "../../commons/assets";
 
 type AppInputProps = {
   type: "text" | "number" | "email" | "password";
@@ -59,11 +65,27 @@ const AppInput = ({
         fontSize={14}
         lineWidth={focussed ? 1 : 0}
         disabledLineWidth={0}
-        secureTextEntry={type === "password"}
+        secureTextEntry={type === "password" && (showPassword ? false : true)}
         renderRightAccessory={() => {
           switch (type) {
             case "password":
-              return <></>;
+              return (
+                <Pressable
+                  pr={2}
+                  pb={1}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <SvgCss
+                      width={18}
+                      height={18}
+                      xml={SLASHED_EYE_ICON("#aaa")}
+                    />
+                  ) : (
+                    <SvgCss width={18} height={18} xml={EYE_ICON("#aaa")} />
+                  )}
+                </Pressable>
+              );
               break;
             case "text":
               return <>{suffix || <></>}</>;

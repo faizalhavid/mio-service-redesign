@@ -10,11 +10,12 @@ import { useAuth } from "../../contexts/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCustomer } from "../../services/customer";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
+import { StorageHelper } from "../../services/storage-helper";
 
 const VerifyEmail = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [customerId, setCustomerId] = React.useState(null);
-  AsyncStorage.getItem("CUSTOMER_ID").then((value: any) => {
+  StorageHelper.getValue("CUSTOMER_ID").then((value: any) => {
     setCustomerId(value);
   });
   const getCustomerMutation = useMutation(

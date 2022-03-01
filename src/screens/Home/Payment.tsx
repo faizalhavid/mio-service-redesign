@@ -36,6 +36,7 @@ import {
   FILLED_CIRCLE_CLOSE_ICON,
   FILLED_CIRCLE_TICK_ICON,
 } from "../../commons/assets";
+import { StorageHelper } from "../../services/storage-helper";
 
 const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
@@ -52,7 +53,7 @@ const Payment = (): JSX.Element => {
   const { leadDetails, setLeadDetails } = useAuth();
 
   const fetchCustomerProfile = useCallback(async () => {
-    let cId = await AsyncStorage.getItem("CUSTOMER_ID");
+    let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setCustomerId(cId);
     getSavedCardsMutation.mutate();
   }, []);
@@ -403,7 +404,7 @@ const Payment = (): JSX.Element => {
           onPress={async () => {
             await updateLeadMutation.mutateAsync();
             await createOrderFromLeadMutation.mutateAsync();
-            await AsyncStorage.removeItem("LEAD_ID");
+            await StorageHelper.removeValue("LEAD_ID");
             popToPop("Booked");
           }}
         />
