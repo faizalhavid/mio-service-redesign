@@ -14,18 +14,26 @@ const UpcomingServices = (): JSX.Element => {
   const [upcomingOrders, setUpcomingOrders] = React.useState<Order[]>([]);
   const [page, setPage] = React.useState<number>(1);
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
+  const [orderId, setOrderId] = React.useState<string>("");
+  const [subOrderId, setSubOrderId] = React.useState<string>("");
   const limit = 10;
   const getAllUpcomingOrdersMutation = useMutation(
     "getAllUpcomingOrders",
-    (page: number) => {
+    () => {
       setLoading(true);
-      return getAllOrders("upcoming", page, limit);
+      return getAllOrders("upcoming", orderId, subOrderId, limit);
     },
     {
       onSuccess: (data) => {
         setLoading(false);
         let orders = data.data.data || [];
         setUpcomingOrders([...upcomingOrders, ...orders]);
+        if (orders.length > 0) {
+          let lastOrder = orders[orders.length - 1];
+          console.log(lastOrder);
+          setOrderId(lastOrder.orderId);
+          setSubOrderId(lastOrder.subOrderId);
+        }
         if (orders.length < limit) {
           setFetchAgain(false);
         }
@@ -37,7 +45,7 @@ const UpcomingServices = (): JSX.Element => {
   );
 
   useEffect(() => {
-    getAllUpcomingOrdersMutation.mutate(page);
+    getAllUpcomingOrdersMutation.mutate();
   }, [page]);
 
   return (

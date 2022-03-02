@@ -21,6 +21,7 @@ import { useMutation } from "react-query";
 import { getCustomer } from "../../services/customer";
 import { SvgCss } from "react-native-svg";
 import { FILLED_CIRCLE_TICK_ICON } from "../../commons/assets";
+import CheckInternet from "../../components/CheckInternet";
 
 type LoginFormType = {
   email: string;
@@ -48,7 +49,7 @@ const Login = (): JSX.Element => {
         setLoading(false);
       },
       onError: (err) => {
-        setErrorMsg("Please register before login");
+        setErrorMsg("Please Register before trying to Login");
         setLoading(false);
       },
     }
@@ -194,6 +195,13 @@ const Login = (): JSX.Element => {
                     ],
                   }
                 );
+
+                if (!appleAuthRequestResponse.email) {
+                  setErrorMsg(
+                    "Please choose email id while chooce apple login"
+                  );
+                  return;
+                }
 
                 // Ensure Apple returned a user identityToken
                 if (!appleAuthRequestResponse.identityToken) {

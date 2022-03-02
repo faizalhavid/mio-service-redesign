@@ -9,7 +9,7 @@ import {
   View,
 } from "native-base";
 import React, { useState } from "react";
-import { Dimensions, ScrollView } from "react-native";
+import { Dimensions, Platform, ScrollView } from "react-native";
 import { SvgCss } from "react-native-svg";
 import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
@@ -114,8 +114,12 @@ const EditServiceDetails = ({
       setLoading(true);
       let updatedSuborders = leadDetails.subOrders.map((subOrder) => {
         if (subOrder.serviceId === serviceId) {
+          let selecDate = selectedDate;
+          if (Platform.OS === "ios") {
+            selecDate = selecDate.replace(/-/g, "/");
+          }
           subOrder.appointmentInfo.appointmentDateTime = new Date(
-            `${selectedDate} ${selectedTime}:00:00`
+            `${selecDate} ${selectedTime}:00:00`
           ).toISOString();
           subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
           subOrder.serviceNotes = [serviceNotes];
@@ -379,9 +383,9 @@ const EditServiceDetails = ({
       date.setDate(date.getDate() + number);
       let month = date.getMonth() + 1;
       let numberDate = date.getDate();
-      let fullDate = `${date.getFullYear()}/${
+      let fullDate = `${date.getFullYear()}-${
         month > 9 ? month : "0" + month
-      }/${numberDate > 9 ? numberDate : "0" + numberDate}`;
+      }-${numberDate > 9 ? numberDate : "0" + numberDate}`;
       let isSelected = false;
       if (isUpdate) {
         isSelected =

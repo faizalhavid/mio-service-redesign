@@ -87,6 +87,11 @@ const Register = (): JSX.Element => {
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
       });
 
+      if (!appleAuthRequestResponse.email) {
+        setErrorMsg("Please choose email id while chooce apple login");
+        return;
+      }
+
       // Ensure Apple returned a user identityToken
       if (!appleAuthRequestResponse.identityToken) {
         console.log("Apple Sign-In failed - no identify token returned");

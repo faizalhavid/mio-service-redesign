@@ -3,6 +3,7 @@ import React from "react";
 import { Image, ImageBackground, StyleSheet } from "react-native";
 import { AppStatusBar } from "../../components/AppStatusBar";
 import AuthButton from "../../components/AuthButton";
+import CheckInternet from "../../components/CheckInternet";
 import Spacer from "../../components/Spacer";
 import { navigate } from "../../navigations/rootNavigation";
 
@@ -10,11 +11,13 @@ const Welcome = (): JSX.Element => {
   return (
     <>
       <AppStatusBar color={"transparent"} />
+
       <ImageBackground
         source={require("../../assets/images/intro-bg.png")}
         resizeMode="cover"
         style={styles.image}
       >
+        <CheckInternet />
         <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.3)"} pt={20}>
           <Flex flexDirection={"row"} mt={100} justifyContent={"center"}>
             <Image source={require("../../assets/images/mio-logo-white.png")} />

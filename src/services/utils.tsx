@@ -22,7 +22,7 @@ export const getReadableDateTime = (dt: string) => {
   let _slot = timeHelper(_startDate.getHours());
   let result = {
     year: `${_startDate.getFullYear()}`,
-    date: `${MONTH[_startDate.getMonth() + 1]} ${_startDate.getDate()}`,
+    date: `${MONTH[_startDate.getMonth()]} ${_startDate.getDate()}`,
     day: DAY[_startDate.getDay()],
     slot: `${_slot.rangeMin + " " + _slot.minMeridian} - ${
       _slot.rangeMax + " " + _slot.maxMaxidian

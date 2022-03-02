@@ -452,7 +452,11 @@ const PersonalDetails = (): JSX.Element => {
         onPress={(event) => {
           setErrorMsg("");
           if (!isValid) {
-            setErrorMsg("Make sure all fields are filled");
+            if (Object.keys(errors).length === 0) {
+              setErrorMsg("No fields are changed");
+            } else {
+              setErrorMsg("Make sure all fields are filled");
+            }
             return;
           }
           handleSubmit(onSubmit)(event).catch((error) => {
