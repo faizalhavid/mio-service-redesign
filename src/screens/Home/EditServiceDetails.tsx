@@ -124,6 +124,17 @@ const EditServiceDetails = ({
           subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
           subOrder.serviceNotes = [serviceNotes];
 
+          if (appointmentTimeOptions) {
+            for (let option of appointmentTimeOptions) {
+              if (option.selected) {
+                subOrder.appointmentInfo.selectedRange = {
+                  rangeStart: `${option.rangeMin} ${option.minMeridian}`,
+                  rangeEnd: `${option.rangeMax} ${option.maxMaxidian}`,
+                };
+              }
+            }
+          }
+
           if (selectedSubscriptionMethod.method === "RECURRING") {
             subOrder.servicePrice.cost =
               selectedSubscriptionMethod?.activeOption?.perCost;

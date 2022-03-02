@@ -148,7 +148,7 @@ export interface ProviderProfile {
 }
 
 export interface SelectedRange {
-  rangeId: number;
+  rangeId?: number;
   rangeStart?: any;
   rangeEnd?: any;
 }

@@ -40,12 +40,13 @@ const Login = (): JSX.Element => {
   const { mutateAsync: getCustomerMutation } = useMutation(
     "getCustomer",
     (customerId: string | null) => {
-      console.log("Get Customer Profile");
+      console.log("Get Customer Profile", customerId);
       setLoading(true);
       return getCustomer(customerId);
     },
     {
       onSuccess: (data) => {
+        console.log("Customer response ", data.data);
         setLoading(false);
       },
       onError: (err) => {
@@ -57,6 +58,8 @@ const Login = (): JSX.Element => {
 
   const doLogin = async (userCredential: FirebaseAuthTypes.UserCredential) => {
     setErrorMsg("");
+    let token = await userCredential.user.getIdToken();
+    StorageHelper.setValue("TOKEN", token);
     getCustomerMutation(userCredential.user.email).then(async () => {
       let navigateTo = "";
       if (!userCredential.user.emailVerified) {
@@ -170,15 +173,12 @@ const Login = (): JSX.Element => {
               try {
                 setLoading(true);
                 const userInfo = await GoogleSignin.signIn();
-
                 const googleCredential = auth.GoogleAuthProvider.credential(
                   userInfo.idToken
                 );
-
                 const userCredential = await auth().signInWithCredential(
                   googleCredential
                 );
-
                 doLogin(userCredential);
               } catch (error) {
                 console.log(error);

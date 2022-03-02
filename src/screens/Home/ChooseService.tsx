@@ -334,12 +334,15 @@ const ChooseService = (): JSX.Element => {
                 let priceMap: PriceMap[] = [];
                 let lotsize: number =
                   customerProfile.addresses[0].houseInfo?.lotSize;
+                console.log(lotsize);
                 for (const price of service.priceMap) {
                   if (
-                    price.rangeMin &&
-                    price.rangeMax &&
                     lotsize &&
+                    price.rangeMin !== undefined &&
+                    price.rangeMin !== null &&
                     lotsize > price.rangeMin &&
+                    price.rangeMax !== undefined &&
+                    price.rangeMax !== null &&
                     lotsize < price.rangeMax
                   ) {
                     hasArea = true;

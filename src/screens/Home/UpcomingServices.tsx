@@ -30,7 +30,6 @@ const UpcomingServices = (): JSX.Element => {
         setUpcomingOrders([...upcomingOrders, ...orders]);
         if (orders.length > 0) {
           let lastOrder = orders[orders.length - 1];
-          console.log(lastOrder);
           setOrderId(lastOrder.orderId);
           setSubOrderId(lastOrder.subOrderId);
         }

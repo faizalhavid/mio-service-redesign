@@ -14,18 +14,25 @@ const ServiceHistory = (): JSX.Element => {
   const [pastOrders, setPastOrders] = React.useState<Order[]>([]);
   const [page, setPage] = React.useState<number>(1);
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
+  const [orderId, setOrderId] = React.useState<string>("");
+  const [subOrderId, setSubOrderId] = React.useState<string>("");
   const limit = 10;
   const getAllPastOrdersMutation = useMutation(
     "getAllPastOrders",
-    (page: number) => {
+    () => {
       setLoading(true);
-      return getAllOrders("past", page, limit);
+      return getAllOrders("past", orderId, subOrderId, limit);
     },
     {
       onSuccess: (data) => {
         setLoading(false);
         let orders = data.data.data || [];
         setPastOrders([...pastOrders, ...orders]);
+        if (orders.length > 0) {
+          let lastOrder = orders[orders.length - 1];
+          setOrderId(lastOrder.orderId);
+          setSubOrderId(lastOrder.subOrderId);
+        }
         if (orders.length < limit) {
           setFetchAgain(false);
         }
@@ -37,7 +44,7 @@ const ServiceHistory = (): JSX.Element => {
   );
 
   useEffect(() => {
-    getAllPastOrdersMutation.mutate(page);
+    getAllPastOrdersMutation.mutate();
   }, [page]);
 
   return (
