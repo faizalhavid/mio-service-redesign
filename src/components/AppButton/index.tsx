@@ -6,9 +6,15 @@ type AppButtonProps = {
   onPress: (param?: any) => void;
   color?: string;
   label: string;
+  disabled?: boolean;
 };
 
-const AppButton = ({ label, color, onPress }: AppButtonProps): JSX.Element => {
+const AppButton = ({
+  label,
+  color,
+  onPress,
+  disabled,
+}: AppButtonProps): JSX.Element => {
   const btnColor = color || AppColors.PRIMARY;
   return (
     <>
@@ -25,6 +31,7 @@ const AppButton = ({ label, color, onPress }: AppButtonProps): JSX.Element => {
         _pressed={{
           backgroundColor: `${btnColor}E6`,
         }}
+        disabled={disabled}
       >
         {label}
       </Button>

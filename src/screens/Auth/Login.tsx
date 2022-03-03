@@ -1,5 +1,13 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { Center, Divider, ScrollView, Text, VStack } from "native-base";
+import {
+  Button,
+  Center,
+  Divider,
+  ScrollView,
+  Text,
+  useToast,
+  VStack,
+} from "native-base";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { AppColors } from "../../commons/colors";
@@ -7,7 +15,6 @@ import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import SocialLogin from "../../components/SocialLogin";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spacer from "../../components/Spacer";
 import { useAuth } from "../../contexts/AuthContext";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
@@ -19,9 +26,7 @@ import { StorageHelper } from "../../services/storage-helper";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { useMutation } from "react-query";
 import { getCustomer } from "../../services/customer";
-import { SvgCss } from "react-native-svg";
-import { FILLED_CIRCLE_TICK_ICON } from "../../commons/assets";
-import CheckInternet from "../../components/CheckInternet";
+import ForgetPassword from "../../components/ForgetPassword";
 
 type LoginFormType = {
   email: string;
@@ -30,10 +35,12 @@ type LoginFormType = {
 
 const Login = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
+  const [showForgetPasswordForm, setShowForgetPasswordForm] =
+    React.useState<boolean>(false);
+  const toast = useToast();
+  const { login, resetPassword } = useAuth();
 
-  const { login } = useAuth();
-
-  const { control, handleSubmit, formState } = useForm<LoginFormType>({
+  const { control, handleSubmit, formState, trigger } = useForm<LoginFormType>({
     mode: "onChange",
   });
 
@@ -150,11 +157,22 @@ const Login = (): JSX.Element => {
               )}
               name="password"
             />
-            <Spacer top={20} />
+            <Button
+              variant={"ghost"}
+              _pressed={{ bg: "transparent" }}
+              textAlign="right"
+              p={0}
+              justifyContent="flex-end"
+              onPress={() => setShowForgetPasswordForm(true)}
+            >
+              <Text color={AppColors.SECONDARY}>Forgot Password?</Text>
+            </Button>
+            <Spacer top={30} />
             <Center>
               <AppButton
                 label="SIGN IN"
-                onPress={(event) => {
+                onPress={async (event) => {
+                  await trigger();
                   if (!formState.isValid) {
                     setErrorMsg("Please provide valid email/password");
                     return;
@@ -244,6 +262,19 @@ const Login = (): JSX.Element => {
           <Divider thickness={0} mt={20} />
         </VStack>
       </ScrollView>
+      <ForgetPassword
+        showForgetPasswordForm={showForgetPasswordForm}
+        setShowForgetPasswordForm={setShowForgetPasswordForm}
+        onSumbit={(email: string): void => {
+          setShowForgetPasswordForm(false);
+          resetPassword(email);
+          toast.show({
+            title: "Please check your email for the password reset link.",
+            placement: "top",
+            mt: 20,
+          });
+        }}
+      />
     </AppSafeAreaView>
   );
 };
