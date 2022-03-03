@@ -1,33 +1,19 @@
-import {
-  Actionsheet,
-  Button,
-  Circle,
-  Divider,
-  HStack,
-  ScrollView,
-  Text,
-  View,
-  VStack,
-} from "native-base";
+import { Divider, HStack, ScrollView, Text, VStack } from "native-base";
 import React from "react";
-import { SvgCss } from "react-native-svg";
 import {
   HOUSE_CLEANING,
   LAWN_CARE,
   PEST_CONTROL,
   POOL_CLEANING,
 } from "../../commons/assets";
-import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
 import { useMutation, useQuery } from "react-query";
 import { getLead, getServices, postLead, putLead } from "../../services/order";
 import { PriceMap, Service } from "../../commons/types";
 import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
-import OrderSummary from "../../components/OrderSummary";
 import AddServiceBottomSheet from "../../components/AddServiceBottomSheet";
 import { putCustomer } from "../../services/customer";
 import { StorageHelper } from "../../services/storage-helper";
@@ -54,28 +40,25 @@ export const SERVICES: { [key: string]: ServicesType } = {
     id: LAWN_CARE_ID,
     icon: (color: string = "white") => LAWN_CARE(color),
     text: LAWN_CARE_TEXT,
-    description:
-      "Give your lawn the boost it needs without all of the work. Our providers will bring the best out of your yard.",
+    description: "",
   },
   [POOL_CLEANING_ID]: {
     id: POOL_CLEANING_ID,
     icon: (color: string = "white") => POOL_CLEANING(color),
     text: POOL_CLEANING_TEXT,
-    description: "Let our providers do the work while you relax poolside",
+    description: "",
   },
   [HOUSE_CLEANING_ID]: {
     id: HOUSE_CLEANING_ID,
     icon: (color: string = "white") => HOUSE_CLEANING(color),
     text: HOUSE_CLEANING_TEXT,
-    description:
-      "The weekends weren't made for house cleaning. Our cleaning providers will make sure your home shines",
+    description: "",
   },
   [PEST_CONTROL_ID]: {
     id: PEST_CONTROL_ID,
     icon: (color: string = "white") => PEST_CONTROL(color),
     text: PEST_CONTROL_TEXT,
-    description:
-      "Don't let bugs creep you out. Get a pest control treatment today",
+    description: "",
   },
 };
 
@@ -117,8 +100,12 @@ const ChooseService = (): JSX.Element => {
     },
     {
       onSuccess: (data) => {
+        let result = data.data;
+        for (let service of result) {
+          SERVICES[service.serviceId].description = service.description;
+        }
         setLoading(false);
-        setServices(data.data);
+        setServices(result);
       },
       onError: (err) => {
         setLoading(false);
