@@ -48,6 +48,7 @@ type AppointmentDateOptionType = {
 };
 
 type AppointmentTimeOptionType = {
+  actualMin: string;
   rangeMin: string;
   rangeMax: string;
   minMeridian: string;
@@ -119,7 +120,9 @@ const EditServiceDetails = ({
             selecDate = selecDate.replace(/-/g, "/");
           }
           subOrder.appointmentInfo.appointmentDateTime = new Date(
-            `${selecDate} ${selectedTime}:00:00`
+            `${selecDate} ${
+              parseInt(selectedTime) > 9 ? selectedTime : "0" + selectedTime
+            }:00:00`
           ).toISOString();
           subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
           subOrder.serviceNotes = [serviceNotes];
@@ -418,16 +421,18 @@ const EditServiceDetails = ({
     let times: AppointmentTimeOptionType[] = [];
     [8, 10, 12, 14].forEach((number) => {
       let rangeMin = `${number > 12 ? number - 12 : number}`;
+      let actualMin = `${number}`;
       let isSelected = false;
       if (isUpdate) {
         isSelected =
-          parseInt(rangeMin) ===
+          parseInt(actualMin) ===
           new Date(subOrder.appointmentInfo.appointmentDateTime).getHours();
         if (isSelected) {
-          setSelectedTime(rangeMin);
+          setSelectedTime(actualMin);
         }
       }
       times.push({
+        actualMin,
         rangeMin,
         rangeMax: `${number + 4 > 12 ? number + 4 - 12 : number + 4}`,
         minMeridian: `${number >= 12 ? "PM" : "AM"}`,
@@ -709,7 +714,7 @@ const EditServiceDetails = ({
                                   appointmentTimeOptions.map(
                                     (option, optionIndex) => {
                                       if (optionIndex === index) {
-                                        setSelectedTime(option.rangeMin);
+                                        setSelectedTime(option.actualMin);
                                         return {
                                           ...option,
                                           selected: true,
