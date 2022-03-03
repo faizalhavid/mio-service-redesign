@@ -6,6 +6,7 @@ import {
   Image,
   Pressable,
   ScrollView,
+  Skeleton,
   Text,
   View,
   VStack,
@@ -58,6 +59,9 @@ const Home = (): JSX.Element => {
 
   const isFocused = useIsFocused();
 
+  const [showFirstTimeBanner, setShowFirstTimeBanner] =
+    React.useState<boolean>(false);
+
   const { customerProfile, setCustomerProfile, logout } = useAuth();
 
   const getCustomerMutation = useMutation(
@@ -86,7 +90,9 @@ const Home = (): JSX.Element => {
     },
     {
       onSuccess: (data) => {
-        setUpcomingOrders(data.data.data);
+        let orders = data.data.data;
+        setShowFirstTimeBanner(orders.length === 0);
+        setUpcomingOrders(orders);
         setLoading(false);
       },
       onError: (err) => {
@@ -192,70 +198,77 @@ const Home = (): JSX.Element => {
                   )}
                 </Text>
               </Center>
-              {upcomingOrders.length > 0 ? (
-                <ServiceCard
-                  variant="solid"
-                  showAddToCalendar={false}
-                  showReschedule={false}
-                  showChat={false}
-                  serviceName={SERVICES[upcomingOrders[0].serviceId].text}
-                  orderId={upcomingOrders[0].orderId}
-                  subOrderId={upcomingOrders[0].subOrderId}
-                  year={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .year
-                  }
-                  date={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .date
-                  }
-                  day={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .day
-                  }
-                  slot={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .slot
-                  }
-                />
-              ) : (
-                !loading &&
-                upcomingOrders.length === 0 && (
-                  <Button
-                    paddingX={5}
-                    mt={5}
-                    borderRadius={10}
-                    borderWidth={1}
-                    borderColor={AppColors.SECONDARY}
-                    bg={AppColors.SECONDARY}
-                    shadow={3}
-                    width={"100%"}
-                    _pressed={{
-                      backgroundColor: AppColors.DARK_PRIMARY,
-                    }}
-                    variant={"ghost"}
-                    onPress={() => navigate("ChooseService")}
-                  >
-                    <VStack p={5} space={5}>
-                      <Center>
-                        <Image
-                          w={20}
-                          h={12}
-                          alt="Logo"
-                          source={require("../../assets/images/mio-logo-white.png")}
-                        />
-                      </Center>
-                      <Center>
-                        <Text fontSize={16} color={"#fff"}>
-                          Create your first service
-                        </Text>
-                        <Text fontSize={12} fontStyle={"italic"} color={"#fff"}>
-                          Get 20% off on your first order
-                        </Text>
-                      </Center>
-                    </VStack>
-                  </Button>
+              {!loading ? (
+                upcomingOrders.length > 0 ? (
+                  <ServiceCard
+                    variant="solid"
+                    showAddToCalendar={false}
+                    showReschedule={false}
+                    showChat={false}
+                    serviceName={SERVICES[upcomingOrders[0].serviceId].text}
+                    orderId={upcomingOrders[0].orderId}
+                    subOrderId={upcomingOrders[0].subOrderId}
+                    year={
+                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                        .year
+                    }
+                    date={
+                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                        .date
+                    }
+                    day={
+                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                        .day
+                    }
+                    slot={
+                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                        .slot
+                    }
+                  />
+                ) : (
+                  showFirstTimeBanner && (
+                    <Button
+                      paddingX={5}
+                      mt={5}
+                      borderRadius={10}
+                      borderWidth={1}
+                      borderColor={AppColors.SECONDARY}
+                      bg={AppColors.SECONDARY}
+                      shadow={3}
+                      width={"100%"}
+                      _pressed={{
+                        backgroundColor: AppColors.DARK_PRIMARY,
+                      }}
+                      variant={"ghost"}
+                      onPress={() => navigate("ChooseService")}
+                    >
+                      <VStack p={5} space={5}>
+                        <Center>
+                          <Image
+                            w={20}
+                            h={12}
+                            alt="Logo"
+                            source={require("../../assets/images/mio-logo-white.png")}
+                          />
+                        </Center>
+                        <Center>
+                          <Text fontSize={16} color={"#fff"}>
+                            Create your first service
+                          </Text>
+                          <Text
+                            fontSize={12}
+                            fontStyle={"italic"}
+                            color={"#fff"}
+                          >
+                            Get 20% off on your first order
+                          </Text>
+                        </Center>
+                      </VStack>
+                    </Button>
+                  )
                 )
+              ) : (
+                <Skeleton mt={5} width={"100%"} h="100" borderRadius={10} />
               )}
               <Divider my={5} thickness={1} />
               <Text fontSize={18} pl={2} fontWeight={"semibold"}>

@@ -172,11 +172,18 @@ const Login = (): JSX.Element => {
               <AppButton
                 label="SIGN IN"
                 onPress={async (event) => {
+                  setErrorMsg("");
                   await trigger();
-                  if (!formState.isValid) {
+                  console.log(formState.errors);
+                  console.log("isDirty", formState.isDirty);
+                  if (
+                    (!formState.isDirty && !formState.isValid) ||
+                    Object.keys(formState.errors).length > 0
+                  ) {
                     setErrorMsg("Please provide valid email/password");
                     return;
                   }
+
                   handleSubmit(onSubmit)(event).catch((error) => {
                     setErrorMsg(error);
                   });

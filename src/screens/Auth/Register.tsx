@@ -1,5 +1,5 @@
 import { Center, Divider, Flex, Text } from "native-base";
-import React from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import Spacer from "../../components/Spacer";
@@ -31,6 +31,8 @@ import { StorageHelper } from "../../services/storage-helper";
 const Register = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
+  const password = useRef({});
+
   const { signup } = useAuth();
 
   const loginWithGoogle = async () => {
@@ -131,23 +133,19 @@ const Register = (): JSX.Element => {
     control,
     handleSubmit,
     setValue,
-    formState: { isValid },
+    watch,
+    formState: { isValid, isDirty, errors },
+    trigger,
   } = useForm<RegisterForm>({
-    defaultValues: {
-      // firstName: "T",
-      // lastName: "K",
-      // phone: "7845715615",
-      // email: "kthilagarajan@gmail.com",
-      // password: "test@123",
-    },
     mode: "all",
   });
+
+  password.current = watch("password", "");
 
   const registerCustomerMutation = useMutation(
     "registerCustomer",
     (data: CustomerProfile) => {
       setLoading(true);
-      console.log(data);
       return postCustomer(data);
     },
     {
@@ -171,6 +169,7 @@ const Register = (): JSX.Element => {
 
   const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: RegisterForm) => {
+    await trigger();
     setLoading(true);
     if (socialLoginCompleted) {
       let payload: CustomerProfile = {
@@ -202,20 +201,21 @@ const Register = (): JSX.Element => {
 
   return (
     <AppSafeAreaView loading={loading}>
-      <Center width={"100%"}>
-        {!socialLoginCompleted && (
-          <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
-            Create an account {"\n"}to manage your service
-          </Text>
-        )}
-        {socialLoginCompleted && (
-          <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
-            Please provide the {"\n"}required information
-          </Text>
-        )}
-      </Center>
-      {/* <ScrollView> */}
       <KeyboardAwareScrollView enableOnAndroid={true}>
+        <Center width={"100%"}>
+          {!socialLoginCompleted && (
+            <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
+              Create an account {"\n"}to manage your service
+            </Text>
+          )}
+          {socialLoginCompleted && (
+            <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
+              Please provide the {"\n"}required information
+            </Text>
+          )}
+        </Center>
+        {/* <ScrollView> */}
+
         <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
           <ErrorView message={errorMsg} />
           <Controller
@@ -280,21 +280,45 @@ const Register = (): JSX.Element => {
             name="email"
           />
           {!socialLoginCompleted && (
-            <Controller
-              control={control}
-              rules={{
-                required: !socialLoginCompleted,
-              }}
-              render={({ field: { onChange, value } }) => (
-                <AppInput
-                  type="password"
-                  label="Password"
-                  onChange={onChange}
-                  value={value}
-                />
+            <>
+              <Controller
+                control={control}
+                rules={{
+                  required: !socialLoginCompleted,
+                }}
+                render={({ field: { onChange, value } }) => (
+                  <AppInput
+                    type="password"
+                    label="Password"
+                    onChange={onChange}
+                    value={value}
+                  />
+                )}
+                name="password"
+              />
+              <Controller
+                control={control}
+                rules={{
+                  required: !socialLoginCompleted,
+                  validate: (value) =>
+                    value === password.current || "The passwords do not match",
+                }}
+                render={({ field: { onChange, value } }) => (
+                  <AppInput
+                    type="password"
+                    label="Confirm Password"
+                    onChange={onChange}
+                    value={value}
+                  />
+                )}
+                name="confirmPassword"
+              />
+              {errors.confirmPassword && (
+                <Text fontSize={12} fontWeight={"semibold"} color={"red.500"}>
+                  Password do not match
+                </Text>
               )}
-              name="password"
-            />
+            </>
           )}
 
           <Spacer top={20} />

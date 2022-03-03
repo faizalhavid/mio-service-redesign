@@ -1,4 +1,4 @@
-import { Flex } from "native-base";
+import { Flex, PresenceTransition } from "native-base";
 import React from "react";
 import { Image, ImageBackground, StyleSheet } from "react-native";
 import { AppStatusBar } from "../../components/AppStatusBar";
@@ -19,12 +19,29 @@ const Welcome = (): JSX.Element => {
       >
         <CheckInternet />
         <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.3)"} pt={20}>
-          <Flex flexDirection={"row"} mt={100} justifyContent={"center"}>
-            <Image source={require("../../assets/images/mio-logo-white.png")} />
-            <Image
-              source={require("../../assets/images/mio-logo-text-white.png")}
-            />
-          </Flex>
+          <PresenceTransition
+            visible={true}
+            initial={{
+              opacity: 0,
+              translateX: 0,
+            }}
+            animate={{
+              opacity: 1,
+              translateX: 1,
+              transition: {
+                duration: 350,
+              },
+            }}
+          >
+            <Flex flexDirection={"row"} mt={100} justifyContent={"center"}>
+              <Image
+                source={require("../../assets/images/mio-logo-white.png")}
+              />
+              <Image
+                source={require("../../assets/images/mio-logo-text-white.png")}
+              />
+            </Flex>
+          </PresenceTransition>
           <Spacer top={180} />
           <Flex flexDirection={"column"} alignItems={"center"}>
             <AuthButton

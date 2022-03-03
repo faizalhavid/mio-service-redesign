@@ -14,6 +14,7 @@ export type RegisterForm = {
   phone: string;
   email: string;
   password: string;
+  confirmPassword: string;
 };
 
 export type Address = {
