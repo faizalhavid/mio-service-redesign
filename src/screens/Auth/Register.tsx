@@ -85,14 +85,9 @@ const Register = (): JSX.Element => {
     setLoading(true);
     try {
       const appleAuthRequestResponse = await appleAuth.performRequest({
-        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedOperation: appleAuth.Operation.IMPLICIT,
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
       });
-
-      if (!appleAuthRequestResponse.email) {
-        setErrorMsg("Please choose email id while chooce apple login");
-        return;
-      }
 
       // Ensure Apple returned a user identityToken
       if (!appleAuthRequestResponse.identityToken) {
@@ -108,7 +103,11 @@ const Register = (): JSX.Element => {
 
       // Sign the user in with the credential
       const userCredential = await auth().signInWithCredential(appleCredential);
-      console.log("credential", userCredential);
+
+      if (!userCredential.user.email) {
+        setErrorMsg("Please choose emailId in apple login");
+        return;
+      }
 
       setSocialLoginCompleted(true);
       if (

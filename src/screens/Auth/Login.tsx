@@ -221,13 +221,6 @@ const Login = (): JSX.Element => {
                   }
                 );
 
-                if (!appleAuthRequestResponse.email) {
-                  setErrorMsg(
-                    "Please choose email id while chooce apple login"
-                  );
-                  return;
-                }
-
                 // Ensure Apple returned a user identityToken
                 if (!appleAuthRequestResponse.identityToken) {
                   console.log(
@@ -246,6 +239,11 @@ const Login = (): JSX.Element => {
                 const userCredential = await auth().signInWithCredential(
                   appleCredential
                 );
+
+                if (!userCredential.user.email) {
+                  setErrorMsg("Please choose emailId in apple login");
+                  return;
+                }
 
                 doLogin(userCredential);
               } catch (error) {

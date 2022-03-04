@@ -25,6 +25,7 @@ import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import ErrorView from "../../components/ErrorView";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type AddressProps = NativeStackScreenProps<SuperRootStackParamList, "Address">;
 const Address = ({ route }: AddressProps): JSX.Element => {
@@ -159,104 +160,106 @@ const Address = ({ route }: AddressProps): JSX.Element => {
 
   return (
     <AppSafeAreaView loading={loading}>
-      <VStack paddingX={5} mt={10}>
-        <Center width={"100%"}>
-          <Text fontSize={20}>Update Address</Text>
-        </Center>
-        <VStack mt={10} space={0}>
-          <ErrorView message={errorMsg} />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AppInput
-                type="text"
-                label="Street"
-                onChange={onChange}
-                value={value}
-              />
-            )}
-            name="street"
-          />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AppInput
-                type="text"
-                label="City"
-                onChange={onChange}
-                value={value}
-              />
-            )}
-            name="city"
-          />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                {value ? (
-                  <Text mt={2} color={"gray.400"} fontSize={14}>
-                    State
-                  </Text>
-                ) : (
-                  <Divider thickness={0} mt={2} />
-                )}
-                <Select
-                  accessibilityLabel="STATE"
-                  placeholder="State"
-                  borderBottomWidth={1}
-                  borderBottomColor={"#ccc"}
-                  _selectedItem={{
-                    bg: AppColors.PRIMARY,
-                    endIcon: <CheckIcon size="5" />,
-                  }}
-                  pl={-10}
-                  mt={value ? -3 : 2}
-                  fontSize={14}
-                  variant="underlined"
-                  onValueChange={onChange}
-                  selectedValue={value}
-                >
-                  {STATES.map((state) => {
-                    return (
-                      <Select.Item
-                        pl={0}
-                        key={state.code}
-                        label={state.name}
-                        value={state.code}
-                      />
-                    );
-                  })}
-                </Select>
-              </>
-            )}
-            name="state"
-          />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AppInput
-                type="number"
-                label="Zipcode"
-                onChange={onChange}
-                value={value}
-              />
-            )}
-            name="zip"
-          />
+      <KeyboardAwareScrollView enableOnAndroid={true}>
+        <VStack paddingX={5} mt={10}>
+          <Center width={"100%"}>
+            <Text fontSize={20}>Update Address</Text>
+          </Center>
+          <VStack mt={10} space={0}>
+            <ErrorView message={errorMsg} />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="text"
+                  label="Street"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="street"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="text"
+                  label="City"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="city"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  {value ? (
+                    <Text mt={2} color={"gray.400"} fontSize={14}>
+                      State
+                    </Text>
+                  ) : (
+                    <Divider thickness={0} mt={2} />
+                  )}
+                  <Select
+                    accessibilityLabel="STATE"
+                    placeholder="State"
+                    borderBottomWidth={1}
+                    borderBottomColor={"#ccc"}
+                    _selectedItem={{
+                      bg: AppColors.PRIMARY,
+                      endIcon: <CheckIcon size="5" />,
+                    }}
+                    pl={-10}
+                    mt={value ? -3 : 2}
+                    fontSize={14}
+                    variant="underlined"
+                    onValueChange={onChange}
+                    selectedValue={value}
+                  >
+                    {STATES.map((state) => {
+                      return (
+                        <Select.Item
+                          pl={0}
+                          key={state.code}
+                          label={state.name}
+                          value={state.code}
+                        />
+                      );
+                    })}
+                  </Select>
+                </>
+              )}
+              name="state"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <AppInput
+                  type="number"
+                  label="Zipcode"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+              name="zip"
+            />
+          </VStack>
         </VStack>
-      </VStack>
+      </KeyboardAwareScrollView>
       <FooterButton
         disabled={!isValid && isDirty}
         label={"SAVE ADDRESS"}
