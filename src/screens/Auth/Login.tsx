@@ -27,6 +27,7 @@ import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { useMutation } from "react-query";
 import { getCustomer } from "../../services/customer";
 import ForgetPassword from "../../components/ForgetPassword";
+import { useAnalytics } from "../../services/analytics";
 
 type LoginFormType = {
   email: string;
@@ -39,10 +40,11 @@ const Login = (): JSX.Element => {
     React.useState<boolean>(false);
   const toast = useToast();
   const { login, resetPassword } = useAuth();
-
   const { control, handleSubmit, formState, trigger } = useForm<LoginFormType>({
     mode: "onChange",
   });
+
+  const { logEvent } = useAnalytics();
 
   const { mutateAsync: getCustomerMutation } = useMutation(
     "getCustomer",
@@ -104,6 +106,7 @@ const Login = (): JSX.Element => {
   const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: LoginFormType) => {
     setLoading(true);
+    logEvent("login_email_event");
     setErrorMsg("");
     login(data.email, data.password)
       .then((userCredential) => {
@@ -197,6 +200,7 @@ const Login = (): JSX.Element => {
             loginWithGoogle={async () => {
               try {
                 setLoading(true);
+                logEvent("login_google_event");
                 const userInfo = await GoogleSignin.signIn();
                 const googleCredential = auth.GoogleAuthProvider.credential(
                   userInfo.idToken
@@ -211,6 +215,7 @@ const Login = (): JSX.Element => {
             }}
             loginWithApple={async () => {
               try {
+                logEvent("login_apple_event");
                 const appleAuthRequestResponse = await appleAuth.performRequest(
                   {
                     requestedOperation: appleAuth.Operation.LOGIN,

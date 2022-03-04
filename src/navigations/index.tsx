@@ -23,27 +23,27 @@ import UpcomingServices from "../screens/Home/UpcomingServices";
 import ServiceHistory from "../screens/Home/ServiceHistory";
 import ViewServiceDetails from "../screens/Home/ViewServiceDetails";
 import VerifyEmail from "../screens/Auth/VerifyEmail";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FLAG_TYPE, STATUS } from "../commons/status";
 import { StorageHelper } from "../services/storage-helper";
+import { useAnalytics } from "../services/analytics";
 
 export type SuperRootStackParamList = {
-  Welcome: undefined;
-  Register: undefined;
-  Login: undefined;
+  Welcome: {};
+  Register: {};
+  Login: {};
   Address: { returnTo: string };
-  ChooseService: undefined;
-  ServiceDetails: undefined;
+  ChooseService: {};
+  ServiceDetails: {};
   EditServiceDetails: { serviceId: string; mode: "CREATE" | "UPDATE" };
-  Payment: undefined;
-  Booked: undefined;
-  Dashboard: undefined;
-  PersonalDetails: undefined;
-  PaymentMethods: undefined;
-  UpcomingServices: undefined;
-  ServiceHistory: undefined;
+  Payment: {};
+  Booked: {};
+  Dashboard: {};
+  PersonalDetails: {};
+  PaymentMethods: {};
+  UpcomingServices: {};
+  ServiceHistory: {};
   ViewServiceDetails: { orderId: string; subOrderId: string };
-  VerifyEmail: undefined;
+  VerifyEmail: {};
 };
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
@@ -51,6 +51,8 @@ const index = (): JSX.Element => {
     "Address" | "VerifyEmail" | "Dashboard" | "Welcome"
   >("Welcome");
   const [loading, setLoading] = React.useState(true);
+
+  const { logScreenView } = useAnalytics();
 
   const setupInitialScreen = React.useCallback(async () => {
     try {
@@ -86,10 +88,18 @@ const index = (): JSX.Element => {
     headerBackTitleVisible: false,
     animation: "slide_from_right",
   };
+  const routeNameRef = React.useRef();
   return (
     <NavigationContainer
       ref={navigationRef}
       onReady={() => RNBootSplash.hide()}
+      onStateChange={async () => {
+        const previousRouteName = routeNameRef.current;
+        const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+        if (previousRouteName !== currentRouteName) {
+          logScreenView(currentRouteName);
+        }
+      }}
     >
       {!loading && (
         <RootStack.Navigator

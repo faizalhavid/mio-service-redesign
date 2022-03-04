@@ -27,6 +27,7 @@ import { AppColors } from "../../commons/colors";
 import ErrorView from "../../components/ErrorView";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
+import { useAnalytics } from "../../services/analytics";
 
 const Register = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
@@ -35,9 +36,11 @@ const Register = (): JSX.Element => {
 
   const { signup } = useAuth();
 
+  const { logEvent } = useAnalytics();
   const loginWithGoogle = async () => {
     setLoading(true);
     try {
+      logEvent("signup_google_event");
       await GoogleSignin.hasPlayServices();
 
       const userInfo = await GoogleSignin.signIn();
@@ -84,6 +87,7 @@ const Register = (): JSX.Element => {
   const loginWithApple = async () => {
     setLoading(true);
     try {
+      logEvent("signup_apple_event");
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.IMPLICIT,
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
@@ -185,6 +189,7 @@ const Register = (): JSX.Element => {
       registerCustomerMutation.mutate(payload);
       return;
     }
+    logEvent("signup_email_event");
     setErrorMsg("");
     signup(data)
       .then((payload) => {
