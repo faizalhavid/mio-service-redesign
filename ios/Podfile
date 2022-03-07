@@ -3,6 +3,9 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '11.0'
 
+$FirebaseSDKVersion = '8.12.1'
+$RNFirebaseAnalyticsWithoutAdIdSupport = true
+
 target 'MioHomeServices' do
   config = use_native_modules!
 
@@ -13,8 +16,8 @@ target 'MioHomeServices' do
   )
 
   pod 'GoogleSignIn', '~> 6.0.2'
-
-
+  pod 'RNFBAnalytics', :path => '../node_modules/@react-native-firebase/analytics'
+  
   target 'MioHomeServicesTests' do
     inherit! :complete
     # Pods for testing

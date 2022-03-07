@@ -1,18 +1,29 @@
 import analytics from "@react-native-firebase/analytics";
 
+const Analytics = analytics();
+
 export const useAnalytics = () => {
   return {
     logEvent: async (
       eventName: string,
       params: { [key: string]: any } = {}
     ) => {
-      analytics().logEvent(eventName, params);
+      Analytics.logEvent(eventName, params);
     },
     logScreenView: async (currentRouteName: string) => {
-      analytics().logScreenView({
+      Analytics.logScreenView({
         screen_name: currentRouteName,
         screen_class: currentRouteName,
       });
+    },
+    setEnabled: (enabled: boolean) => {
+      Analytics.setAnalyticsCollectionEnabled(enabled);
+    },
+    setUserId: (userId: string) => {
+      Analytics.setUserId(userId);
+    },
+    setUserProperty: (name: string, property: string) => {
+      Analytics.setUserProperty(name, property);
     },
   };
 };
