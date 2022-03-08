@@ -17,9 +17,8 @@ import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
-import { useMutation, useQuery } from "react-query";
+import { useAuth } from "../../contexts/AuthContext";
+import { useMutation } from "react-query";
 import { getCustomer } from "../../services/customer";
 import { AppColors } from "../../commons/colors";
 import { useIsFocused } from "@react-navigation/native";
@@ -28,6 +27,7 @@ import { SERVICES } from "../Home/ChooseService";
 import { getReadableDateTime } from "../../services/utils";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
+import { useAnalytics } from "../../services/analytics";
 
 export type Order = {
   orderId: string;
@@ -63,6 +63,7 @@ const Home = (): JSX.Element => {
     React.useState<boolean>(false);
 
   const { customerProfile, setCustomerProfile, logout } = useAuth();
+  const { setUserId } = useAnalytics();
 
   const getCustomerMutation = useMutation(
     "getCustomer",
@@ -130,6 +131,7 @@ const Home = (): JSX.Element => {
     }
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setCustomerId(cId);
+    setUserId(cId || "");
     await getCustomerMutation.mutateAsync();
     getAllUpcomingOrdersMutation.mutate();
     getAllPastOrdersMutation.mutate();

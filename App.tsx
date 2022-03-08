@@ -18,17 +18,16 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import "@react-native-firebase/app";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import Config from "react-native-config";
+import { firebase } from "@react-native-firebase/app-check";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
-// if (__DEV__) {
-//   auth().useEmulator("http://192.168.0.248:9099");
-// }
-
 if (__DEV__) {
+  //   auth().useEmulator("http://192.168.0.248:9099");
   import("./ReactotronConfig").then(() => console.log("Reactotron Configured"));
 }
+
+firebase.appCheck().activate("com.miohomeservices.customer", true);
 
 const App = () => {
   GoogleSignin.configure({
