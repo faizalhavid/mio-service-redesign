@@ -41,7 +41,7 @@ const Login = (): JSX.Element => {
   const toast = useToast();
   const { login, resetPassword } = useAuth();
   const { control, handleSubmit, formState, trigger } = useForm<LoginFormType>({
-    mode: "onChange",
+    mode: "all",
   });
 
   const { logEvent } = useAnalytics();
@@ -177,16 +177,21 @@ const Login = (): JSX.Element => {
                 onPress={async (event) => {
                   setErrorMsg("");
                   await trigger();
-                  console.log(formState.errors);
                   console.log("isDirty", formState.isDirty);
+                  console.log("formState.isValid", formState.isValid);
+                  console.log(formState.errors);
                   if (
-                    (!formState.isDirty && !formState.isValid) ||
-                    Object.keys(formState.errors).length > 0
+                    (formState.isDirty && !formState.isValid) ||
+                    Object.keys(formState.errors).length > 0 ||
+                    !formState.isValid
                   ) {
+                    console.log("-");
+                    console.log("isDirty", formState.isDirty);
+                    console.log(formState.errors);
                     setErrorMsg("Please provide valid email/password");
                     return;
                   }
-
+                  console.log("no errors");
                   handleSubmit(onSubmit)(event).catch((error) => {
                     setErrorMsg(error);
                   });
