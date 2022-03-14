@@ -89,7 +89,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
       onError: (err: any) => {
         setLoading(false);
         setErrorMsg(
-          "Something went wrong while creating profile. Please try again."
+          "Something went wrong while updating address. Please try again."
         );
         console.log(err);
       },

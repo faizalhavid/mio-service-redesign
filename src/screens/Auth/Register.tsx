@@ -1,5 +1,5 @@
 import { Center, Divider, Flex, Text } from "native-base";
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useRef } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import Spacer from "../../components/Spacer";
@@ -328,7 +328,7 @@ const Register = (): JSX.Element => {
           <Spacer top={20} />
           {!socialLoginCompleted && (
             <SocialLogin
-              label="Signup"
+              label="Sign up"
               loginWithGoogle={loginWithGoogle}
               loginWithApple={loginWithApple}
             />

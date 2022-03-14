@@ -2,7 +2,7 @@ import axios from "axios";
 import { StorageHelper } from "./storage-helper";
 
 const AxiosClient = axios.create({
-  baseURL: "https://homeservices-dev-ab7f9.firebaseapp.com/api/v1",
+  baseURL: "https://miohomeservices.com/api/v2",
   headers: {
     "Content-Type": "application/json;charset=utf-8",
   },

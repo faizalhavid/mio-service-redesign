@@ -5,7 +5,7 @@ import SocialLoginButton from "../SocialLoginButton";
 import Spacer from "../Spacer";
 
 type SocialLoginProps = {
-  label: "Signup" | "Login";
+  label: "Sign up" | "Sign in";
   loginWithGoogle?: () => void;
   loginWithApple?: () => void;
 };

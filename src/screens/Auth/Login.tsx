@@ -40,7 +40,11 @@ const Login = (): JSX.Element => {
     React.useState<boolean>(false);
   const toast = useToast();
   const { login, resetPassword } = useAuth();
-  const { control, handleSubmit, formState, trigger } = useForm<LoginFormType>({
+  const loginForm = useForm<LoginFormType>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
     mode: "all",
   });
 
@@ -131,7 +135,7 @@ const Login = (): JSX.Element => {
           <VStack mt={10}>
             <ErrorView message={errorMsg} />
             <Controller
-              control={control}
+              control={loginForm.control}
               rules={{
                 required: true,
               }}
@@ -146,7 +150,7 @@ const Login = (): JSX.Element => {
               name="email"
             />
             <Controller
-              control={control}
+              control={loginForm.control}
               rules={{
                 required: true,
               }}
@@ -176,32 +180,34 @@ const Login = (): JSX.Element => {
                 label="SIGN IN"
                 onPress={async (event) => {
                   setErrorMsg("");
-                  await trigger();
-                  console.log("isDirty", formState.isDirty);
-                  console.log("formState.isValid", formState.isValid);
-                  console.log(formState.errors);
+                  await loginForm.trigger();
+                  console.log("-");
+                  console.log("formState", loginForm.formState);
+                  console.log("isDirty", loginForm.formState.isDirty);
+                  console.log("formState.isValid", loginForm.formState.isValid);
+                  console.log(loginForm.formState.errors);
                   if (
-                    (formState.isDirty && !formState.isValid) ||
-                    Object.keys(formState.errors).length > 0 ||
-                    !formState.isValid
+                    (loginForm.formState.isDirty &&
+                      !loginForm.formState.isValid) ||
+                    Object.keys(loginForm.formState.errors).length > 0
                   ) {
-                    console.log("-");
-                    console.log("isDirty", formState.isDirty);
-                    console.log(formState.errors);
                     setErrorMsg("Please provide valid email/password");
                     return;
                   }
                   console.log("no errors");
-                  handleSubmit(onSubmit)(event).catch((error) => {
-                    setErrorMsg(error);
-                  });
+                  loginForm
+                    .handleSubmit(onSubmit)(event)
+                    .catch((error) => {
+                      console.log(error);
+                      setErrorMsg(error);
+                    });
                 }}
               />
             </Center>
           </VStack>
           <Spacer top={20} />
           <SocialLogin
-            label={"Login"}
+            label={"Sign in"}
             loginWithGoogle={async () => {
               try {
                 setLoading(true);
@@ -265,7 +271,7 @@ const Login = (): JSX.Element => {
           />
           <Divider my="5" />
           <Center size="16" width={"100%"}>
-            Already have an account?
+            Don't have an account?
           </Center>
           <Center>
             <AppButton

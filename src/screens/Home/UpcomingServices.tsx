@@ -76,7 +76,7 @@ const UpcomingServices = (): JSX.Element => {
           renderItem={({ item, index }: { item: Order; index: number }) => (
             <ServiceCard
               key={index}
-              variant="outline"
+              variant={index === 0 ? "solid" : "outline"}
               w={"100%"}
               showAddToCalendar={false}
               serviceName={SERVICES[item.serviceId]?.text}

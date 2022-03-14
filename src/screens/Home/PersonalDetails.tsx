@@ -70,14 +70,17 @@ const PersonalDetails = (): JSX.Element => {
         setValue("city", data.data.addresses[0].city);
         setValue("state", data.data.addresses[0].state);
         setValue("zip", data.data.addresses[0].zip);
-        setValue("lotSize", String(data.data.addresses[0].houseInfo?.lotSize));
+        setValue(
+          "lotSize",
+          String(data.data.addresses[0].houseInfo?.lotSize || "")
+        );
         setValue(
           "bedrooms",
-          String(data.data.addresses[0].houseInfo?.bedrooms) || ""
+          String(data.data.addresses[0].houseInfo?.bedrooms || "")
         );
         setValue(
           "bathrooms",
-          String(data.data.addresses[0].houseInfo?.bathrooms) || ""
+          String(data.data.addresses[0].houseInfo?.bathrooms || "")
         );
         setLoading(false);
       },
