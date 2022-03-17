@@ -20,7 +20,6 @@ import {
   getHouseInfo,
   putCustomer,
 } from "../../services/customer";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import ErrorView from "../../components/ErrorView";
 import { FLAG_TYPE, STATUS } from "../../commons/status";

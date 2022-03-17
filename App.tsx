@@ -19,6 +19,7 @@ import "@react-native-firebase/app";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { firebase } from "@react-native-firebase/app-check";
+import { ENV } from "./src/commons/environment";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
@@ -31,11 +32,9 @@ firebase.appCheck().activate("com.miohomeservices.customer", true);
 
 const App = () => {
   GoogleSignin.configure({
-    webClientId:
-      "528727320506-qnn462uhd5d3bac306fg6bkdhs156mhp.apps.googleusercontent.com",
+    webClientId: ENV.WEB_CLIENT_ID,
   });
   const isDarkMode = useColorScheme() === "dark";
-  const Stack = createNativeStackNavigator();
   const customTheme = extendTheme({
     config: {
       // initialColorMode: useColorScheme(),

@@ -9,7 +9,7 @@
     "android:dev-bundle-release": "cd android && ./gradlew bundleDevelopmentRelease",
     "android:dev-apk-release": "cd android && ./gradlew assembleDevelopmentRelease",
     "android:clean-dev-apk-release": "npm run clean:android && cd android && ./gradlew assembleDevelopmentRelease",
-    "android:prod-debug": "react-native run-android --variant=productionDebug",
+    "android:prod-debug": "react-native run-android --variant=productiondebug",
     "android:prod-release": "cd android && ./gradlew bundleProductionRelease",
     "ios:dev": "ENVFILE=.env.development react-native run-ios",
     "ios:prod": "ENVFILE=.env.production react-native run-ios",

@@ -7,6 +7,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import { FLAG_TYPE, STATUS } from "../commons/status";
 import { StorageHelper } from "../services/storage-helper";
+import { ENV } from "../commons/environment";
 
 export type RegisterForm = {
   firstName: string;
@@ -148,7 +149,7 @@ export function AuthProvider({ children }: AuthProviderType) {
         .then(async (credential) => {
           setCurrentUser(credential.user);
           await credential.user.sendEmailVerification({
-            url: "https://homeservices-dev-ab7f9.web.app",
+            url: ENV.EMAIL_VERIFICATION_URL,
             android: {
               packageName: "com.miohomeservices.customer",
               installApp: true,
@@ -281,7 +282,7 @@ export function AuthProvider({ children }: AuthProviderType) {
 
   React.useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
-      console.log("on authstate change", user);
+      // console.log("on authstate change", user);
       if (user) {
         StorageHelper.setValue(
           FLAG_TYPE.EMAIL_VERIFICATION_STATUS,

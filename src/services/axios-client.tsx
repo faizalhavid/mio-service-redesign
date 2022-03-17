@@ -1,8 +1,9 @@
 import axios from "axios";
+import { ENV } from "../commons/environment";
 import { StorageHelper } from "./storage-helper";
 
 const AxiosClient = axios.create({
-  baseURL: "https://miohomeservices.com/api/v2",
+  baseURL: ENV.API_BASE_URL,
   headers: {
     "Content-Type": "application/json;charset=utf-8",
   },
