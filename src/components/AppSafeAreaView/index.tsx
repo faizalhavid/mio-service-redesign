@@ -12,6 +12,7 @@ import React from "react";
 import { Dimensions, Platform, SafeAreaView } from "react-native";
 import { AppColors } from "../../commons/colors";
 import { AppStatusBar } from "../../components/AppStatusBar";
+import CheckAppUpdate from "../CheckAppUpdate";
 import CheckInternet from "../CheckInternet";
 
 type AppSafeAreaViewProps = {
@@ -44,6 +45,7 @@ const AppSafeAreaView = ({
         <Divider thickness={0} mt={mt === undefined ? 100 : mt} />
       )}
       <CheckInternet mt={mt === undefined ? 0 : 10} />
+      <CheckAppUpdate mt={mt === undefined ? 0 : 10} />
       {loading && (
         <View
           position={"absolute"}

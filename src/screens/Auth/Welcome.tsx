@@ -3,6 +3,7 @@ import React from "react";
 import { Image, ImageBackground, StyleSheet } from "react-native";
 import { AppStatusBar } from "../../components/AppStatusBar";
 import AuthButton from "../../components/AuthButton";
+import CheckAppUpdate from "../../components/CheckAppUpdate";
 import CheckInternet from "../../components/CheckInternet";
 import Spacer from "../../components/Spacer";
 import { navigate } from "../../navigations/rootNavigation";
@@ -18,6 +19,7 @@ const Welcome = (): JSX.Element => {
         style={styles.image}
       >
         <CheckInternet />
+        <CheckAppUpdate />
         <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.3)"} pt={20}>
           <PresenceTransition
             visible={true}

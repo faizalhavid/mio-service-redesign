@@ -20,6 +20,7 @@ import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { firebase } from "@react-native-firebase/app-check";
 import { ENV } from "./src/commons/environment";
+import codePush from "react-native-code-push";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
@@ -54,4 +55,7 @@ const App = () => {
   );
 };
 
-export default App;
+const codePushOptions = {
+  checkFrequency: codePush.CheckFrequency.MANUAL,
+};
+export default codePush(codePushOptions)(App);

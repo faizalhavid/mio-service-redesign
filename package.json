@@ -39,6 +39,7 @@
     "react-native": "0.66.4",
     "react-native-blob-util": "^0.14.1",
     "react-native-bootsplash": "^4.0.2",
+    "react-native-code-push": "^7.0.4",
     "react-native-config": "^1.4.5",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-pdf": "^6.4.0",

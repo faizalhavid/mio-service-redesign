@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mio</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">DmvkQOTxex3XPvQBvfuaiKYiYFGgVJQQdm4fr</string>
 </resources>
