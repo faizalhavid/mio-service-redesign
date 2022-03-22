@@ -17,7 +17,7 @@
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.0</string>
+		<string>1.0.1</string>
 		<key>CFBundleSignature</key>
 		<string>????</string>
 		<key>CFBundleURLTypes</key>
@@ -28,18 +28,18 @@
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<!-- DEV_CONFIG -->
-					<string>com.googleusercontent.apps.528727320506-4jg7tp0pd9tdvr9s6o1er61f0bkt9dbb</string>
+					<!-- <string>com.googleusercontent.apps.528727320506-4jg7tp0pd9tdvr9s6o1er61f0bkt9dbb</string> -->
 					<!-- PROD_CONFIG -->
-					<!-- <string>com.googleusercontent.apps.383446887463-4ukplfs723m1nh7vqsidp269l4ie514b</string> -->
+					<string>com.googleusercontent.apps.383446887463-4ukplfs723m1nh7vqsidp269l4ie514b</string>
 				</array>
 			</dict>
 		</array>
 		<!-- DEV_CONFIG -->
-		<key>CodePushDeploymentKey</key>
-		<string>gAQxMj338cpKmV5bU6qO2DYRfUaOHM2WiCsPy</string>
-		<!-- PROD_CONFIG -->
 		<!-- <key>CodePushDeploymentKey</key>
-		<string>mfXd-MWKqcfdpQc5eYwx2latKtHiUApEZw_35</string> -->
+		<string>gAQxMj338cpKmV5bU6qO2DYRfUaOHM2WiCsPy</string> -->
+		<!-- PROD_CONFIG -->
+		<key>CodePushDeploymentKey</key>
+		<string>mfXd-MWKqcfdpQc5eYwx2latKtHiUApEZw_35</string>
 		<!--  -->
 		<key>CFBundleVersion</key>
 		<string>1</string>

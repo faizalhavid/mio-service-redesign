@@ -23,11 +23,19 @@ const ForgetPassword = ({
   setShowForgetPasswordForm,
   onSumbit,
 }: ForgetPasswordProps): JSX.Element => {
-  const { control, handleSubmit, formState, getValues, trigger } = useForm<{
-    email: string;
-  }>({
-    mode: "all",
-  });
+  const { control, handleSubmit, formState, getValues, setError, trigger } =
+    useForm<{
+      email: string;
+    }>({
+      defaultValues: {
+        email: "",
+      },
+      mode: "all",
+    });
+
+  React.useEffect(() => {
+    setError("email", {}, { shouldFocus: true });
+  }, []);
 
   return (
     <Actionsheet
@@ -42,6 +50,7 @@ const ForgetPassword = ({
             </Text>
           </Center>
           <Controller
+            key={"email"}
             control={control}
             rules={{
               required: true,
@@ -64,6 +73,7 @@ const ForgetPassword = ({
               onPress={async () => {
                 await trigger();
                 if (!formState.isValid) {
+                  console.log("Reset Form Not Valid");
                   return;
                 }
                 onSumbit(getValues().email);
