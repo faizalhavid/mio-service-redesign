@@ -1,12 +1,11 @@
-const CURRENT_ENV: "DEV" | "PROD" = "DEV";
+const CURRENT_ENV: "DEV" | "PROD" = "PROD";
 
 const VARIABLES = {
   DEV: {
     WEB_CLIENT_ID:
       "528727320506-qnn462uhd5d3bac306fg6bkdhs156mhp.apps.googleusercontent.com",
     EMAIL_VERIFICATION_URL: "https://homeservices-dev-ab7f9.web.app",
-    API_BASE_URL:
-      "https://homeservices-dev-ab7f9--dev-v2-i5ockg8d.web.app/api/v2",
+    API_BASE_URL: "https://homeservices-dev-ab7f9.web.app/api/v2",
   },
   PROD: {
     WEB_CLIENT_ID:

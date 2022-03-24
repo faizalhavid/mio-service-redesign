@@ -112,7 +112,7 @@ const Login = (): JSX.Element => {
     setLoading(true);
     logEvent("login_email_event");
     setErrorMsg("");
-    login(data.email, data.password)
+    login(data.email.trim(), data.password)
       .then((userCredential) => {
         doLogin(userCredential);
       })

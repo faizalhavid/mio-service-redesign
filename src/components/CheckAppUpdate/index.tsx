@@ -61,7 +61,7 @@ const CheckAppUpdate = ({ mt }: CheckAppUpdateProps): JSX.Element => {
             alignItems={"center"}
           >
             <Text color={"blue.500"} fontWeight={"semibold"} fontSize={16}>
-              New Update Available!
+              Improved App Experience!
             </Text>
             <Button variant={"ghost"} onPress={onReload} disabled={isLoading}>
               {isLoading ? (

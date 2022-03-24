@@ -191,7 +191,6 @@ const Payment = (): JSX.Element => {
 
   const onSubmit = async (data: SaveCardType) => {
     setLoading(true);
-    console.log(data);
     data.expMonth = data.expiry.split("/")[0];
     data.expYear = data.expiry.split("/")[1];
     saveCardMutation.mutate(data);
