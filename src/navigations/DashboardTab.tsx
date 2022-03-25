@@ -75,21 +75,26 @@ const DashboardTab = () => {
         tabBarStyle: {
           height: 75,
           paddingBottom: 0,
-          backgroundColor: AppColors.SECONDARY,
+          borderRightWidth: 1,
+          borderRightColor: "#fff",
+          backgroundColor: AppColors.DARK_TEAL,
         },
-        tabBarLabelPosition: "beside-icon",
         tabBarActiveTintColor: "#fff",
+        tabBarIconStyle: {
+          marginTop: 10,
+        },
         tabBarLabelStyle: {
           color: "#fff",
-          fontSize: 14,
+          fontSize: 12,
+          paddingBottom: 10,
         },
-        tabBarActiveBackgroundColor: AppColors.DARK_PRIMARY,
+        tabBarActiveBackgroundColor: AppColors.TEAL,
       }}
       initialRouteName="Home"
     >
       <Tab.Screen
         options={{
-          tabBarIcon: ({ focused }) => <SvgCss width={20} xml={HOME_ICON} />,
+          tabBarIcon: ({ focused }) => <SvgCss width={40} xml={HOME_ICON} />,
         }}
         component={HomeStack}
         name="Home"
@@ -97,7 +102,7 @@ const DashboardTab = () => {
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused }) => (
-            <SvgCss width={20} xml={SERVICES_ICON} />
+            <SvgCss width={40} xml={SERVICES_ICON} />
           ),
         }}
         component={ServicesStack}
@@ -105,7 +110,7 @@ const DashboardTab = () => {
       />
       <Tab.Screen
         options={{
-          tabBarIcon: ({ focused }) => <SvgCss width={20} xml={PROFILE_ICON} />,
+          tabBarIcon: ({ focused }) => <SvgCss width={40} xml={PROFILE_ICON} />,
         }}
         component={ProfileStack}
         name="Profile"

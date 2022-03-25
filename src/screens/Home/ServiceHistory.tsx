@@ -79,7 +79,10 @@ const ServiceHistory = (): JSX.Element => {
               key={index}
               variant="outline"
               w={"100%"}
+              dateTime={item.appointmentDateTime}
               showAddToCalendar={false}
+              showReschedule={false}
+              showChat={false}
               serviceName={SERVICES[item.serviceId]?.text}
               orderId={item.orderId}
               subOrderId={item.subOrderId}

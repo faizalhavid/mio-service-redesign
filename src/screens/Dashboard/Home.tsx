@@ -1,6 +1,8 @@
 import {
+  Box,
   Button,
   Center,
+  Circle,
   Divider,
   HStack,
   Image,
@@ -12,7 +14,7 @@ import {
   VStack,
 } from "native-base";
 import React from "react";
-import { ImageBackground } from "react-native";
+import { ImageBackground, Linking } from "react-native";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
@@ -28,6 +30,8 @@ import { getReadableDateTime } from "../../services/utils";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
 import { useAnalytics } from "../../services/analytics";
+import Svg, { SvgCss } from "react-native-svg";
+import { CALENDAR_ICON, STAR_ICON, USER_ICON } from "../../commons/assets";
 
 export type Order = {
   orderId: string;
@@ -154,17 +158,17 @@ const Home = (): JSX.Element => {
           paddingY={4}
           paddingX={5}
           mt={5}
-          height={100}
+          height={130}
           borderRadius={10}
           borderWidth={1}
-          borderColor={AppColors.SECONDARY}
+          borderColor={AppColors.DARK_TEAL}
           width={300}
           justifyContent="center"
           alignItems={"center"}
         >
           <Center>
             <Text
-              color={AppColors.SECONDARY}
+              color={AppColors.DARK_TEAL}
               fontSize={"16"}
               fontWeight={"semibold"}
             >
@@ -173,6 +177,19 @@ const Home = (): JSX.Element => {
           </Center>
         </View>
       </Pressable>
+    );
+  };
+
+  const SERVICE_TITLE = (title: string) => {
+    return (
+      <HStack space={0} ml={2} alignItems={"center"}>
+        <Box bg={AppColors.TEAL} p={2} borderRadius={5}>
+          <SvgCss xml={CALENDAR_ICON("#fff")} />
+        </Box>
+        <Text fontSize={18} pl={2}>
+          {title}
+        </Text>
+      </HStack>
     );
   };
 
@@ -189,44 +206,104 @@ const Home = (): JSX.Element => {
           >
             <VStack pt={10}>
               <Center>
-                <Text fontWeight={"semibold"} fontSize={16}>
-                  Welcome {customerProfile?.firstName}
-                </Text>
-
-                <Text mt={2} textAlign={"center"}>
-                  Get ready for a beautiful service!
-                  {upcomingOrders.length > 0 && (
-                    <Text>{"\n"} Your next service is scheduled for</Text>
-                  )}
+                <Text fontWeight={"bold"} fontSize={18}>
+                  Welcome back {customerProfile?.firstName}
                 </Text>
               </Center>
               {!loading ? (
                 upcomingOrders.length > 0 ? (
-                  <ServiceCard
-                    variant="solid"
-                    showAddToCalendar={false}
-                    showReschedule={false}
-                    showChat={false}
-                    serviceName={SERVICES[upcomingOrders[0].serviceId].text}
-                    orderId={upcomingOrders[0].orderId}
-                    subOrderId={upcomingOrders[0].subOrderId}
-                    year={
-                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                        .year
-                    }
-                    date={
-                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                        .date
-                    }
-                    day={
-                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                        .day
-                    }
-                    slot={
-                      getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                        .slot
-                    }
-                  />
+                  <>
+                    <ServiceCard
+                      variant="solid"
+                      dateTime={upcomingOrders[0].appointmentDateTime}
+                      showWelcomeMessage={true}
+                      showAddToCalendar={true}
+                      showReschedule={true}
+                      showChat={false}
+                      serviceName={SERVICES[upcomingOrders[0].serviceId].text}
+                      orderId={upcomingOrders[0].orderId}
+                      subOrderId={upcomingOrders[0].subOrderId}
+                      year={
+                        getReadableDateTime(
+                          upcomingOrders[0].appointmentDateTime
+                        ).year
+                      }
+                      date={
+                        getReadableDateTime(
+                          upcomingOrders[0].appointmentDateTime
+                        ).date
+                      }
+                      day={
+                        getReadableDateTime(
+                          upcomingOrders[0].appointmentDateTime
+                        ).day
+                      }
+                      slot={
+                        getReadableDateTime(
+                          upcomingOrders[0].appointmentDateTime
+                        ).slot
+                      }
+                    />
+                    <Divider my={2} thickness={0} />
+                    {SERVICE_TITLE("Service Details")}
+                    <HStack space={5} px={7} py={5}>
+                      <Circle
+                        size={75}
+                        borderWidth={2}
+                        borderColor={AppColors.TEAL}
+                        alignSelf="center"
+                        bg={AppColors.SECONDARY}
+                        children={
+                          <SvgCss
+                            width={50}
+                            height={50}
+                            xml={USER_ICON("#eee")}
+                          />
+                        }
+                      ></Circle>
+                      <VStack>
+                        <Text fontSize={16} justifyContent={"center"}>
+                          Mio Home Services
+                        </Text>
+                        <HStack>
+                          {Array.from(Array(5).keys()).map((v, i) => (
+                            <Text key={i}>{<SvgCss xml={STAR_ICON()} />}</Text>
+                          ))}
+                        </HStack>
+                        {/* <Text fontSize={16} mt={2}>
+                          Available
+                        </Text>
+                        <Text fontSize={16}>Monday - Friday</Text> */}
+                      </VStack>
+                    </HStack>
+                    <Divider
+                      width="80%"
+                      alignSelf={"center"}
+                      bg={AppColors.TEAL}
+                      thickness={0.5}
+                    />
+                    <Button
+                      variant={"solid"}
+                      width={"50%"}
+                      mt={5}
+                      alignSelf="center"
+                      borderRadius={20}
+                      bgColor={AppColors.TEAL}
+                      onPress={() => {
+                        Linking.openURL(
+                          `mailto:support@miohomeservices.com?subject=[${
+                            upcomingOrders[0]?.orderId
+                          }] Service Notes&body=Hi, \n\n Order ID: ${
+                            upcomingOrders[0]?.orderId
+                          } \n Service Name: ${
+                            SERVICES[upcomingOrders[0].serviceId].text
+                          } \n\n Service Note: \n`
+                        );
+                      }}
+                    >
+                      Add Service Note
+                    </Button>
+                  </>
                 ) : (
                   showFirstTimeBanner && (
                     <Button
@@ -273,9 +350,7 @@ const Home = (): JSX.Element => {
                 <Skeleton mt={5} width={"100%"} h="100" borderRadius={10} />
               )}
               <Divider my={5} thickness={1} />
-              <Text fontSize={18} pl={2} fontWeight={"semibold"}>
-                Upcoming Services
-              </Text>
+              {SERVICE_TITLE("Upcoming Services")}
               <ScrollView width={400} horizontal={true}>
                 <HStack mr={20} space={3}>
                   {upcomingOrders.length === 0 && (
@@ -289,8 +364,11 @@ const Home = (): JSX.Element => {
                     return (
                       <ServiceCard
                         key={index}
+                        dateTime={order.appointmentDateTime}
                         variant="outline"
-                        showAddToCalendar={false}
+                        showAddToCalendar={true}
+                        showReschedule={true}
+                        showChat={true}
                         serviceName={SERVICES[order.serviceId].text}
                         orderId={order.orderId}
                         subOrderId={order.subOrderId}
@@ -327,8 +405,11 @@ const Home = (): JSX.Element => {
                     return (
                       <ServiceCard
                         key={index}
+                        dateTime={order.appointmentDateTime}
                         variant="outline"
                         showAddToCalendar={false}
+                        showReschedule={false}
+                        showChat={false}
                         serviceName={SERVICES[order.serviceId].text}
                         orderId={order.orderId}
                         subOrderId={order.subOrderId}

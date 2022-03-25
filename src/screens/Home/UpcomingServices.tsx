@@ -76,9 +76,12 @@ const UpcomingServices = (): JSX.Element => {
           renderItem={({ item, index }: { item: Order; index: number }) => (
             <ServiceCard
               key={index}
-              variant={index === 0 ? "solid" : "outline"}
+              variant={"outline"}
               w={"100%"}
-              showAddToCalendar={false}
+              dateTime={item.appointmentDateTime}
+              showAddToCalendar={true}
+              showReschedule={true}
+              showChat={true}
               serviceName={SERVICES[item.serviceId]?.text}
               orderId={item.orderId}
               subOrderId={item.subOrderId}

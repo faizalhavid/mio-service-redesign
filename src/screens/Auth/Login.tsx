@@ -59,7 +59,6 @@ const Login = (): JSX.Element => {
     },
     {
       onSuccess: (data) => {
-        console.log("Customer response ", data.data);
         setLoading(false);
       },
       onError: (err) => {

@@ -218,7 +218,11 @@ const ViewServiceDetails = ({
                 </Text>
               </HStack>
               <HStack space={2} alignItems={"center"} pl={3}>
-                <SvgCss xml={CALENDAR_ICON} width={20} height={20} />
+                <SvgCss
+                  xml={CALENDAR_ICON(AppColors.SECONDARY)}
+                  width={20}
+                  height={20}
+                />
                 <Text color={AppColors.SECONDARY} fontSize={14}>
                   {
                     getReadableDateTime(
