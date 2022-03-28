@@ -1,6 +1,6 @@
 import { Actionsheet, Text, useDisclose, View } from "native-base";
 import React from "react";
-import { Linking } from "react-native";
+import { Linking, Platform } from "react-native";
 import { AppColors } from "../../commons/colors";
 
 type RescheduleProps = {
@@ -26,7 +26,11 @@ export const Reschedule = ({
               <Text
                 color={AppColors.TEAL}
                 onPress={() => {
-                  Linking.openURL(`tel:${18669607414}`);
+                  Linking.openURL(
+                    `${
+                      Platform.OS === "ios" ? "telprompt" : "tel"
+                    }:${18669607414}`
+                  );
                 }}
                 fontWeight={"semibold"}
               >

@@ -200,7 +200,7 @@ const ServiceCard = ({
                   borderRadius={5}
                   borderColor="white"
                   bg="white"
-                  width={"40%"}
+                  width={"45%"}
                   onPress={() => {
                     addToCalendar(serviceName, dateTime);
                   }}

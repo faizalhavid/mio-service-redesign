@@ -3,7 +3,6 @@ import {
   Center,
   Divider,
   HStack,
-  Input,
   Radio,
   ScrollView,
   Text,
@@ -15,9 +14,7 @@ import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import TermsAndConditions from "../../components/TermsAndConditions";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
-import PriceBreakdown from "./PriceBreakdown";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { popToPop } from "../../navigations/rootNavigation";
 import AppInput from "../../components/AppInput";
 import { useMutation } from "react-query";
 import {
@@ -32,7 +29,6 @@ import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
 import { SvgCss } from "react-native-svg";
 import {
-  CIRCLE_TICK_ICON,
   FILLED_CIRCLE_CLOSE_ICON,
   FILLED_CIRCLE_TICK_ICON,
 } from "../../commons/assets";
@@ -67,7 +63,7 @@ const Payment = (): JSX.Element => {
     () => {
       setCouponValidity("INIT");
       setLoading(true);
-      return validateCoupon(couponCode);
+      return validateCoupon(couponCode, leadDetails.leadId);
     },
     {
       onSuccess: (data) => {
