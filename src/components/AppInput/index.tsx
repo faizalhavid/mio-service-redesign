@@ -17,6 +17,7 @@ type AppInputProps = {
   disabled?: boolean;
   expiry?: boolean;
   suffix?: React.ReactNode;
+  error?: string | undefined;
   onChange?: (...event: any[]) => void;
 };
 
@@ -27,6 +28,7 @@ const AppInput = ({
   disabled,
   expiry,
   suffix,
+  error,
   onChange,
 }: AppInputProps): JSX.Element => {
   const keyboardType: { [key: string]: KeyboardTypeOptions } = {
@@ -100,6 +102,11 @@ const AppInput = ({
         value={value}
         onChangeText={onChange}
       />
+      {error !== undefined && error.length > 0 && (
+        <Text fontSize={"14"} color="red.500" fontWeight={"semibold"}>
+          {error}
+        </Text>
+      )}
     </>
   );
 };

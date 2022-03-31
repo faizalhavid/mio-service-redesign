@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Button, HStack, PresenceTransition, Spinner, Text } from "native-base";
 import CodePush from "react-native-code-push";
+import { StorageHelper } from "../../services/storage-helper";
 
 type CheckAppUpdateProps = {
   mt?: number;
@@ -13,12 +14,8 @@ const CheckAppUpdate = ({ mt }: CheckAppUpdateProps): JSX.Element => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   useEffect(() => {
-    CodePush.checkForUpdate().then((value) => {
-      if (value) {
-        setNewUpdateFound(true);
-      } else {
-        setNewUpdateFound(false);
-      }
+    StorageHelper.getValue("NEW_UPDATE_FOUND").then((value) => {
+      setNewUpdateFound(value === "true");
     });
   }, []);
 

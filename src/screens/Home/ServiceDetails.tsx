@@ -35,7 +35,7 @@ const ServiceDetails = (): JSX.Element => {
   const { leadDetails, customerProfile } = useAuth();
 
   const [requiredDetailsAdded, setRequiredDetailsAdded] =
-    React.useState<boolean>(false);
+    React.useState<boolean>(true);
 
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
@@ -46,11 +46,10 @@ const ServiceDetails = (): JSX.Element => {
       return;
     }
     let details: { [key: string]: SubOrder } = {};
+    setRequiredDetailsAdded(true);
     leadDetails.subOrders.forEach((subOrder) => {
       details[subOrder.serviceId] = subOrder;
-      if (details[subOrder.serviceId]?.appointmentInfo?.appointmentDateTime) {
-        setRequiredDetailsAdded(true);
-      } else {
+      if (!details[subOrder.serviceId]?.appointmentInfo?.appointmentDateTime) {
         setRequiredDetailsAdded(false);
       }
     });
@@ -176,7 +175,7 @@ const ServiceDetails = (): JSX.Element => {
                         </HStack>
                         <HStack space={2} alignItems={"center"} pl={3}>
                           <SvgCss
-                            xml={CALENDAR_ICON()}
+                            xml={CALENDAR_ICON(AppColors.SECONDARY)}
                             width={20}
                             height={20}
                           />
@@ -189,13 +188,17 @@ const ServiceDetails = (): JSX.Element => {
                             }
                           </Text>
                         </HStack>
-                        <HStack space={2} alignItems={"center"} pl={3}>
+                        <HStack space={2} pl={3}>
                           <SvgCss
                             xml={CHAT_OUTLINE_ICON(AppColors.SECONDARY)}
                             width={20}
                             height={20}
                           />
-                          <Text color={AppColors.SECONDARY} fontSize={14}>
+                          <Text
+                            color={AppColors.SECONDARY}
+                            fontSize={14}
+                            width={"90%"}
+                          >
                             {groupedLeadDetails[lead.serviceId]
                               ?.serviceNotes[0] || "-"}
                           </Text>
@@ -275,13 +278,14 @@ const ServiceDetails = (): JSX.Element => {
         </VStack>
       </ScrollView>
       {/* <OrderSummary selectedServices={selectedServices} /> */}
-      <FooterButton
-        v2={false}
-        disabled={!requiredDetailsAdded}
-        label="CHOOSE PAYMENT METHOD"
-        subText="Choose Subscription Method & Schedule"
-        onPress={() => navigate("Payment")}
-      />
+      {requiredDetailsAdded && (
+        <FooterButton
+          v2={false}
+          label="CHOOSE PAYMENT METHOD"
+          subText="Choose Subscription Method & Schedule"
+          onPress={() => navigate("Payment")}
+        />
+      )}
     </AppSafeAreaView>
   );
 };

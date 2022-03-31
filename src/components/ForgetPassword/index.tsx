@@ -9,6 +9,7 @@ import {
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { AppColors } from "../../commons/colors";
+import { EMAIL_PATTERN } from "../../commons/patterns";
 import AppButton from "../AppButton";
 import AppInput from "../AppInput";
 
@@ -23,19 +24,14 @@ const ForgetPassword = ({
   setShowForgetPasswordForm,
   onSumbit,
 }: ForgetPasswordProps): JSX.Element => {
-  const { control, handleSubmit, formState, getValues, setError, trigger } =
-    useForm<{
-      email: string;
-    }>({
-      defaultValues: {
-        email: "",
-      },
-      mode: "all",
-    });
-
-  React.useEffect(() => {
-    setError("email", {}, { shouldFocus: true });
-  }, []);
+  const { control, formState, getValues } = useForm<{
+    email: string;
+  }>({
+    defaultValues: {
+      email: "",
+    },
+    mode: "all",
+  });
 
   return (
     <Actionsheet
@@ -54,13 +50,18 @@ const ForgetPassword = ({
             control={control}
             rules={{
               required: true,
+              pattern: {
+                message: "Provide valid email id",
+                value: EMAIL_PATTERN,
+              },
             }}
-            render={({ field: { onChange, value } }) => (
+            render={({ field: { onChange, value }, formState: { errors } }) => (
               <AppInput
                 type="email"
                 label="Email"
                 onChange={onChange}
                 value={value}
+                error={errors?.email?.message}
               />
             )}
             name="email"
@@ -68,10 +69,10 @@ const ForgetPassword = ({
           <Divider thickness={0} mt={15} />
           <Center mt={10}>
             <AppButton
+              disabled={!formState.isValid}
               color={AppColors.SECONDARY}
-              label="RESET PASSWORD"
+              label={`RESET PASSWORD`}
               onPress={async () => {
-                await trigger();
                 if (!formState.isValid) {
                   console.log("Reset Form Not Valid");
                   return;

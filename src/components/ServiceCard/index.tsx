@@ -165,7 +165,7 @@ const ServiceCard = ({
                   borderColor={AppColors.TEAL}
                   variant={"outline"}
                   onPress={() => {
-                    addToCalendar(serviceName, dateTime);
+                    navigate("ViewServiceDetails", { orderId, subOrderId });
                   }}
                 >
                   <Text

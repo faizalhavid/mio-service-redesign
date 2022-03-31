@@ -235,10 +235,7 @@ export function AuthProvider({ children }: AuthProviderType) {
   };
 
   function resetPassword(email: string): Promise<any> {
-    return new Promise(async (res, rej) => {
-      await auth().sendPasswordResetEmail(email);
-      res("");
-    });
+    return auth().sendPasswordResetEmail(email);
   }
 
   function updateEmail(email: string): Promise<any> {

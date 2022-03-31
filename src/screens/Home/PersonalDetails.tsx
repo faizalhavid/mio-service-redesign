@@ -84,7 +84,7 @@ const PersonalDetails = (): JSX.Element => {
         );
         setLoading(false);
       },
-      onError: (err) => {
+      onError: () => {
         setLoading(false);
       },
     }
@@ -142,7 +142,7 @@ const PersonalDetails = (): JSX.Element => {
       return putCustomer(data);
     },
     {
-      onSuccess: async (data: FormattedAddress) => {
+      onSuccess: async () => {
         setLoading(false);
         goBack();
       },
@@ -161,7 +161,7 @@ const PersonalDetails = (): JSX.Element => {
     handleSubmit,
     setValue,
     getValues,
-    formState: { errors, isDirty, isValid },
+    formState: { errors, isValid },
   } = useForm<PersonalDetailsForm>({
     mode: "onChange",
   });
@@ -246,7 +246,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="text"
                   label="Firstname"
@@ -261,7 +261,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="text"
                   label="Lastname"
@@ -276,7 +276,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="number"
                   label="Phone"
@@ -292,7 +292,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="text"
                   label="Street"
@@ -307,7 +307,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="text"
                   label="City"
@@ -322,7 +322,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <>
                   {value ? (
                     <Text color={"gray.400"} fontSize={14}>
@@ -368,7 +368,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="number"
                   label="Zipcode"
@@ -383,7 +383,7 @@ const PersonalDetails = (): JSX.Element => {
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <AppInput
                   type="email"
                   label="Email"
@@ -404,7 +404,7 @@ const PersonalDetails = (): JSX.Element => {
             rules={{
               required: true,
             }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <AppInput
                 type="number"
                 label="Lawn Size (Sq. Ft)"
@@ -419,7 +419,7 @@ const PersonalDetails = (): JSX.Element => {
             rules={{
               required: true,
             }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <AppInput
                 type="number"
                 label="Number of Bedrooms"
@@ -434,7 +434,7 @@ const PersonalDetails = (): JSX.Element => {
             rules={{
               required: true,
             }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <AppInput
                 type="number"
                 label="Number of Bathrooms"
@@ -451,6 +451,7 @@ const PersonalDetails = (): JSX.Element => {
       </KeyboardAwareScrollView>
       {/* </KeyboardAvoidingView> */}
       <FooterButton
+        disabled={!isValid}
         label={"UPDATE"}
         onPress={(event) => {
           setErrorMsg("");

@@ -17,15 +17,15 @@ const ChooseServiceDetailsButton = ({
   return (
     <Button
       variant={"ghost"}
-      borderRadius={5}
+      borderRadius={6}
       _pressed={{
         backgroundColor: "#eee",
       }}
-      shadow={0}
       width={"95%"}
-      bg={"#fff"}
+      bg={"#eee"}
+      shadow={0}
       alignSelf={"center"}
-      borderColor={"#eee"}
+      borderColor={AppColors.DARK_PRIMARY}
       onPress={onPress}
     >
       <HStack space={2} alignItems={"center"} pl={2}>

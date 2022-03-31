@@ -8,7 +8,7 @@
  * @format
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RootStackNavigation from "./src/navigations";
@@ -21,6 +21,8 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { firebase } from "@react-native-firebase/app-check";
 import { ENV } from "./src/commons/environment";
 import codePush from "react-native-code-push";
+import CodePush from "react-native-code-push";
+import { StorageHelper } from "./src/services/storage-helper";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
@@ -43,6 +45,16 @@ const App = () => {
   });
 
   const queryClient = new QueryClient();
+
+  useEffect(() => {
+    CodePush.checkForUpdate().then((value) => {
+      if (value) {
+        StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
+      } else {
+        StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
+      }
+    });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

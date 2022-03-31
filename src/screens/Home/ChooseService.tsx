@@ -495,21 +495,23 @@ const ChooseService = (): JSX.Element => {
           <Divider thickness={0} mt={20} />
         </>
       </ScrollView>
-      <FooterButton
-        label="ADD SERVICE DETAILS"
-        disabled={selectedServices.length === 0}
-        subText="Please add required services"
-        onPress={async () => {
-          const leadId = await StorageHelper.getValue("LEAD_ID");
-          if (!leadId) {
-            await createLeadMutation.mutateAsync();
-            await updateLeadMutation.mutateAsync();
-          } else {
-            await updateLeadMutation.mutateAsync();
-          }
-          navigate("ServiceDetails");
-        }}
-      />
+      {selectedServices.length !== 0 && (
+        <FooterButton
+          label="ADD SERVICE DETAILS"
+          disabled={selectedServices.length === 0}
+          subText="Please add required services"
+          onPress={async () => {
+            const leadId = await StorageHelper.getValue("LEAD_ID");
+            if (!leadId) {
+              await createLeadMutation.mutateAsync();
+              await updateLeadMutation.mutateAsync();
+            } else {
+              await updateLeadMutation.mutateAsync();
+            }
+            navigate("ServiceDetails");
+          }}
+        />
+      )}
     </AppSafeAreaView>
   );
 };

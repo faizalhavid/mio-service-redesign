@@ -220,7 +220,7 @@ const Address = ({ route }: AddressProps): JSX.Element => {
                       endIcon: <CheckIcon size="5" />,
                     }}
                     pl={-10}
-                    mt={value ? -3 : 2}
+                    mt={value ? -3 : 4}
                     fontSize={14}
                     variant="underlined"
                     onValueChange={onChange}

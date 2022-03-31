@@ -287,12 +287,27 @@ const Login = (): JSX.Element => {
         setShowForgetPasswordForm={setShowForgetPasswordForm}
         onSumbit={(email: string): void => {
           setShowForgetPasswordForm(false);
-          resetPassword(email);
-          toast.show({
-            title: "Please check your email for the password reset link.",
-            placement: "top",
-            mt: 20,
-          });
+          resetPassword(email)
+            .then(() => {
+              toast.show({
+                title: "Please check your email for the password reset link.",
+                placement: "top",
+                mt: 20,
+              });
+            })
+            .catch((err) => {
+              if (
+                err &&
+                err.message &&
+                err.message.indexOf("auth/user-not-found")
+              ) {
+                toast.show({
+                  title: "User not found. Please Register.",
+                  placement: "top",
+                  mt: 20,
+                });
+              }
+            });
         }}
       />
     </AppSafeAreaView>
