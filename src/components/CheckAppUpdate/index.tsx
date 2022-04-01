@@ -21,11 +21,13 @@ const CheckAppUpdate = ({ mt }: CheckAppUpdateProps): JSX.Element => {
 
   const onReload = async () => {
     setIsLoading(true);
-    CodePush.sync({ installMode: CodePush.InstallMode.IMMEDIATE }).then(
-      (status) => {
-        console.log(status);
-      }
-    );
+    StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
+    CodePush.restartApp();
+    // CodePush.sync({ installMode: CodePush.InstallMode.IMMEDIATE }).then(
+    //   (status) => {
+    //     console.log(status);
+    //   }
+    // );
     // setIsLoading(false);
   };
 

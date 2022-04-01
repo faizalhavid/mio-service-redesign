@@ -20,7 +20,7 @@ import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { firebase } from "@react-native-firebase/app-check";
 import { ENV } from "./src/commons/environment";
-import codePush from "react-native-code-push";
+import codePush, { CodePushOptions } from "react-native-code-push";
 import CodePush from "react-native-code-push";
 import { StorageHelper } from "./src/services/storage-helper";
 
@@ -67,7 +67,8 @@ const App = () => {
   );
 };
 
-const codePushOptions = {
-  checkFrequency: codePush.CheckFrequency.MANUAL,
+const codePushOptions: CodePushOptions = {
+  installMode: codePush.InstallMode.ON_NEXT_RESTART,
+  checkFrequency: codePush.CheckFrequency.ON_APP_START,
 };
 export default codePush(codePushOptions)(App);
