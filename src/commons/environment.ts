@@ -1,4 +1,4 @@
-const CURRENT_ENV: "DEV" | "PROD" = "PROD";
+const CURRENT_ENV: "DEV" | "PROD" = "DEV";
 
 const VARIABLES = {
   DEV: {

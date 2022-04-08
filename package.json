@@ -30,6 +30,7 @@
     "@react-navigation/bottom-tabs": "^6.0.9",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
+    "@reduxjs/toolkit": "^1.8.1",
     "@types/rn-material-ui-textfield": "^1.0.2",
     "axios": "^0.25.0",
     "fbjs": "^3.0.4",
@@ -48,6 +49,7 @@
     "react-native-screens": "^3.10.1",
     "react-native-svg": "^12.1.1",
     "react-query": "^3.34.14",
+    "react-redux": "^7.2.8",
     "rn-material-ui-textfield": "^1.0.5"
   },
   "devDependencies": {

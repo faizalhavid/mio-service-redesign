@@ -13,7 +13,7 @@ import {
   View,
   VStack,
 } from "native-base";
-import React from "react";
+import React, { useEffect } from "react";
 import { ImageBackground, Linking } from "react-native";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
@@ -32,6 +32,13 @@ import { StorageHelper } from "../../services/storage-helper";
 import { useAnalytics } from "../../services/analytics";
 import Svg, { SvgCss } from "react-native-svg";
 import { CALENDAR_ICON, STAR_ICON, USER_ICON } from "../../commons/assets";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  getCustomerByIdAsync,
+  selectCustomer,
+} from "../../slices/customer-slice";
 
 export type Order = {
   orderId: string;
@@ -63,28 +70,14 @@ const Home = (): JSX.Element => {
 
   const isFocused = useIsFocused();
 
+  const dispatch = useAppDispatch();
+  const { uiState: customerUiState, customer } = useAppSelector(selectCustomer);
+
   const [showFirstTimeBanner, setShowFirstTimeBanner] =
     React.useState<boolean>(false);
 
-  const { customerProfile, setCustomerProfile, logout } = useAuth();
+  const { logout } = useAuth();
   const { setUserId } = useAnalytics();
-
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setCustomerProfile(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
 
   const [upcomingOrders, setUpcomingOrders] = React.useState<Order[]>([]);
   const getAllUpcomingOrdersMutation = useMutation(
@@ -136,7 +129,8 @@ const Home = (): JSX.Element => {
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setCustomerId(cId);
     setUserId(cId || "");
-    await getCustomerMutation.mutateAsync();
+    // await getCustomerMutation.mutateAsync();
+    dispatch(getCustomerByIdAsync(cId));
     getAllUpcomingOrdersMutation.mutate();
     getAllPastOrdersMutation.mutate();
   }, []);
@@ -194,7 +188,10 @@ const Home = (): JSX.Element => {
   };
 
   return (
-    <AppSafeAreaView mt={0} loading={loading}>
+    <AppSafeAreaView
+      mt={0}
+      loading={customerUiState === "IN_PROGRESS" || loading}
+    >
       <ScrollView>
         <VStack pb={150}>
           <ImageBackground
@@ -207,7 +204,7 @@ const Home = (): JSX.Element => {
             <VStack pt={10}>
               <Center>
                 <Text fontWeight={"bold"} fontSize={18}>
-                  Welcome back {customerProfile?.firstName}
+                  Welcome back {customer?.firstName} {customerUiState}
                 </Text>
               </Center>
               {!loading ? (

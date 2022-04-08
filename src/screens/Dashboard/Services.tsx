@@ -11,9 +11,7 @@ import React from "react";
 import { ImageBackground, ScrollView } from "react-native";
 import { SvgCss } from "react-native-svg";
 import {
-  PERSONAL_DETAILS_ICON,
   CHEVRON_RIGHT_ICON,
-  CREDIT_CARD_ICON,
   ARCHIVE_ICON,
   UPCOMING_SERVICES_ICON,
 } from "../../commons/assets";

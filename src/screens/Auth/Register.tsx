@@ -11,8 +11,6 @@ import {
 import AppInput from "../../components/AppInput";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
-import { postCustomer } from "../../services/customer";
 import { popToPop } from "../../navigations/rootNavigation";
 import {
   CustomerProfile,
@@ -28,17 +26,26 @@ import ErrorView from "../../components/ErrorView";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
 import { useAnalytics } from "../../services/analytics";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  registerCustomerAsync,
+  selectCustomer,
+  setCustomerState,
+} from "../../slices/customer-slice";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
 
 const Register = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
   const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
   const password = useRef({});
+
+  const dispatch = useAppDispatch();
+  const { uiState, customer, error } = useAppSelector(selectCustomer);
 
   const { signup } = useAuth();
 
   const { logEvent } = useAnalytics();
   const loginWithGoogle = async () => {
-    setLoading(true);
+    dispatch(setCustomerState({ uiState: "IN_PROGRESS" }));
     try {
       logEvent("signup_google_event");
       await GoogleSignin.hasPlayServices();
@@ -68,24 +75,34 @@ const Register = (): JSX.Element => {
     } catch (error: any) {
       console.log("apperror", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        setErrorMsg("Sign Up Cancelelled");
+        dispatch(
+          setCustomerState({ uiState: "FAILED", error: "Sign Up Cancelelled" })
+        );
         // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
         // operation (e.g. sign in) is in progress already
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        setErrorMsg("Google Play Service Not Available");
+        dispatch(
+          setCustomerState({
+            uiState: "FAILED",
+            error: "Google Play Service Not Available",
+          })
+        );
         // play services not available or outdated
       } else {
-        setErrorMsg("Something went wrong!");
+        dispatch(
+          setCustomerState({
+            uiState: "FAILED",
+            error: "Something went wrong!",
+          })
+        );
         // some other error happened
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   const loginWithApple = async () => {
-    setLoading(true);
+    dispatch(setCustomerState({ uiState: "IN_PROGRESS" }));
     try {
       logEvent("signup_apple_event");
       const appleAuthRequestResponse = await appleAuth.performRequest({
@@ -109,7 +126,12 @@ const Register = (): JSX.Element => {
       const userCredential = await auth().signInWithCredential(appleCredential);
 
       if (!userCredential.user.email) {
-        setErrorMsg("Please choose emailId in apple login");
+        dispatch(
+          setCustomerState({
+            uiState: "FAILED",
+            error: "Please choose emailId in apple login",
+          })
+        );
         return;
       }
 
@@ -127,8 +149,12 @@ const Register = (): JSX.Element => {
       setValue("phone", "");
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
+      dispatch(
+        setCustomerState({
+          uiState: "FAILED",
+          error: "Apple login failed!",
+        })
+      );
     }
   };
 
@@ -145,35 +171,33 @@ const Register = (): JSX.Element => {
 
   password.current = watch("password", "");
 
-  const registerCustomerMutation = useMutation(
-    "registerCustomer",
-    (data: CustomerProfile) => {
-      setLoading(true);
-      return postCustomer(data);
-    },
-    {
-      onSuccess: async () => {
+  const registerCustomer = (payload: CustomerProfile) => {
+    dispatch(registerCustomerAsync(payload))
+      .then(async () => {
         await StorageHelper.setValue(
           FLAG_TYPE.ADDRESS_DETAILS_STATUS,
           STATUS.PENDING
         );
-        setLoading(false);
         popToPop("Address");
-      },
-      onError: (err) => {
-        setLoading(false);
-        setErrorMsg(
-          "Something went wrong while creating profile. Please try again."
+      })
+      .catch((err) => {
+        dispatch(
+          setCustomerState({
+            uiState: "FAILED",
+            error:
+              "Something went wrong while creating profile. Please try again.",
+          })
         );
-        console.log(err);
-      },
-    }
-  );
+      });
+  };
 
-  const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: RegisterForm) => {
     await trigger();
-    setLoading(true);
+    dispatch(
+      setCustomerState({
+        uiState: "IN_PROGRESS",
+      })
+    );
     if (socialLoginCompleted) {
       let payload: CustomerProfile = {
         ...dummyProfile,
@@ -186,25 +210,27 @@ const Register = (): JSX.Element => {
         ],
         customerId: data.email,
       };
-      registerCustomerMutation.mutate(payload);
+      registerCustomer(payload);
       return;
     }
     logEvent("signup_email_event");
-    setErrorMsg("");
+
     signup(data)
       .then((payload) => {
-        registerCustomerMutation.mutate(payload);
+        registerCustomer(payload);
       })
       .catch((error) => {
-        setErrorMsg(error);
-      })
-      .finally(() => {
-        setLoading(false);
+        dispatch(
+          setCustomerState({
+            uiState: "FAILED",
+            error,
+          })
+        );
       });
   };
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView loading={uiState === "IN_PROGRESS"}>
       <KeyboardAwareScrollView enableOnAndroid={true}>
         <Center width={"100%"}>
           {!socialLoginCompleted && (
@@ -221,7 +247,7 @@ const Register = (): JSX.Element => {
         {/* <ScrollView> */}
 
         <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
-          <ErrorView message={errorMsg} />
+          {uiState === "FAILED" && <ErrorView message={error} />}
           <Controller
             control={control}
             rules={{

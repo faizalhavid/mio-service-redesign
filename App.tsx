@@ -23,6 +23,8 @@ import { ENV } from "./src/commons/environment";
 import codePush, { CodePushOptions } from "react-native-code-push";
 import CodePush from "react-native-code-push";
 import { StorageHelper } from "./src/services/storage-helper";
+import { Provider } from "react-redux";
+import { store } from "./src/stores";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
@@ -58,11 +60,13 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NativeBaseProvider theme={customTheme}>
-        <AuthProvider>
-          <RootStackNavigation />
-        </AuthProvider>
-      </NativeBaseProvider>
+      <Provider store={store}>
+        <NativeBaseProvider theme={customTheme}>
+          <AuthProvider>
+            <RootStackNavigation />
+          </AuthProvider>
+        </NativeBaseProvider>
+      </Provider>
     </QueryClientProvider>
   );
 };

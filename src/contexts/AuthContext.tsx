@@ -145,7 +145,7 @@ export function AuthProvider({ children }: AuthProviderType) {
   async function signup(data: RegisterForm): Promise<any> {
     return new Promise(async (resolve, reject) => {
       auth()
-        .createUserWithEmailAndPassword(data.email, data.password)
+        .createUserWithEmailAndPassword(data.email.trim(), data.password)
         .then(async (credential) => {
           setCurrentUser(credential.user);
           await credential.user.sendEmailVerification({
