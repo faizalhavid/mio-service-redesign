@@ -5,15 +5,7 @@ import {
   SliceCaseReducers,
   ValidateSliceCaseReducers,
 } from "@reduxjs/toolkit";
-import * as uiStates from "../commons/ui-states";
-
-type UiStateType = typeof uiStates[keyof typeof uiStates];
-interface CommonState<T> {
-  collection?: T[];
-  member?: T;
-  uiState?: UiStateType;
-  error?: any;
-}
+import { CommonState } from "../commons/types";
 
 export const createAsyncSlice = <T>({
   name = "",

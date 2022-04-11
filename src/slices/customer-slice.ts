@@ -1,20 +1,16 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { CustomerProfile } from "../contexts/AuthContext";
-import {
-  getCustomer,
-  getHouseInfo,
-  postCustomer,
-  putCustomer,
-} from "../services/customer";
 import * as uiStates from "../commons/ui-states";
 import { RootState } from "../reducers";
-import { HouseInfoRequest } from "../commons/types";
+import { CommonState, HouseInfoRequest } from "../commons/types";
 import { createAsyncSlice } from "./create-async-slice";
+import AxiosClient from "../services/axios-client";
+import { API } from "../commons/urls";
 
 export const registerCustomerAsync = createAsyncThunk(
   "customer/register",
   async (data: CustomerProfile) => {
-    const res = await postCustomer(data);
+    const res = await AxiosClient.post(API.REGISTER, data);
     return res.data;
   }
 );
@@ -22,7 +18,7 @@ export const registerCustomerAsync = createAsyncThunk(
 export const getCustomerByIdAsync = createAsyncThunk(
   "customer/getCustomerById",
   async (id: string | null) => {
-    const res = await getCustomer(id);
+    const res = await AxiosClient.get(`${API.GET_CUSTOMER}/${id}`);
     return res.data;
   }
 );
@@ -30,7 +26,10 @@ export const getCustomerByIdAsync = createAsyncThunk(
 export const putCustomerAsync = createAsyncThunk(
   "customer/putCustomer",
   async (data: CustomerProfile) => {
-    const res = await putCustomer(data);
+    const res = await AxiosClient.put(
+      `${API.PUT_CUSTOMER}/${data.customerId}`,
+      data
+    );
     return res.data;
   }
 );
@@ -38,31 +37,20 @@ export const putCustomerAsync = createAsyncThunk(
 export const getHouseInfoAsync = createAsyncThunk(
   "customer/getHouseInfo",
   async (data: HouseInfoRequest) => {
-    const res = await getHouseInfo(data);
+    const res = await AxiosClient.post(API.GET_HOUSE_INFO, data);
     return res.data;
   }
 );
 
 // Types
 
-export type UiStateType = typeof uiStates[keyof typeof uiStates];
-
-type CustomerState = {
-  customer?: CustomerProfile;
-  uiState?: UiStateType;
-  error?: any;
-};
-
-const initialState: CustomerState = {
-  customer: {} as CustomerProfile,
-  uiState: "INIT",
-  error: null,
-};
-
 export const customerSlice = createAsyncSlice<CustomerProfile>({
   name: "customer",
   reducers: {
-    setCustomerState: (state, { payload }: PayloadAction<CustomerState>) => {
+    setCustomerState: (
+      state,
+      { payload }: PayloadAction<CommonState<CustomerProfile>>
+    ) => {
       state.error = payload.error;
       state.uiState = payload.uiState;
     },
@@ -76,9 +64,8 @@ export const houseInfoSlice = createAsyncSlice<CustomerProfile>({
   thunks: [getHouseInfoAsync],
 });
 
-// Slice action creators
+// Actions
 export const { setCustomerState } = customerSlice.actions;
 
+// Selectors
 export const selectCustomer = (state: RootState) => state.customer;
-
-// export default customerSlice.reducer;

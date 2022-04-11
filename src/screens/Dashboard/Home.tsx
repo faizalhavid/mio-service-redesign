@@ -21,7 +21,6 @@ import ServiceCard from "../../components/ServiceCard";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { useMutation } from "react-query";
-import { getCustomer } from "../../services/customer";
 import { AppColors } from "../../commons/colors";
 import { useIsFocused } from "@react-navigation/native";
 import { getAllOrders } from "../../services/order";
@@ -39,30 +38,6 @@ import {
   getCustomerByIdAsync,
   selectCustomer,
 } from "../../slices/customer-slice";
-
-export type Order = {
-  orderId: string;
-  subOrderId: string;
-  appointmentDateTime: string;
-  serviceId: string;
-};
-export interface Appointment {
-  customerId: string;
-  providerId: string;
-  serviceId: string;
-  eaApptId: number;
-  book: string;
-  start: string;
-  end: string;
-  temperature: number;
-  forecast: string;
-  hash: string;
-  notes?: any;
-  eaCustomerId: number;
-  eaProviderId: number;
-  eaServiceId: number;
-  googleCalendarId?: any;
-}
 
 const Home = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
@@ -205,7 +180,7 @@ const Home = (): JSX.Element => {
             <VStack pt={10}>
               <Center>
                 <Text fontWeight={"bold"} fontSize={18}>
-                  Welcome back {customer?.firstName} {customerUiState}
+                  Welcome back {customer?.firstName}
                 </Text>
               </Center>
               {!loading ? (

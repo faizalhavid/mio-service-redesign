@@ -39,7 +39,7 @@ const Register = (): JSX.Element => {
   const password = useRef({});
 
   const dispatch = useAppDispatch();
-  const { uiState, customer, error } = useAppSelector(selectCustomer);
+  const { uiState, member: customer, error } = useAppSelector(selectCustomer);
 
   const { signup } = useAuth();
 

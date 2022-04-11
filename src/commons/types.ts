@@ -1,3 +1,4 @@
+import * as uiStates from "../commons/ui-states";
 export interface HouseInfo {
   bedrooms: string;
   bathrooms: string;
@@ -85,6 +86,15 @@ export interface Service {
   successImageURI: string;
   dashboardTextTitle: string;
 }
+
+// Order
+
+export type Order = {
+  orderId: string;
+  subOrderId: string;
+  appointmentDateTime: string;
+  serviceId: string;
+};
 
 // Lead
 
@@ -184,4 +194,14 @@ export interface LeadDetails {
   flags: Flags;
   promoCode: PromoCode;
   subOrders: SubOrder[];
+}
+
+// State
+
+export type UiStateType = typeof uiStates[keyof typeof uiStates];
+export interface CommonState<T> {
+  collection: T[];
+  member: T;
+  uiState: UiStateType;
+  error: any;
 }
