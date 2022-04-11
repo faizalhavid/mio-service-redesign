@@ -9,6 +9,7 @@ import {
 import * as uiStates from "../commons/ui-states";
 import { RootState } from "../reducers";
 import { HouseInfoRequest } from "../commons/types";
+import { createAsyncSlice } from "./create-async-slice";
 
 export const registerCustomerAsync = createAsyncThunk(
   "customer/register",
@@ -58,83 +59,21 @@ const initialState: CustomerState = {
   error: null,
 };
 
-export const customerSlice = createSlice({
+export const customerSlice = createAsyncSlice<CustomerProfile>({
   name: "customer",
-  initialState,
   reducers: {
     setCustomerState: (state, { payload }: PayloadAction<CustomerState>) => {
       state.error = payload.error;
       state.uiState = payload.uiState;
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(registerCustomerAsync.pending, (state, action) => {
-        state.uiState = "IN_PROGRESS";
-      })
-      .addCase(
-        registerCustomerAsync.fulfilled,
-        (state, { payload }: PayloadAction<CustomerProfile>) => {
-          state.uiState = "SUCCESS";
-          state.customer = payload;
-        }
-      )
-      .addCase(registerCustomerAsync.rejected, (state, { payload }) => {
-        state.uiState = "FAILED";
-        state.error = payload;
-      })
-      .addCase(getCustomerByIdAsync.pending, (state, action) => {
-        state.uiState = "IN_PROGRESS";
-      })
-      .addCase(
-        getCustomerByIdAsync.fulfilled,
-        (state, { payload }: PayloadAction<CustomerProfile>) => {
-          state.uiState = "SUCCESS";
-          state.customer = payload;
-        }
-      )
-      .addCase(getCustomerByIdAsync.rejected, (state, { payload }) => {
-        state.uiState = "FAILED";
-        state.error = payload;
-      })
-      .addCase(putCustomerAsync.pending, (state, action) => {
-        state.uiState = "IN_PROGRESS";
-      })
-      .addCase(
-        putCustomerAsync.fulfilled,
-        (state, { payload }: PayloadAction<CustomerProfile>) => {
-          state.uiState = "SUCCESS";
-          state.customer = payload;
-        }
-      )
-      .addCase(putCustomerAsync.rejected, (state, { payload }) => {
-        state.uiState = "FAILED";
-        state.error = payload;
-      });
-  },
+  thunks: [registerCustomerAsync, getCustomerByIdAsync, putCustomerAsync],
 });
 
-export const houseInfoSlice = createSlice({
+export const houseInfoSlice = createAsyncSlice<CustomerProfile>({
   name: "houseInfo",
-  initialState,
   reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(getHouseInfoAsync.pending, (state, action) => {
-        state.uiState = "IN_PROGRESS";
-      })
-      .addCase(
-        getHouseInfoAsync.fulfilled,
-        (state, { payload }: PayloadAction<CustomerProfile>) => {
-          state.uiState = "SUCCESS";
-          state.customer = payload;
-        }
-      )
-      .addCase(getHouseInfoAsync.rejected, (state, { payload }) => {
-        state.uiState = "FAILED";
-        state.error = payload;
-      });
-  },
+  thunks: [getHouseInfoAsync],
 });
 
 // Slice action creators

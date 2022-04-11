@@ -71,7 +71,8 @@ const Home = (): JSX.Element => {
   const isFocused = useIsFocused();
 
   const dispatch = useAppDispatch();
-  const { uiState: customerUiState, customer } = useAppSelector(selectCustomer);
+  const { uiState: customerUiState, member: customer } =
+    useAppSelector(selectCustomer);
 
   const [showFirstTimeBanner, setShowFirstTimeBanner] =
     React.useState<boolean>(false);

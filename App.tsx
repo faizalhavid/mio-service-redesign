@@ -49,13 +49,16 @@ const App = () => {
   const queryClient = new QueryClient();
 
   useEffect(() => {
-    CodePush.checkForUpdate().then((value) => {
-      if (value) {
-        StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
-      } else {
-        StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
-      }
-    });
+    // PROD_CONFIG
+    if (!__DEV__) {
+      CodePush.checkForUpdate().then((value) => {
+        if (value) {
+          StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
+        } else {
+          StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
+        }
+      });
+    }
   }, []);
 
   return (
@@ -73,6 +76,8 @@ const App = () => {
 
 const codePushOptions: CodePushOptions = {
   installMode: codePush.InstallMode.ON_NEXT_RESTART,
-  checkFrequency: codePush.CheckFrequency.ON_APP_START,
+  checkFrequency: !__DEV__
+    ? codePush.CheckFrequency.ON_APP_START
+    : codePush.CheckFrequency.MANUAL,
 };
 export default codePush(codePushOptions)(App);
