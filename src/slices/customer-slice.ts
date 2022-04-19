@@ -1,6 +1,5 @@
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { CustomerProfile } from "../contexts/AuthContext";
-import * as uiStates from "../commons/ui-states";
 import { RootState } from "../reducers";
 import { CommonState, HouseInfoRequest } from "../commons/types";
 import { createAsyncSlice } from "./create-async-slice";

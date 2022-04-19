@@ -13,23 +13,21 @@ import {
   View,
   VStack,
 } from "native-base";
-import React, { useEffect } from "react";
+import React from "react";
 import { ImageBackground, Linking } from "react-native";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
 import { useAuth } from "../../contexts/AuthContext";
-import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
 import { useIsFocused } from "@react-navigation/native";
-import { getAllOrders } from "../../services/order";
 import { SERVICES } from "../Home/ChooseService";
 import { getReadableDateTime } from "../../services/utils";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
 import { useAnalytics } from "../../services/analytics";
-import Svg, { SvgCss } from "react-native-svg";
+import { SvgCss } from "react-native-svg";
 import { CALENDAR_ICON, STAR_ICON, USER_ICON } from "../../commons/assets";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 
@@ -38,60 +36,30 @@ import {
   getCustomerByIdAsync,
   selectCustomer,
 } from "../../slices/customer-slice";
+import { Order } from "../../commons/types";
+import {
+  getPastOrdersAsync,
+  getUpcomingOrdersAsync,
+  selectUpcomingOrders,
+} from "../../slices/order-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 const Home = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
+  const dispatch = useAppDispatch();
 
   const isFocused = useIsFocused();
 
-  const dispatch = useAppDispatch();
+  const { uiState: upcomingOrdersUiState, collection: upcomingOrders } =
+    useAppSelector(selectUpcomingOrders);
+
+  const { uiState: pastOrdersUiState, collection: pastOrders } =
+    useAppSelector(selectUpcomingOrders);
+
   const { uiState: customerUiState, member: customer } =
     useAppSelector(selectCustomer);
 
-  const [showFirstTimeBanner, setShowFirstTimeBanner] =
-    React.useState<boolean>(false);
-
   const { logout } = useAuth();
   const { setUserId } = useAnalytics();
-
-  const [upcomingOrders, setUpcomingOrders] = React.useState<Order[]>([]);
-  const getAllUpcomingOrdersMutation = useMutation(
-    "getAllUpcomingOrders",
-    () => {
-      setLoading(true);
-      return getAllOrders("upcoming");
-    },
-    {
-      onSuccess: (data) => {
-        let orders = data.data.data;
-        setShowFirstTimeBanner(orders.length === 0);
-        setUpcomingOrders(orders);
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-
-  const [pastOrders, setPastOrders] = React.useState<Order[]>([]);
-  const getAllPastOrdersMutation = useMutation(
-    "getAllPastOrders",
-    () => {
-      setLoading(true);
-      return getAllOrders("past");
-    },
-    {
-      onSuccess: (data) => {
-        setPastOrders(data.data.data);
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
 
   const init = React.useCallback(async () => {
     let APP_INITIAL_SETUP_COMPLETED = await StorageHelper.getValue(
@@ -103,12 +71,10 @@ const Home = (): JSX.Element => {
       return;
     }
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    setCustomerId(cId);
     setUserId(cId || "");
-    // await getCustomerMutation.mutateAsync();
     dispatch(getCustomerByIdAsync(cId));
-    getAllUpcomingOrdersMutation.mutate();
-    getAllPastOrdersMutation.mutate();
+    dispatch(getUpcomingOrdersAsync());
+    dispatch(getPastOrdersAsync());
   }, []);
 
   React.useEffect(() => {
@@ -166,7 +132,11 @@ const Home = (): JSX.Element => {
   return (
     <AppSafeAreaView
       mt={0}
-      loading={customerUiState === "IN_PROGRESS" || loading}
+      loading={
+        customerUiState === IN_PROGRESS ||
+        upcomingOrdersUiState === IN_PROGRESS ||
+        pastOrdersUiState === IN_PROGRESS
+      }
     >
       <ScrollView>
         <VStack pb={150}>
@@ -183,7 +153,7 @@ const Home = (): JSX.Element => {
                   Welcome back {customer?.firstName}
                 </Text>
               </Center>
-              {!loading ? (
+              {upcomingOrdersUiState !== IN_PROGRESS ? (
                 upcomingOrders.length > 0 ? (
                   <>
                     <ServiceCard
@@ -278,7 +248,7 @@ const Home = (): JSX.Element => {
                     </Button>
                   </>
                 ) : (
-                  showFirstTimeBanner && (
+                  upcomingOrders.length === 0 && (
                     <Button
                       paddingX={5}
                       mt={5}

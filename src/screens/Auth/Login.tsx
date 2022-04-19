@@ -24,10 +24,16 @@ import ErrorView from "../../components/ErrorView";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { StorageHelper } from "../../services/storage-helper";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
-import { useMutation } from "react-query";
-import { getCustomer } from "../../services/customer";
 import ForgetPassword from "../../components/ForgetPassword";
 import { useAnalytics } from "../../services/analytics";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import {
+  getCustomerByIdAsync,
+  selectCustomer,
+  setCustomerState,
+} from "../../slices/customer-slice";
+import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
+import { useAppSelector } from "../../hooks/useAppSelector";
 
 type LoginFormType = {
   email: string;
@@ -35,7 +41,7 @@ type LoginFormType = {
 };
 
 const Login = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
+  const dispatch = useAppDispatch();
   const [showForgetPasswordForm, setShowForgetPasswordForm] =
     React.useState<boolean>(false);
   const toast = useToast();
@@ -50,80 +56,68 @@ const Login = (): JSX.Element => {
 
   const { logEvent } = useAnalytics();
 
-  const { mutateAsync: getCustomerMutation } = useMutation(
-    "getCustomer",
-    (customerId: string | null) => {
-      console.log("Get Customer Profile", customerId);
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-      },
-      onError: (err) => {
-        setErrorMsg("Please Register before trying to Login");
-        setLoading(false);
-      },
-    }
-  );
+  const { uiState, member: customer, error } = useAppSelector(selectCustomer);
 
   const doLogin = async (userCredential: FirebaseAuthTypes.UserCredential) => {
-    setErrorMsg("");
     let token = await userCredential.user.getIdToken();
     StorageHelper.setValue("TOKEN", token);
-    getCustomerMutation(userCredential.user.email).then(async () => {
-      let navigateTo = "";
-      if (!userCredential.user.emailVerified) {
-        await StorageHelper.setValue(
-          FLAG_TYPE.EMAIL_VERIFICATION_STATUS,
-          STATUS.PENDING
-        );
-        navigateTo = "VERIFY_EMAIL";
-      } else {
-        await StorageHelper.setValue(
-          FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
-          STATUS.COMPLETED
-        );
-        navigateTo = "HOME";
-      }
-      let addressDetailsStatus = await StorageHelper.getValue(
-        FLAG_TYPE.ADDRESS_DETAILS_STATUS
+    await dispatch(getCustomerByIdAsync(userCredential.user.email));
+    let navigateTo = "";
+    if (!userCredential.user.emailVerified) {
+      await StorageHelper.setValue(
+        FLAG_TYPE.EMAIL_VERIFICATION_STATUS,
+        STATUS.PENDING
       );
-      if (addressDetailsStatus === STATUS.PENDING) {
-        navigateTo = "UPDATE_ADDRESS";
-      }
-      switch (navigateTo) {
-        case "UPDATE_ADDRESS":
-          popToPop("Address");
-          break;
-        case "VERIFY_EMAIL":
-          popToPop("VerifyEmail");
-          break;
-        case "HOME":
-          popToPop("Dashboard");
-      }
-    });
+      navigateTo = "VERIFY_EMAIL";
+    } else {
+      await StorageHelper.setValue(
+        FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
+        STATUS.COMPLETED
+      );
+      navigateTo = "HOME";
+    }
+    let addressDetailsStatus = await StorageHelper.getValue(
+      FLAG_TYPE.ADDRESS_DETAILS_STATUS
+    );
+    if (addressDetailsStatus === STATUS.PENDING) {
+      navigateTo = "UPDATE_ADDRESS";
+    }
+    switch (navigateTo) {
+      case "UPDATE_ADDRESS":
+        popToPop("Address");
+        break;
+      case "VERIFY_EMAIL":
+        popToPop("VerifyEmail");
+        break;
+      case "HOME":
+        popToPop("Dashboard");
+    }
   };
 
-  const [errorMsg, setErrorMsg] = React.useState("");
   const onSubmit = async (data: LoginFormType) => {
-    setLoading(true);
     logEvent("login_email_event");
-    setErrorMsg("");
     login(data.email.trim(), data.password)
       .then((userCredential) => {
         doLogin(userCredential);
       })
       .catch((error) => {
-        setErrorMsg(error);
+        dispatch(
+          setCustomerState({
+            uiState: FAILED,
+            error: error,
+          })
+        );
       })
       .finally(() => {
-        setLoading(false);
+        dispatch(
+          setCustomerState({
+            uiState: IN_PROGRESS,
+          })
+        );
       });
   };
   return (
-    <AppSafeAreaView statusBarColor="#fff" loading={loading}>
+    <AppSafeAreaView statusBarColor="#fff" loading={uiState === IN_PROGRESS}>
       <ScrollView>
         <VStack mt={70} paddingX={5}>
           <Center width={"100%"}>
@@ -132,7 +126,7 @@ const Login = (): JSX.Element => {
             </Text>
           </Center>
           <VStack mt={10}>
-            <ErrorView message={errorMsg} />
+            {uiState === FAILED && <ErrorView message={error} />}
             <Controller
               control={loginForm.control}
               rules={{
@@ -178,7 +172,6 @@ const Login = (): JSX.Element => {
               <AppButton
                 label="SIGN IN"
                 onPress={async (event) => {
-                  setErrorMsg("");
                   await loginForm.trigger();
                   console.log("-");
                   console.log("formState", loginForm.formState);
@@ -190,7 +183,12 @@ const Login = (): JSX.Element => {
                       !loginForm.formState.isValid) ||
                     Object.keys(loginForm.formState.errors).length > 0
                   ) {
-                    setErrorMsg("Please provide valid email/password");
+                    dispatch(
+                      setCustomerState({
+                        uiState: FAILED,
+                        error: "Please provide valid email/password",
+                      })
+                    );
                     return;
                   }
                   console.log("no errors");
@@ -198,7 +196,12 @@ const Login = (): JSX.Element => {
                     .handleSubmit(onSubmit)(event)
                     .catch((error) => {
                       console.log(error);
-                      setErrorMsg(error);
+                      dispatch(
+                        setCustomerState({
+                          uiState: FAILED,
+                          error: error,
+                        })
+                      );
                     });
                 }}
               />
@@ -209,7 +212,11 @@ const Login = (): JSX.Element => {
             label={"Sign in"}
             loginWithGoogle={async () => {
               try {
-                setLoading(true);
+                dispatch(
+                  setCustomerState({
+                    uiState: IN_PROGRESS,
+                  })
+                );
                 logEvent("login_google_event");
                 const userInfo = await GoogleSignin.signIn();
                 const googleCredential = auth.GoogleAuthProvider.credential(
@@ -256,7 +263,12 @@ const Login = (): JSX.Element => {
                 );
 
                 if (!userCredential.user.email) {
-                  setErrorMsg("Please choose emailId in apple login");
+                  dispatch(
+                    setCustomerState({
+                      uiState: FAILED,
+                      error: "Please choose emailId in apple login",
+                    })
+                  );
                   return;
                 }
 
@@ -264,7 +276,9 @@ const Login = (): JSX.Element => {
               } catch (error) {
                 console.log(error);
               } finally {
-                setLoading(false);
+                setCustomerState({
+                  uiState: IN_PROGRESS,
+                });
               }
             }}
           />

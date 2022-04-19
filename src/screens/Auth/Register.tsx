@@ -33,6 +33,7 @@ import {
   setCustomerState,
 } from "../../slices/customer-slice";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
 
 const Register = (): JSX.Element => {
   const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
@@ -45,7 +46,7 @@ const Register = (): JSX.Element => {
 
   const { logEvent } = useAnalytics();
   const loginWithGoogle = async () => {
-    dispatch(setCustomerState({ uiState: "IN_PROGRESS" }));
+    dispatch(setCustomerState({ uiState: IN_PROGRESS }));
     try {
       logEvent("signup_google_event");
       await GoogleSignin.hasPlayServices();
@@ -76,7 +77,7 @@ const Register = (): JSX.Element => {
       console.log("apperror", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         dispatch(
-          setCustomerState({ uiState: "FAILED", error: "Sign Up Cancelelled" })
+          setCustomerState({ uiState: FAILED, error: "Sign Up Cancelelled" })
         );
         // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -84,7 +85,7 @@ const Register = (): JSX.Element => {
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         dispatch(
           setCustomerState({
-            uiState: "FAILED",
+            uiState: FAILED,
             error: "Google Play Service Not Available",
           })
         );
@@ -92,7 +93,7 @@ const Register = (): JSX.Element => {
       } else {
         dispatch(
           setCustomerState({
-            uiState: "FAILED",
+            uiState: FAILED,
             error: "Something went wrong!",
           })
         );
@@ -102,7 +103,7 @@ const Register = (): JSX.Element => {
   };
 
   const loginWithApple = async () => {
-    dispatch(setCustomerState({ uiState: "IN_PROGRESS" }));
+    dispatch(setCustomerState({ uiState: IN_PROGRESS }));
     try {
       logEvent("signup_apple_event");
       const appleAuthRequestResponse = await appleAuth.performRequest({
@@ -128,7 +129,7 @@ const Register = (): JSX.Element => {
       if (!userCredential.user.email) {
         dispatch(
           setCustomerState({
-            uiState: "FAILED",
+            uiState: FAILED,
             error: "Please choose emailId in apple login",
           })
         );
@@ -151,7 +152,7 @@ const Register = (): JSX.Element => {
       console.log(error);
       dispatch(
         setCustomerState({
-          uiState: "FAILED",
+          uiState: FAILED,
           error: "Apple login failed!",
         })
       );
@@ -183,7 +184,7 @@ const Register = (): JSX.Element => {
       .catch((err) => {
         dispatch(
           setCustomerState({
-            uiState: "FAILED",
+            uiState: FAILED,
             error:
               "Something went wrong while creating profile. Please try again.",
           })
@@ -195,7 +196,7 @@ const Register = (): JSX.Element => {
     await trigger();
     dispatch(
       setCustomerState({
-        uiState: "IN_PROGRESS",
+        uiState: IN_PROGRESS,
       })
     );
     if (socialLoginCompleted) {
@@ -222,7 +223,7 @@ const Register = (): JSX.Element => {
       .catch((error) => {
         dispatch(
           setCustomerState({
-            uiState: "FAILED",
+            uiState: FAILED,
             error,
           })
         );
@@ -230,7 +231,7 @@ const Register = (): JSX.Element => {
   };
 
   return (
-    <AppSafeAreaView loading={uiState === "IN_PROGRESS"}>
+    <AppSafeAreaView loading={uiState === IN_PROGRESS}>
       <KeyboardAwareScrollView enableOnAndroid={true}>
         <Center width={"100%"}>
           {!socialLoginCompleted && (
@@ -247,7 +248,7 @@ const Register = (): JSX.Element => {
         {/* <ScrollView> */}
 
         <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
-          {uiState === "FAILED" && <ErrorView message={error} />}
+          {uiState === FAILED && <ErrorView message={error} />}
           <Controller
             control={control}
             rules={{
