@@ -10,11 +10,9 @@
 
 import React, { useEffect } from "react";
 import { useColorScheme } from "react-native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RootStackNavigation from "./src/navigations";
 import { extendTheme, NativeBaseProvider } from "native-base";
 import { LogBox } from "react-native";
-import { QueryClient, QueryClientProvider } from "react-query";
 import "@react-native-firebase/app";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -46,8 +44,6 @@ const App = () => {
     },
   });
 
-  const queryClient = new QueryClient();
-
   useEffect(() => {
     // PROD_CONFIG
     if (!__DEV__) {
@@ -62,15 +58,13 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <NativeBaseProvider theme={customTheme}>
-          <AuthProvider>
-            <RootStackNavigation />
-          </AuthProvider>
-        </NativeBaseProvider>
-      </Provider>
-    </QueryClientProvider>
+    <Provider store={store}>
+      <NativeBaseProvider theme={customTheme}>
+        <AuthProvider>
+          <RootStackNavigation />
+        </AuthProvider>
+      </NativeBaseProvider>
+    </Provider>
   );
 };
 

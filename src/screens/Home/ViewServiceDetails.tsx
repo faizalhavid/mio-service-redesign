@@ -2,7 +2,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Center, Divider, HStack, ScrollView, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
-import { useMutation } from "react-query";
 import {
   INFO_ICON,
   CIRCLE_TICK_ICON,
@@ -10,13 +9,10 @@ import {
   CHAT_OUTLINE_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
-import { SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import { useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { getReadableDateTime } from "../../services/utils";
 import { SERVICES } from "./ChooseService";
-import { StorageHelper } from "../../services/storage-helper";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { selectCustomer } from "../../slices/customer-slice";

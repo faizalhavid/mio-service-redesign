@@ -1,6 +1,5 @@
 import { Center, Divider, FlatList, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
-import { useMutation } from "react-query";
 import { Order } from "../../commons/types";
 import { IN_PROGRESS } from "../../commons/ui-states";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
