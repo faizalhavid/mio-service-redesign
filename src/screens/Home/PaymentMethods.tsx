@@ -9,18 +9,24 @@ import {
   View,
   VStack,
 } from "native-base";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { goBack } from "../../navigations/rootNavigation";
-import { getSavedCards, saveCard } from "../../services/order";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Controller, useForm } from "react-hook-form";
-import { StorageHelper } from "../../services/storage-helper";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  selectSaveCard,
+  getSavedCardsAsync,
+  selectCards,
+  saveCardAsync,
+} from "../../slices/card-slice";
+import { selectCustomer } from "../../slices/customer-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 export type SaveCardType = {
   name: string;
@@ -62,62 +68,38 @@ export interface Card {
 }
 
 const PaymentMethods = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
   const [selectedCreditcard, setSelectedCreditcard] = useState<string>();
   const [errorMsg, setErrorMsg] = React.useState("");
-  const [savedCards, setSavedCards] = React.useState<Card[]>([]);
-  const fetchCustomerProfile = useCallback(async () => {
-    let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    setCustomerId(cId);
-    getSavedCardsMutation.mutate();
-  }, []);
+  const dispatch = useAppDispatch();
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
+
+  const {
+    uiState: saveCardUiState,
+    member: saveCard,
+    error: saveCardError,
+  } = useAppSelector(selectSaveCard);
+
+  const {
+    uiState: cardsUiState,
+    collection: cards,
+    error: cardsError,
+  } = useAppSelector(selectCards);
 
   useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
-
-  const getSavedCardsMutation = useMutation(
-    "getSavedCards",
-    () => {
-      setLoading(true);
-      return getSavedCards(customerId || "");
-    },
-    {
-      onSuccess: (data) => {
-        setSavedCards(data.data);
-        if (data.data.length > 0) {
-          setSelectedCreditcard(data.data[0].number);
+    if (customer) {
+      dispatch(getSavedCardsAsync({ customerId: customer.customerId })).then(
+        () => {
+          if (cards.length > 0) {
+            setSelectedCreditcard(cards[0].id);
+          }
         }
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
+      );
     }
-  );
-
-  const saveCardMutation = useMutation(
-    "saveCard",
-    (payload: SaveCardType) => {
-      setErrorMsg("");
-      setLoading(true);
-      return saveCard(customerId || "", { card: payload });
-    },
-    {
-      onSuccess: (data) => {
-        if (![200, 201].includes(data.data?.qbStatus)) {
-          setErrorMsg("Invalid Card Credentials!");
-        } else {
-          getSavedCardsMutation.mutate();
-        }
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  }, [customer]);
 
   const formatNumber = (number: string) => {
     return number
@@ -137,14 +119,26 @@ const PaymentMethods = (): JSX.Element => {
   });
 
   const onSubmit = async (data: SaveCardType) => {
-    setLoading(true);
     data.expMonth = data.expiry.split("/")[0];
     data.expYear = data.expiry.split("/")[1];
-    saveCardMutation.mutate(data);
+    dispatch(
+      saveCardAsync({ customerId: customer.customerId, data: data })
+    ).then(() => {
+      if (![200, 201].includes(saveCard?.qbStatus)) {
+        setErrorMsg("Invalid Card Credentials!");
+      } else {
+        dispatch(getSavedCardsAsync({ customerId: customer.customerId }));
+      }
+    });
   };
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView
+      loading={
+        [cardsUiState, customerUiState, saveCardUiState].indexOf(IN_PROGRESS) >
+        0
+      }
+    >
       <KeyboardAwareScrollView enableOnAndroid={true}>
         <ScrollView>
           <Center>
@@ -181,7 +175,7 @@ const PaymentMethods = (): JSX.Element => {
                 alignSelf={"center"}
                 justifyContent={"space-around"}
               >
-                {savedCards.map((card, index) => {
+                {cards.map((card, index) => {
                   return (
                     <Radio key={index} ml={2} my={1} value={card.number}>
                       {formatNumber(card.number)}

@@ -1,54 +1,51 @@
 import { Center, Divider, FlatList, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { useMutation } from "react-query";
+import { Order } from "../../commons/types";
+import { IN_PROGRESS } from "../../commons/ui-states";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ServiceCard from "../../components/ServiceCard";
-import { getAllOrders } from "../../services/order";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import { getReadableDateTime } from "../../services/utils";
-import { Order } from "../Dashboard/Home";
+import {
+  getUpcomingOrdersAsync,
+  selectUpcomingOrders,
+} from "../../slices/order-slice";
 import { SERVICES } from "./ChooseService";
 
 const UpcomingServices = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-
-  const [upcomingOrders, setUpcomingOrders] = React.useState<Order[]>([]);
   const [page, setPage] = React.useState<number>(1);
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
   const [orderId, setOrderId] = React.useState<string>("");
   const [subOrderId, setSubOrderId] = React.useState<string>("");
   const limit = 10;
-  const getAllUpcomingOrdersMutation = useMutation(
-    "getAllUpcomingOrders",
-    () => {
-      setLoading(true);
-      return getAllOrders("upcoming", orderId, subOrderId, limit);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        let orders = data.data.data || [];
-        setUpcomingOrders([...upcomingOrders, ...orders]);
-        if (orders.length > 0) {
-          let lastOrder = orders[orders.length - 1];
+
+  const dispatch = useAppDispatch();
+
+  const {
+    uiState: upcomingOrdersUiState,
+    collection: upcomingOrders,
+    error: upcomingOrdersError,
+  } = useAppSelector(selectUpcomingOrders);
+
+  useEffect(() => {
+    dispatch(getUpcomingOrdersAsync({ orderId, subOrderId, limit })).then(
+      () => {
+        if (upcomingOrders.length > 0) {
+          let lastOrder = upcomingOrders[upcomingOrders.length - 1];
           setOrderId(lastOrder.orderId);
           setSubOrderId(lastOrder.subOrderId);
         }
-        if (orders.length < limit) {
+        if (upcomingOrders.length < limit) {
           setFetchAgain(false);
         }
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-
-  useEffect(() => {
-    getAllUpcomingOrdersMutation.mutate();
+      }
+    );
   }, [page]);
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView loading={[upcomingOrdersUiState].indexOf(IN_PROGRESS) > 0}>
       <Center mb={2}>
         <Text fontSize={20}>Upcoming Services</Text>
       </Center>

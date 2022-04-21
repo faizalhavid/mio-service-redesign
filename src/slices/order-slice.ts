@@ -1,5 +1,5 @@
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { CommonState, Order } from "../commons/types";
+import { CommonState, Order, SubOrder } from "../commons/types";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
 import AxiosClient from "../services/axios-client";
@@ -73,7 +73,7 @@ export const pastOrdersSlice = createAsyncSlice<Order>({
   thunks: [getUpcomingOrdersAsync],
 });
 
-export const orderDetailsSlice = createAsyncSlice<Order>({
+export const orderDetailsSlice = createAsyncSlice<SubOrder>({
   name: "order/details",
   reducers: {},
   thunks: [getOrderDetailsAsync],

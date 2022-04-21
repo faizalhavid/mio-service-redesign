@@ -1,54 +1,45 @@
 import { Center, Divider, FlatList, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { useMutation } from "react-query";
+import { Order } from "../../commons/types";
+import { IN_PROGRESS } from "../../commons/ui-states";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ServiceCard from "../../components/ServiceCard";
-import { getAllOrders } from "../../services/order";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import { getReadableDateTime } from "../../services/utils";
-import { Order } from "../Dashboard/Home";
+import { getPastOrdersAsync, selectPastOrders } from "../../slices/order-slice";
 import { SERVICES } from "./ChooseService";
 
 const ServiceHistory = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-
-  const [pastOrders, setPastOrders] = React.useState<Order[]>([]);
   const [page, setPage] = React.useState<number>(1);
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
   const [orderId, setOrderId] = React.useState<string>("");
   const [subOrderId, setSubOrderId] = React.useState<string>("");
   const limit = 10;
-  const getAllPastOrdersMutation = useMutation(
-    "getAllPastOrders",
-    () => {
-      setLoading(true);
-      return getAllOrders("past", orderId, subOrderId, limit);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        let orders = data.data.data || [];
-        setPastOrders([...pastOrders, ...orders]);
-        if (orders.length > 0) {
-          let lastOrder = orders[orders.length - 1];
-          setOrderId(lastOrder.orderId);
-          setSubOrderId(lastOrder.subOrderId);
-        }
-        if (orders.length < limit) {
-          setFetchAgain(false);
-        }
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  const dispatch = useAppDispatch();
+
+  const {
+    uiState: pastOrdersUiState,
+    collection: pastOrders,
+    error: pastOrdersError,
+  } = useAppSelector(selectPastOrders);
 
   useEffect(() => {
-    getAllPastOrdersMutation.mutate();
+    dispatch(getPastOrdersAsync({ orderId, subOrderId, limit })).then(() => {
+      if (pastOrders.length > 0) {
+        let lastOrder = pastOrders[pastOrders.length - 1];
+        setOrderId(lastOrder.orderId);
+        setSubOrderId(lastOrder.subOrderId);
+      }
+      if (pastOrders.length < limit) {
+        setFetchAgain(false);
+      }
+    });
   }, [page]);
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView loading={[pastOrdersUiState].indexOf(IN_PROGRESS) > 0}>
       <Center mb={2}>
         <Text fontSize={20}>Service History</Text>
       </Center>

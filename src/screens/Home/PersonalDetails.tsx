@@ -7,24 +7,26 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React, { useCallback, useEffect } from "react";
-import { useMutation } from "react-query";
+import React, { useEffect } from "react";
 import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import { CustomerProfile, Phone, useAuth } from "../../contexts/AuthContext";
+import { Phone } from "../../contexts/AuthContext";
 import { goBack } from "../../navigations/rootNavigation";
-import {
-  getCustomer,
-  getHouseInfo,
-  putCustomer,
-} from "../../services/customer";
-import { FormattedAddress, HouseInfoRequest } from "../../commons/types";
 import { Controller, useForm } from "react-hook-form";
 import { STATES } from "../../commons/dropdown-values";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import ErrorView from "../../components/ErrorView";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  getHouseInfoAsync,
+  putCustomerAsync,
+  selectCustomer,
+  selectHouseInfo,
+} from "../../slices/customer-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -41,71 +43,76 @@ type PersonalDetailsForm = {
 };
 
 const PersonalDetails = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-  const { customerProfile, setCustomerProfile } = useAuth();
   const [errorMsg, setErrorMsg] = React.useState("");
 
-  const fetchCustomerProfile = useCallback(async () => {
-    await getCustomerMutation.mutateAsync();
-  }, []);
+  const dispatch = useAppDispatch();
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
+
+  const {
+    uiState: houseInfoUiState,
+    member: houseInfo,
+    error: houseInfoError,
+  } = useAppSelector(selectHouseInfo);
 
   useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
-
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerProfile.customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setCustomerProfile(data.data);
-        setValue("firstName", data.data.firstName);
-        setValue("lastName", data.data.lastName);
-        setValue("phone", data.data.phones[0].number);
-        setValue("email", data.data.email);
-        setValue("street", data.data.addresses[0].street);
-        setValue("city", data.data.addresses[0].city);
-        setValue("state", data.data.addresses[0].state);
-        setValue("zip", data.data.addresses[0].zip);
-        setValue(
-          "lotSize",
-          String(data.data.addresses[0].houseInfo?.lotSize || "")
-        );
-        setValue(
-          "bedrooms",
-          String(data.data.addresses[0].houseInfo?.bedrooms || "")
-        );
-        setValue(
-          "bathrooms",
-          String(data.data.addresses[0].houseInfo?.bathrooms || "")
-        );
-        setLoading(false);
-      },
-      onError: () => {
-        setLoading(false);
-      },
+    if (customer) {
+      setValue("firstName", customer.firstName);
+      setValue("lastName", customer.lastName);
+      setValue("phone", customer.phones[0].number);
+      setValue("email", customer.email);
+      setValue("street", customer.addresses[0].street);
+      setValue("city", customer.addresses[0].city);
+      setValue("state", customer.addresses[0].state);
+      setValue("zip", customer.addresses[0].zip);
+      setValue(
+        "lotSize",
+        String(customer.addresses[0].houseInfo?.lotSize || "")
+      );
+      setValue(
+        "bedrooms",
+        String(customer.addresses[0].houseInfo?.bedrooms || "")
+      );
+      setValue(
+        "bathrooms",
+        String(customer.addresses[0].houseInfo?.bathrooms || "")
+      );
     }
-  );
+  }, [customer]);
 
-  const getHouseInfoMutation = useMutation(
-    "getHouseInfo",
-    (data: HouseInfoRequest): any => {
-      setLoading(true);
-      return getHouseInfo(data);
-    },
-    {
-      onSuccess: (response: any) => {
-        setLoading(false);
-        let formValues = getValues();
-        putAddressMutation.mutate({
-          ...customerProfile,
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    getValues,
+    formState: { errors, isValid },
+  } = useForm<PersonalDetailsForm>({
+    mode: "onChange",
+  });
+
+  const onSubmit = async (data: PersonalDetailsForm) => {
+    dispatch(
+      getHouseInfoAsync({
+        nva: data.street,
+        addresses: [
+          {
+            ...data,
+          },
+        ],
+      })
+    ).then(() => {
+      let formValues = getValues();
+      dispatch(
+        putCustomerAsync({
+          ...customer,
           addresses: [
             {
-              ...response.data,
+              ...customer.addresses[0],
               houseInfo: {
+                ...houseInfo,
                 lotSize: parseInt(formValues.lotSize),
                 bedrooms: parseInt(formValues.bedrooms),
                 bathrooms: parseInt(formValues.bathrooms),
@@ -123,60 +130,10 @@ const PersonalDetails = (): JSX.Element => {
               },
             ],
           },
-        });
-      },
-      onError: (err: any) => {
-        setLoading(false);
-        setErrorMsg(
-          "Something went wrong while creating profile. Please try again."
-        );
-        console.log(err);
-      },
-    }
-  );
-
-  const putAddressMutation = useMutation(
-    "putAddressMutation",
-    (data: CustomerProfile): any => {
-      setLoading(true);
-      return putCustomer(data);
-    },
-    {
-      onSuccess: async () => {
-        setLoading(false);
+        })
+      ).then(() => {
         goBack();
-      },
-      onError: (err: any) => {
-        setLoading(false);
-        setErrorMsg(
-          "Something went wrong while creating profile. Please try again."
-        );
-        console.log(err);
-      },
-    }
-  );
-
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    getValues,
-    formState: { errors, isValid },
-  } = useForm<PersonalDetailsForm>({
-    mode: "onChange",
-  });
-
-  const onSubmit = async (data: PersonalDetailsForm) => {
-    setLoading(true);
-    setErrorMsg("");
-
-    getHouseInfoMutation.mutate({
-      nva: data.street,
-      addresses: [
-        {
-          ...data,
-        },
-      ],
+      });
     });
   };
 
@@ -206,7 +163,9 @@ const PersonalDetails = (): JSX.Element => {
     );
   };
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView
+      loading={[customerUiState, houseInfoUiState].indexOf(IN_PROGRESS) > 0}
+    >
       {/* <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}> */}
       <KeyboardAwareScrollView enableOnAndroid={true}>
         {/* <ScrollView> */}
@@ -221,18 +180,17 @@ const PersonalDetails = (): JSX.Element => {
           <Center>
             <Divider thickness={0} mt={5} />
             <Text fontWeight={"semibold"}>
-              {customerProfile.firstName} {customerProfile.lastName}
+              {customer.firstName} {customer.lastName}
             </Text>
-            {customerProfile.addresses && customerProfile.addresses.length > 0 && (
+            {customer.addresses && customer.addresses.length > 0 && (
               <>
-                <Text>{customerProfile.addresses[0].street}</Text>
+                <Text>{customer.addresses[0].street}</Text>
                 <Text>
-                  {customerProfile.addresses[0].state},{" "}
-                  {customerProfile.addresses[0].city}{" "}
-                  {customerProfile.addresses[0].zip}
+                  {customer.addresses[0].state}, {customer.addresses[0].city}{" "}
+                  {customer.addresses[0].zip}
                 </Text>
-                <Text>{customerProfile.phones[0].number}</Text>
-                <Text>{customerProfile.customerId}</Text>
+                <Text>{customer.phones[0].number}</Text>
+                <Text>{customer.customerId}</Text>
               </>
             )}
           </Center>

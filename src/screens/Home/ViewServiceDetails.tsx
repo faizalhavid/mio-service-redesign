@@ -14,11 +14,17 @@ import { SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import { useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
-import { getCustomer } from "../../services/customer";
-import { getOrderDetails } from "../../services/order";
 import { getReadableDateTime } from "../../services/utils";
 import { SERVICES } from "./ChooseService";
 import { StorageHelper } from "../../services/storage-helper";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { selectCustomer } from "../../slices/customer-slice";
+import {
+  getOrderDetailsAsync,
+  selectOrderDetails,
+} from "../../slices/order-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 type ViewServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
@@ -27,69 +33,32 @@ type ViewServiceDetailsProps = NativeStackScreenProps<
 const ViewServiceDetails = ({
   route,
 }: ViewServiceDetailsProps): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
   const { orderId, subOrderId } = route.params;
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
 
-  const { customerProfile, setCustomerProfile } = useAuth();
+  const dispatch = useAppDispatch();
 
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setCustomerProfile(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
 
-  const fetchCustomerProfile = React.useCallback(async () => {
-    let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    setCustomerId(cId);
-    await getCustomerMutation.mutateAsync();
-  }, []);
-
-  React.useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
-
-  const [orderDetail, setOrderDetail] = React.useState<SubOrder>(
-    {} as SubOrder
-  );
-  const getOrderDetailMutation = useMutation(
-    "getOrderDetailOrders",
-    () => {
-      setLoading(true);
-      return getOrderDetails(orderId, subOrderId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setOrderDetail(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  const {
+    uiState: orderDetailUiState,
+    member: orderDetail,
+    error: orderDetailError,
+  } = useAppSelector(selectOrderDetails);
 
   useEffect(() => {
     if (orderId && subOrderId) {
-      getOrderDetailMutation.mutate();
+      dispatch(getOrderDetailsAsync({ orderId, subOrderId }));
     } else {
       return;
     }
   }, [orderId, subOrderId]);
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView loading={[customerUiState].indexOf(IN_PROGRESS) > 0}>
       <ScrollView>
         {orderDetail?.appointmentInfo?.appointmentDateTime && (
           <VStack>
@@ -127,23 +96,22 @@ const ViewServiceDetails = ({
                   }
                 </Text>
                 <Divider thickness={0} mt={5} />
-                {customerProfile?.addresses &&
-                  customerProfile?.addresses.length > 0 && (
-                    <>
-                      <Text
-                        color={AppColors.SECONDARY}
-                        fontSize={16}
-                        fontWeight={"semibold"}
-                      >
-                        {customerProfile?.addresses[0]?.street}
-                      </Text>
-                      <Text color={AppColors.SECONDARY} fontSize={14}>
-                        {customerProfile?.addresses[0]?.city},{" "}
-                        {customerProfile?.addresses[0]?.state}{" "}
-                        {customerProfile?.addresses[0]?.zip}
-                      </Text>
-                    </>
-                  )}
+                {customer.addresses && customer.addresses.length > 0 && (
+                  <>
+                    <Text
+                      color={AppColors.SECONDARY}
+                      fontSize={16}
+                      fontWeight={"semibold"}
+                    >
+                      {customer.addresses[0]?.street}
+                    </Text>
+                    <Text color={AppColors.SECONDARY} fontSize={14}>
+                      {customer.addresses[0]?.city},{" "}
+                      {customer.addresses[0]?.state}{" "}
+                      {customer.addresses[0]?.zip}
+                    </Text>
+                  </>
+                )}
               </Center>
             </VStack>
             <Center bg={AppColors.PRIMARY} shadow={2} px={6} py={2}>

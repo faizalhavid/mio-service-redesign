@@ -9,164 +9,89 @@ import {
   View,
   VStack,
 } from "native-base";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import TermsAndConditions from "../../components/TermsAndConditions";
 import { popToPop } from "../../navigations/rootNavigation";
 import AppInput from "../../components/AppInput";
-import { useMutation } from "react-query";
-import {
-  createOrderFromLead,
-  getSavedCards,
-  putLead,
-  saveCard,
-  validateCoupon,
-} from "../../services/order";
 import { Card, SaveCardType } from "./PaymentMethods";
 import { Controller, useForm } from "react-hook-form";
-import { useAuth } from "../../contexts/AuthContext";
 import { SvgCss } from "react-native-svg";
 import {
   FILLED_CIRCLE_CLOSE_ICON,
   FILLED_CIRCLE_TICK_ICON,
 } from "../../commons/assets";
 import { StorageHelper } from "../../services/storage-helper";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { selectCustomer } from "../../slices/customer-slice";
+import {
+  getSavedCardsAsync,
+  saveCardAsync,
+  selectCards,
+  selectSaveCard,
+} from "../../slices/card-slice";
+import {
+  selectValidateCoupon,
+  validateCouponAsync,
+} from "../../slices/coupon-slice";
+import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
+import { createOrderFromLeadAsync } from "../../slices/order-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
   const [selectedCreditcard, setSelectedCreditcard] = useState<string>();
-  const [errorMsg, setErrorMsg] = React.useState("");
   const [couponCode, setCouponCode] = React.useState("");
+  const [errorMsg, setErrorMsg] = React.useState("");
   const [couponValidity, setCouponValidity] = React.useState<
     "INIT" | "VALID" | "INVALID"
   >("INIT");
   const [couponMsg, setCouponMsg] = React.useState("");
-  const [savedCards, setSavedCards] = React.useState<Card[]>([]);
-  const { leadDetails, setLeadDetails } = useAuth();
+  const dispatch = useAppDispatch();
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
 
-  const fetchCustomerProfile = useCallback(async () => {
-    let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    setCustomerId(cId);
-    getSavedCardsMutation.mutate();
-  }, []);
+  const {
+    uiState: cardsUiState,
+    collection: cards,
+    error: cardsError,
+  } = useAppSelector(selectCards);
+
+  const {
+    uiState: saveCardUiState,
+    member: saveCard,
+    error: saveCardError,
+  } = useAppSelector(selectSaveCard);
+
+  const {
+    uiState: leadUiState,
+    member: leadDetails,
+    error: leadError,
+  } = useAppSelector(selectLead);
+
+  const {
+    uiState: validateCouponUiState,
+    member: validateCoupon,
+    error: validateCouponError,
+  } = useAppSelector(selectValidateCoupon);
 
   useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
-
-  const validateCouponMutation = useMutation(
-    "validateCoupon",
-    () => {
-      setCouponValidity("INIT");
-      setLoading(true);
-      return validateCoupon(couponCode, leadDetails.leadId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        if (data.data.isValid) {
-          setCouponValidity("VALID");
-        } else {
-          setCouponValidity("INVALID");
+    if (customer) {
+      dispatch(getSavedCardsAsync({ customerId: customer.customerId })).then(
+        () => {
+          if (cards.length > 0) {
+            setSelectedCreditcard(cards[0].id);
+          }
         }
-        setCouponMsg(data.data.message);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
+      );
     }
-  );
-
-  const getSavedCardsMutation = useMutation(
-    "getSavedCards",
-    () => {
-      setLoading(true);
-      return getSavedCards(customerId || "");
-    },
-    {
-      onSuccess: (data) => {
-        setSavedCards(data.data);
-        if (data.data.length > 0) {
-          setSelectedCreditcard(data.data[0].id);
-        }
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-
-  const saveCardMutation = useMutation(
-    "saveCard",
-    (payload: SaveCardType) => {
-      setErrorMsg("");
-      setLoading(true);
-      return saveCard(customerId || "", { card: payload });
-    },
-    {
-      onSuccess: (data) => {
-        if (![200, 201].includes(data.data?.qbStatus)) {
-          setErrorMsg("Invalid Card Credentials!");
-        } else {
-          getSavedCardsMutation.mutate();
-        }
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-
-  const updateLeadMutation = useMutation(
-    "updateLead",
-    () => {
-      setLoading(true);
-      let payload = {
-        ...leadDetails,
-        creditCard: {
-          ...leadDetails.creditCard,
-          qbCardId: selectedCreditcard,
-        },
-        promoCode: {
-          id: couponValidity === "VALID" ? couponCode : undefined,
-        },
-      };
-      return putLead(payload);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setLeadDetails(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
-
-  const createOrderFromLeadMutation = useMutation(
-    "createOrderFromLead",
-    () => {
-      setErrorMsg("");
-      setLoading(true);
-      return createOrderFromLead(leadDetails.leadId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  }, [customer]);
 
   const formatNumber = (number: string) => {
     return number
@@ -186,14 +111,31 @@ const Payment = (): JSX.Element => {
   });
 
   const onSubmit = async (data: SaveCardType) => {
-    setLoading(true);
     data.expMonth = data.expiry.split("/")[0];
     data.expYear = data.expiry.split("/")[1];
-    saveCardMutation.mutate(data);
+    dispatch(
+      saveCardAsync({ customerId: customer.customerId, data: data })
+    ).then(() => {
+      if (![200, 201].includes(saveCard?.qbStatus)) {
+        setErrorMsg("Invalid Card Credentials!");
+      } else {
+        dispatch(getSavedCardsAsync({ customerId: customer.customerId }));
+      }
+    });
   };
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView
+      loading={
+        [
+          leadUiState,
+          cardsUiState,
+          customerUiState,
+          saveCardUiState,
+          validateCouponUiState,
+        ].indexOf(IN_PROGRESS) > 0
+      }
+    >
       <ScrollView>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
@@ -216,7 +158,7 @@ const Payment = (): JSX.Element => {
                 alignSelf={"center"}
                 justifyContent={"space-around"}
               >
-                {savedCards.map((card, index) => {
+                {cards.map((card, index) => {
                   return (
                     <Radio key={index} ml={2} my={1} value={card.id}>
                       {formatNumber(card.number)}
@@ -345,7 +287,19 @@ const Payment = (): JSX.Element => {
                     p={1}
                     variant={"ghost"}
                     onPress={() => {
-                      validateCouponMutation.mutate();
+                      dispatch(
+                        validateCouponAsync({
+                          code: couponCode,
+                          leadId: leadDetails.leadId,
+                        })
+                      ).then(() => {
+                        if (validateCoupon.isValid) {
+                          setCouponValidity("VALID");
+                        } else {
+                          setCouponValidity("INVALID");
+                        }
+                        setCouponMsg(validateCoupon.message);
+                      });
                     }}
                   >
                     Apply
@@ -396,8 +350,20 @@ const Payment = (): JSX.Element => {
           disabled={selectedCreditcard === "NEW"}
           subText="Choose credit card for payment"
           onPress={async () => {
-            await updateLeadMutation.mutateAsync();
-            await createOrderFromLeadMutation.mutateAsync();
+            let payload = {
+              ...leadDetails,
+              creditCard: {
+                ...leadDetails.creditCard,
+                qbCardId: selectedCreditcard,
+              },
+              promoCode: {
+                id: couponValidity === "VALID" ? couponCode : undefined,
+              },
+            };
+            await dispatch(updateLeadAsync(payload));
+            await dispatch(
+              createOrderFromLeadAsync({ leadId: leadDetails.leadId })
+            );
             await StorageHelper.removeValue("LEAD_ID");
             popToPop("Booked");
           }}

@@ -7,18 +7,13 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ChooseServiceDetailsButton from "../../components/ChooseServiceDetailsButton";
 import FooterButton from "../../components/FooterButton";
 import ServiceDetailsSection from "../../components/ServiceDetailsSection";
-import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import { navigate } from "../../navigations/rootNavigation";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useMutation } from "react-query";
-import { getCustomer } from "../../services/customer";
 import { SERVICES } from "./ChooseService";
-import { getLead } from "../../services/order";
 import { SubOrder } from "../../commons/types";
 import { SvgCss } from "react-native-svg";
 import {
@@ -29,17 +24,30 @@ import {
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import { getReadableDateTime } from "../../services/utils";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { selectCustomer } from "../../slices/customer-slice";
+import { selectLead } from "../../slices/lead-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 const ServiceDetails = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-  const { leadDetails, customerProfile } = useAuth();
-
   const [requiredDetailsAdded, setRequiredDetailsAdded] =
     React.useState<boolean>(true);
 
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
   }>({});
+
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
+  const {
+    uiState: leadUiState,
+    member: leadDetails,
+    error: leadError,
+  } = useAppSelector(selectLead);
 
   React.useEffect(() => {
     if (!leadDetails) {
@@ -58,7 +66,9 @@ const ServiceDetails = (): JSX.Element => {
   }, [leadDetails]);
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView
+      loading={[leadUiState, customerUiState].indexOf(IN_PROGRESS) > 0}
+    >
       <ScrollView>
         <VStack space={5}>
           <Text textAlign={"center"} fontSize={18}>
@@ -70,15 +80,13 @@ const ServiceDetails = (): JSX.Element => {
             bg={"amber.300"}
             py={3}
           >
-            {customerProfile?.addresses &&
-              customerProfile?.addresses.length > 0 && (
-                <Text>
-                  {customerProfile?.addresses[0]?.street} {"\n"}
-                  {customerProfile?.addresses[0]?.city},{" "}
-                  {customerProfile?.addresses[0]?.state}{" "}
-                  {customerProfile?.addresses[0]?.zip}
-                </Text>
-              )}
+            {customer.addresses && customer.addresses.length > 0 && (
+              <Text>
+                {customer.addresses[0]?.street} {"\n"}
+                {customer.addresses[0]?.city}, {customer.addresses[0]?.state}{" "}
+                {customer.addresses[0]?.zip}
+              </Text>
+            )}
             <Button
               bg="white"
               borderWidth={0}
