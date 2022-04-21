@@ -1,7 +1,7 @@
 import React from "react";
 import auth, { firebase, FirebaseAuthTypes } from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LeadDetails } from "../commons/types";
+import { HouseInfo, LeadDetails } from "../commons/types";
 import { navigate } from "../navigations/rootNavigation";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import appleAuth from "@invertase/react-native-apple-authentication";
@@ -23,11 +23,7 @@ export type Address = {
   city: string;
   state: string;
   zip: string;
-  houseInfo?: {
-    bathrooms?: number;
-    bedrooms?: number;
-    lotSize?: number;
-  };
+  houseInfo?: HouseInfo;
 };
 
 export type CreditCard = {

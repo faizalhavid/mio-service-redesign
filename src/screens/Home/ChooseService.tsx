@@ -1,5 +1,5 @@
 import { Divider, HStack, ScrollView, Text, VStack } from "native-base";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   HOUSE_CLEANING,
   LAWN_CARE,
@@ -10,13 +10,20 @@ import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
-import { useMutation, useQuery } from "react-query";
-import { getLead, getServices, postLead, putLead } from "../../services/order";
-import { PriceMap, Service } from "../../commons/types";
-import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
+import { PriceMap } from "../../commons/types";
 import AddServiceBottomSheet from "../../components/AddServiceBottomSheet";
-import { putCustomer } from "../../services/customer";
 import { StorageHelper } from "../../services/storage-helper";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { putCustomerAsync, selectCustomer } from "../../slices/customer-slice";
+import { getServicesAsync, selectServices } from "../../slices/service-slice";
+import {
+  createLeadAsync,
+  getLeadAsync,
+  selectLead,
+  updateLeadAsync,
+} from "../../slices/lead-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 export const LAWN_CARE_ID: string = "lawnCare";
 export const POOL_CLEANING_ID: string = "poolCleaning";
@@ -74,10 +81,22 @@ const ChooseService = (): JSX.Element => {
 
   // const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
 
-  const [loading, setLoading] = React.useState(false);
-  const { leadDetails, setLeadDetails, customerProfile, setCustomerProfile } =
-    useAuth();
-  const [services, setServices] = React.useState<Service[]>([{} as Service]);
+  const dispatch = useAppDispatch();
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
+  const {
+    uiState: servicesUiState,
+    collection: allServices,
+    error: serviceError,
+  } = useAppSelector(selectServices);
+  const {
+    uiState: leadUiState,
+    member: leadDetails,
+    error: leadError,
+  } = useAppSelector(selectLead);
 
   const [selectedArea, setSelectedArea] = React.useState<number>(0);
   const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>(0);
@@ -92,55 +111,24 @@ const ChooseService = (): JSX.Element => {
     []
   );
 
-  const getAllServices = useQuery(
-    "getAllServices",
-    () => {
-      setLoading(true);
-      return getServices();
-    },
-    {
-      onSuccess: (data) => {
-        let result = data.data;
-        for (let service of result) {
-          SERVICES[service.serviceId].description = service.description;
-        }
-        setLoading(false);
-        setServices(result);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
-
-  const getLeadMutation = useMutation(
-    "getLeadById",
-    (leadId: string) => {
-      setLoading(true);
-      return getLead(leadId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setLeadDetails(data.data);
-        let _selectedServices: string[] = [];
-        data.data.subOrders.forEach((subOrder: any) => {
-          _selectedServices.push(subOrder.serviceId);
-        });
-        setSelectedServices(_selectedServices);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
+  useEffect(() => {
+    dispatch(getServicesAsync()).then(() => {
+      for (let service of allServices) {
+        SERVICES[service.serviceId].description = service.description;
+      }
+    });
+  }, []);
 
   const fetchLead = React.useCallback(async () => {
     let leadId = await StorageHelper.getValue("LEAD_ID");
     if (leadId) {
-      await getLeadMutation.mutateAsync(leadId);
+      dispatch(getLeadAsync({ leadId })).then(() => {
+        let _selectedServices: string[] = [];
+        leadDetails.subOrders.forEach((subOrder: any) => {
+          _selectedServices.push(subOrder.serviceId);
+        });
+        setSelectedServices(_selectedServices);
+      });
     }
   }, []);
 
@@ -148,106 +136,59 @@ const ChooseService = (): JSX.Element => {
     fetchLead();
   }, [fetchLead]);
 
-  const createLeadMutation = useMutation(
-    "createLead",
-    (data) => {
-      setLoading(true);
-      let payload = {
-        subOrders: [
-          ...selectedServices.map((serviceId) => {
-            if (serviceId === LAWN_CARE_ID) {
-              return {
-                area: selectedArea,
-                serviceId,
-              };
-            } else if (serviceId === HOUSE_CLEANING_ID) {
-              return {
-                bedrooms: selectedBedroomNo,
-                bathrooms: selectedBathroomNo,
-                serviceId,
-              };
-            }
-            return { serviceId };
-          }),
-        ],
-      };
-      return postLead(payload);
-    },
-    {
-      onSuccess: async (data) => {
-        setLoading(false);
-        setLeadDetails(data.data);
-        await StorageHelper.setValue("LEAD_ID", data.data.leadId);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
+  const createLead = async () => {
+    let payload = {
+      subOrders: [
+        ...selectedServices.map((serviceId) => {
+          if (serviceId === LAWN_CARE_ID) {
+            return {
+              area: selectedArea,
+              serviceId,
+            };
+          } else if (serviceId === HOUSE_CLEANING_ID) {
+            return {
+              bedrooms: selectedBedroomNo,
+              bathrooms: selectedBathroomNo,
+              serviceId,
+            };
+          }
+          return { serviceId };
+        }),
+      ],
+    };
+    return dispatch(createLeadAsync(payload));
+  };
 
-  const updateLeadMutation = useMutation(
-    "updateLead",
-    (data) => {
-      setLoading(true);
-      let existingServiceIds = leadDetails.subOrders.map(
-        (subOrder) => subOrder.serviceId
-      );
-      let newlyAddedServiceIds = selectedServices.filter(
-        (serviceId) => !existingServiceIds.includes(serviceId)
-      );
-      let subOrders = leadDetails.subOrders.filter((subOrder) => {
-        return selectedServices.includes(subOrder.serviceId);
-      });
-      let payload = {
-        ...leadDetails,
-        subOrders: [
-          ...subOrders,
-          ...newlyAddedServiceIds.map((serviceId) => {
-            if (serviceId === LAWN_CARE_ID) {
-              return { serviceId, area: String(selectedArea) };
-            } else if (serviceId === HOUSE_CLEANING_ID) {
-              return {
-                serviceId,
-                bedrooms: String(selectedBedroomNo),
-                bathrooms: String(selectedBathroomNo),
-              };
-            }
-            return { serviceId };
-          }),
-        ],
-      };
-      return putLead(payload);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setLeadDetails(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
-
-  const putAddressMutation = useMutation(
-    "putAddressMutation",
-    (data: CustomerProfile): any => {
-      setLoading(true);
-      return putCustomer(data);
-    },
-    {
-      onSuccess: async (data: any) => {
-        setLoading(false);
-        setCustomerProfile(data.data);
-      },
-      onError: (err: any) => {
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
+  const updateLead = async () => {
+    let existingServiceIds = leadDetails.subOrders.map(
+      (subOrder) => subOrder.serviceId
+    );
+    let newlyAddedServiceIds = selectedServices.filter(
+      (serviceId) => !existingServiceIds.includes(serviceId)
+    );
+    let subOrders = leadDetails.subOrders.filter((subOrder) => {
+      return selectedServices.includes(subOrder.serviceId);
+    });
+    let payload = {
+      ...leadDetails,
+      subOrders: [
+        ...subOrders,
+        ...newlyAddedServiceIds.map((serviceId) => {
+          if (serviceId === LAWN_CARE_ID) {
+            return { serviceId, area: String(selectedArea) };
+          } else if (serviceId === HOUSE_CLEANING_ID) {
+            return {
+              serviceId,
+              bedrooms: String(selectedBedroomNo),
+              bathrooms: String(selectedBathroomNo),
+            };
+          }
+          return { serviceId };
+        }),
+      ],
+    };
+    return dispatch(updateLeadAsync(payload));
+  };
 
   const chooseService = async (
     serviceId: string = "",
@@ -263,22 +204,24 @@ const ChooseService = (): JSX.Element => {
     if (fromBottomSheet) {
       if (propertyDetailsNeeded) {
         let houseInfo = {
-          ...customerProfile.addresses[0].houseInfo,
+          ...customer.addresses[0].houseInfo,
         };
         if (serviceId === LAWN_CARE_ID) {
           houseInfo = {
             ...houseInfo,
             lotSize: selectedArea,
           };
-          putAddressMutation.mutate({
-            ...customerProfile,
-            addresses: [
-              {
-                ...customerProfile.addresses[0],
-                houseInfo,
-              },
-            ],
-          });
+          dispatch(
+            putCustomerAsync({
+              ...customer,
+              addresses: [
+                {
+                  ...customer.addresses[0],
+                  houseInfo,
+                },
+              ],
+            })
+          );
         } else if (serviceId === HOUSE_CLEANING_ID) {
           // console.log(selectedBedroomNo, selectedBathroomNo);
           houseInfo = {
@@ -286,15 +229,17 @@ const ChooseService = (): JSX.Element => {
             bedrooms: selectedBedroomNo,
             bathrooms: selectedBathroomNo,
           };
-          putAddressMutation.mutate({
-            ...customerProfile,
-            addresses: [
-              {
-                ...customerProfile.addresses[0],
-                houseInfo,
-              },
-            ],
-          });
+          dispatch(
+            putCustomerAsync({
+              ...customer,
+              addresses: [
+                {
+                  ...customer.addresses[0],
+                  houseInfo,
+                },
+              ],
+            })
+          );
         }
       }
     } else {
@@ -312,15 +257,13 @@ const ChooseService = (): JSX.Element => {
   const checkNeedForPropertyDetails = async (serviceId: string) => {
     return new Promise((resolve, reject) => {
       try {
-        if (services.length > 0 && serviceId === LAWN_CARE_ID) {
-          setLoading(true);
+        if (allServices.length > 0 && serviceId === LAWN_CARE_ID) {
           let hasArea = false;
-          for (const service of services) {
+          for (const service of allServices) {
             if (service.serviceId === LAWN_CARE_ID) {
-              if (customerProfile.addresses[0].houseInfo?.lotSize) {
+              if (customer.addresses[0].houseInfo?.lotSize) {
                 let priceMap: PriceMap[] = [];
-                let lotsize: number =
-                  customerProfile.addresses[0].houseInfo?.lotSize;
+                let lotsize: number = customer.addresses[0].houseInfo?.lotSize;
                 console.log(lotsize);
                 for (const price of service.priceMap) {
                   if (
@@ -356,10 +299,10 @@ const ChooseService = (): JSX.Element => {
             resolve(false);
             return;
           }
-        } else if (services.length > 0 && serviceId === HOUSE_CLEANING_ID) {
+        } else if (allServices.length > 0 && serviceId === HOUSE_CLEANING_ID) {
           setBathroomOptions([]);
           setBedroomOptions([]);
-          let houseInfo = customerProfile?.addresses[0]?.houseInfo;
+          let houseInfo = customer?.addresses[0]?.houseInfo;
           // console.log(houseInfo);
           let bathOptions: BathBedOptions[] = [];
           let bedOptions: BathBedOptions[] = [];
@@ -407,8 +350,6 @@ const ChooseService = (): JSX.Element => {
       } catch (error) {
         resolve(false);
         console.log(error);
-      } finally {
-        setLoading(false);
       }
     });
   };
@@ -429,7 +370,11 @@ const ChooseService = (): JSX.Element => {
   };
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView
+      loading={
+        [leadUiState, customerUiState, servicesUiState].indexOf(IN_PROGRESS) > 0
+      }
+    >
       <ScrollView>
         <>
           <VStack mt={5} space={5}>
@@ -503,10 +448,11 @@ const ChooseService = (): JSX.Element => {
           onPress={async () => {
             const leadId = await StorageHelper.getValue("LEAD_ID");
             if (!leadId) {
-              await createLeadMutation.mutateAsync();
-              await updateLeadMutation.mutateAsync();
+              await createLead();
+              await StorageHelper.setValue("LEAD_ID", leadDetails.leadId);
+              await updateLead();
             } else {
-              await updateLeadMutation.mutateAsync();
+              await updateLead();
             }
             navigate("ServiceDetails");
           }}

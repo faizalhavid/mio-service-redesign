@@ -7,14 +7,14 @@ import { createAsyncSlice } from "./create-async-slice";
 
 export const createLeadAsync = createAsyncThunk(
   "lead/create",
-  async (data: LeadDetails) => {
+  async (data: any) => {
     const res = await AxiosClient.post(API.POST_LEAD, data);
     return res.data;
   }
 );
 export const updateLeadAsync = createAsyncThunk(
   "lead/update",
-  async (data: LeadDetails) => {
+  async (data: any) => {
     const res = await AxiosClient.put(`${API.PUT_LEAD}/${data.leadId}`, data);
     return res.data;
   }

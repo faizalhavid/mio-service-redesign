@@ -1,19 +1,19 @@
 import * as uiStates from "../commons/ui-states";
 export interface HouseInfo {
-  bedrooms: string;
-  bathrooms: string;
-  stories: string;
-  builtArea: number;
-  lotSize: number;
-  lotSizeUnit: string;
-  builtAreaUnit: string;
-  swimmingPool: boolean;
-  swimmingPoolSize: number;
-  swimmingPoolSizeUnit: string;
-  swimmingPoolType: string;
-  type: string;
-  rmId: string;
-  totalrooms: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  stories?: string;
+  builtArea?: number;
+  lotSize?: number;
+  lotSizeUnit?: string;
+  builtAreaUnit?: string;
+  swimmingPool?: boolean;
+  swimmingPoolSize?: number;
+  swimmingPoolSizeUnit?: string;
+  swimmingPoolType?: string;
+  type?: string;
+  rmId?: string;
+  totalrooms?: string;
 }
 
 export interface FormattedAddress {
@@ -177,16 +177,16 @@ export interface SubOrder {
   serviceId: string;
   selectedAddons: any[];
   flags: Flags2;
-  area?: string;
-  bedrooms?: string;
-  bathrooms?: string;
+  area?: number;
+  bedrooms?: number;
+  bathrooms?: number;
   servicePrice: ServicePrice;
   chargeResponse: ChargeResponse;
   serviceNotes: string[];
   appointmentInfo: AppointmentInfo;
 }
 
-export interface LeadDetails {
+export type LeadDetails = {
   leadId: string;
   customerProfile: CustomerProfile;
   metaData: MetaData;
@@ -194,7 +194,7 @@ export interface LeadDetails {
   flags: Flags;
   promoCode: PromoCode;
   subOrders: SubOrder[];
-}
+};
 
 // State
 

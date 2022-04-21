@@ -11,19 +11,25 @@ import {
 import React, { useState } from "react";
 import { Dimensions, Platform, ScrollView } from "react-native";
 import { SvgCss } from "react-native-svg";
-import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
 import { PriceMap, SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import SelectionButton from "../../components/SelectionButton";
-import { useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
-import { getServiceCost, putLead } from "../../services/order";
 import { HOUSE_CLEANING_ID, LAWN_CARE_ID, SERVICES } from "./ChooseService";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import ErrorView from "../../components/ErrorView";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { selectCustomer } from "../../slices/customer-slice";
+import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
+import {
+  getServiceCostAsync,
+  selectServiceCost,
+  selectServices,
+} from "../../slices/service-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 type LawnSizeType = {
   rangeMin: number | null;
@@ -81,21 +87,40 @@ const EditServiceDetails = ({
 }: EditServiceDetailsProps): JSX.Element => {
   const { serviceId, mode } = route.params;
 
-  const [loading, setLoading] = React.useState(false);
-  const [errorMsg, setErrorMsg] = React.useState("");
   const [serviceNotes, setServiceNotes] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState("");
   const [selectedTime, setSelectedTime] = React.useState("");
   const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
     React.useState<any>({});
 
-  const { leadDetails, setLeadDetails, customerProfile } = useAuth();
-
   const screenWidth = Dimensions.get("screen").width;
 
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
   }>({});
+
+  const dispatch = useAppDispatch();
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
+  const {
+    uiState: servicesUiState,
+    collection: allServices,
+    error: serviceError,
+  } = useAppSelector(selectServices);
+  const {
+    uiState: leadUiState,
+    member: leadDetails,
+    error: leadError,
+  } = useAppSelector(selectLead);
+
+  const {
+    uiState: serviceCostUiState,
+    collection: serviceCost,
+    error: serviceCostError,
+  } = useAppSelector(selectServiceCost);
 
   React.useEffect(() => {
     if (!leadDetails) {
@@ -109,70 +134,54 @@ const EditServiceDetails = ({
     setGroupedLeadDetails(details);
   }, [leadDetails]);
 
-  const updateLeadMutation = useMutation(
-    "updateLead",
-    () => {
-      setLoading(true);
-      let updatedSuborders = leadDetails.subOrders.map((subOrder) => {
-        if (subOrder.serviceId === serviceId) {
-          let selecDate = selectedDate;
-          if (Platform.OS === "ios") {
-            selecDate = selecDate.replace(/-/g, "/");
-          }
-          subOrder.appointmentInfo.appointmentDateTime = new Date(
-            `${selecDate} ${
-              parseInt(selectedTime) > 9 ? selectedTime : "0" + selectedTime
-            }:00:00`
-          ).toISOString();
-          subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
-          subOrder.serviceNotes = [serviceNotes];
+  const updateLead = async () => {
+    let updatedSuborders = leadDetails.subOrders.map((subOrder) => {
+      if (subOrder.serviceId === serviceId) {
+        let selecDate = selectedDate;
+        if (Platform.OS === "ios") {
+          selecDate = selecDate.replace(/-/g, "/");
+        }
+        subOrder.appointmentInfo.appointmentDateTime = new Date(
+          `${selecDate} ${
+            parseInt(selectedTime) > 9 ? selectedTime : "0" + selectedTime
+          }:00:00`
+        ).toISOString();
+        subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
+        subOrder.serviceNotes = [serviceNotes];
 
-          if (appointmentTimeOptions) {
-            for (let option of appointmentTimeOptions) {
-              if (option.selected) {
-                subOrder.appointmentInfo.selectedRange = {
-                  rangeStart: `${option.rangeMin} ${option.minMeridian}`,
-                  rangeEnd: `${option.rangeMax} ${option.maxMaxidian}`,
-                };
-              }
+        if (appointmentTimeOptions) {
+          for (let option of appointmentTimeOptions) {
+            if (option.selected) {
+              subOrder.appointmentInfo.selectedRange = {
+                rangeStart: `${option.rangeMin} ${option.minMeridian}`,
+                rangeEnd: `${option.rangeMax} ${option.maxMaxidian}`,
+              };
             }
           }
-
-          if (selectedSubscriptionMethod.method === "RECURRING") {
-            subOrder.servicePrice.cost =
-              selectedSubscriptionMethod?.activeOption?.perCost;
-            subOrder.flags.recurringDuration =
-              selectedSubscriptionMethod?.activeOption?.type;
-            subOrder.flags.isRecurring = true;
-          } else {
-            subOrder.servicePrice.cost = selectedSubscriptionMethod.cost;
-            subOrder.flags.recurringDuration = "ONCE";
-            subOrder.flags.isRecurring = false;
-          }
-
-          return subOrder;
         }
+
+        if (selectedSubscriptionMethod.method === "RECURRING") {
+          subOrder.servicePrice.cost =
+            selectedSubscriptionMethod?.activeOption?.perCost;
+          subOrder.flags.recurringDuration =
+            selectedSubscriptionMethod?.activeOption?.type;
+          subOrder.flags.isRecurring = true;
+        } else {
+          subOrder.servicePrice.cost = selectedSubscriptionMethod.cost;
+          subOrder.flags.recurringDuration = "ONCE";
+          subOrder.flags.isRecurring = false;
+        }
+
         return subOrder;
-      });
-      let payload = {
-        ...leadDetails,
-        subOrders: updatedSuborders,
-      };
-      return putLead(payload);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setLeadDetails(data.data);
-        goBack();
-      },
-      onError: (err) => {
-        setErrorMsg("Something went wrong!");
-        setLoading(false);
-        console.log(err);
-      },
-    }
-  );
+      }
+      return subOrder;
+    });
+    let payload = {
+      ...leadDetails,
+      subOrders: updatedSuborders,
+    };
+    return dispatch(updateLeadAsync(payload));
+  };
 
   const [showFields, setShowFields] = React.useState(false);
 
@@ -188,147 +197,128 @@ const EditServiceDetails = ({
 
   const [subscriptionMethodOptions, setSubscriptionMethodOptions] =
     React.useState<any[]>([]);
-  const getServiceCostMutation = useMutation(
-    "getServiceCost",
-    (payload: any) => {
-      setLoading(true);
-      return getServiceCost(payload);
-    },
-    {
-      onSuccess: (data) => {
-        let isUpdate = mode === "UPDATE";
-        let subOrder = groupedLeadDetails[serviceId];
-        let subscriptionMethods: any[] = [];
-        let recurringOptions: any[] = [];
-        let priceMap: PriceMap[] = data.data;
-        let pricePerMonth = "";
-        if (priceMap && priceMap[0]) {
-          let pricePerWeekExists =
-            priceMap[0].pricePerWeek &&
-            parseInt(priceMap[0].pricePerWeek) !== 0;
-          let pricePer2WeeksExists =
-            priceMap[0].pricePer2Weeks &&
-            parseInt(priceMap[0].pricePer2Weeks) !== 0;
-          let pricePerMonthExists =
-            priceMap[0].pricePerMonth &&
-            parseInt(priceMap[0].pricePerMonth) !== 0;
 
-          if (pricePerWeekExists) {
-            recurringOptions.push({
-              perCost: priceMap[0].pricePerWeek,
-              type: "WEEKLY",
-              label: "Weekly",
-              selected: false,
-            });
-          }
-          if (pricePer2WeeksExists) {
-            recurringOptions.push({
-              perCost: priceMap[0].pricePer2Weeks,
-              type: "BIWEEKLY",
-              label: "Bi-Weekly",
-              selected: false,
-            });
-          }
-          if (pricePerMonthExists) {
-            pricePerMonth = priceMap[0].pricePerMonth;
-            recurringOptions.push({
-              perCost: pricePerMonth,
-              type: "MONTHLY",
-              label: "Monthly",
-              selected: false,
-            });
-          }
-          if (
-            pricePerWeekExists ||
-            pricePer2WeeksExists ||
-            pricePerMonthExists
-          ) {
-            if (isUpdate) {
-              let selectedIndex: number = 0;
-              for (let i = 0; i < recurringOptions.length; i++) {
-                if (
-                  recurringOptions[i].type ===
-                  subOrder?.flags?.recurringDuration
-                ) {
-                  selectedIndex = i;
-                }
-              }
-              recurringOptions[selectedIndex] = {
-                ...recurringOptions[selectedIndex],
-                selected: true,
-              };
-              let sub = {
-                method: "RECURRING",
-                label: `$${pricePerMonth} Billed Monthly`,
-                selected: subOrder?.flags.isRecurring,
-                activeOption: recurringOptions[selectedIndex],
-                options: recurringOptions,
-              };
-              subscriptionMethods.push(sub);
-              setSelectedSubscriptionMethod(sub);
-            } else {
-              recurringOptions[0] = {
-                ...recurringOptions[0],
-                selected: true,
-              };
-              let sub = {
-                method: "RECURRING",
-                label: `$${pricePerMonth} Billed Monthly`,
-                selected: true,
-                activeOption: recurringOptions[0],
-                options: recurringOptions,
-              };
-              subscriptionMethods.push(sub);
-              setSelectedSubscriptionMethod(sub);
+  const getServiceCost = async (payload: any) => {
+    await dispatch(getServiceCostAsync(payload));
+    let isUpdate = mode === "UPDATE";
+    let subOrder = groupedLeadDetails[serviceId];
+    let subscriptionMethods: any[] = [];
+    let recurringOptions: any[] = [];
+    let priceMap: PriceMap[] = serviceCost;
+    let pricePerMonth = "";
+    if (priceMap && priceMap[0]) {
+      let pricePerWeekExists =
+        priceMap[0].pricePerWeek && parseInt(priceMap[0].pricePerWeek) !== 0;
+      let pricePer2WeeksExists =
+        priceMap[0].pricePer2Weeks &&
+        parseInt(priceMap[0].pricePer2Weeks) !== 0;
+      let pricePerMonthExists =
+        priceMap[0].pricePerMonth && parseInt(priceMap[0].pricePerMonth) !== 0;
+
+      if (pricePerWeekExists) {
+        recurringOptions.push({
+          perCost: priceMap[0].pricePerWeek,
+          type: "WEEKLY",
+          label: "Weekly",
+          selected: false,
+        });
+      }
+      if (pricePer2WeeksExists) {
+        recurringOptions.push({
+          perCost: priceMap[0].pricePer2Weeks,
+          type: "BIWEEKLY",
+          label: "Bi-Weekly",
+          selected: false,
+        });
+      }
+      if (pricePerMonthExists) {
+        pricePerMonth = priceMap[0].pricePerMonth;
+        recurringOptions.push({
+          perCost: pricePerMonth,
+          type: "MONTHLY",
+          label: "Monthly",
+          selected: false,
+        });
+      }
+      if (pricePerWeekExists || pricePer2WeeksExists || pricePerMonthExists) {
+        if (isUpdate) {
+          let selectedIndex: number = 0;
+          for (let i = 0; i < recurringOptions.length; i++) {
+            if (
+              recurringOptions[i].type === subOrder?.flags?.recurringDuration
+            ) {
+              selectedIndex = i;
             }
           }
-
-          if (
-            priceMap[0].pricePerOnetime &&
-            parseInt(priceMap[0].pricePerOnetime) !== 0
-          ) {
-            let sub = {
-              method: "ONCE",
-              cost: priceMap[0].pricePerOnetime,
-              label: "One-time Service",
-              selected: isUpdate
-                ? subOrder?.flags.isRecurring
-                  ? false
-                  : true
-                : false,
-            };
-            subscriptionMethods.push(sub);
-            if (isUpdate && !subOrder.flags.isRecurring) {
-              setSelectedSubscriptionMethod(sub);
-            }
-          }
+          recurringOptions[selectedIndex] = {
+            ...recurringOptions[selectedIndex],
+            selected: true,
+          };
+          let sub = {
+            method: "RECURRING",
+            label: `$${pricePerMonth} Billed Monthly`,
+            selected: subOrder?.flags.isRecurring,
+            activeOption: recurringOptions[selectedIndex],
+            options: recurringOptions,
+          };
+          subscriptionMethods.push(sub);
+          setSelectedSubscriptionMethod(sub);
+        } else {
+          recurringOptions[0] = {
+            ...recurringOptions[0],
+            selected: true,
+          };
+          let sub = {
+            method: "RECURRING",
+            label: `$${pricePerMonth} Billed Monthly`,
+            selected: true,
+            activeOption: recurringOptions[0],
+            options: recurringOptions,
+          };
+          subscriptionMethods.push(sub);
+          setSelectedSubscriptionMethod(sub);
         }
-        setSubscriptionMethodOptions(subscriptionMethods);
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
+      }
+
+      if (
+        priceMap[0].pricePerOnetime &&
+        parseInt(priceMap[0].pricePerOnetime) !== 0
+      ) {
+        let sub = {
+          method: "ONCE",
+          cost: priceMap[0].pricePerOnetime,
+          label: "One-time Service",
+          selected: isUpdate
+            ? subOrder?.flags.isRecurring
+              ? false
+              : true
+            : false,
+        };
+        subscriptionMethods.push(sub);
+        if (isUpdate && !subOrder.flags.isRecurring) {
+          setSelectedSubscriptionMethod(sub);
+        }
+      }
     }
-  );
+    setSubscriptionMethodOptions(subscriptionMethods);
+  };
 
   React.useEffect(() => {
     if (
-      Object.keys(customerProfile).length === 0 ||
+      Object.keys(customer).length === 0 ||
       Object.keys(groupedLeadDetails).length === 0
     ) {
       return;
     }
     if (serviceId) {
-      setLoading(true);
       for (let subOrder of leadDetails.subOrders) {
         if (
           subOrder.serviceId === serviceId &&
           serviceId === LAWN_CARE_ID &&
           subOrder.area
         ) {
-          let lotsize: number = parseInt(subOrder.area);
-          getServiceCostMutation.mutate([
+          let lotsize: number = subOrder.area;
+          getServiceCost([
             {
               serviceId,
               serviceParameters: {
@@ -343,18 +333,18 @@ const EditServiceDetails = ({
           subOrder.bathrooms &&
           subOrder.bedrooms
         ) {
-          getServiceCostMutation.mutate([
+          getServiceCost([
             {
               serviceId,
               serviceParameters: {
-                bedrooms: parseInt(subOrder.bedrooms),
-                bathrooms: parseInt(subOrder.bathrooms),
+                bedrooms: subOrder.bedrooms,
+                bathrooms: subOrder.bathrooms,
               },
             },
           ]);
           break;
         } else if (["pestControl", "poolCleaning"].includes(serviceId)) {
-          getServiceCostMutation.mutate([
+          getServiceCost([
             {
               serviceId,
               serviceParameters: {},
@@ -363,10 +353,9 @@ const EditServiceDetails = ({
           break;
         }
       }
-      setLoading(false);
     }
     return;
-  }, [serviceId, customerProfile, groupedLeadDetails]);
+  }, [serviceId, customer, groupedLeadDetails]);
 
   const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -461,7 +450,16 @@ const EditServiceDetails = ({
   };
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView
+      loading={
+        [
+          leadUiState,
+          customerUiState,
+          servicesUiState,
+          serviceCostUiState,
+        ].indexOf(IN_PROGRESS) > 0
+      }
+    >
       {showFields && serviceId && (
         <PresenceTransition
           visible={true}
@@ -495,7 +493,6 @@ const EditServiceDetails = ({
                 </HStack>
                 {SectionDivider(1)}
                 <VStack>
-                  <ErrorView message={errorMsg} />
                   {SectionDivider(0)}
                   {Title("Choose Subscription Method")}
                   {SectionDivider(0)}
@@ -763,7 +760,9 @@ const EditServiceDetails = ({
         subText="Choose Subscription Method & Schedule"
         label="SAVE"
         onPress={async () => {
-          await updateLeadMutation.mutateAsync();
+          updateLead().then(() => {
+            goBack();
+          });
         }}
       />
     </AppSafeAreaView>

@@ -1,7 +1,7 @@
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { CustomerProfile } from "../contexts/AuthContext";
 import { RootState } from "../reducers";
-import { CommonState, HouseInfoRequest } from "../commons/types";
+import { CommonState, HouseInfo, HouseInfoRequest } from "../commons/types";
 import { createAsyncSlice } from "./create-async-slice";
 import AxiosClient from "../services/axios-client";
 import { API } from "../commons/urls";
@@ -57,7 +57,7 @@ export const customerSlice = createAsyncSlice<CustomerProfile>({
   thunks: [registerCustomerAsync, getCustomerByIdAsync, putCustomerAsync],
 });
 
-export const houseInfoSlice = createAsyncSlice<CustomerProfile>({
+export const houseInfoSlice = createAsyncSlice<HouseInfo>({
   name: "houseInfo",
   reducers: {},
   thunks: [getHouseInfoAsync],
@@ -68,3 +68,4 @@ export const { setCustomerState } = customerSlice.actions;
 
 // Selectors
 export const selectCustomer = (state: RootState) => state.customer;
+export const selectHouseInfo = (state: RootState) => state.houseInfo;

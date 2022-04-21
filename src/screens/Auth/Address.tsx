@@ -2,137 +2,57 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Center, CheckIcon, Divider, Select, Text, VStack } from "native-base";
 import React, { useCallback, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { AppColors } from "../../commons/colors";
 import { STATES } from "../../commons/dropdown-values";
-import {
-  FormattedAddress,
-  HouseInfoAddressRequest,
-  HouseInfoRequest,
-} from "../../commons/types";
+import { HouseInfoAddressRequest } from "../../commons/types";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack, popToPop } from "../../navigations/rootNavigation";
-import {
-  getCustomer,
-  getHouseInfo,
-  putCustomer,
-} from "../../services/customer";
-import { CustomerProfile, useAuth } from "../../contexts/AuthContext";
 import ErrorView from "../../components/ErrorView";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import {
+  getCustomerByIdAsync,
+  getHouseInfoAsync,
+  putCustomerAsync,
+  selectCustomer,
+  selectHouseInfo,
+} from "../../slices/customer-slice";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
 
 type AddressProps = NativeStackScreenProps<SuperRootStackParamList, "Address">;
 const Address = ({ route }: AddressProps): JSX.Element => {
   const { returnTo } = route.params;
-  const [loading, setLoading] = React.useState(false);
-  const [errorMsg, setErrorMsg] = React.useState("");
-  const { customerProfile, setCustomerProfile } = useAuth();
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
-
+  const dispatch = useAppDispatch();
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
+  const {
+    uiState: houseInfoUiState,
+    member: houseInfo,
+    error: houseInfoError,
+  } = useAppSelector(selectHouseInfo);
   const fetchCustomerProfile = useCallback(async () => {
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    setCustomerId(cId);
-    await getCustomerMutation.mutateAsync();
+    await dispatch(getCustomerByIdAsync(cId));
+    if (returnTo === "ServiceDetails" || customer?.addresses[0]) {
+      setValue("street", customer.addresses[0].street);
+      setValue("city", customer.addresses[0].city);
+      setValue("state", customer.addresses[0].state);
+      setValue("zip", customer.addresses[0].zip);
+    }
   }, []);
 
   useEffect(() => {
     fetchCustomerProfile();
   }, [fetchCustomerProfile]);
-
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setCustomerProfile(data.data);
-        if (returnTo === "ServiceDetails" || data.data?.addresses[0]) {
-          setValue("street", data.data.addresses[0].street);
-          setValue("city", data.data.addresses[0].city);
-          setValue("state", data.data.addresses[0].state);
-          setValue("zip", data.data.addresses[0].zip);
-        }
-        setLoading(false);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-
-  const getHouseInfoMutation = useMutation(
-    "getHouseInfo",
-    (data: HouseInfoRequest): any => {
-      setLoading(true);
-      return getHouseInfo(data);
-    },
-    {
-      onSuccess: (response: any) => {
-        setLoading(false);
-        putAddressMutation.mutate({
-          ...customerProfile,
-          addresses: [
-            {
-              ...response.data,
-            },
-          ],
-        });
-      },
-      onError: (err: any) => {
-        setLoading(false);
-        setErrorMsg(
-          "Something went wrong while updating address. Please try again."
-        );
-        console.log(err);
-      },
-    }
-  );
-
-  const putAddressMutation = useMutation(
-    "putAddressMutation",
-    (data: CustomerProfile): any => {
-      setLoading(true);
-      return putCustomer(data);
-    },
-    {
-      onSuccess: async (data: FormattedAddress) => {
-        await StorageHelper.setValue(
-          FLAG_TYPE.ADDRESS_DETAILS_STATUS,
-          STATUS.COMPLETED
-        );
-        if (returnTo) {
-          goBack();
-        } else {
-          let status = await StorageHelper.getValue(
-            FLAG_TYPE.EMAIL_VERIFICATION_STATUS
-          );
-          if (status === STATUS.PENDING) {
-            popToPop("VerifyEmail");
-          } else {
-            await StorageHelper.setValue(
-              FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
-              STATUS.COMPLETED
-            );
-            popToPop("Dashboard");
-          }
-        }
-      },
-      onError: (err: any) => {
-        setLoading(false);
-        setErrorMsg(
-          "Something went wrong while creating profile. Please try again."
-        );
-        console.log(err);
-      },
-    }
-  );
 
   const {
     control,
@@ -144,28 +64,70 @@ const Address = ({ route }: AddressProps): JSX.Element => {
   });
 
   const onSubmit = async (data: HouseInfoAddressRequest) => {
-    setLoading(true);
-    setErrorMsg("");
-
-    getHouseInfoMutation.mutate({
-      nva: data.street,
-      addresses: [
-        {
-          ...data,
-        },
-      ],
-    });
+    await dispatch(
+      getHouseInfoAsync({
+        nva: data.street,
+        addresses: [
+          {
+            ...data,
+          },
+        ],
+      })
+    );
+    await dispatch(
+      putCustomerAsync({
+        ...customer,
+        addresses: [
+          {
+            ...customer.addresses[0],
+            houseInfo: {
+              ...houseInfo,
+            },
+          },
+        ],
+      })
+    );
+    await StorageHelper.setValue(
+      FLAG_TYPE.ADDRESS_DETAILS_STATUS,
+      STATUS.COMPLETED
+    );
+    if (returnTo) {
+      goBack();
+    } else {
+      let status = await StorageHelper.getValue(
+        FLAG_TYPE.EMAIL_VERIFICATION_STATUS
+      );
+      if (status === STATUS.PENDING) {
+        popToPop("VerifyEmail");
+      } else {
+        await StorageHelper.setValue(
+          FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
+          STATUS.COMPLETED
+        );
+        popToPop("Dashboard");
+      }
+    }
   };
 
   return (
-    <AppSafeAreaView loading={loading}>
+    <AppSafeAreaView
+      loading={
+        customerUiState === IN_PROGRESS || houseInfoUiState === IN_PROGRESS
+      }
+    >
       <KeyboardAwareScrollView enableOnAndroid={true}>
         <VStack paddingX={5} mt={10}>
           <Center width={"100%"}>
             <Text fontSize={20}>Update Address</Text>
           </Center>
           <VStack mt={10} space={0}>
-            <ErrorView message={errorMsg} />
+            {(customerUiState === FAILED || houseInfoUiState === FAILED) && (
+              <ErrorView
+                message={
+                  "Something went wrong while creating profile. Please try again."
+                }
+              />
+            )}
             <Controller
               control={control}
               rules={{

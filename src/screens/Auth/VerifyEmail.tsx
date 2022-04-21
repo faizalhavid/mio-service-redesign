@@ -1,40 +1,15 @@
 import { Button, Center, Text, View, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
-import { useMutation } from "react-query";
 import { EXCLAMATION_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { useAuth } from "../../contexts/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getCustomer } from "../../services/customer";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
-import { StorageHelper } from "../../services/storage-helper";
+import { navigate } from "../../navigations/rootNavigation";
 
 const VerifyEmail = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-  const [customerId, setCustomerId] = React.useState(null);
-  StorageHelper.getValue("CUSTOMER_ID").then((value: any) => {
-    setCustomerId(value);
-  });
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        popToPop("Address");
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-  const { currentUser, reload, resendEmail } = useAuth();
+  const { currentUser, resendEmail } = useAuth();
 
   useEffect(() => {
     if (currentUser) {
