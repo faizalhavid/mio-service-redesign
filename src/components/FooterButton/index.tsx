@@ -8,7 +8,12 @@ import {
 } from "native-base";
 import React from "react";
 import { AppColors } from "../../commons/colors";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import { navigate } from "../../navigations/rootNavigation";
+import {
+  selectSelectedServices,
+  selectServices,
+} from "../../slices/service-slice";
 
 type FooterButtonProps = {
   label: string;
@@ -25,6 +30,9 @@ const FooterButton = ({
   v2,
   disabled,
 }: FooterButtonProps): JSX.Element => {
+  const { collection: selectedServices } = useAppSelector(
+    selectSelectedServices
+  );
   return (
     <>
       {!v2 && (
@@ -65,48 +73,99 @@ const FooterButton = ({
         </Button>
       )}
       {v2 && (
-        <HStack
-          height={70}
-          p={10}
-          borderTopWidth={1}
-          shadow={3}
-          bg={"#fff"}
-          borderColor={AppColors.SECONDARY}
-          justifyContent={"space-between"}
-        >
-          <Pressable
-            position={"absolute"}
+        <VStack>
+          <HStack
+            height={42}
+            borderTopWidth={1}
             bg={"#fff"}
-            bottom={5}
-            height={60}
-            width={"50%"}
-            p={1}
-            alignSelf={"center"}
-            _pressed={{
-              backgroundColor: "teal.100",
-            }}
-            onPress={() => {
-              navigate("ServiceDetails");
-            }}
+            borderColor={"#ccc"}
+            justifyContent={"space-between"}
+            alignItems="center"
+            px={5}
           >
-            <VStack>
-              <VStack justifyContent={"space-between"}>
-                <Text color={AppColors.SECONDARY} px={2}>
-                  Order Summary
+            <Text color={"#000"} fontSize="12" fontWeight="semibold">
+              HOME{"   "}
+              <Text
+                color={"#aaa"}
+                alignSelf="center"
+                fontSize="12"
+                fontWeight="semibold"
+              >
+                21 Keen Ln, Hoston, Texas - 600117
+              </Text>
+            </Text>
+            <Pressable
+              // borderColor={AppColors.TEAL}
+              height={50}
+              justifyContent="center"
+              onPress={() => {
+                console.log("Add");
+              }}
+            >
+              <Text
+                alignSelf={"center"}
+                color={AppColors.TEAL}
+                fontWeight={"semibold"}
+                fontSize="12"
+              >
+                CHANGE
+              </Text>
+            </Pressable>
+          </HStack>
+          <HStack
+            height={70}
+            borderTopWidth={1}
+            bg={"#fff"}
+            borderColor={"#ccc"}
+            justifyContent={"space-between"}
+            alignItems="center"
+            px={5}
+          >
+            <Text color={"#aaa"}>
+              {selectedServices.length === 0 ? "No" : selectedServices.length}{" "}
+              Service Selected
+            </Text>
+            <Pressable
+              // borderColor={AppColors.TEAL}
+              borderColor="#aaa"
+              height={50}
+              borderRadius={5}
+              width={"50%"}
+              justifyContent="center"
+              borderWidth={1}
+              onPress={() => {
+                console.log("Add");
+              }}
+              backgroundColor="#aaa"
+            >
+              <VStack>
+                <Text
+                  alignSelf={"center"}
+                  // color={AppColors.TEAL}
+                  color={"#fff"}
+                  fontWeight={"semibold"}
+                  fontSize="12"
+                >
+                  CHOOSE
                 </Text>
-                <Text color={AppColors.SECONDARY} px={2}>
-                  $ -
+                <Text
+                  alignSelf={"center"}
+                  // color={AppColors.TEAL}
+                  color={"#fff"}
+                  fontWeight={"semibold"}
+                  fontSize="14"
+                >
+                  SCHEDULE
                 </Text>
               </VStack>
-            </VStack>
-          </Pressable>
-          <Button
+            </Pressable>
+            {/* <Button
             borderRadius={8}
-            position={"absolute"}
-            bottom={2}
-            left={"50%"}
+            // position={"absolute"}
+            // bottom={2}
+            // left={"50%"}
             backgroundColor={AppColors.SECONDARY}
-            height={60}
+            // height={60}
             width={"40%"}
             onPress={onPress}
           >
@@ -120,8 +179,9 @@ const FooterButton = ({
                 {label}
               </Text>
             </HStack>
-          </Button>
-        </HStack>
+          </Button> */}
+          </HStack>
+        </VStack>
       )}
     </>
   );

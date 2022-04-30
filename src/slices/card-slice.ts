@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { getInitialState } from "../commons/initial-state";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
 import { Card } from "../screens/Home/PaymentMethods";
@@ -29,14 +30,16 @@ export const saveCardAsync = createAsyncThunk(
 
 // Slice
 
-export const savedCardsSlice = createAsyncSlice<Card>({
+export const savedCardsSlice = createAsyncSlice({
   name: "card/all",
+  initialState: getInitialState<Card>(),
   reducers: {},
   thunks: [getServicesAsync],
 });
 
-export const saveCardSlice = createAsyncSlice<any>({
+export const saveCardSlice = createAsyncSlice({
   name: "card/save",
+  initialState: getInitialState<any>(),
   reducers: {},
   thunks: [getServiceCostAsync],
 });

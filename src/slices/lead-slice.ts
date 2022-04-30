@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { getInitialState } from "../commons/initial-state";
 import { LeadDetails } from "../commons/types";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
@@ -29,8 +30,9 @@ export const getLeadAsync = createAsyncThunk(
 
 // Slice
 
-export const leadSlice = createAsyncSlice<LeadDetails>({
+export const leadSlice = createAsyncSlice({
   name: "lead",
+  initialState: getInitialState<LeadDetails>(),
   reducers: {},
   thunks: [createLeadAsync, updateLeadAsync, getLeadAsync],
 });

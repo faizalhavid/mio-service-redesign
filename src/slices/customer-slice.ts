@@ -5,6 +5,7 @@ import { CommonState, HouseInfo, HouseInfoRequest } from "../commons/types";
 import { createAsyncSlice } from "./create-async-slice";
 import AxiosClient from "../services/axios-client";
 import { API } from "../commons/urls";
+import { getInitialState } from "../commons/initial-state";
 
 export const registerCustomerAsync = createAsyncThunk(
   "customer/register",
@@ -43,8 +44,9 @@ export const getHouseInfoAsync = createAsyncThunk(
 
 // Types
 
-export const customerSlice = createAsyncSlice<CustomerProfile>({
+export const customerSlice = createAsyncSlice({
   name: "customer",
+  initialState: getInitialState<CustomerProfile>(),
   reducers: {
     setCustomerState: (
       state,
@@ -57,8 +59,9 @@ export const customerSlice = createAsyncSlice<CustomerProfile>({
   thunks: [registerCustomerAsync, getCustomerByIdAsync, putCustomerAsync],
 });
 
-export const houseInfoSlice = createAsyncSlice<HouseInfo>({
+export const houseInfoSlice = createAsyncSlice({
   name: "houseInfo",
+  initialState: getInitialState<HouseInfo>(),
   reducers: {},
   thunks: [getHouseInfoAsync],
 });

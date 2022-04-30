@@ -48,7 +48,7 @@ export type SuperRootStackParamList = {
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
   const [initialScreen, setInitialScreen] = React.useState<
-    "Address" | "VerifyEmail" | "Dashboard" | "Welcome"
+    "Address" | "VerifyEmail" | "Dashboard" | "Welcome" | "ChooseService"
   >("Welcome");
   const [loading, setLoading] = React.useState(true);
 
@@ -60,7 +60,7 @@ const index = (): JSX.Element => {
         FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED
       );
       if (initialSetupStatus === STATUS.COMPLETED) {
-        setInitialScreen("Dashboard");
+        setInitialScreen("ChooseService");
         return;
       } else {
         setInitialScreen("Welcome");

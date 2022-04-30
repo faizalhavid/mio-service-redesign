@@ -1,4 +1,5 @@
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { getInitialState } from "../commons/initial-state";
 import { CommonState, Order, SubOrder } from "../commons/types";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
@@ -47,8 +48,9 @@ export const createOrderFromLeadAsync = createAsyncThunk(
 
 // Slice
 
-export const upcomingOrdersSlice = createAsyncSlice<Order>({
+export const upcomingOrdersSlice = createAsyncSlice({
   name: "order/upcoming",
+  initialState: getInitialState<Order>(),
   reducers: {
     updateUpcomingOrders: (
       state,
@@ -60,8 +62,9 @@ export const upcomingOrdersSlice = createAsyncSlice<Order>({
   thunks: [getUpcomingOrdersAsync],
 });
 
-export const pastOrdersSlice = createAsyncSlice<Order>({
+export const pastOrdersSlice = createAsyncSlice({
   name: "order/past",
+  initialState: getInitialState<Order>(),
   reducers: {
     updatePastOrders: (
       state,
@@ -73,14 +76,16 @@ export const pastOrdersSlice = createAsyncSlice<Order>({
   thunks: [getUpcomingOrdersAsync],
 });
 
-export const orderDetailsSlice = createAsyncSlice<SubOrder>({
+export const orderDetailsSlice = createAsyncSlice({
   name: "order/details",
+  initialState: getInitialState<SubOrder>(),
   reducers: {},
   thunks: [getOrderDetailsAsync],
 });
 
-export const createOrderSlice = createAsyncSlice<Order>({
+export const createOrderSlice = createAsyncSlice({
   name: "order/create",
+  initialState: getInitialState<Order>(),
   reducers: {},
   thunks: [createOrderFromLeadAsync],
 });

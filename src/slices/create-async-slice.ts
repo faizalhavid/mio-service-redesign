@@ -7,25 +7,20 @@ import {
 } from "@reduxjs/toolkit";
 import { CommonState } from "../commons/types";
 
-export const createAsyncSlice = <T>({
+export const createAsyncSlice = <
+  T,
+  Reducers extends SliceCaseReducers<CommonState<T>>
+>({
   name = "",
+  initialState,
   reducers,
   thunks,
 }: {
   name: string;
-  reducers: ValidateSliceCaseReducers<
-    CommonState<T>,
-    SliceCaseReducers<CommonState<T>>
-  >;
+  initialState: CommonState<T>;
+  reducers: ValidateSliceCaseReducers<CommonState<T>, Reducers>;
   thunks: AsyncThunk<any, any, any>[];
 }) => {
-  const initialState: CommonState<T> = {
-    collection: [],
-    member: {} as T,
-    uiState: "INIT",
-    error: null,
-  };
-
   return createSlice({
     name,
     initialState,
@@ -52,5 +47,5 @@ export const createAsyncSlice = <T>({
           });
       }
     },
-  }) as Slice<CommonState<T>, SliceCaseReducers<CommonState<T>>, typeof name>;
+  });
 };

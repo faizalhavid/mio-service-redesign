@@ -1,10 +1,20 @@
-import { Divider, HStack, ScrollView, Text, VStack } from "native-base";
+import {
+  Button,
+  Divider,
+  HStack,
+  Pressable,
+  ScrollView,
+  Text,
+  VStack,
+} from "native-base";
 import React, { useEffect } from "react";
 import {
+  FILLED_CIRCLE_ICON,
   HOUSE_CLEANING,
   LAWN_CARE,
   PEST_CONTROL,
   POOL_CLEANING,
+  STAR_ICON,
 } from "../../commons/assets";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
@@ -16,7 +26,12 @@ import { StorageHelper } from "../../services/storage-helper";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { putCustomerAsync, selectCustomer } from "../../slices/customer-slice";
-import { getServicesAsync, selectServices } from "../../slices/service-slice";
+import {
+  getServicesAsync,
+  selectSelectedServices,
+  selectServices,
+  updateSelectedServices,
+} from "../../slices/service-slice";
 import {
   createLeadAsync,
   getLeadAsync,
@@ -24,6 +39,8 @@ import {
   updateLeadAsync,
 } from "../../slices/lead-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
+import { AppColors } from "../../commons/colors";
+import { SvgCss } from "react-native-svg";
 
 export const LAWN_CARE_ID: string = "lawnCare";
 export const POOL_CLEANING_ID: string = "poolCleaning";
@@ -77,7 +94,7 @@ const ChooseService = (): JSX.Element => {
   const [selectedServiceInfo, setSelectedServiceInfo] =
     React.useState<ServicesType>();
 
-  const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
+  // const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
 
   // const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
 
@@ -87,6 +104,9 @@ const ChooseService = (): JSX.Element => {
     member: customer,
     error: customerError,
   } = useAppSelector(selectCustomer);
+  const { collection: selectedServices } = useAppSelector(
+    selectSelectedServices
+  );
   const {
     uiState: servicesUiState,
     collection: allServices,
@@ -112,11 +132,11 @@ const ChooseService = (): JSX.Element => {
   );
 
   useEffect(() => {
-    dispatch(getServicesAsync()).then(() => {
-      for (let service of allServices) {
-        SERVICES[service.serviceId].description = service.description;
-      }
-    });
+    // dispatch(getServicesAsync()).then(() => {
+    //   for (let service of allServices) {
+    //     SERVICES[service.serviceId].description = service.description;
+    //   }
+    // });
   }, []);
 
   const fetchLead = React.useCallback(async () => {
@@ -127,7 +147,7 @@ const ChooseService = (): JSX.Element => {
         leadDetails.subOrders.forEach((subOrder: any) => {
           _selectedServices.push(subOrder.serviceId);
         });
-        setSelectedServices(_selectedServices);
+        // updateSelectedServices(_selectedServices);
       });
     }
   }, []);
@@ -194,64 +214,58 @@ const ChooseService = (): JSX.Element => {
     serviceId: string = "",
     fromBottomSheet: boolean = false
   ) => {
-    let pos = selectedServices.indexOf(serviceId);
-    if (~pos) {
-      selectedServices.splice(pos, 1);
-      setSelectedServices([...selectedServices]);
-      return;
-    }
+    dispatch(updateSelectedServices({ selectedService: serviceId }));
 
-    if (fromBottomSheet) {
-      if (propertyDetailsNeeded) {
-        let houseInfo = {
-          ...customer.addresses[0].houseInfo,
-        };
-        if (serviceId === LAWN_CARE_ID) {
-          houseInfo = {
-            ...houseInfo,
-            lotSize: selectedArea,
-          };
-          dispatch(
-            putCustomerAsync({
-              ...customer,
-              addresses: [
-                {
-                  ...customer.addresses[0],
-                  houseInfo,
-                },
-              ],
-            })
-          );
-        } else if (serviceId === HOUSE_CLEANING_ID) {
-          // console.log(selectedBedroomNo, selectedBathroomNo);
-          houseInfo = {
-            ...houseInfo,
-            bedrooms: selectedBedroomNo,
-            bathrooms: selectedBathroomNo,
-          };
-          dispatch(
-            putCustomerAsync({
-              ...customer,
-              addresses: [
-                {
-                  ...customer.addresses[0],
-                  houseInfo,
-                },
-              ],
-            })
-          );
-        }
-      }
-    } else {
-      let isNeeded = await checkNeedForPropertyDetails(serviceId);
+    // if (fromBottomSheet) {
+    //   if (propertyDetailsNeeded) {
+    //     let houseInfo = {
+    //       ...customer.addresses[0].houseInfo,
+    //     };
+    //     if (serviceId === LAWN_CARE_ID) {
+    //       houseInfo = {
+    //         ...houseInfo,
+    //         lotSize: selectedArea,
+    //       };
+    //       dispatch(
+    //         putCustomerAsync({
+    //           ...customer,
+    //           addresses: [
+    //             {
+    //               ...customer.addresses[0],
+    //               houseInfo,
+    //             },
+    //           ],
+    //         })
+    //       );
+    //     } else if (serviceId === HOUSE_CLEANING_ID) {
+    //       // console.log(selectedBedroomNo, selectedBathroomNo);
+    //       houseInfo = {
+    //         ...houseInfo,
+    //         bedrooms: selectedBedroomNo,
+    //         bathrooms: selectedBathroomNo,
+    //       };
+    //       dispatch(
+    //         putCustomerAsync({
+    //           ...customer,
+    //           addresses: [
+    //             {
+    //               ...customer.addresses[0],
+    //               houseInfo,
+    //             },
+    //           ],
+    //         })
+    //       );
+    //     }
+    //   }
+    // } else {
+    //   let isNeeded = await checkNeedForPropertyDetails(serviceId);
 
-      if (isNeeded) {
-        setPropertyDetailsNeeded(true);
-        toggleServiceInfoSheet(serviceId);
-        return;
-      }
-    }
-    setSelectedServices([...selectedServices, serviceId]);
+    //   if (isNeeded) {
+    //     setPropertyDetailsNeeded(true);
+    //     toggleServiceInfoSheet(serviceId);
+    //     return;
+    //   }
+    // }
   };
 
   const checkNeedForPropertyDetails = async (serviceId: string) => {
@@ -377,12 +391,101 @@ const ChooseService = (): JSX.Element => {
     >
       <ScrollView>
         <>
-          <VStack mt={5} space={5}>
-            <Text textAlign={"center"} fontSize={20}>
-              Which services are {"\n"} you interested in?
+          <VStack mt={0} space={5}>
+            <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+              Choose Service
             </Text>
-            <VStack space={0}>
-              <HStack justifyContent="center" space={5}>
+            <VStack
+              space={0}
+              bg={"#eee"}
+              borderTopLeftRadius={10}
+              borderTopRightRadius={10}
+              pb={100}
+            >
+              {[
+                SERVICES[LAWN_CARE_ID],
+                SERVICES[POOL_CLEANING_ID],
+                SERVICES[HOUSE_CLEANING_ID],
+                SERVICES[PEST_CONTROL_ID],
+              ].map((service, index) => (
+                <HStack
+                  key={index}
+                  bg={"#fff"}
+                  alignContent={"space-between"}
+                  justifyContent={"space-between"}
+                  width={"95%"}
+                  alignSelf="center"
+                  borderRadius={10}
+                  borderColor={AppColors.DARK_PRIMARY}
+                  borderWidth={
+                    selectedServices.indexOf(service?.id) >= 0 ? 1 : 0
+                  }
+                  p={5}
+                  mx={5}
+                  mt={3}
+                >
+                  <VStack space={1}>
+                    <Text color={AppColors.DARK_TEAL} fontWeight={"semibold"}>
+                      {service?.text}
+                    </Text>
+                    <HStack
+                      justifyContent={"center"}
+                      alignItems="center"
+                      space={1}
+                    >
+                      <SvgCss
+                        xml={FILLED_CIRCLE_ICON("#ccc")}
+                        width={4}
+                        height={4}
+                      />
+                      <Text color={"#aaa"}>120 Mins </Text>
+                      <SvgCss
+                        xml={FILLED_CIRCLE_ICON("#ccc")}
+                        width={4}
+                        height={4}
+                      />
+                      <Text color={"#aaa"}>4.9</Text>
+
+                      <SvgCss xml={STAR_ICON("#ccc")} width={15} height={15} />
+                    </HStack>
+                    <Text
+                      color={AppColors.DARK_PRIMARY}
+                      fontWeight={"semibold"}
+                    >
+                      Starts at $45
+                    </Text>
+                  </VStack>
+                  <Pressable
+                    borderColor={AppColors.TEAL}
+                    height={8}
+                    borderRadius={5}
+                    width={50}
+                    justifyContent="center"
+                    borderWidth={1}
+                    onPress={() => {
+                      console.log("add", service?.id);
+                      // dispatch(
+                      //   updateSelectedServices({
+                      //     metadata: { selectedServices: [service?.id] },
+                      //   })
+                      // );
+                      chooseService(service?.id);
+                    }}
+                    _pressed={{
+                      backgroundColor: AppColors.PRIMARY,
+                    }}
+                  >
+                    <Text
+                      alignSelf={"center"}
+                      color={AppColors.TEAL}
+                      fontWeight={"semibold"}
+                    >
+                      Add
+                    </Text>
+                  </Pressable>
+                </HStack>
+              ))}
+              {/* <HStack justifyContent="center" space={5}>
                 {[SERVICES[LAWN_CARE_ID], SERVICES[POOL_CLEANING_ID]].map(
                   (service, index) => (
                     <ServiceButton
@@ -409,7 +512,7 @@ const ChooseService = (): JSX.Element => {
                     />
                   )
                 )}
-              </HStack>
+              </HStack> */}
             </VStack>
           </VStack>
           {/* <OrderSummary selectedServices={selectedServices} /> */}
@@ -440,24 +543,25 @@ const ChooseService = (): JSX.Element => {
           <Divider thickness={0} mt={20} />
         </>
       </ScrollView>
-      {selectedServices.length !== 0 && (
-        <FooterButton
-          label="ADD SERVICE DETAILS"
-          disabled={selectedServices.length === 0}
-          subText="Please add required services"
-          onPress={async () => {
-            const leadId = await StorageHelper.getValue("LEAD_ID");
-            if (!leadId) {
-              await createLead();
-              await StorageHelper.setValue("LEAD_ID", leadDetails.leadId);
-              await updateLead();
-            } else {
-              await updateLead();
-            }
-            navigate("ServiceDetails");
-          }}
-        />
-      )}
+      {/* {selectedServices.length !== 0 && ( */}
+      <FooterButton
+        label="ADD SERVICE DETAILS"
+        disabled={selectedServices.length === 0}
+        v2={true}
+        subText="Please add required services"
+        onPress={async () => {
+          const leadId = await StorageHelper.getValue("LEAD_ID");
+          if (!leadId) {
+            await createLead();
+            await StorageHelper.setValue("LEAD_ID", leadDetails.leadId);
+            await updateLead();
+          } else {
+            await updateLead();
+          }
+          navigate("ServiceDetails");
+        }}
+      />
+      {/* )} */}
     </AppSafeAreaView>
   );
 };

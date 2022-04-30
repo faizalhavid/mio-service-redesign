@@ -108,12 +108,6 @@ export interface CustomerProfile {
   phoneNumbers: any[];
 }
 
-export interface MetaData {
-  createdAt: Date;
-  modifiedAt: Date;
-  notes: any[];
-}
-
 export interface CreditCard {
   qbCardId?: any;
   cardIdLastUpdated?: any;
@@ -189,7 +183,6 @@ export interface SubOrder {
 export type LeadDetails = {
   leadId: string;
   customerProfile: CustomerProfile;
-  metaData: MetaData;
   creditCard: CreditCard;
   flags: Flags;
   promoCode: PromoCode;

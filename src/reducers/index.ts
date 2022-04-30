@@ -9,7 +9,11 @@ import {
   pastOrdersSlice,
   upcomingOrdersSlice,
 } from "../slices/order-slice";
-import { allServicesSlice, serviceCostSlice } from "../slices/service-slice";
+import {
+  allServicesSlice,
+  selectedServicesSlice,
+  serviceCostSlice,
+} from "../slices/service-slice";
 
 const rootReducer = combineReducers({
   customer: customerSlice.reducer,
@@ -19,6 +23,7 @@ const rootReducer = combineReducers({
   createOrder: createOrderSlice.reducer,
   orderDetails: orderDetailsSlice.reducer,
   services: allServicesSlice.reducer,
+  selectedServices: selectedServicesSlice.reducer,
   serviceCost: serviceCostSlice.reducer,
   validateCopuon: validateCouponSlice.reducer,
   cards: savedCardsSlice.reducer,

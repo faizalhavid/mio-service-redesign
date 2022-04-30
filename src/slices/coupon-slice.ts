@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { getInitialState } from "../commons/initial-state";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
 import AxiosClient from "../services/axios-client";
@@ -16,8 +17,9 @@ export const validateCouponAsync = createAsyncThunk(
 
 // Slice
 
-export const validateCouponSlice = createAsyncSlice<any>({
+export const validateCouponSlice = createAsyncSlice({
   name: "coupon/validate",
+  initialState: getInitialState<any>(),
   reducers: {},
   thunks: [validateCouponAsync],
 });
