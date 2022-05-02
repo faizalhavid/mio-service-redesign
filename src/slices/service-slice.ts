@@ -43,6 +43,12 @@ export const selectedServicesSlice = createAsyncSlice({
         state.collection = [...state.collection, payload.selectedService];
       }
     },
+    setActiveService: (
+      state,
+      { payload }: PayloadAction<{ selectedService: string }>
+    ) => {
+      state.member = payload.selectedService;
+    },
   },
   thunks: [],
 });
@@ -55,7 +61,8 @@ export const serviceCostSlice = createAsyncSlice({
 });
 
 // Actions
-export const { updateSelectedServices } = selectedServicesSlice.actions;
+export const { updateSelectedServices, setActiveService } =
+  selectedServicesSlice.actions;
 
 // Selectors
 
