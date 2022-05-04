@@ -1,15 +1,17 @@
 import { HStack, Pressable, Text, VStack } from "native-base";
-import React from "react";
+import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { selectSelectedServices } from "../../slices/service-slice";
+import { AddressBottomSheet, AddressMode } from "../AddressBottomSheet";
 
 type FooterButtonProps = {
   type?:
     | "SERVICE_SELECTION"
     | "PLAN_SELECTION"
     | "SCHEDULE_SELECTION"
-    | "DATETIME_SELECTION";
+    | "DATETIME_SELECTION"
+    | "ADDRESS";
   label?: string;
   minLabel?: string;
   maxLabel?: string;
@@ -28,6 +30,8 @@ const FooterButton = ({
   onPress2,
   disabled,
 }: FooterButtonProps): JSX.Element => {
+  const [showEditAddress, setShowEditAddress] = useState(false);
+  const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
   const { collection: selectedServices } = useAppSelector(
     selectSelectedServices
   );
@@ -54,7 +58,14 @@ const FooterButton = ({
               21 Keen Ln, Hoston, Texas - 600117
             </Text>
           </Text>
-          <Pressable height={50} justifyContent="center" onPress={onPress2}>
+          <Pressable
+            height={50}
+            justifyContent="center"
+            onPress={() => {
+              setAddressMode("UPDATE_ADDRESS");
+              setShowEditAddress(true);
+            }}
+          >
             <Text
               alignSelf={"center"}
               color={AppColors.TEAL}
@@ -98,6 +109,16 @@ const FooterButton = ({
             <Text color={"#aaa"}>Choose Date & Time</Text>
           </VStack>
         )}
+        {type === "ADDRESS" && (
+          <VStack alignContent={"center"}>
+            <Text fontSize={13} color={"#aaa"}>
+              Update Addres &
+            </Text>
+            <Text fontSize={13} color={"#aaa"}>
+              Property Details
+            </Text>
+          </VStack>
+        )}
         <Pressable
           borderColor={disabled ? "#aaa" : AppColors.TEAL}
           backgroundColor={disabled ? "#aaa" : AppColors.TEAL}
@@ -108,7 +129,7 @@ const FooterButton = ({
           borderWidth={1}
           onPress={onPress}
         >
-          {(type === "SERVICE_SELECTION" || type === "SCHEDULE_SELECTION") && (
+          {minLabel && maxLabel && (
             <VStack>
               <Text
                 alignSelf={"center"}
@@ -128,7 +149,7 @@ const FooterButton = ({
               </Text>
             </VStack>
           )}
-          {(type === "PLAN_SELECTION" || type === "DATETIME_SELECTION") && (
+          {label && (
             <Text
               alignSelf={"center"}
               color={"#fff"}
@@ -140,6 +161,11 @@ const FooterButton = ({
           )}
         </Pressable>
       </HStack>
+      <AddressBottomSheet
+        mode={addressMode}
+        showEditAddress={showEditAddress}
+        setShowEditAddress={setShowEditAddress}
+      />
     </VStack>
   );
 };

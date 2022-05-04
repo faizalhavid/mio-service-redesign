@@ -1,4 +1,4 @@
-import { Center, Divider, Flex, Text } from "native-base";
+import { Button, Center, Divider, Flex, Text } from "native-base";
 import React, { useRef } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
@@ -349,6 +349,16 @@ const Register = (): JSX.Element => {
                   Password do not match
                 </Text>
               )}
+              <Button
+                mt={5}
+                height={50}
+                disabled={!isValid}
+                bg={AppColors.TEAL}
+                _text={{ color: "white" }}
+                onPress={handleSubmit(onSubmit)}
+              >
+                CREATE ACCOUNT
+              </Button>
             </>
           )}
 
@@ -364,12 +374,6 @@ const Register = (): JSX.Element => {
         <Divider thickness={0} mt={200} />
         {/* </ScrollView> */}
       </KeyboardAwareScrollView>
-      <FooterButton
-        label={"CREATE ACCOUNT"}
-        disabled={!isValid}
-        subText="Provide provide the required fields"
-        onPress={handleSubmit(onSubmit)}
-      />
     </AppSafeAreaView>
   );
 };

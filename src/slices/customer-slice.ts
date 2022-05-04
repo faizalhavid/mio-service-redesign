@@ -1,7 +1,12 @@
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { CustomerProfile } from "../contexts/AuthContext";
 import { RootState } from "../reducers";
-import { CommonState, HouseInfo, HouseInfoRequest } from "../commons/types";
+import {
+  CommonState,
+  HouseInfo,
+  HouseInfoRequest,
+  UiStateType,
+} from "../commons/types";
 import { createAsyncSlice } from "./create-async-slice";
 import AxiosClient from "../services/axios-client";
 import { API } from "../commons/urls";
@@ -35,7 +40,7 @@ export const putCustomerAsync = createAsyncThunk(
 );
 
 export const getHouseInfoAsync = createAsyncThunk(
-  "customer/getHouseInfo",
+  "houseInfo",
   async (data: HouseInfoRequest) => {
     const res = await AxiosClient.post(API.GET_HOUSE_INFO, data);
     return res.data;
@@ -50,7 +55,7 @@ export const customerSlice = createAsyncSlice({
   reducers: {
     setCustomerState: (
       state,
-      { payload }: PayloadAction<CommonState<CustomerProfile>>
+      { payload }: PayloadAction<{ uiState: UiStateType; error?: any }>
     ) => {
       state.error = payload.error;
       state.uiState = payload.uiState;

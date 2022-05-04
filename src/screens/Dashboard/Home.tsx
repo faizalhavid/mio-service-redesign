@@ -13,7 +13,7 @@ import {
   View,
   VStack,
 } from "native-base";
-import React from "react";
+import React, { useState } from "react";
 import { ImageBackground, Linking } from "react-native";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
@@ -43,11 +43,19 @@ import {
   selectUpcomingOrders,
 } from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
+import {
+  AddressBottomSheet,
+  AddressMode,
+} from "../../components/AddressBottomSheet";
+import { getServicesAsync } from "../../slices/service-slice";
 
 const Home = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
   const isFocused = useIsFocused();
+
+  const [showEditAddress, setShowEditAddress] = useState(false);
+  const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
 
   const { uiState: upcomingOrdersUiState, collection: upcomingOrders } =
     useAppSelector(selectUpcomingOrders);
@@ -376,7 +384,28 @@ const Home = (): JSX.Element => {
           </ImageBackground>
         </VStack>
       </ScrollView>
-      <FloatingButton onPress={() => navigate("ChooseService")} />
+      {showEditAddress && (
+        <AddressBottomSheet
+          mode={addressMode}
+          showEditAddress={showEditAddress}
+          setShowEditAddress={setShowEditAddress}
+        />
+      )}
+      <FloatingButton
+        onPress={() => {
+          if (!customer?.addresses[0]?.zip) {
+            setAddressMode("UPDATE_ADDRESS");
+            dispatch(getServicesAsync());
+            setShowEditAddress(true);
+          } else if (!customer?.addresses[0]?.houseInfo?.bedrooms) {
+            setAddressMode("UPDATE_PROPERTY");
+            dispatch(getServicesAsync());
+            setShowEditAddress(true);
+          } else {
+            navigate("ChooseService");
+          }
+        }}
+      />
     </AppSafeAreaView>
   );
 };

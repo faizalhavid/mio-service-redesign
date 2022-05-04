@@ -97,6 +97,7 @@ const AppInput = ({
           }
         }}
         // baseColor={AppColors.SECONDARY}
+        selectionColor={AppColors.CCC}
         tintColor={AppColors.SECONDARY}
         textColor={AppColors.SECONDARY}
         value={value}
