@@ -2,6 +2,7 @@ import { HStack, Pressable, Text, VStack } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import { useAppSelector } from "../../hooks/useAppSelector";
+import { SERVICES } from "../../screens/Home/ChooseService";
 import { selectSelectedServices } from "../../slices/service-slice";
 import { AddressBottomSheet, AddressMode } from "../AddressBottomSheet";
 
@@ -32,9 +33,8 @@ const FooterButton = ({
 }: FooterButtonProps): JSX.Element => {
   const [showEditAddress, setShowEditAddress] = useState(false);
   const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
-  const { collection: selectedServices } = useAppSelector(
-    selectSelectedServices
-  );
+  const { collection: selectedServices, member: selectedService } =
+    useAppSelector(selectSelectedServices);
   return (
     <VStack position={"absolute"} bg={"#fff"} bottom={0} width={"100%"}>
       {(type === "SERVICE_SELECTION" || type === "SCHEDULE_SELECTION") && (
@@ -92,16 +92,16 @@ const FooterButton = ({
             Service Selected
           </Text>
         )}
-        {type === "PLAN_SELECTION" && (
+        {(type === "PLAN_SELECTION" || type === "DATETIME_SELECTION") && (
           <VStack>
-            <Text color={"#aaa"}>WEEKLY</Text>
-            <Text color={"#aaa"}>BASIC</Text>
-          </VStack>
-        )}
-        {type === "DATETIME_SELECTION" && (
-          <VStack>
-            <Text color={"#aaa"}>FRI, APR 27</Text>
-            <Text color={"#aaa"}>2 PM - 6 PM</Text>
+            <Text
+              fontWeight={"semibold"}
+              fontSize={14}
+              color={AppColors.DARK_PRIMARY}
+            >
+              {SERVICES[selectedService].text}
+            </Text>
+            <Text color={"#aaa"}>Service</Text>
           </VStack>
         )}
         {type === "SCHEDULE_SELECTION" && (

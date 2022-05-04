@@ -36,7 +36,7 @@ export type SuperRootStackParamList = {
   Login: {};
   Address: { returnTo: string };
   ChooseService: {};
-  ChoosePlan: {};
+  ChoosePlan: { serviceId: string; mode: "CREATE" | "UPDATE" };
   ChooseSchedule: {};
   ChooseDateTime: {};
   ServiceDetails: {};
@@ -131,6 +131,7 @@ const index = (): JSX.Element => {
           <RootStack.Screen
             name="ChoosePlan"
             component={ChoosePlan}
+            initialParams={{ serviceId: "", mode: "CREATE" }}
             options={{
               animation: "slide_from_bottom",
             }}

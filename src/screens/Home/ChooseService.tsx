@@ -1,49 +1,27 @@
+import { Divider, ScrollView, Text, VStack } from "native-base";
+import React, { useEffect, useState } from "react";
 import {
-  Button,
-  Divider,
-  HStack,
-  Pressable,
-  ScrollView,
-  Spacer,
-  Text,
-  VStack,
-} from "native-base";
-import React, { useEffect } from "react";
-import {
-  FILLED_CIRCLE_ICON,
   HOUSE_CLEANING,
   LAWN_CARE,
   PEST_CONTROL,
   POOL_CLEANING,
-  STAR_ICON,
 } from "../../commons/assets";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
-import ServiceButton from "../../components/ServiceButton";
 import { navigate } from "../../navigations/rootNavigation";
-import { PriceMap } from "../../commons/types";
-import AddServiceBottomSheet from "../../components/AddServiceBottomSheet";
 import { StorageHelper } from "../../services/storage-helper";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { putCustomerAsync, selectCustomer } from "../../slices/customer-slice";
+import { selectCustomer } from "../../slices/customer-slice";
 import {
-  getServicesAsync,
   selectSelectedServices,
   selectServices,
-  setActiveService,
   updateSelectedServices,
 } from "../../slices/service-slice";
-import {
-  createLeadAsync,
-  getLeadAsync,
-  selectLead,
-  updateLeadAsync,
-} from "../../slices/lead-slice";
+import { getLeadAsync, selectLead } from "../../slices/lead-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
-import { AppColors } from "../../commons/colors";
-import { SvgCss } from "react-native-svg";
 import ServiceComboCard from "../../components/ServiceComboCard";
+import { SubOrder } from "../../commons/types";
 
 export const LAWN_CARE_ID: string = "lawnCare";
 export const POOL_CLEANING_ID: string = "poolCleaning";
@@ -102,37 +80,13 @@ const ChooseService = (): JSX.Element => {
   // const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
 
   const dispatch = useAppDispatch();
-  const {
-    uiState: customerUiState,
-    member: customer,
-    error: customerError,
-  } = useAppSelector(selectCustomer);
+  const { uiState: customerUiState } = useAppSelector(selectCustomer);
   const { collection: selectedServices } = useAppSelector(
     selectSelectedServices
   );
-  const {
-    uiState: servicesUiState,
-    collection: allServices,
-    error: serviceError,
-  } = useAppSelector(selectServices);
-  const {
-    uiState: leadUiState,
-    member: leadDetails,
-    error: leadError,
-  } = useAppSelector(selectLead);
-
-  const [selectedArea, setSelectedArea] = React.useState<number>(0);
-  const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>(0);
-  const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>(0);
-  const [areaOptions, setAreaOptions] = React.useState<PriceMap[]>([]);
-  const [propertyDetailsNeeded, setPropertyDetailsNeeded] =
-    React.useState<boolean>(false);
-  const [bathroomOptions, setBathroomOptions] = React.useState<
-    BathBedOptions[]
-  >([]);
-  const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
-    []
-  );
+  const { uiState: servicesUiState } = useAppSelector(selectServices);
+  const { uiState: leadUiState, member: leadDetails } =
+    useAppSelector(selectLead);
 
   useEffect(() => {
     // dispatch(getServicesAsync()).then(() => {
@@ -143,14 +97,16 @@ const ChooseService = (): JSX.Element => {
   }, []);
 
   const fetchLead = React.useCallback(async () => {
+    // StorageHelper.removeValue("LEAD_ID");
     let leadId = await StorageHelper.getValue("LEAD_ID");
+    console.log(leadId);
     if (leadId) {
-      dispatch(getLeadAsync({ leadId })).then(() => {
-        let _selectedServices: string[] = [];
-        leadDetails.subOrders.forEach((subOrder: any) => {
-          _selectedServices.push(subOrder.serviceId);
+      dispatch(getLeadAsync({ leadId })).then((_leadDetails) => {
+        _leadDetails.payload.subOrders.forEach((subOrder: any) => {
+          dispatch(
+            updateSelectedServices({ selectedService: subOrder.serviceId })
+          );
         });
-        // updateSelectedServices(_selectedServices);
       });
     }
   }, []);
@@ -158,65 +114,6 @@ const ChooseService = (): JSX.Element => {
   React.useEffect(() => {
     fetchLead();
   }, [fetchLead]);
-
-  const createLead = async () => {
-    let payload = {
-      subOrders: [
-        ...selectedServices.map((serviceId) => {
-          if (serviceId === LAWN_CARE_ID) {
-            return {
-              area: selectedArea,
-              serviceId,
-            };
-          } else if (serviceId === HOUSE_CLEANING_ID) {
-            return {
-              bedrooms: selectedBedroomNo,
-              bathrooms: selectedBathroomNo,
-              serviceId,
-            };
-          }
-          return { serviceId };
-        }),
-      ],
-    };
-    return dispatch(createLeadAsync(payload));
-  };
-
-  const updateLead = async () => {
-    let existingServiceIds = leadDetails.subOrders.map(
-      (subOrder) => subOrder.serviceId
-    );
-    let newlyAddedServiceIds = selectedServices.filter(
-      (serviceId) => !existingServiceIds.includes(serviceId)
-    );
-    let subOrders = leadDetails.subOrders.filter((subOrder) => {
-      return selectedServices.includes(subOrder.serviceId);
-    });
-    let payload = {
-      ...leadDetails,
-      subOrders: [
-        ...subOrders,
-        ...newlyAddedServiceIds.map((serviceId) => {
-          if (serviceId === LAWN_CARE_ID) {
-            return { serviceId, area: String(selectedArea) };
-          } else if (serviceId === HOUSE_CLEANING_ID) {
-            return {
-              serviceId,
-              bedrooms: String(selectedBedroomNo),
-              bathrooms: String(selectedBathroomNo),
-            };
-          }
-          return { serviceId };
-        }),
-      ],
-    };
-    return dispatch(updateLeadAsync(payload));
-  };
-
-  const toggleServiceInfoSheet = (serviceId: string) => {
-    setSelectedServiceInfo(SERVICES[serviceId]);
-    setToggleServiceInfo(true);
-  };
 
   return (
     <AppSafeAreaView
@@ -235,7 +132,7 @@ const ChooseService = (): JSX.Element => {
             borderTopLeftRadius={10}
             borderTopRightRadius={10}
             height={900}
-            pb={400}
+            mb={100}
             pt={3}
           >
             {[
@@ -253,52 +150,16 @@ const ChooseService = (): JSX.Element => {
           </VStack>
         </ScrollView>
       </VStack>
-      {/* <OrderSummary selectedServices={selectedServices} /> */}
-      {/* <AddServiceBottomSheet
-        toggleServiceInfo={toggleServiceInfo}
-        status={
-          selectedServiceInfo
-            ? selectedServices.indexOf(selectedServiceInfo?.id) >= 0
-            : false
-        }
-        setToggleServiceInfo={setToggleServiceInfo}
-        chooseService={null}
-        selectedServiceInfo={selectedServiceInfo}
-        propertyDetailsNeeded={propertyDetailsNeeded}
-        // Area
-        areaOptions={areaOptions}
-        setAreaOptions={setAreaOptions}
-        setSelectedArea={setSelectedArea}
-        // Bedroom
-        bedroomOptions={bedroomOptions}
-        setBedroomOptions={setBedroomOptions}
-        setSelectedBathroomNo={setSelectedBathroomNo}
-        // Bathroom
-        bathroomOptions={bathroomOptions}
-        setBathroomOptions={setBathroomOptions}
-        setSelectedBedroomNo={setSelectedBedroomNo}
-      /> */}
       <Divider thickness={0} mt={20} />
-
-      {/* {selectedServices.length !== 0 && ( */}
       <FooterButton
         type="SERVICE_SELECTION"
         minLabel="CHOOSE"
         maxLabel="SCHEDULE"
         disabled={selectedServices.length === 0}
         onPress={async () => {
-          // const leadId = await StorageHelper.getValue("LEAD_ID");
-          // if (!leadId) {
-          //   await createLead();
-          //   await StorageHelper.setValue("LEAD_ID", leadDetails.leadId);
-          //   await updateLead();
-          // } else {
-          //   await updateLead();
-          // }
           navigate("ChooseSchedule");
         }}
       />
-      {/* )} */}
     </AppSafeAreaView>
   );
 };

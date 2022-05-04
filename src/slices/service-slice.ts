@@ -37,10 +37,17 @@ export const selectedServicesSlice = createAsyncSlice({
       { payload }: PayloadAction<{ selectedService: string }>
     ) => {
       let index = state.collection.indexOf(payload.selectedService);
+      if (!~index) {
+        state.collection = [...state.collection, payload.selectedService];
+      }
+    },
+    removeSelectedServices: (
+      state,
+      { payload }: PayloadAction<{ selectedService: string }>
+    ) => {
+      let index = state.collection.indexOf(payload.selectedService);
       if (~index) {
         state.collection.splice(index, 1);
-      } else {
-        state.collection = [...state.collection, payload.selectedService];
       }
     },
     setActiveService: (
@@ -61,8 +68,11 @@ export const serviceCostSlice = createAsyncSlice({
 });
 
 // Actions
-export const { updateSelectedServices, setActiveService } =
-  selectedServicesSlice.actions;
+export const {
+  updateSelectedServices,
+  removeSelectedServices,
+  setActiveService,
+} = selectedServicesSlice.actions;
 
 // Selectors
 

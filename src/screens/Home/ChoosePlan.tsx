@@ -1,39 +1,297 @@
-import {
-  FlatList,
-  HStack,
-  Pressable,
-  ScrollView,
-  Spacer,
-  Text,
-  View,
-  VStack,
-} from "native-base";
-import React from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { FlatList, HStack, Pressable, Spacer, Text, VStack } from "native-base";
+import React, { useEffect } from "react";
 import { AppColors } from "../../commons/colors";
+import {
+  Flags2,
+  LeadDetails,
+  PriceMap,
+  ServicePrice,
+  SubOrder,
+} from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { goBack, navigate } from "../../navigations/rootNavigation";
+import { SuperRootStackParamList } from "../../navigations";
+import { goBack } from "../../navigations/rootNavigation";
+import { StorageHelper } from "../../services/storage-helper";
+import { selectCustomer } from "../../slices/customer-slice";
 import {
+  selectLead,
+  createLeadAsync,
+  updateLeadAsync,
+} from "../../slices/lead-slice";
+import {
+  getServiceCostAsync,
   selectSelectedServices,
+  selectServiceCost,
   updateSelectedServices,
 } from "../../slices/service-slice";
+import {
+  LAWN_CARE_ID,
+  HOUSE_CLEANING_ID,
+  PEST_CONTROL_ID,
+  POOL_CLEANING_ID,
+} from "./ChooseService";
 
-const ChoosePlan = (): JSX.Element => {
+type ChoosePlanProps = NativeStackScreenProps<
+  SuperRootStackParamList,
+  "ChoosePlan"
+>;
+
+const plans = [
+  {
+    label: "BASIC",
+    selected: false,
+  },
+  {
+    label: "STANDARD",
+    selected: false,
+  },
+  {
+    label: "PREMIUM",
+    selected: false,
+  },
+];
+
+const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   const dispatch = useAppDispatch();
+
+  const { mode } = route.params;
+
+  const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
+    React.useState<any>({});
+
+  const [subscriptionMethodOptions, setSubscriptionMethodOptions] =
+    React.useState<any[]>([]);
+
+  const [planOptions, setPlanOptions] = React.useState<any[]>(plans);
 
   const { member: selectedService } = useAppSelector(selectSelectedServices);
 
+  const { collection: selectedServices } = useAppSelector(
+    selectSelectedServices
+  );
+
+  const { member: customer } = useAppSelector(selectCustomer);
+
+  const { member: leadDetails, uiState: leadDetailsUiState } =
+    useAppSelector(selectLead);
+
+  const { collection: serviceCost, uiState: serviceCostUiState } =
+    useAppSelector(selectServiceCost);
+
   const frequencyColumns = 2;
 
-  const chooseService = () => {
-    dispatch(updateSelectedServices({ selectedService: selectedService }));
-    goBack();
+  const createLead = async () => {
+    let subOrders = [];
+    if (selectedService === LAWN_CARE_ID) {
+      subOrders.push({
+        area: customer.addresses[0].houseInfo?.lotSize,
+        serviceId: selectedService,
+      });
+    } else if (selectedService === HOUSE_CLEANING_ID) {
+      subOrders.push({
+        bedrooms: customer.addresses[0].houseInfo?.bedrooms,
+        bathrooms: customer.addresses[0].houseInfo?.bathrooms,
+        serviceId: selectedService,
+      });
+    } else {
+      subOrders.push({ serviceId: selectedService });
+    }
+    return dispatch(createLeadAsync({ subOrders }));
   };
 
+  const updateLead = async (_leadDetails: LeadDetails) => {
+    let existingServiceIds = _leadDetails.subOrders.map(
+      (subOrder) => subOrder.serviceId
+    );
+    let isNewlyAdded = existingServiceIds.indexOf(selectedService) < 0;
+    // let subOrders = _leadDetails.subOrders.filter((subOrder) => {
+    //   return selectedServices.includes(subOrder.serviceId);
+    // });
+    let payload = {
+      ..._leadDetails,
+      subOrders: [..._leadDetails.subOrders],
+    };
+    if (isNewlyAdded) {
+      payload.subOrders.push({
+        ...({} as SubOrder),
+        serviceId: selectedService,
+      });
+    }
+
+    let updatedSuborders = payload.subOrders.map((subOrder) => {
+      if (subOrder.serviceId === selectedService) {
+        if (!subOrder.servicePrice) {
+          subOrder.servicePrice = {} as ServicePrice;
+        }
+        if (!subOrder.flags) {
+          subOrder.flags = {} as Flags2;
+        }
+        if (selectedSubscriptionMethod.type === "ONCE") {
+          subOrder.servicePrice.cost = selectedSubscriptionMethod.perCost;
+          subOrder.flags.recurringDuration = "ONCE";
+          subOrder.flags.isRecurring = false;
+        } else {
+          subOrder.servicePrice.cost = selectedSubscriptionMethod?.perCost;
+          subOrder.flags.recurringDuration = selectedSubscriptionMethod?.type;
+          subOrder.flags.isRecurring = true;
+        }
+        return subOrder;
+      }
+      return subOrder;
+    });
+
+    payload = {
+      ..._leadDetails,
+      subOrders: updatedSuborders,
+    };
+
+    return dispatch(updateLeadAsync(payload));
+  };
+
+  useEffect(() => {
+    if (selectedService) {
+      if (selectedService === LAWN_CARE_ID) {
+        let lotsize: number = customer.addresses[0].houseInfo?.lotSize || 0;
+        dispatch(
+          getServiceCostAsync([
+            {
+              serviceId: selectedService,
+              serviceParameters: {
+                area: lotsize,
+              },
+            },
+          ])
+        );
+      } else if (selectedService === HOUSE_CLEANING_ID) {
+        dispatch(
+          getServiceCostAsync([
+            {
+              serviceId: selectedService,
+              serviceParameters: {
+                bedrooms: customer.addresses[0].houseInfo?.bedrooms || 1,
+                bathrooms: customer.addresses[0].houseInfo?.bathrooms || 1,
+              },
+            },
+          ])
+        );
+      } else if (
+        [PEST_CONTROL_ID, POOL_CLEANING_ID].includes(selectedService)
+      ) {
+        dispatch(
+          getServiceCostAsync([
+            {
+              serviceId: selectedService,
+              serviceParameters: {},
+            },
+          ])
+        );
+      }
+    }
+  }, [selectedService]);
+
+  useEffect(() => {
+    if (serviceCost.length > 0) {
+      let isUpdate = mode === "UPDATE";
+      let subOrder = {} as SubOrder;
+      if (isUpdate) {
+        subOrder = leadDetails.subOrders.filter(
+          (so) => so.serviceId === selectedService
+        )[0];
+      }
+      let subscriptionOptions: any[] = [];
+      let priceMap: PriceMap[] = serviceCost;
+      let pricePerMonth = "";
+      if (priceMap && priceMap[0]) {
+        let pricePerWeekExists =
+          priceMap[0].pricePerWeek && parseInt(priceMap[0].pricePerWeek) !== 0;
+        let pricePer2WeeksExists =
+          priceMap[0].pricePer2Weeks &&
+          parseInt(priceMap[0].pricePer2Weeks) !== 0;
+        let pricePerMonthExists =
+          priceMap[0].pricePerMonth &&
+          parseInt(priceMap[0].pricePerMonth) !== 0;
+
+        if (pricePerWeekExists) {
+          subscriptionOptions.push({
+            perCost: priceMap[0].pricePerWeek,
+            type: "WEEKLY",
+            label: "Weekly",
+            selected: false,
+          });
+        }
+        if (pricePer2WeeksExists) {
+          subscriptionOptions.push({
+            perCost: priceMap[0].pricePer2Weeks,
+            type: "BIWEEKLY",
+            label: "Bi-Weekly",
+            selected: false,
+          });
+        }
+        if (pricePerMonthExists) {
+          pricePerMonth = priceMap[0].pricePerMonth;
+          subscriptionOptions.push({
+            perCost: pricePerMonth,
+            type: "MONTHLY",
+            label: "Monthly",
+            selected: false,
+          });
+        }
+        if (pricePerWeekExists || pricePer2WeeksExists || pricePerMonthExists) {
+          if (isUpdate) {
+            let selectedIndex: number = 0;
+            for (let i = 0; i < subscriptionOptions.length; i++) {
+              if (
+                subscriptionOptions[i].type ===
+                subOrder?.flags?.recurringDuration
+              ) {
+                selectedIndex = i;
+              }
+            }
+            subscriptionOptions[selectedIndex] = {
+              ...subscriptionOptions[selectedIndex],
+              selected: true,
+            };
+            setSelectedSubscriptionMethod(subscriptionOptions[selectedIndex]);
+          } else {
+            subscriptionOptions[0] = {
+              ...subscriptionOptions[0],
+              selected: true,
+            };
+            setSelectedSubscriptionMethod(subscriptionOptions[0]);
+          }
+        }
+
+        if (
+          priceMap[0].pricePerOnetime &&
+          parseInt(priceMap[0].pricePerOnetime) !== 0
+        ) {
+          subscriptionOptions.push({
+            perCost: priceMap[0].pricePerOnetime,
+            type: "ONCE",
+            label: "One-Time",
+            selected: isUpdate
+              ? subOrder?.flags.isRecurring
+                ? false
+                : true
+              : false,
+          });
+        }
+      }
+      setSubscriptionMethodOptions(subscriptionOptions);
+    }
+  }, [serviceCost]);
+
   return (
-    <AppSafeAreaView>
+    <AppSafeAreaView
+      loading={
+        leadDetailsUiState === "IN_PROGRESS" ||
+        serviceCostUiState === "IN_PROGRESS"
+      }
+    >
       {/* <ScrollView> */}
       <VStack mt={0} space={5}>
         <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
@@ -47,7 +305,7 @@ const ChoosePlan = (): JSX.Element => {
           p={3}
         >
           <FlatList
-            data={["Weekly", "Bi-Weekly", "Monthly", "One-Time"]}
+            data={subscriptionMethodOptions}
             numColumns={frequencyColumns}
             contentContainerStyle={{
               alignSelf: "center",
@@ -64,14 +322,31 @@ const ChoosePlan = (): JSX.Element => {
                 m={1}
                 justifyContent="center"
                 p={2}
-                onPress={() => {}}
-                borderWidth={index == 2 ? 1 : 0}
+                borderWidth={item.selected ? 1 : 0}
                 borderColor={AppColors.TEAL}
-                bg={index == 2 ? AppColors.LIGHT_TEAL : "#fff"}
+                bg={item.selected ? AppColors.LIGHT_TEAL : "#fff"}
                 _pressed={{
                   borderColor: AppColors.TEAL,
                   borderWidth: 1,
                   backgroundColor: AppColors.LIGHT_TEAL,
+                }}
+                onPress={() => {
+                  let updatedOptions = subscriptionMethodOptions.map(
+                    (opt, i) => {
+                      if (i === index) {
+                        setSelectedSubscriptionMethod(opt);
+                        return {
+                          ...opt,
+                          selected: true,
+                        };
+                      }
+                      return {
+                        ...opt,
+                        selected: false,
+                      };
+                    }
+                  );
+                  setSubscriptionMethodOptions(updatedOptions);
                 }}
               >
                 <Text
@@ -79,7 +354,7 @@ const ChoosePlan = (): JSX.Element => {
                   color={AppColors.TEAL}
                   fontWeight={"semibold"}
                 >
-                  {item}
+                  {item.label}
                 </Text>
               </Pressable>
             )}
@@ -97,7 +372,7 @@ const ChoosePlan = (): JSX.Element => {
           pb={200}
         >
           <FlatList
-            data={["BASIC", "STANDARD", "PREMIUM"]}
+            data={planOptions}
             contentContainerStyle={{
               width: "100%",
               paddingBottom: 500,
@@ -107,18 +382,32 @@ const ChoosePlan = (): JSX.Element => {
                 alignSelf={"center"}
                 key={index}
                 borderColor={AppColors.TEAL}
-                bg={index == 1 ? AppColors.LIGHT_TEAL : "#fff"}
-                borderWidth={index == 1 ? 1 : 0}
+                bg={item.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                borderWidth={item.selected ? 1 : 0}
                 minHeight={100}
                 borderRadius={6}
                 width={"100%"}
                 m={1}
                 p={3}
-                onPress={() => {}}
                 _pressed={{
                   borderColor: AppColors.TEAL,
                   borderWidth: 1,
                   backgroundColor: AppColors.LIGHT_TEAL,
+                }}
+                onPress={() => {
+                  let updatedOptions = planOptions.map((opt, i) => {
+                    if (i === index) {
+                      return {
+                        ...opt,
+                        selected: true,
+                      };
+                    }
+                    return {
+                      ...opt,
+                      selected: false,
+                    };
+                  });
+                  setPlanOptions(updatedOptions);
                 }}
               >
                 <HStack justifyContent={"space-between"}>
@@ -128,7 +417,7 @@ const ChoosePlan = (): JSX.Element => {
                       fontSize={18}
                       fontWeight={"semibold"}
                     >
-                      {item}
+                      {item.label}
                     </Text>
                     <Spacer
                       borderWidth={0.5}
@@ -164,10 +453,10 @@ const ChoosePlan = (): JSX.Element => {
                       fontSize={24}
                       fontWeight={"semibold"}
                     >
-                      $10
+                      ${selectedSubscriptionMethod.perCost}
                     </Text>
                     <Text color={"#bbb"} fontSize={12} fontWeight={"semibold"}>
-                      MONTLY
+                      {selectedSubscriptionMethod?.label?.toUpperCase()}
                     </Text>
                   </VStack>
                 </HStack>
@@ -182,7 +471,21 @@ const ChoosePlan = (): JSX.Element => {
         disabled={false}
         subText="Please add required services"
         onPress={async () => {
-          chooseService();
+          dispatch(
+            updateSelectedServices({ selectedService: selectedService })
+          );
+          const leadId = await StorageHelper.getValue("LEAD_ID");
+          if (!leadId) {
+            let _leadDetails = await createLead();
+            await StorageHelper.setValue(
+              "LEAD_ID",
+              _leadDetails.payload.leadId
+            );
+            await updateLead(_leadDetails.payload);
+          } else {
+            await updateLead(leadDetails);
+          }
+          goBack();
         }}
       />
       {/* </ScrollView> */}

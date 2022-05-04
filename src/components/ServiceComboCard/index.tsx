@@ -1,12 +1,18 @@
 import { HStack, VStack, Spacer, Text, Pressable } from "native-base";
-import React from "react";
+import React, { useState } from "react";
 import { SvgCss } from "react-native-svg";
 import { FILLED_CIRCLE_ICON, STAR_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
+import { SubOrder } from "../../commons/types";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { navigate } from "../../navigations/rootNavigation";
-import { ServicesType } from "../../screens/Home/ChooseService";
+import {
+  HOUSE_CLEANING_ID,
+  LAWN_CARE_ID,
+  ServicesType,
+} from "../../screens/Home/ChooseService";
+import { selectLead } from "../../slices/lead-slice";
 import {
   selectSelectedServices,
   setActiveService,
@@ -28,13 +34,35 @@ const ServiceComboCard = ({
 
   const chooseService = async (serviceId: string = "") => {
     dispatch(setActiveService({ selectedService: serviceId }));
-    navigate("ChoosePlan");
+
+    navigate("ChoosePlan", {
+      serviceId,
+      mode: ~selectedServices.indexOf(service?.id) ? "UPDATE" : "CREATE",
+    });
     // // toggleServiceInfoSheet(serviceId);
   };
+
+  const { uiState: leadUiState, member: leadDetails } =
+    useAppSelector(selectLead);
 
   const { collection: selectedServices } = useAppSelector(
     selectSelectedServices
   );
+
+  const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
+    [key: string]: SubOrder;
+  }>({});
+  React.useEffect(() => {
+    if (!leadDetails || Object.keys(leadDetails).length === 0) {
+      return;
+    }
+    let details: { [key: string]: SubOrder } = {};
+    leadDetails.subOrders.forEach((subOrder) => {
+      details[subOrder.serviceId] = subOrder;
+    });
+
+    setGroupedLeadDetails(details);
+  }, [leadDetails]);
 
   const Tag = (name: string) => {
     return (
@@ -155,9 +183,18 @@ const ServiceComboCard = ({
             borderRadius={5}
           />
           <HStack space={2}>
-            {Tag("24 Sqft")}
+            {service?.id === LAWN_CARE_ID &&
+              Tag(`${groupedLeadDetails[service?.id]?.area} Sq Ft`)}
+            {service?.id === HOUSE_CLEANING_ID &&
+              Tag(`${groupedLeadDetails[service?.id]?.bedrooms} Bedroom`)}
+            {service?.id === HOUSE_CLEANING_ID &&
+              Tag(`${groupedLeadDetails[service?.id]?.bathrooms} Bathroom`)}
             {Tag("BASIC")}
-            {Tag("$40/Week")}
+            {Tag(
+              `$${groupedLeadDetails[service?.id]?.servicePrice?.cost}/${
+                groupedLeadDetails[service?.id]?.flags?.recurringDuration
+              }`
+            )}
           </HStack>
           <HStack space={2} mt={2}>
             {Tag("Fri, Apr 27")}
@@ -177,6 +214,7 @@ const ServiceComboCard = ({
                 borderRadius={5}
                 justifyContent="center"
                 onPress={() => {
+                  dispatch(setActiveService({ selectedService: service?.id }));
                   navigate("ChooseDateTime");
                 }}
                 width={"100%"}
