@@ -198,3 +198,9 @@ export interface CommonState<T> {
   uiState: UiStateType;
   error: any;
 }
+
+export interface PaginatedOrder {
+  data: Order[];
+  total: number;
+  message: any;
+}

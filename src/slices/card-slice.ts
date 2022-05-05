@@ -5,7 +5,6 @@ import { RootState } from "../reducers";
 import { Card } from "../screens/Home/PaymentMethods";
 import AxiosClient from "../services/axios-client";
 import { createAsyncSlice } from "./create-async-slice";
-import { getServicesAsync, getServiceCostAsync } from "./service-slice";
 
 export const getSavedCardsAsync = createAsyncThunk(
   "card/all",
@@ -34,14 +33,14 @@ export const savedCardsSlice = createAsyncSlice({
   name: "card/all",
   initialState: getInitialState<Card>(),
   reducers: {},
-  thunks: [getServicesAsync],
+  thunks: [getSavedCardsAsync],
 });
 
 export const saveCardSlice = createAsyncSlice({
   name: "card/save",
   initialState: getInitialState<any>(),
   reducers: {},
-  thunks: [getServiceCostAsync],
+  thunks: [saveCardAsync],
 });
 
 // Selectors

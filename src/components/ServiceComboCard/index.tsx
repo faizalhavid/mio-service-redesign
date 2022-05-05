@@ -84,7 +84,10 @@ const ServiceComboCard = ({
   };
 
   const readableDateTime = useMemo(() => {
-    if (Object.keys(groupedLeadDetails).length === 0) {
+    if (
+      Object.keys(groupedLeadDetails).length === 0 ||
+      !groupedLeadDetails[service?.id]?.appointmentInfo?.appointmentDateTime
+    ) {
       return {
         date: "",
         day: "",
@@ -249,7 +252,7 @@ const ServiceComboCard = ({
                   }
                 }}
                 width={"100%"}
-                bg={AppColors.TEAL}
+                bg={readableDateTime.date ? "white" : AppColors.TEAL}
                 borderColor={AppColors.TEAL}
                 borderWidth={1}
                 _pressed={{
@@ -260,11 +263,12 @@ const ServiceComboCard = ({
               >
                 <Text
                   alignSelf={"center"}
-                  color={"white"}
+                  color={readableDateTime.date ? AppColors.TEAL : "white"}
                   fontWeight={"semibold"}
                   fontSize={14}
                 >
-                  Choose Date & Time
+                  {" "}
+                  {`${readableDateTime.date ? "Update" : "Choose"} Date & Time`}
                 </Text>
               </Pressable>
             </>

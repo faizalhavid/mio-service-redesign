@@ -35,7 +35,7 @@ import {
   getHouseInfoAsync,
   putCustomerAsync,
 } from "../../slices/customer-slice";
-import { selectServices } from "../../slices/service-slice";
+import { getServicesAsync, selectServices } from "../../slices/service-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
@@ -74,37 +74,22 @@ export const AddressBottomSheet = ({
   const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
     []
   );
-  const {
-    uiState: customerUiState,
-    member: customer,
-    error: customerError,
-  } = useAppSelector(selectCustomer);
+  const { uiState: customerUiState, member: customer } =
+    useAppSelector(selectCustomer);
 
-  const {
-    uiState: servicesUiState,
-    collection: allServices,
-    error: serviceError,
-  } = useAppSelector(selectServices);
+  const { collection: allServices } = useAppSelector(selectServices);
 
-  const {
-    uiState: houseInfoUiState,
-    member: houseInfo,
-    error: houseInfoError,
-  } = useAppSelector(selectHouseInfo);
-  const fetchCustomerProfile = useCallback(async () => {
-    // let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    // await dispatch(getCustomerByIdAsync(cId));
-    // if (customer?.addresses[0]) {
-    //   setValue("street", customer.addresses[0].street);
-    //   setValue("city", customer.addresses[0].city);
-    //   setValue("state", customer.addresses[0].state);
-    //   setValue("zip", customer.addresses[0].zip);
-    // }
-  }, []);
+  const { uiState: houseInfoUiState } = useAppSelector(selectHouseInfo);
 
   useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
+    dispatch(getServicesAsync());
+    if (customer?.addresses[0]) {
+      setValue("street", customer.addresses[0].street);
+      setValue("city", customer.addresses[0].city);
+      setValue("state", customer.addresses[0].state);
+      setValue("zip", customer.addresses[0].zip);
+    }
+  }, []);
 
   useEffect(() => {
     if (currentMode === "UPDATE_PROPERTY" && allServices.length > 0) {
@@ -185,42 +170,56 @@ export const AddressBottomSheet = ({
     control,
     handleSubmit,
     setValue,
-    formState: { errors, isDirty, isValid },
+    formState: { isDirty, isValid },
   } = useForm<HouseInfoAddressRequest>({
     mode: "onChange",
     defaultValues: {
-      street: "21 Keen Ln",
-      city: "Edison",
-      state: "NJ",
-      zip: "08820",
+      // street: "21 Keen Ln",
+      // city: "Edison",
+      // state: "NJ",
+      // zip: "08820",
     },
   });
 
   const onSubmit = async (data: HouseInfoAddressRequest) => {
     Keyboard.dismiss();
-    let _houseInfo = await dispatch(
-      getHouseInfoAsync({
-        nva: data.street,
-        addresses: [
-          {
-            ...data,
-          },
-        ],
-      })
-    );
-    await dispatch(
-      putCustomerAsync({
-        ...customer,
-        addresses: [
-          {
-            ...data,
-            houseInfo: {
-              ..._houseInfo.payload.houseInfo,
+    if (!customer?.addresses[0]?.zip) {
+      let _houseInfo = await dispatch(
+        getHouseInfoAsync({
+          nva: data.street,
+          addresses: [
+            {
+              ...data,
             },
-          },
-        ],
-      })
-    );
+          ],
+        })
+      );
+      await dispatch(
+        putCustomerAsync({
+          ...customer,
+          addresses: [
+            {
+              ...data,
+              houseInfo: {
+                ..._houseInfo.payload.houseInfo,
+              },
+            },
+          ],
+        })
+      );
+    } else {
+      await dispatch(
+        putCustomerAsync({
+          ...customer,
+          addresses: [
+            {
+              ...customer?.addresses[0],
+              ...data,
+            },
+          ],
+        })
+      );
+    }
     setCurrentMode("UPDATE_PROPERTY");
   };
 
@@ -308,7 +307,7 @@ export const AddressBottomSheet = ({
                     rules={{
                       required: true,
                     }}
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onChange, value } }) => (
                       <AppInput
                         type="text"
                         label="Street"
@@ -323,7 +322,7 @@ export const AddressBottomSheet = ({
                     rules={{
                       required: true,
                     }}
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onChange, value } }) => (
                       <AppInput
                         type="text"
                         label="City"
@@ -338,7 +337,7 @@ export const AddressBottomSheet = ({
                     rules={{
                       required: true,
                     }}
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onChange, value } }) => (
                       <>
                         {value ? (
                           <Text mt={2} color={"gray.400"} fontSize={14}>
@@ -383,7 +382,7 @@ export const AddressBottomSheet = ({
                     rules={{
                       required: true,
                     }}
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onChange, value } }) => (
                       <AppInput
                         type="number"
                         label="Zipcode"

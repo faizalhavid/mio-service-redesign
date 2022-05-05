@@ -1,6 +1,6 @@
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { getInitialState } from "../commons/initial-state";
-import { CommonState, Order, SubOrder } from "../commons/types";
+import { CommonState, Order, PaginatedOrder, SubOrder } from "../commons/types";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
 import AxiosClient from "../services/axios-client";
@@ -50,13 +50,13 @@ export const createOrderFromLeadAsync = createAsyncThunk(
 
 export const upcomingOrdersSlice = createAsyncSlice({
   name: "order/upcoming",
-  initialState: getInitialState<Order>(),
+  initialState: getInitialState<PaginatedOrder>(),
   reducers: {
     updateUpcomingOrders: (
       state,
-      { payload }: PayloadAction<CommonState<Order>>
+      { payload }: PayloadAction<{ orders: Order[] }>
     ) => {
-      state.collection = [...state.collection, ...payload.collection];
+      state.member.data = [...state.member.data, ...payload.orders];
     },
   },
   thunks: [getUpcomingOrdersAsync],
@@ -64,16 +64,16 @@ export const upcomingOrdersSlice = createAsyncSlice({
 
 export const pastOrdersSlice = createAsyncSlice({
   name: "order/past",
-  initialState: getInitialState<Order>(),
+  initialState: getInitialState<PaginatedOrder>(),
   reducers: {
     updatePastOrders: (
       state,
-      { payload }: PayloadAction<CommonState<Order>>
+      { payload }: PayloadAction<{ orders: Order[] }>
     ) => {
-      state.collection = [...state.collection, ...payload.collection];
+      state.member.data = [...state.member.data, ...payload.orders];
     },
   },
-  thunks: [getUpcomingOrdersAsync],
+  thunks: [getPastOrdersAsync],
 });
 
 export const orderDetailsSlice = createAsyncSlice({

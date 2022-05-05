@@ -8,9 +8,7 @@ export default function VirtualizedView(props: any) {
       ListEmptyComponent={null}
       keyExtractor={() => "dummy"}
       renderItem={null}
-      ListHeaderComponent={() => (
-        <React.Fragment>{props.children}</React.Fragment>
-      )}
+      ListHeaderComponent={props.children}
     />
   );
 }

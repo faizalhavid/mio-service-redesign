@@ -38,7 +38,10 @@ import {
   validateCouponAsync,
 } from "../../slices/coupon-slice";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
-import { createOrderFromLeadAsync } from "../../slices/order-slice";
+import {
+  createOrderFromLeadAsync,
+  selectCreateOrder,
+} from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
 
 const Payment = (): JSX.Element => {
@@ -80,6 +83,8 @@ const Payment = (): JSX.Element => {
     member: validateCoupon,
     error: validateCouponError,
   } = useAppSelector(selectValidateCoupon);
+
+  const { uiState: createOrderUiState } = useAppSelector(selectCreateOrder);
 
   useEffect(() => {
     if (customer) {
@@ -133,7 +138,8 @@ const Payment = (): JSX.Element => {
           customerUiState,
           saveCardUiState,
           validateCouponUiState,
-        ].indexOf(IN_PROGRESS) > 0
+          createOrderUiState,
+        ].indexOf(IN_PROGRESS) >= 0
       }
     >
       <ScrollView>
@@ -344,31 +350,31 @@ const Payment = (): JSX.Element => {
         <Divider thickness={0} mt={0} mb={200} />
       </ScrollView>
       <TermsAndConditions show={showTNC} setShow={setShowTNC} />
-      {selectedCreditcard && selectedCreditcard !== "NEW" && (
-        <FooterButton
-          label="SUBMIT PAYMENT"
-          disabled={selectedCreditcard === "NEW"}
-          subText="Choose credit card for payment"
-          onPress={async () => {
-            let payload = {
-              ...leadDetails,
-              creditCard: {
-                ...leadDetails.creditCard,
-                qbCardId: selectedCreditcard,
-              },
-              promoCode: {
-                id: couponValidity === "VALID" ? couponCode : undefined,
-              },
-            };
-            await dispatch(updateLeadAsync(payload));
-            await dispatch(
-              createOrderFromLeadAsync({ leadId: leadDetails.leadId })
-            );
-            await StorageHelper.removeValue("LEAD_ID");
-            popToPop("Booked");
-          }}
-        />
-      )}
+      {/* {selectedCreditcard && selectedCreditcard !== "NEW" && ( */}
+      <FooterButton
+        label="PLACE ORDER"
+        disabled={selectedCreditcard === "NEW"}
+        subText="Choose credit card for payment"
+        onPress={async () => {
+          let payload = {
+            ...leadDetails,
+            creditCard: {
+              ...leadDetails.creditCard,
+              qbCardId: selectedCreditcard,
+            },
+            promoCode: {
+              id: couponValidity === "VALID" ? couponCode : undefined,
+            },
+          };
+          await dispatch(updateLeadAsync(payload));
+          await dispatch(
+            createOrderFromLeadAsync({ leadId: leadDetails.leadId })
+          );
+          await StorageHelper.removeValue("LEAD_ID");
+          popToPop("Booked");
+        }}
+      />
+      {/* )} */}
     </AppSafeAreaView>
   );
 };

@@ -40,6 +40,7 @@ import { Order } from "../../commons/types";
 import {
   getPastOrdersAsync,
   getUpcomingOrdersAsync,
+  selectPastOrders,
   selectUpcomingOrders,
 } from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
@@ -57,11 +58,15 @@ const Home = (): JSX.Element => {
   const [showEditAddress, setShowEditAddress] = useState(false);
   const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
 
-  const { uiState: upcomingOrdersUiState, collection: upcomingOrders } =
-    useAppSelector(selectUpcomingOrders);
+  const {
+    uiState: upcomingOrdersUiState,
+    member: { data: upcomingOrders = [] },
+  } = useAppSelector(selectUpcomingOrders);
 
-  const { uiState: pastOrdersUiState, collection: pastOrders } =
-    useAppSelector(selectUpcomingOrders);
+  const {
+    uiState: pastOrdersUiState,
+    member: { data: pastOrders = [] },
+  } = useAppSelector(selectPastOrders);
 
   const { uiState: customerUiState, member: customer } =
     useAppSelector(selectCustomer);
@@ -162,7 +167,7 @@ const Home = (): JSX.Element => {
                 </Text>
               </Center>
               {upcomingOrdersUiState !== IN_PROGRESS ? (
-                upcomingOrders.length > 0 ? (
+                upcomingOrders?.length > 0 ? (
                   <>
                     <ServiceCard
                       variant="solid"
@@ -256,7 +261,7 @@ const Home = (): JSX.Element => {
                     </Button>
                   </>
                 ) : (
-                  upcomingOrders.length === 0 && (
+                  upcomingOrders?.length === 0 && (
                     <Button
                       paddingX={5}
                       mt={5}
@@ -304,14 +309,14 @@ const Home = (): JSX.Element => {
               {SERVICE_TITLE("Upcoming Services")}
               <ScrollView width={400} horizontal={true}>
                 <HStack mr={20} space={3}>
-                  {upcomingOrders.length === 0 && (
+                  {upcomingOrders?.length === 0 && (
                     <>
                       <Text mt={2} pl={2} fontStyle={"italic"}>
                         No upcoming services are there!
                       </Text>
                     </>
                   )}
-                  {upcomingOrders.map((order: Order, index: number) => {
+                  {upcomingOrders?.map((order: Order, index: number) => {
                     return (
                       <ServiceCard
                         key={index}
@@ -336,7 +341,7 @@ const Home = (): JSX.Element => {
                       />
                     );
                   })}
-                  {upcomingOrders.length > 0 && ViewMore("UpcomingServices")}
+                  {upcomingOrders?.length > 0 && ViewMore("UpcomingServices")}
                 </HStack>
               </ScrollView>
               <Divider my={5} thickness={1} />
@@ -345,7 +350,7 @@ const Home = (): JSX.Element => {
               </Text>
               <ScrollView width={400} horizontal={true}>
                 <HStack mr={20} space={3}>
-                  {pastOrders.length === 0 && (
+                  {pastOrders?.length === 0 && (
                     <>
                       <Text mt={2} pl={2} fontStyle={"italic"}>
                         No past services are there!
@@ -377,7 +382,7 @@ const Home = (): JSX.Element => {
                       />
                     );
                   })}
-                  {pastOrders.length > 0 && ViewMore("ServiceHistory")}
+                  {pastOrders?.length > 0 && ViewMore("ServiceHistory")}
                 </HStack>
               </ScrollView>
             </VStack>

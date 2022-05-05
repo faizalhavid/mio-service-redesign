@@ -318,7 +318,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
             </Text>
             <TextArea
               mx={3}
-              onChangeText={(text) => {
+              onChangeText={(text): void => {
                 setServiceNotes(text);
               }}
               fontSize={14}
@@ -332,7 +332,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
       <FooterButton
         type="DATETIME_SELECTION"
         label="DONE"
-        disabled={false}
+        disabled={!selectedDate || !selectedTime}
         onPress={async () => {
           await updateLead();
           goBack();
