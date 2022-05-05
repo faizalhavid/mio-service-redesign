@@ -118,7 +118,8 @@ const ChooseService = (): JSX.Element => {
   return (
     <AppSafeAreaView
       loading={
-        [leadUiState, customerUiState, servicesUiState].indexOf(IN_PROGRESS) > 0
+        [leadUiState, customerUiState, servicesUiState].indexOf(IN_PROGRESS) >=
+        0
       }
     >
       <VStack mt={0} space={5}>

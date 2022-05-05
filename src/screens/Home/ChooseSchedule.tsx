@@ -6,6 +6,7 @@ import FooterButton from "../../components/FooterButton";
 import ServiceComboCard from "../../components/ServiceComboCard";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
+import { navigate } from "../../navigations/rootNavigation";
 import { selectLead } from "../../slices/lead-slice";
 import { selectSelectedServices } from "../../slices/service-slice";
 import { SERVICES } from "./ChooseService";
@@ -17,10 +18,25 @@ const ChooseSchedule = (): JSX.Element => {
     selectSelectedServices
   );
 
-  const { member: leadDetails } = useAppSelector(selectLead);
+  const { member: leadDetails, uiState: leadDetailsUiState } =
+    useAppSelector(selectLead);
+
+  const isAllFieldsFilled: boolean = React.useMemo(() => {
+    if (!leadDetails || Object.keys(leadDetails).length === 0) {
+      return false;
+    }
+    if (leadDetails.subOrders.length > 0) {
+      for (let subOrder of leadDetails.subOrders) {
+        if (!subOrder?.appointmentInfo?.appointmentDateTime) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }, [leadDetails]);
 
   return (
-    <AppSafeAreaView loading={false}>
+    <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS"}>
       <VStack mt={0} space={5}>
         <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
           Choose Schedule
@@ -50,17 +66,9 @@ const ChooseSchedule = (): JSX.Element => {
         type="SCHEDULE_SELECTION"
         minLabel="VIEW"
         maxLabel="SUMMARY"
-        disabled={selectedServices.length === 0}
+        disabled={!isAllFieldsFilled}
         onPress={async () => {
-          // const leadId = await StorageHelper.getValue("LEAD_ID");
-          // if (!leadId) {
-          //   await createLead();
-          //   await StorageHelper.setValue("LEAD_ID", leadDetails.leadId);
-          //   await updateLead();
-          // } else {
-          //   await updateLead();
-          // }
-          //   navigate("ChooseSchedule");
+          navigate("Payment");
         }}
       />
     </AppSafeAreaView>

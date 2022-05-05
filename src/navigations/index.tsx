@@ -38,7 +38,7 @@ export type SuperRootStackParamList = {
   ChooseService: {};
   ChoosePlan: { serviceId: string; mode: "CREATE" | "UPDATE" };
   ChooseSchedule: {};
-  ChooseDateTime: {};
+  ChooseDateTime: { serviceId: string; mode: "CREATE" | "UPDATE" };
   ServiceDetails: {};
   EditServiceDetails: { serviceId: string; mode: "CREATE" | "UPDATE" };
   Payment: {};

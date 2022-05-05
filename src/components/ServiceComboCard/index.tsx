@@ -1,5 +1,5 @@
 import { HStack, VStack, Spacer, Text, Pressable } from "native-base";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SvgCss } from "react-native-svg";
 import { FILLED_CIRCLE_ICON, STAR_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
@@ -12,8 +12,10 @@ import {
   LAWN_CARE_ID,
   ServicesType,
 } from "../../screens/Home/ChooseService";
+import { getReadableDateTime } from "../../services/utils";
 import { selectLead } from "../../slices/lead-slice";
 import {
+  removeSelectedServices,
   selectSelectedServices,
   setActiveService,
   updateSelectedServices,
@@ -73,13 +75,26 @@ const ServiceComboCard = ({
         borderWidth={1}
         borderRadius={5}
         fontWeight={"semibold"}
-        fontSize={12}
+        fontSize={11}
         px={2}
       >
         {name}
       </Text>
     );
   };
+
+  const readableDateTime = useMemo(() => {
+    if (Object.keys(groupedLeadDetails).length === 0) {
+      return {
+        date: "",
+        day: "",
+        slot: "",
+      };
+    }
+    return getReadableDateTime(
+      groupedLeadDetails[service?.id]?.appointmentInfo?.appointmentDateTime
+    );
+  }, [groupedLeadDetails]);
 
   return (
     <VStack
@@ -147,7 +162,7 @@ const ServiceComboCard = ({
               justifyContent="center"
               onPress={() => {
                 dispatch(
-                  updateSelectedServices({
+                  removeSelectedServices({
                     selectedService: service?.id,
                   })
                 );
@@ -182,7 +197,7 @@ const ServiceComboCard = ({
             borderColor="#eee"
             borderRadius={5}
           />
-          <HStack space={2}>
+          <HStack space={2} flexWrap="wrap">
             {service?.id === LAWN_CARE_ID &&
               Tag(`${groupedLeadDetails[service?.id]?.area} Sq Ft`)}
             {service?.id === HOUSE_CLEANING_ID &&
@@ -196,10 +211,13 @@ const ServiceComboCard = ({
               }`
             )}
           </HStack>
-          <HStack space={2} mt={2}>
-            {Tag("Fri, Apr 27")}
-            {Tag("2 PM - 6 PM")}
-          </HStack>
+          {groupedLeadDetails[service?.id]?.appointmentInfo
+            ?.appointmentDateTime && (
+            <HStack space={2} mt={2}>
+              {Tag(`${readableDateTime?.day}, ${readableDateTime?.date}`)}
+              {Tag(readableDateTime?.slot)}
+            </HStack>
+          )}
           {datetime && (
             <>
               <Spacer
@@ -215,7 +233,20 @@ const ServiceComboCard = ({
                 justifyContent="center"
                 onPress={() => {
                   dispatch(setActiveService({ selectedService: service?.id }));
-                  navigate("ChooseDateTime");
+                  if (
+                    groupedLeadDetails[service?.id]?.appointmentInfo
+                      ?.appointmentDateTime
+                  ) {
+                    navigate("ChooseDateTime", {
+                      serviceId: service?.id,
+                      mode: "UPDATE",
+                    });
+                  } else {
+                    navigate("ChooseDateTime", {
+                      serviceId: service?.id,
+                      mode: "CREATE",
+                    });
+                  }
                 }}
                 width={"100%"}
                 bg={AppColors.TEAL}

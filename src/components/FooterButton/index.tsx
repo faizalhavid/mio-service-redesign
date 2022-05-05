@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SERVICES } from "../../screens/Home/ChooseService";
+import { selectCustomer } from "../../slices/customer-slice";
 import { selectSelectedServices } from "../../slices/service-slice";
 import { AddressBottomSheet, AddressMode } from "../AddressBottomSheet";
 
@@ -35,6 +36,7 @@ const FooterButton = ({
   const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
   const { collection: selectedServices, member: selectedService } =
     useAppSelector(selectSelectedServices);
+  const { member: customer } = useAppSelector(selectCustomer);
   return (
     <VStack position={"absolute"} bg={"#fff"} bottom={0} width={"100%"}>
       {(type === "SERVICE_SELECTION" || type === "SCHEDULE_SELECTION") && (
@@ -55,7 +57,8 @@ const FooterButton = ({
               fontSize="12"
               fontWeight="semibold"
             >
-              21 Keen Ln, Hoston, Texas - 600117
+              {customer?.addresses[0]?.street}, {customer?.addresses[0]?.city},{" "}
+              {customer?.addresses[0]?.state}, {customer?.addresses[0]?.zip}
             </Text>
           </Text>
           <Pressable
