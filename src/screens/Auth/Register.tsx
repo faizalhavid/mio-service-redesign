@@ -34,6 +34,7 @@ import {
 } from "../../slices/customer-slice";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
+import { SAMPLE } from "../../commons/sample";
 
 const Register = (): JSX.Element => {
   const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
@@ -52,7 +53,6 @@ const Register = (): JSX.Element => {
       await GoogleSignin.hasPlayServices();
 
       const userInfo = await GoogleSignin.signIn();
-      console.log("userInfo", userInfo.user);
 
       const googleCredential = auth.GoogleAuthProvider.credential(
         userInfo.idToken
@@ -74,7 +74,7 @@ const Register = (): JSX.Element => {
       setValue("phone", "");
       // Sign-in the user with the credential
     } catch (error: any) {
-      console.log("apperror", error);
+      console.log("error", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         dispatch(
           setCustomerState({ uiState: FAILED, error: "Sign Up Cancelelled" })
@@ -168,6 +168,14 @@ const Register = (): JSX.Element => {
     trigger,
   } = useForm<RegisterForm>({
     mode: "all",
+    defaultValues: {
+      firstName: SAMPLE.FIRST_NAME,
+      lastName: SAMPLE.LAST_NAME,
+      phone: SAMPLE.PHONE,
+      email: SAMPLE.EMAIL,
+      password: SAMPLE.PASSWORD,
+      confirmPassword: SAMPLE.PASSWORD,
+    },
   });
 
   password.current = watch("password", "");
@@ -175,11 +183,7 @@ const Register = (): JSX.Element => {
   const registerCustomer = (payload: CustomerProfile) => {
     dispatch(registerCustomerAsync(payload))
       .then(async () => {
-        await StorageHelper.setValue(
-          FLAG_TYPE.ADDRESS_DETAILS_STATUS,
-          STATUS.PENDING
-        );
-        popToPop("Address");
+        popToPop("VerifyEmail");
       })
       .catch((err) => {
         dispatch(

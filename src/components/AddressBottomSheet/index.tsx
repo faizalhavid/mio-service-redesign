@@ -20,6 +20,7 @@ import { Dimensions, Keyboard } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import { STATES } from "../../commons/dropdown-values";
+import { SAMPLE } from "../../commons/sample";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { HouseInfoAddressRequest, PriceMap } from "../../commons/types";
 import { FAILED } from "../../commons/ui-states";
@@ -174,10 +175,10 @@ export const AddressBottomSheet = ({
   } = useForm<HouseInfoAddressRequest>({
     mode: "onChange",
     defaultValues: {
-      // street: "21 Keen Ln",
-      // city: "Edison",
-      // state: "NJ",
-      // zip: "08820",
+      street: SAMPLE.STREET,
+      city: SAMPLE.CITY,
+      state: SAMPLE.STATE,
+      zip: SAMPLE.ZIP,
     },
   });
 

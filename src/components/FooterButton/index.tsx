@@ -1,4 +1,4 @@
-import { HStack, Pressable, Text, VStack } from "native-base";
+import { HStack, Pressable, Text, View, VStack } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -89,39 +89,41 @@ const FooterButton = ({
         alignItems="center"
         px={5}
       >
-        {type === "SERVICE_SELECTION" && (
-          <Text color={"#aaa"}>
-            {selectedServices.length === 0 ? "No" : selectedServices.length}{" "}
-            Service Selected
-          </Text>
-        )}
-        {(type === "PLAN_SELECTION" || type === "DATETIME_SELECTION") && (
-          <VStack>
-            <Text
-              fontWeight={"semibold"}
-              fontSize={14}
-              color={AppColors.DARK_PRIMARY}
-            >
-              {SERVICES[selectedService].text}
+        <View>
+          {type === "SERVICE_SELECTION" && (
+            <Text color={"#aaa"}>
+              {selectedServices.length === 0 ? "No" : selectedServices.length}{" "}
+              Service Selected
             </Text>
-            <Text color={"#aaa"}>Service</Text>
-          </VStack>
-        )}
-        {type === "SCHEDULE_SELECTION" && (
-          <VStack>
-            <Text color={"#aaa"}>Choose Date & Time</Text>
-          </VStack>
-        )}
-        {type === "ADDRESS" && (
-          <VStack alignContent={"center"}>
-            <Text fontSize={13} color={"#aaa"}>
-              Update Addres &
-            </Text>
-            <Text fontSize={13} color={"#aaa"}>
-              Property Details
-            </Text>
-          </VStack>
-        )}
+          )}
+          {(type === "PLAN_SELECTION" || type === "DATETIME_SELECTION") && (
+            <VStack>
+              <Text
+                fontWeight={"semibold"}
+                fontSize={14}
+                color={AppColors.DARK_PRIMARY}
+              >
+                {SERVICES[selectedService].text}
+              </Text>
+              <Text color={"#aaa"}>Service</Text>
+            </VStack>
+          )}
+          {type === "SCHEDULE_SELECTION" && (
+            <VStack>
+              <Text color={"#aaa"}>Choose Date & Time</Text>
+            </VStack>
+          )}
+          {type === "ADDRESS" && (
+            <VStack alignContent={"center"}>
+              <Text fontSize={13} color={"#aaa"}>
+                Update Addres &
+              </Text>
+              <Text fontSize={13} color={"#aaa"}>
+                Property Details
+              </Text>
+            </VStack>
+          )}
+        </View>
         <Pressable
           borderColor={disabled ? "#aaa" : AppColors.TEAL}
           backgroundColor={disabled ? "#aaa" : AppColors.TEAL}

@@ -60,6 +60,7 @@ const AppInput = ({
           borderBottomWidth: focussed ? 0 : 1,
           borderColor: "#ccc",
         }}
+        autoCapitalize="none"
         disabled={disabled}
         returnKeyType="done"
         onFocus={() => setFocussed(true)}

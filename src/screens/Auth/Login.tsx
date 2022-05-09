@@ -34,6 +34,7 @@ import {
 } from "../../slices/customer-slice";
 import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
 import { useAppSelector } from "../../hooks/useAppSelector";
+import { SAMPLE } from "../../commons/sample";
 
 type LoginFormType = {
   email: string;
@@ -48,8 +49,8 @@ const Login = (): JSX.Element => {
   const { login, resetPassword } = useAuth();
   const loginForm = useForm<LoginFormType>({
     defaultValues: {
-      email: "",
-      password: "",
+      email: SAMPLE.EMAIL,
+      password: SAMPLE.PASSWORD,
     },
     mode: "all",
   });
@@ -76,16 +77,7 @@ const Login = (): JSX.Element => {
       );
       navigateTo = "HOME";
     }
-    let addressDetailsStatus = await StorageHelper.getValue(
-      FLAG_TYPE.ADDRESS_DETAILS_STATUS
-    );
-    if (addressDetailsStatus === STATUS.PENDING) {
-      navigateTo = "UPDATE_ADDRESS";
-    }
     switch (navigateTo) {
-      case "UPDATE_ADDRESS":
-        popToPop("Address");
-        break;
       case "VERIFY_EMAIL":
         popToPop("VerifyEmail");
         break;
@@ -173,11 +165,6 @@ const Login = (): JSX.Element => {
                 label="SIGN IN"
                 onPress={async (event) => {
                   await loginForm.trigger();
-                  console.log("-");
-                  console.log("formState", loginForm.formState);
-                  console.log("isDirty", loginForm.formState.isDirty);
-                  console.log("formState.isValid", loginForm.formState.isValid);
-                  console.log(loginForm.formState.errors);
                   if (
                     (loginForm.formState.isDirty &&
                       !loginForm.formState.isValid) ||
@@ -191,7 +178,6 @@ const Login = (): JSX.Element => {
                     );
                     return;
                   }
-                  console.log("no errors");
                   loginForm
                     .handleSubmit(onSubmit)(event)
                     .catch((error) => {

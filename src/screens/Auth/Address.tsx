@@ -87,10 +87,6 @@ const Address = ({ route }: AddressProps): JSX.Element => {
         ],
       })
     );
-    await StorageHelper.setValue(
-      FLAG_TYPE.ADDRESS_DETAILS_STATUS,
-      STATUS.COMPLETED
-    );
     if (returnTo) {
       goBack();
     } else {

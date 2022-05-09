@@ -1,4 +1,4 @@
-import { Button, Center, Text, View, VStack } from "native-base";
+import { Button, Center, Pressable, Text, View, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
 import { EXCLAMATION_ICON } from "../../commons/assets";
@@ -39,27 +39,33 @@ const VerifyEmail = (): JSX.Element => {
             color={AppColors.SECONDARY}
             fontWeight="semibold"
           >
-            Please check your mail inbox and click on the email verification
-            link. {"\n"}
-            Login once mail verification is completed.
+            Please click on the email verification link sent to mail. {"\n"}
+          </Text>
+
+          <Text color={AppColors.SECONDARY}>
+            Not received verification link?{" "}
+            <Pressable
+              onPress={async () => {
+                await resendEmail();
+              }}
+            >
+              <Text fontWeight={"semibold"} color={AppColors.TEAL}>
+                Send again
+              </Text>
+            </Pressable>
           </Text>
           <Button
             mt={10}
-            colorScheme={"blue"}
-            variant={"ghost"}
-            onPress={async () => {
-              await resendEmail();
-            }}
+            w="xs"
+            height={50}
+            bg={AppColors.TEAL}
+            _text={{ color: "white" }}
+            onPress={() => navigate("Login")}
           >
-            Resend Mail
+            LOGIN
           </Button>
         </Center>
       </VStack>
-      <FooterButton
-        label={"Login"}
-        subText="Provide address in next step"
-        onPress={() => navigate("Login")}
-      />
     </AppSafeAreaView>
   );
 };
