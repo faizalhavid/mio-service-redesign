@@ -48,7 +48,7 @@ import {
   AddressBottomSheet,
   AddressMode,
 } from "../../components/AddressBottomSheet";
-import { getServicesAsync } from "../../slices/service-slice";
+import WarningLabel from "../../components/WarningLabel";
 
 const Home = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -86,8 +86,8 @@ const Home = (): JSX.Element => {
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setUserId(cId || "");
     dispatch(getCustomerByIdAsync(cId));
-    dispatch(getUpcomingOrdersAsync());
-    dispatch(getPastOrdersAsync());
+    // dispatch(getUpcomingOrdersAsync());
+    // dispatch(getPastOrdersAsync());
   }, []);
 
   React.useEffect(() => {
@@ -153,6 +153,17 @@ const Home = (): JSX.Element => {
     >
       <ScrollView>
         <VStack pb={150}>
+          {customer?.addresses &&
+            (customer?.addresses.length === 0 ||
+              (customer?.addresses.length > 0 &&
+                !Boolean(customer?.addresses[0].street))) && (
+              <WarningLabel
+                text="Update address & property details"
+                onPress={() => {
+                  setShowEditAddress(true);
+                }}
+              />
+            )}
           <ImageBackground
             resizeMode="cover"
             style={{
@@ -160,7 +171,7 @@ const Home = (): JSX.Element => {
             }}
             source={require("../../assets/images/dashboard-bg.png")}
           >
-            <VStack pt={10}>
+            <VStack>
               <Center>
                 <Text fontWeight={"bold"} fontSize={18}>
                   Welcome back {customer?.firstName}
@@ -400,11 +411,9 @@ const Home = (): JSX.Element => {
         onPress={() => {
           if (!customer?.addresses[0]?.zip) {
             setAddressMode("UPDATE_ADDRESS");
-            dispatch(getServicesAsync());
             setShowEditAddress(true);
           } else if (!customer?.addresses[0]?.houseInfo?.bedrooms) {
             setAddressMode("UPDATE_PROPERTY");
-            dispatch(getServicesAsync());
             setShowEditAddress(true);
           } else {
             navigate("ChooseService");

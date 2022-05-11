@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { SvgCss } from "react-native-svg";
 import { FILLED_CIRCLE_ICON, STAR_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
-import { SubOrder } from "../../commons/types";
+import { LeadDetails, SubOrder } from "../../commons/types";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { navigate } from "../../navigations/rootNavigation";
@@ -12,8 +12,8 @@ import {
   LAWN_CARE_ID,
   ServicesType,
 } from "../../screens/Home/ChooseService";
-import { getReadableDateTime } from "../../services/utils";
-import { selectLead } from "../../slices/lead-slice";
+import { deepClone, getReadableDateTime } from "../../services/utils";
+import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import {
   removeSelectedServices,
   selectSelectedServices,
@@ -169,6 +169,11 @@ const ServiceComboCard = ({
                     selectedService: service?.id,
                   })
                 );
+                let _leadDetails: LeadDetails = deepClone(leadDetails);
+                _leadDetails.subOrders = _leadDetails.subOrders.filter(
+                  (lead) => lead.serviceId !== service?.id
+                );
+                dispatch(updateLeadAsync(_leadDetails));
               }}
               _pressed={{
                 backgroundColor: "red.100",
@@ -207,7 +212,7 @@ const ServiceComboCard = ({
               Tag(`${groupedLeadDetails[service?.id]?.bedrooms} Bedroom`)}
             {service?.id === HOUSE_CLEANING_ID &&
               Tag(`${groupedLeadDetails[service?.id]?.bathrooms} Bathroom`)}
-            {Tag("BASIC")}
+            {Tag(`${groupedLeadDetails[service?.id]?.flags?.plan}`)}
             {Tag(
               `$${groupedLeadDetails[service?.id]?.servicePrice?.cost}/${
                 groupedLeadDetails[service?.id]?.flags?.recurringDuration

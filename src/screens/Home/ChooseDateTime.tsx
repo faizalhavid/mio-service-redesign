@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
-import { SubOrder } from "../../commons/types";
+import { LeadDetails, SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import VirtualizedView from "../../components/VirtualizedView";
@@ -20,6 +20,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
+import { deepClone } from "../../services/utils";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import { selectSelectedServices } from "../../slices/service-slice";
 
@@ -80,7 +81,8 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
     useAppSelector(selectLead);
 
   const updateLead = async () => {
-    let updatedSuborders = leadDetails.subOrders.map((subOrder) => {
+    let _leadDetails: LeadDetails = deepClone(leadDetails);
+    let updatedSuborders = _leadDetails.subOrders.map((subOrder) => {
       if (subOrder.serviceId === selectedService) {
         let selecDate = selectedDate;
         if (Platform.OS === "ios") {
@@ -104,13 +106,11 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
             }
           }
         }
-
-        return subOrder;
       }
       return subOrder;
     });
     let payload = {
-      ...leadDetails,
+      ..._leadDetails,
       subOrders: updatedSuborders,
     };
 

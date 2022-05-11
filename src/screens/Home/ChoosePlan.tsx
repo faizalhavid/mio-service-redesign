@@ -1,10 +1,12 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FlatList, HStack, Pressable, Spacer, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
+import { Dimensions } from "react-native";
 import { AppColors } from "../../commons/colors";
 import {
   Flags2,
   LeadDetails,
+  PlanOption,
   PriceMap,
   ServicePrice,
   SubOrder,
@@ -16,6 +18,7 @@ import { useAppSelector } from "../../hooks/useAppSelector";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
 import { StorageHelper } from "../../services/storage-helper";
+import { deepClone } from "../../services/utils";
 import { selectCustomer } from "../../slices/customer-slice";
 import {
   selectLead,
@@ -40,21 +43,6 @@ type ChoosePlanProps = NativeStackScreenProps<
   "ChoosePlan"
 >;
 
-const plans = [
-  {
-    label: "BASIC",
-    selected: false,
-  },
-  {
-    label: "STANDARD",
-    selected: false,
-  },
-  {
-    label: "PREMIUM",
-    selected: false,
-  },
-];
-
 const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   const dispatch = useAppDispatch();
 
@@ -66,7 +54,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   const [subscriptionMethodOptions, setSubscriptionMethodOptions] =
     React.useState<any[]>([]);
 
-  const [planOptions, setPlanOptions] = React.useState<any[]>(plans);
+  const [planOptions, setPlanOptions] = React.useState<PlanOption[]>([]);
+  const [selectedPlan, setSelectedPlan] = React.useState<string>("BASIC");
 
   const { member: selectedService } = useAppSelector(selectSelectedServices);
 
@@ -104,16 +93,19 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   };
 
   const updateLead = async (_leadDetails: LeadDetails) => {
+    console.log(_leadDetails);
     let existingServiceIds = _leadDetails.subOrders.map(
       (subOrder) => subOrder.serviceId
     );
     let isNewlyAdded = existingServiceIds.indexOf(selectedService) < 0;
+    console.log(isNewlyAdded);
     // let subOrders = _leadDetails.subOrders.filter((subOrder) => {
     //   return selectedServices.includes(subOrder.serviceId);
     // });
+    let lead: LeadDetails = deepClone(_leadDetails);
     let payload = {
-      ..._leadDetails,
-      subOrders: [..._leadDetails.subOrders],
+      ...lead,
+      subOrders: [...lead.subOrders],
     };
     if (isNewlyAdded) {
       payload.subOrders.push({
@@ -123,6 +115,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     }
 
     let updatedSuborders = payload.subOrders.map((subOrder) => {
+      console.log(subOrder.serviceId, selectedService);
+      console.log(selectedPlan);
       if (subOrder.serviceId === selectedService) {
         if (!subOrder.servicePrice) {
           subOrder.servicePrice = {} as ServicePrice;
@@ -130,6 +124,9 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         if (!subOrder.flags) {
           subOrder.flags = {} as Flags2;
         }
+        console.log(subOrder.flags);
+        subOrder.flags.plan = selectedPlan;
+        console.log(subOrder.flags);
         if (selectedSubscriptionMethod.type === "ONCE") {
           subOrder.servicePrice.cost = selectedSubscriptionMethod.perCost;
           subOrder.flags.recurringDuration = "ONCE";
@@ -139,15 +136,12 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           subOrder.flags.recurringDuration = selectedSubscriptionMethod?.type;
           subOrder.flags.isRecurring = true;
         }
-        return subOrder;
+        console.log(subOrder);
       }
       return subOrder;
     });
 
-    payload = {
-      ..._leadDetails,
-      subOrders: updatedSuborders,
-    };
+    payload.subOrders = updatedSuborders;
 
     return dispatch(updateLeadAsync(payload));
   };
@@ -204,7 +198,6 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       }
       let subscriptionOptions: any[] = [];
       let priceMap: PriceMap[] = serviceCost;
-      let pricePerMonth = "";
       if (priceMap && priceMap[0]) {
         let pricePerWeekExists =
           priceMap[0].pricePerWeek && parseInt(priceMap[0].pricePerWeek) !== 0;
@@ -214,6 +207,9 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         let pricePerMonthExists =
           priceMap[0].pricePerMonth &&
           parseInt(priceMap[0].pricePerMonth) !== 0;
+        let pricePerQuarterlyExists =
+          priceMap[0].pricePerQuarterly &&
+          parseInt(priceMap[0].pricePerQuarterly) !== 0;
 
         if (pricePerWeekExists) {
           subscriptionOptions.push({
@@ -232,15 +228,27 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           });
         }
         if (pricePerMonthExists) {
-          pricePerMonth = priceMap[0].pricePerMonth;
           subscriptionOptions.push({
-            perCost: pricePerMonth,
+            perCost: priceMap[0].pricePerMonth,
             type: "MONTHLY",
             label: "Monthly",
             selected: false,
           });
         }
-        if (pricePerWeekExists || pricePer2WeeksExists || pricePerMonthExists) {
+        if (pricePerQuarterlyExists) {
+          subscriptionOptions.push({
+            perCost: priceMap[0].pricePerQuarterly,
+            type: "QUARTERLY",
+            label: "Quarterly",
+            selected: false,
+          });
+        }
+        if (
+          pricePerWeekExists ||
+          pricePer2WeeksExists ||
+          pricePerMonthExists ||
+          pricePerQuarterlyExists
+        ) {
           if (isUpdate) {
             let selectedIndex: number = 0;
             for (let i = 0; i < subscriptionOptions.length; i++) {
@@ -285,6 +293,59 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     }
   }, [serviceCost]);
 
+  useEffect(() => {
+    if (Object.keys(selectedSubscriptionMethod).length > 0) {
+      let preSelectedPlan = "BASIC";
+      let isUpdate = mode === "UPDATE";
+      if (isUpdate) {
+        let subOrder = leadDetails.subOrders.filter(
+          (so) => so.serviceId === selectedService
+        )[0];
+        preSelectedPlan = subOrder.flags.plan;
+      }
+      const serviceCosts = serviceCost.filter(
+        (cost) =>
+          cost.serviceId === selectedService &&
+          ["BASIC", "STANDARD", "PREMIUM"].indexOf(cost.plan) >= 0
+      );
+      let options: PlanOption[] = [];
+      for (let cost of serviceCosts) {
+        if (selectedSubscriptionMethod.type === "WEEKLY") {
+          options.push({
+            label: cost.plan,
+            cost: parseInt(cost.pricePerWeek),
+            selected: preSelectedPlan === cost.plan,
+          });
+        } else if (selectedSubscriptionMethod.type === "BIWEEKLY") {
+          options.push({
+            label: cost.plan,
+            cost: parseInt(cost.pricePer2Weeks),
+            selected: preSelectedPlan === cost.plan,
+          });
+        } else if (selectedSubscriptionMethod.type === "MONTHLY") {
+          options.push({
+            label: cost.plan,
+            cost: parseInt(cost.pricePerMonth),
+            selected: preSelectedPlan === cost.plan,
+          });
+        } else if (selectedSubscriptionMethod.type === "QUARTERLY") {
+          options.push({
+            label: cost.plan,
+            cost: parseInt(cost.pricePerQuarterly),
+            selected: preSelectedPlan === cost.plan,
+          });
+        } else if (selectedSubscriptionMethod.type === "ONCE") {
+          options.push({
+            label: cost.plan,
+            cost: parseInt(cost.pricePerOnetime),
+            selected: preSelectedPlan === cost.plan,
+          });
+        }
+      }
+      setPlanOptions(options);
+    }
+  }, [selectedSubscriptionMethod]);
+
   return (
     <AppSafeAreaView
       loading={
@@ -309,8 +370,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
             numColumns={frequencyColumns}
             contentContainerStyle={{
               alignSelf: "center",
-              justifyContent: "center",
-              alignItems: "center",
+              // justifyContent: "center",
+              // alignItems: "center",
               width: "100%",
             }}
             renderItem={({ index, item }) => (
@@ -320,7 +381,6 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                 borderRadius={5}
                 width={"48%"}
                 m={1}
-                justifyContent="center"
                 p={2}
                 borderWidth={item.selected ? 1 : 0}
                 borderColor={AppColors.TEAL}
@@ -397,6 +457,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                 onPress={() => {
                   let updatedOptions = planOptions.map((opt, i) => {
                     if (i === index) {
+                      setSelectedPlan(opt.label);
                       return {
                         ...opt,
                         selected: true,
@@ -453,7 +514,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                       fontSize={24}
                       fontWeight={"semibold"}
                     >
-                      ${selectedSubscriptionMethod.perCost}
+                      ${item.cost}
                     </Text>
                     <Text color={"#bbb"} fontSize={12} fontWeight={"semibold"}>
                       {selectedSubscriptionMethod?.label?.toUpperCase()}

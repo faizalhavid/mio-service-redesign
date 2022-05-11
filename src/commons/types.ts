@@ -11,6 +11,7 @@ export interface HouseInfo {
   swimmingPoolSize?: number;
   swimmingPoolSizeUnit?: string;
   swimmingPoolType?: string;
+  pestType?: string[];
   type?: string;
   rmId?: string;
   totalrooms?: string;
@@ -46,14 +47,15 @@ export interface PriceMap {
   bathrooms: number;
   bedrooms: number;
   duration: number;
+  plan: string;
   pricePerWeek: string;
   pricePer2Weeks: string;
   pricePerMonth: string;
   pricePerOnetime: string;
   rangeMin?: number;
   rangeMax?: number;
-  serviceId: number;
-  pricePerQuarterly?: number;
+  serviceId: string;
+  pricePerQuarterly: string;
 }
 
 export interface ServiceTask {
@@ -123,6 +125,7 @@ export interface PromoCode {
 }
 
 export interface Flags2 {
+  plan: string;
   isRecurring: boolean;
   isCompleted: boolean;
   paymentStatus: string;
@@ -203,4 +206,15 @@ export interface PaginatedOrder {
   data: Order[];
   total: number;
   message: any;
+}
+
+export interface Option {
+  label: string;
+  code: string;
+}
+
+export interface PlanOption {
+  label: string;
+  cost: number;
+  selected: boolean;
 }

@@ -6,33 +6,27 @@ import {
   Text,
   Select,
   VStack,
-  Button,
   Spacer,
-  FlatList,
   HStack,
   Pressable,
-  ScrollView,
   Spinner,
 } from "native-base";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Dimensions, Keyboard } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import { STATES } from "../../commons/dropdown-values";
+import { POOL_TYPES, PEST_TYPES } from "../../commons/options";
 import { SAMPLE } from "../../commons/sample";
-import { FLAG_TYPE, STATUS } from "../../commons/status";
-import { HouseInfoAddressRequest, PriceMap } from "../../commons/types";
+import { HouseInfoAddressRequest, Option, PriceMap } from "../../commons/types";
 import { FAILED } from "../../commons/ui-states";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { popToPop } from "../../navigations/rootNavigation";
 import { LAWN_CARE_ID } from "../../screens/Home/ChooseService";
-import { StorageHelper } from "../../services/storage-helper";
 import {
   selectCustomer,
   selectHouseInfo,
-  getCustomerByIdAsync,
   getHouseInfoAsync,
   putCustomerAsync,
 } from "../../slices/customer-slice";
@@ -47,6 +41,9 @@ type BOTH = "BOTH";
 
 export type AddressMode = UPDATE_ADDRESS | UPDATE_PROPERTY | BOTH;
 export type BathBedOptions = { number: number; selected: boolean };
+interface SelectOption extends Option {
+  selected: boolean;
+}
 
 type AddressBottomSheetProps = {
   showEditAddress: boolean;
@@ -67,14 +64,23 @@ export const AddressBottomSheet = ({
   const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>(0);
   const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>(0);
   const [areaOptions, setAreaOptions] = React.useState<PriceMap[]>([]);
-  const [propertyDetailsNeeded, setPropertyDetailsNeeded] =
-    React.useState<boolean>(false);
+
   const [bathroomOptions, setBathroomOptions] = React.useState<
     BathBedOptions[]
   >([]);
   const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
     []
   );
+
+  const [poolTypeOptions, setPoolTypeOptions] = React.useState<SelectOption[]>(
+    []
+  );
+  const [pestTypeOptions, setPestTypeOptions] = React.useState<SelectOption[]>(
+    []
+  );
+
+  const [selectedPoolType, setSelectedPoolType] = useState<string>("");
+
   const { uiState: customerUiState, member: customer } =
     useAppSelector(selectCustomer);
 
@@ -83,14 +89,47 @@ export const AddressBottomSheet = ({
   const { uiState: houseInfoUiState } = useAppSelector(selectHouseInfo);
 
   useEffect(() => {
-    dispatch(getServicesAsync());
-    if (customer?.addresses[0]) {
-      setValue("street", customer.addresses[0].street);
-      setValue("city", customer.addresses[0].city);
-      setValue("state", customer.addresses[0].state);
-      setValue("zip", customer.addresses[0].zip);
+    if (showEditAddress) {
+      dispatch(getServicesAsync());
+
+      if (customer?.addresses[0] && customer?.addresses[0].zip) {
+        setValue("street", customer.addresses[0].street);
+        setValue("city", customer.addresses[0].city);
+        setValue("state", customer.addresses[0].state);
+        setValue("zip", customer.addresses[0].zip);
+      }
+
+      let poolTypes: SelectOption[] = [];
+      for (let poolType of POOL_TYPES) {
+        let selected =
+          customer?.addresses[0]?.houseInfo?.swimmingPoolType === poolType.code;
+        poolTypes.push({
+          ...poolType,
+          selected,
+        });
+        if (selected) {
+          setSelectedPoolType(poolType.code);
+        }
+      }
+      setPoolTypeOptions(poolTypes);
+
+      let pestTypes: SelectOption[] = [];
+      for (let pestType of PEST_TYPES) {
+        let selected =
+          customer?.addresses[0]?.houseInfo?.pestType &&
+          ~customer?.addresses[0]?.houseInfo?.pestType.indexOf(pestType.code)
+            ? true
+            : false;
+        pestTypes.push({
+          ...pestType,
+          selected,
+        });
+      }
+      setPestTypeOptions(pestTypes);
     }
-  }, []);
+  }, [dispatch, showEditAddress, customer]);
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
     if (currentMode === "UPDATE_PROPERTY" && allServices.length > 0) {
@@ -106,10 +145,10 @@ export const AddressBottomSheet = ({
                   lotsize &&
                   price.rangeMin !== undefined &&
                   price.rangeMin !== null &&
-                  lotsize > price.rangeMin &&
+                  lotsize >= price.rangeMin &&
                   price.rangeMax !== undefined &&
                   price.rangeMax !== null &&
-                  lotsize < price.rangeMax
+                  lotsize <= price.rangeMax
                 ) {
                   hasArea = true;
                   setSelectedArea(lotsize);
@@ -236,6 +275,10 @@ export const AddressBottomSheet = ({
               lotSize: selectedArea,
               bedrooms: selectedBedroomNo,
               bathrooms: selectedBathroomNo,
+              swimmingPoolType: selectedPoolType,
+              pestType: pestTypeOptions
+                .filter((option) => option.selected)
+                .map((option) => option.code),
             },
           },
         ],
@@ -262,37 +305,36 @@ export const AddressBottomSheet = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <KeyboardAwareScrollView
-          enableOnAndroid={true}
-          style={{
-            width: "100%",
-            padding: 0,
-            margin: 0,
-          }}
-        >
-          <VStack pt={15} bg={"white"}>
-            {currentMode === "UPDATE_ADDRESS" && (
-              <Center>
-                <Text fontSize={18} fontWeight="semibold">
-                  Add Address
-                </Text>
-              </Center>
-            )}
-            {currentMode === "UPDATE_PROPERTY" && (
-              <Center>
-                <Text fontSize={18} fontWeight="semibold">
-                  Add Property Details
-                </Text>
-              </Center>
-            )}
-            {currentMode === "BOTH" && (
-              <Center>
-                <Text fontSize={18} fontWeight="semibold">
-                  Update Address
-                </Text>
-              </Center>
-            )}
-            <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
+        <VStack pt={15} bg={"white"} width="100%">
+          {currentMode === "UPDATE_ADDRESS" && (
+            <Center>
+              <Text fontSize={18} fontWeight="semibold">
+                Add Address
+              </Text>
+            </Center>
+          )}
+          {currentMode === "UPDATE_PROPERTY" && (
+            <Center>
+              <Text fontSize={18} fontWeight="semibold">
+                Add Property Details
+              </Text>
+            </Center>
+          )}
+          {currentMode === "BOTH" && (
+            <Center>
+              <Text fontSize={18} fontWeight="semibold">
+                Update Address
+              </Text>
+            </Center>
+          )}
+          <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
+          <KeyboardAwareScrollView
+            enableOnAndroid={true}
+            style={{
+              padding: 0,
+              margin: 0,
+            }}
+          >
             <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
               {(customerUiState === FAILED || houseInfoUiState === FAILED) && (
                 <ErrorView
@@ -403,7 +445,7 @@ export const AddressBottomSheet = ({
                     fontWeight={"semibold"}
                     width={"100%"}
                     color={AppColors.SECONDARY}
-                    my={2}
+                    mt={3}
                   >
                     Choose Lawn Size (Sq Ft)
                   </Text>
@@ -462,7 +504,7 @@ export const AddressBottomSheet = ({
                     fontWeight={"semibold"}
                     width={"100%"}
                     color={AppColors.SECONDARY}
-                    my={2}
+                    mt={3}
                   >
                     Choose no. of bedrooms
                   </Text>
@@ -520,7 +562,7 @@ export const AddressBottomSheet = ({
                     fontWeight={"semibold"}
                     width={"100%"}
                     color={AppColors.SECONDARY}
-                    my={2}
+                    mt={3}
                   >
                     Choose no. of bathrooms
                   </Text>
@@ -573,11 +615,126 @@ export const AddressBottomSheet = ({
                       </Pressable>
                     ))}
                   </HStack>
+                  <Text
+                    fontSize={14}
+                    fontWeight={"semibold"}
+                    width={"100%"}
+                    color={AppColors.SECONDARY}
+                    mt={3}
+                  >
+                    Choose Pool Type
+                  </Text>
+                  <HStack
+                    space={2}
+                    maxWidth={screenWidth}
+                    flexWrap={"wrap"}
+                    flexDirection="row"
+                  >
+                    {poolTypeOptions.map((poolType, index) => (
+                      <Pressable
+                        key={index}
+                        height={10}
+                        borderRadius={5}
+                        width={"30%"}
+                        mt={2}
+                        justifyContent="center"
+                        borderWidth={poolType.selected ? 1 : 0}
+                        borderColor={AppColors.TEAL}
+                        bg={poolType.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                        _pressed={{
+                          borderColor: AppColors.TEAL,
+                          borderWidth: 1,
+                          backgroundColor: AppColors.LIGHT_TEAL,
+                        }}
+                        onPress={() => {
+                          let updatedList = poolTypeOptions.map(
+                            (pm2, index2) => {
+                              if (index == index2) {
+                                let selected: SelectOption = {
+                                  ...pm2,
+                                  selected: true,
+                                };
+                                setSelectedPoolType(pm2.code);
+                                return selected;
+                              }
+                              return { ...pm2, selected: false };
+                            }
+                          );
+                          setPoolTypeOptions(updatedList);
+                        }}
+                      >
+                        <Text
+                          alignSelf={"center"}
+                          color={AppColors.TEAL}
+                          fontWeight={"semibold"}
+                        >
+                          {poolType.label}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </HStack>
+                  <Text
+                    fontSize={14}
+                    fontWeight={"semibold"}
+                    width={"100%"}
+                    color={AppColors.SECONDARY}
+                    mt={3}
+                  >
+                    Choose Pest Types
+                  </Text>
+                  <HStack
+                    space={2}
+                    maxWidth={screenWidth}
+                    flexWrap={"wrap"}
+                    flexDirection="row"
+                  >
+                    {pestTypeOptions.map((pestType, index) => (
+                      <Pressable
+                        key={index}
+                        height={10}
+                        borderRadius={5}
+                        width={"30%"}
+                        mt={2}
+                        justifyContent="center"
+                        borderWidth={pestType.selected ? 1 : 0}
+                        borderColor={AppColors.TEAL}
+                        bg={pestType.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                        _pressed={{
+                          borderColor: AppColors.TEAL,
+                          borderWidth: 1,
+                          backgroundColor: AppColors.LIGHT_TEAL,
+                        }}
+                        onPress={() => {
+                          let updatedList = pestTypeOptions.map(
+                            (pm2, index2) => {
+                              if (index == index2) {
+                                let option: SelectOption = {
+                                  ...pm2,
+                                  selected: !pm2.selected,
+                                };
+                                return option;
+                              }
+                              return pm2;
+                            }
+                          );
+                          setPestTypeOptions(updatedList);
+                        }}
+                      >
+                        <Text
+                          alignSelf={"center"}
+                          color={AppColors.TEAL}
+                          fontWeight={"semibold"}
+                        >
+                          {pestType.label}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </HStack>
                 </>
               )}
             </VStack>
-          </VStack>
-        </KeyboardAwareScrollView>
+          </KeyboardAwareScrollView>
+        </VStack>
         {houseInfoUiState === "IN_PROGRESS" ||
         customerUiState === "IN_PROGRESS" ? (
           <Spinner my={15} />

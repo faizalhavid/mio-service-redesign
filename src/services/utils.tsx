@@ -30,3 +30,7 @@ export const getReadableDateTime = (dt: string) => {
   };
   return { ...result, all: `${result.day}, ${result.date}, ${result.slot}` };
 };
+
+export const deepClone = (o: any): any => {
+  return JSON.parse(JSON.stringify(o));
+};

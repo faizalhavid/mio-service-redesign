@@ -36,6 +36,7 @@
     "fbjs": "^3.0.4",
     "native-base": "^3.2.2",
     "react": "17.0.2",
+    "react-devtools-core": "^4.14.0",
     "react-hook-form": "^7.26.0",
     "react-native": "0.66.4",
     "react-native-add-calendar-event": "^4.0.0",

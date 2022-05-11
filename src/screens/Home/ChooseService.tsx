@@ -97,7 +97,7 @@ const ChooseService = (): JSX.Element => {
   }, []);
 
   const fetchLead = React.useCallback(async () => {
-    // StorageHelper.removeValue("LEAD_ID");
+    // await StorageHelper.removeValue("LEAD_ID");
     let leadId = await StorageHelper.getValue("LEAD_ID");
     console.log(leadId);
     if (leadId) {
