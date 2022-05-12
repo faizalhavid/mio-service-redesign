@@ -93,15 +93,11 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   };
 
   const updateLead = async (_leadDetails: LeadDetails) => {
-    console.log(_leadDetails);
     let existingServiceIds = _leadDetails.subOrders.map(
       (subOrder) => subOrder.serviceId
     );
     let isNewlyAdded = existingServiceIds.indexOf(selectedService) < 0;
-    console.log(isNewlyAdded);
-    // let subOrders = _leadDetails.subOrders.filter((subOrder) => {
-    //   return selectedServices.includes(subOrder.serviceId);
-    // });
+
     let lead: LeadDetails = deepClone(_leadDetails);
     let payload = {
       ...lead,
@@ -115,8 +111,6 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     }
 
     let updatedSuborders = payload.subOrders.map((subOrder) => {
-      console.log(subOrder.serviceId, selectedService);
-      console.log(selectedPlan);
       if (subOrder.serviceId === selectedService) {
         if (!subOrder.servicePrice) {
           subOrder.servicePrice = {} as ServicePrice;
@@ -124,9 +118,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         if (!subOrder.flags) {
           subOrder.flags = {} as Flags2;
         }
-        console.log(subOrder.flags);
         subOrder.flags.plan = selectedPlan;
-        console.log(subOrder.flags);
         if (selectedSubscriptionMethod.type === "ONCE") {
           subOrder.servicePrice.cost = selectedSubscriptionMethod.perCost;
           subOrder.flags.recurringDuration = "ONCE";
@@ -136,7 +128,6 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           subOrder.flags.recurringDuration = selectedSubscriptionMethod?.type;
           subOrder.flags.isRecurring = true;
         }
-        console.log(subOrder);
       }
       return subOrder;
     });

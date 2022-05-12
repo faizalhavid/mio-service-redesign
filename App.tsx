@@ -17,7 +17,7 @@ import { store } from "./src/stores";
 LogBox.ignoreLogs(["contrast ratio"]);
 
 if (__DEV__) {
-  //   auth().useEmulator("http://192.168.0.248:9099");
+  // firebase.auth().useEmulator("http://192.168.0.248:9099");
   import("./ReactotronConfig").then(() => {
     // console.log("Reactotron Configured")
   });

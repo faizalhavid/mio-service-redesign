@@ -119,7 +119,7 @@ const Payment = (): JSX.Element => {
     data.expMonth = data.expiry.split("/")[0];
     data.expYear = data.expiry.split("/")[1];
     dispatch(
-      saveCardAsync({ customerId: customer.customerId, data: data })
+      saveCardAsync({ customerId: customer.customerId, data: { card: data } })
     ).then(() => {
       if (![200, 201].includes(saveCard?.qbStatus)) {
         setErrorMsg("Invalid Card Credentials!");
@@ -298,13 +298,14 @@ const Payment = (): JSX.Element => {
                           code: couponCode,
                           leadId: leadDetails.leadId,
                         })
-                      ).then(() => {
-                        if (validateCoupon.isValid) {
+                      ).then((response) => {
+                        let _validateCoupon = response.payload;
+                        if (_validateCoupon.isValid) {
                           setCouponValidity("VALID");
                         } else {
                           setCouponValidity("INVALID");
                         }
-                        setCouponMsg(validateCoupon.message);
+                        setCouponMsg(_validateCoupon.message);
                       });
                     }}
                   >
