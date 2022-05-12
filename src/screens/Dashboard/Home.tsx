@@ -86,8 +86,8 @@ const Home = (): JSX.Element => {
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setUserId(cId || "");
     dispatch(getCustomerByIdAsync(cId));
-    // dispatch(getUpcomingOrdersAsync());
-    // dispatch(getPastOrdersAsync());
+    dispatch(getUpcomingOrdersAsync());
+    dispatch(getPastOrdersAsync());
   }, []);
 
   React.useEffect(() => {

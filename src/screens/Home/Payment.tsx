@@ -43,6 +43,7 @@ import {
   selectCreateOrder,
 } from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
+import PriceBreakdown from "./PriceBreakdown";
 
 const Payment = (): JSX.Element => {
   const [showTNC, setShowTNC] = React.useState(false);
@@ -119,11 +120,16 @@ const Payment = (): JSX.Element => {
     data.expMonth = data.expiry.split("/")[0];
     data.expYear = data.expiry.split("/")[1];
     dispatch(
-      saveCardAsync({ customerId: customer.customerId, data: { card: data } })
-    ).then(() => {
-      if (![200, 201].includes(saveCard?.qbStatus)) {
+      saveCardAsync({
+        customerId: customer.customerId,
+        data: { card: { ...data, expiry: undefined } },
+      })
+    ).then((response) => {
+      let _savedCard = response.payload;
+      if (![200, 201].includes(_savedCard?.qbStatus)) {
         setErrorMsg("Invalid Card Credentials!");
       } else {
+        setSelectedCreditcard(_savedCard.qbResponse.id);
         dispatch(getSavedCardsAsync({ customerId: customer.customerId }));
       }
     });
@@ -144,6 +150,8 @@ const Payment = (): JSX.Element => {
     >
       <ScrollView>
         <VStack space={5}>
+          <PriceBreakdown />
+          <Divider thickness={10} />
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Credit Card
           </Text>
@@ -372,6 +380,7 @@ const Payment = (): JSX.Element => {
             createOrderFromLeadAsync({ leadId: leadDetails.leadId })
           );
           await StorageHelper.removeValue("LEAD_ID");
+          // TODO: reset lead state
           popToPop("Booked");
         }}
       />

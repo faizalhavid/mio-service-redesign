@@ -160,9 +160,13 @@ export const AddressBottomSheet = ({
                   priceMap.push(price);
                 }
               }
-              setAreaOptions(priceMap);
+              setAreaOptions(
+                priceMap.filter((price) => price.plan === "BASIC")
+              );
             } else {
-              setAreaOptions(service.priceMap);
+              setAreaOptions(
+                service.priceMap.filter((price) => price.plan === "BASIC")
+              );
             }
             break;
           }

@@ -1,31 +1,20 @@
-import {
-  VStack,
-  Center,
-  Pressable,
-  Button,
-  Text,
-  useContrastText,
-  Circle,
-  HStack,
-  Divider,
-  Stack,
-} from "native-base";
+import { VStack, Pressable, Text, HStack, Divider, Stack } from "native-base";
 import React from "react";
 import { SvgCss } from "react-native-svg";
-import { LAWN_CARE } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import { navigate } from "../../navigations/rootNavigation";
-import { SERVICES, ServicesType } from "../../screens/Home/ChooseService";
+import { SERVICES } from "../../screens/Home/ChooseService";
+import { selectLead } from "../../slices/lead-slice";
 
-type OrderSummaryProps = {
-  selectedServices: string[];
-};
+type OrderSummaryProps = {};
 
-const OrderSummary = ({ selectedServices }: OrderSummaryProps): JSX.Element => {
+const OrderSummary = ({}: OrderSummaryProps): JSX.Element => {
+  const { member: leadDetails } = useAppSelector(selectLead);
+
   return (
     <>
-      {selectedServices.length > 0 && (
+      {leadDetails?.subOrders.length > 0 && (
         <Stack
           position={"absolute"}
           bg={"#fff"}
@@ -63,7 +52,7 @@ const OrderSummary = ({ selectedServices }: OrderSummaryProps): JSX.Element => {
                 mt={2}
                 divider={<Divider thickness={1} p={0} m={0} />}
               >
-                {selectedServices.map((service, index) => (
+                {/* {selectedServices.map((service, index) => (
                   <HStack
                     key={index}
                     space={2}
@@ -79,7 +68,7 @@ const OrderSummary = ({ selectedServices }: OrderSummaryProps): JSX.Element => {
                       {SERVICES[service].text.split(" ")[0]}
                     </Text>
                   </HStack>
-                ))}
+                ))} */}
               </HStack>
             </VStack>
           </Pressable>
