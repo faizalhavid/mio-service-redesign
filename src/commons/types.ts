@@ -218,3 +218,42 @@ export interface PlanOption {
   cost: number;
   selected: boolean;
 }
+
+export type SaveCardType = {
+  name: string;
+  number: string;
+  expiry: string;
+  expMonth: string;
+  expYear: string;
+  cvc: string;
+};
+
+export type CvcVerification = {
+  result: string;
+  date: Date;
+};
+
+export type ZeroDollarVerification = {
+  status: string;
+};
+
+export type Card = {
+  id: string;
+  number: string;
+  name: string;
+  created: Date;
+  updated: Date;
+  entityVersion: string;
+  cvcVerification: CvcVerification;
+  cardType: string;
+  entityId: string;
+  entityType: string;
+  numberSHA512: string;
+  status: string;
+  zeroDollarVerification: ZeroDollarVerification;
+  expMonth: string;
+  expYear: string;
+  default: boolean;
+  isBusiness: boolean;
+  isLevel3Eligible: boolean;
+};

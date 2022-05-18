@@ -14,8 +14,6 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import FooterButton from "../../components/FooterButton";
-import { goBack } from "../../navigations/rootNavigation";
 import { Controller, useForm } from "react-hook-form";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -27,45 +25,7 @@ import {
 } from "../../slices/card-slice";
 import { selectCustomer } from "../../slices/customer-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
-
-export type SaveCardType = {
-  name: string;
-  number: string;
-  expiry: string;
-  expMonth: string;
-  expYear: string;
-  cvc: string;
-};
-
-export interface CvcVerification {
-  result: string;
-  date: Date;
-}
-
-export interface ZeroDollarVerification {
-  status: string;
-}
-
-export interface Card {
-  id: string;
-  number: string;
-  name: string;
-  created: Date;
-  updated: Date;
-  entityVersion: string;
-  cvcVerification: CvcVerification;
-  cardType: string;
-  entityId: string;
-  entityType: string;
-  numberSHA512: string;
-  status: string;
-  zeroDollarVerification: ZeroDollarVerification;
-  expMonth: string;
-  expYear: string;
-  default: boolean;
-  isBusiness: boolean;
-  isLevel3Eligible: boolean;
-}
+import { SaveCardType } from "../../commons/types";
 
 const PaymentMethods = (): JSX.Element => {
   const [selectedCreditcard, setSelectedCreditcard] = useState<string>();
@@ -282,13 +242,13 @@ const PaymentMethods = (): JSX.Element => {
           )}
         </ScrollView>
       </KeyboardAwareScrollView>
-      {selectedCreditcard && selectedCreditcard !== "NEW" && (
+      {/* {selectedCreditcard && selectedCreditcard !== "NEW" && (
         <FooterButton
-          label="SAVE PAYMENT METHOD"
+          label="SAVE"
           subText="Choose default payment method or add new card"
           onPress={() => goBack()}
         />
-      )}
+      )} */}
     </AppSafeAreaView>
   );
 };

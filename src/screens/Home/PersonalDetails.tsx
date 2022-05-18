@@ -11,13 +11,11 @@ import React, { useEffect } from "react";
 import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import FooterButton from "../../components/FooterButton";
 import { Phone } from "../../contexts/AuthContext";
 import { goBack } from "../../navigations/rootNavigation";
 import { Controller, useForm } from "react-hook-form";
 import { STATES } from "../../commons/dropdown-values";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import ErrorView from "../../components/ErrorView";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -198,7 +196,7 @@ const PersonalDetails = (): JSX.Element => {
           {Header("Update Personal Information")}
           {/* <Divider thickness={0} mt={10} /> */}
           <VStack px={5}>
-            <ErrorView message={errorMsg} />
+            {/* <ErrorView message={errorMsg} /> */}
             <Controller
               control={control}
               rules={{
@@ -408,24 +406,24 @@ const PersonalDetails = (): JSX.Element => {
         {/* </ScrollView> */}
       </KeyboardAwareScrollView>
       {/* </KeyboardAvoidingView> */}
-      <FooterButton
+      {/* <FooterButton
         disabled={!isValid}
         label={"UPDATE"}
-        onPress={(event) => {
-          setErrorMsg("");
-          if (!isValid) {
-            if (Object.keys(errors).length === 0) {
-              setErrorMsg("No fields are changed");
-            } else {
-              setErrorMsg("Make sure all fields are filled");
-            }
-            return;
-          }
-          handleSubmit(onSubmit)(event).catch((error) => {
-            setErrorMsg(error);
-          });
+        onPress={() => {
+          // setErrorMsg("");
+          // if (!isValid) {
+          //   if (Object.keys(errors).length === 0) {
+          //     setErrorMsg("No fields are changed");
+          //   } else {
+          //     setErrorMsg("Make sure all fields are filled");
+          //   }
+          //   return;
+          // }
+          // handleSubmit(onSubmit)().catch((error) => {
+          //   setErrorMsg(error);
+          // });
         }}
-      />
+      /> */}
     </AppSafeAreaView>
   );
 };

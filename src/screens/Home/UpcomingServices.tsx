@@ -18,25 +18,25 @@ const UpcomingServices = (): JSX.Element => {
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
   const [orderId, setOrderId] = React.useState<string>("");
   const [subOrderId, setSubOrderId] = React.useState<string>("");
+  const [upcomingOrders, setUpcomingOrders] = React.useState<Order[]>([]);
   const limit = 10;
 
   const dispatch = useAppDispatch();
 
-  const {
-    uiState: upcomingOrdersUiState,
-    collection: upcomingOrders,
-    error: upcomingOrdersError,
-  } = useAppSelector(selectUpcomingOrders);
+  const { uiState: upcomingOrdersUiState, member: upcomingOrdersState } =
+    useAppSelector(selectUpcomingOrders);
 
   useEffect(() => {
     dispatch(getUpcomingOrdersAsync({ orderId, subOrderId, limit })).then(
-      () => {
-        if (upcomingOrders.length > 0) {
-          let lastOrder = upcomingOrders[upcomingOrders.length - 1];
+      (response) => {
+        let orders = response.payload.data;
+        if (orders.length > 0) {
+          let lastOrder = orders[orders.length - 1];
           setOrderId(lastOrder.orderId);
           setSubOrderId(lastOrder.subOrderId);
+          setUpcomingOrders([...upcomingOrders, ...orders]);
         }
-        if (upcomingOrders.length < limit) {
+        if (orders.length < limit) {
           setFetchAgain(false);
         }
       }
@@ -94,6 +94,3 @@ const UpcomingServices = (): JSX.Element => {
 };
 
 export default UpcomingServices;
-function useCallback(arg0: () => Order[]): Order[] {
-  throw new Error("Function not implemented.");
-}

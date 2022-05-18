@@ -15,26 +15,31 @@ const ServiceHistory = (): JSX.Element => {
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
   const [orderId, setOrderId] = React.useState<string>("");
   const [subOrderId, setSubOrderId] = React.useState<string>("");
+  const [pastOrders, setPastOrders] = React.useState<Order[]>([]);
   const limit = 10;
   const dispatch = useAppDispatch();
 
   const {
     uiState: pastOrdersUiState,
-    collection: pastOrders,
+    collection: pastOrdersState,
     error: pastOrdersError,
   } = useAppSelector(selectPastOrders);
 
   useEffect(() => {
-    dispatch(getPastOrdersAsync({ orderId, subOrderId, limit })).then(() => {
-      if (pastOrders.length > 0) {
-        let lastOrder = pastOrders[pastOrders.length - 1];
-        setOrderId(lastOrder.orderId);
-        setSubOrderId(lastOrder.subOrderId);
+    dispatch(getPastOrdersAsync({ orderId, subOrderId, limit })).then(
+      (response) => {
+        let orders = response.payload.data;
+        if (orders.length > 0) {
+          let lastOrder = orders[orders.length - 1];
+          setOrderId(lastOrder.orderId);
+          setSubOrderId(lastOrder.subOrderId);
+          setPastOrders([...pastOrders, ...orders]);
+        }
+        if (orders.length < limit) {
+          setFetchAgain(false);
+        }
       }
-      if (pastOrders.length < limit) {
-        setFetchAgain(false);
-      }
-    });
+    );
   }, [page]);
 
   return (

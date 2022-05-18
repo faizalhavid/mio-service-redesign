@@ -150,6 +150,7 @@ const Home = (): JSX.Element => {
         upcomingOrdersUiState === IN_PROGRESS ||
         pastOrdersUiState === IN_PROGRESS
       }
+      bg={AppColors.EEE}
     >
       <ScrollView>
         <VStack pb={150}>
