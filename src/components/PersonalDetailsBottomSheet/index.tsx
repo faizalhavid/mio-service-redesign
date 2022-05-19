@@ -1,31 +1,33 @@
 import { Actionsheet, Center, Spacer, Text, VStack } from "native-base";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
-import { SaveCardType } from "../../commons/types";
-import { FAILED } from "../../commons/ui-states";
+import { Phone } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import {
-  saveCardAsync,
-  getSavedCardsAsync,
-  selectSaveCard,
-} from "../../slices/card-slice";
-import { selectCustomer } from "../../slices/customer-slice";
+import { selectSaveCard } from "../../slices/card-slice";
+import { selectCustomer, putCustomerAsync } from "../../slices/customer-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
 
-type AddCardBottomSheetProps = {
-  showAddCard: boolean;
-  setShowAddCard: Function;
+type PersonalDetailsForm = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
 };
 
-export const AddCardBottomSheet = ({
-  showAddCard,
-  setShowAddCard,
-}: AddCardBottomSheetProps): JSX.Element => {
+type PersonalDetailsBottomSheetProps = {
+  showPersonalDetails: boolean;
+  setShowPersonalDetails: Function;
+};
+
+export const PersonalDetailsBottomSheet = ({
+  showPersonalDetails,
+  setShowPersonalDetails,
+}: PersonalDetailsBottomSheetProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -35,45 +37,51 @@ export const AddCardBottomSheet = ({
     error: customerError,
   } = useAppSelector(selectCustomer);
 
-  const {
-    uiState: saveCardUiState,
-    member: saveCard,
-    error: saveCardError,
-  } = useAppSelector(selectSaveCard);
+  useEffect(() => {
+    if (customer) {
+      setValue("firstName", customer.firstName);
+      setValue("lastName", customer.lastName);
+      setValue("phone", customer.phones[0].number);
+      setValue("email", customer.email);
+    }
+  }, [customer]);
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm<SaveCardType>({
-    defaultValues: {},
+    setValue,
+    getValues,
+    formState: { errors, isValid },
+  } = useForm<PersonalDetailsForm>({
     mode: "onChange",
   });
 
-  const onSubmit = async (data: SaveCardType) => {
-    setErrorMsg("");
-    data.expMonth = data.expiry.split("/")[0];
-    data.expYear = data.expiry.split("/")[1];
+  const onSubmit = async (data: PersonalDetailsForm) => {
+    let formValues = getValues();
     dispatch(
-      saveCardAsync({
-        customerId: customer.customerId,
-        data: { card: { ...data, expiry: undefined } },
+      putCustomerAsync({
+        ...customer,
+        ...{
+          firstName: formValues.firstName,
+          lastName: formValues.lastName,
+          email: formValues.email,
+          phones: [
+            {
+              ...({} as Phone),
+              number: formValues.phone,
+            },
+          ],
+        },
       })
-    ).then((response) => {
-      let savedCard = response.payload;
-      if (![200, 201].includes(savedCard?.qbStatus)) {
-        setErrorMsg("Invalid Card Credentials!");
-      } else {
-        dispatch(getSavedCardsAsync({ customerId: customer.customerId }));
-        setShowAddCard(false);
-      }
+    ).then(() => {
+      setShowPersonalDetails(false);
     });
   };
 
   return (
     <Actionsheet
-      isOpen={showAddCard}
-      onClose={() => setShowAddCard(false)}
+      isOpen={showPersonalDetails}
+      onClose={() => setShowPersonalDetails(false)}
       hideDragIndicator={true}
     >
       <Actionsheet.Content
@@ -90,7 +98,7 @@ export const AddCardBottomSheet = ({
         <VStack pt={15} bg={"white"} width="100%">
           <Center>
             <Text fontSize={18} fontWeight="semibold">
-              Add Card
+              Personal Details
             </Text>
           </Center>
           <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
@@ -111,12 +119,43 @@ export const AddCardBottomSheet = ({
                 render={({ field: { onChange, onBlur, value } }) => (
                   <AppInput
                     type="text"
-                    label="Name"
+                    label="Firstname"
                     onChange={onChange}
                     value={value}
                   />
                 )}
-                name="name"
+                name="firstName"
+              />
+              <Controller
+                control={control}
+                rules={{
+                  required: true,
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <AppInput
+                    type="text"
+                    label="Lastname"
+                    onChange={onChange}
+                    value={value}
+                  />
+                )}
+                name="lastName"
+              />
+              <Controller
+                control={control}
+                rules={{
+                  required: true,
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <AppInput
+                    type="email"
+                    label="Email"
+                    disabled={true}
+                    onChange={onChange}
+                    value={value}
+                  />
+                )}
+                name="email"
               />
               <Controller
                 control={control}
@@ -126,51 +165,20 @@ export const AddCardBottomSheet = ({
                 render={({ field: { onChange, onBlur, value } }) => (
                   <AppInput
                     type="number"
-                    label="Card Number"
+                    label="Phone"
                     onChange={onChange}
                     value={value}
                   />
                 )}
-                name="number"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="number"
-                    expiry={true}
-                    label="Valid thru (MM/YYYY)"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="expiry"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="password"
-                    label="CVV"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="cvc"
+                name="phone"
               />
             </VStack>
           </KeyboardAwareScrollView>
         </VStack>
         <FooterButton
-          disabled={!isValid || saveCardUiState === "IN_PROGRESS"}
+          disabled={!isValid || customerUiState === "IN_PROGRESS"}
           minLabel="SAVE"
-          maxLabel={"CREDIT CARD"}
+          maxLabel={"PERSONAL DETAILS"}
           type="DEFAULT"
           onPress={handleSubmit(onSubmit)}
         />

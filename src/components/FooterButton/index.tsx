@@ -13,7 +13,8 @@ type FooterButtonProps = {
     | "PLAN_SELECTION"
     | "SCHEDULE_SELECTION"
     | "DATETIME_SELECTION"
-    | "ADDRESS";
+    | "ADDRESS"
+    | "DEFAULT";
   label?: string;
   minLabel?: string;
   maxLabel?: string;

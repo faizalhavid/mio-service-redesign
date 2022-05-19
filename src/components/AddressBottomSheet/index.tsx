@@ -49,12 +49,14 @@ type AddressBottomSheetProps = {
   showEditAddress: boolean;
   setShowEditAddress: Function;
   mode: AddressMode;
+  hideAfterSave?: boolean;
 };
 
 export const AddressBottomSheet = ({
   showEditAddress,
   setShowEditAddress,
   mode,
+  hideAfterSave,
 }: AddressBottomSheetProps): JSX.Element => {
   const dispatch = useAppDispatch();
 
@@ -264,7 +266,11 @@ export const AddressBottomSheet = ({
         })
       );
     }
-    setCurrentMode("UPDATE_PROPERTY");
+    if (hideAfterSave) {
+      setShowEditAddress(false);
+    } else {
+      setCurrentMode("UPDATE_PROPERTY");
+    }
   };
 
   const savePropertyDetails = async () => {
@@ -313,14 +319,14 @@ export const AddressBottomSheet = ({
           {currentMode === "UPDATE_ADDRESS" && (
             <Center>
               <Text fontSize={18} fontWeight="semibold">
-                Add Address
+                Address
               </Text>
             </Center>
           )}
           {currentMode === "UPDATE_PROPERTY" && (
             <Center>
               <Text fontSize={18} fontWeight="semibold">
-                Add Property Details
+                Property Details
               </Text>
             </Center>
           )}
