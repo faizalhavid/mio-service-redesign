@@ -98,6 +98,11 @@ export type Order = {
   serviceId: string;
 };
 
+export type GroupedOrder = {
+  month: string;
+  data: Order[];
+};
+
 // Lead
 
 export interface CustomerProfile {

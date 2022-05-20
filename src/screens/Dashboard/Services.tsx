@@ -1,11 +1,50 @@
-import { HStack, Text, View, VStack } from "native-base";
-import React from "react";
+import { HStack, Pressable, Text, View, VStack } from "native-base";
+import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import { navigate } from "../../navigations/rootNavigation";
+import UpcomingServices from "../Home/UpcomingServices";
 
+type CurrentScreenType = "UPCOMING" | "PAST";
 const Services = (): JSX.Element => {
+  const [currentScreen, setCurrentScreen] =
+    useState<CurrentScreenType>("UPCOMING");
+
+  const ChooserCardButton = ({
+    selected,
+    text,
+    screen,
+  }: {
+    selected: boolean;
+    text: string;
+    screen: CurrentScreenType;
+  }): JSX.Element => {
+    return (
+      <Pressable
+        borderLeftRadius={screen === "UPCOMING" ? 5 : 0}
+        borderRightRadius={screen === "PAST" ? 5 : 0}
+        width={"50%"}
+        py={2}
+        borderWidth={1}
+        borderColor={AppColors.TEAL}
+        bg={selected ? AppColors.TEAL : "transparent"}
+        onPress={() => {
+          setCurrentScreen(screen);
+        }}
+      >
+        <Text
+          alignSelf={"center"}
+          fontSize={12}
+          fontWeight={"semibold"}
+          color={selected ? "white" : "black"}
+        >
+          {text}
+        </Text>
+      </Pressable>
+    );
+  };
+
   const ChooserCard = (): JSX.Element => {
     return (
       <HStack
@@ -15,39 +54,16 @@ const Services = (): JSX.Element => {
         my={3}
         borderRadius={10}
       >
-        <View
-          borderLeftRadius={5}
-          width={"50%"}
-          bg={AppColors.TEAL}
-          borderWidth={1}
-          borderColor={AppColors.TEAL}
-          py={2}
-        >
-          <Text
-            alignSelf={"center"}
-            fontSize={12}
-            fontWeight={"semibold"}
-            color="white"
-          >
-            UPCOMING SERVICES
-          </Text>
-        </View>
-        <View
-          borderRightRadius={5}
-          width={"50%"}
-          py={2}
-          borderWidth={1}
-          borderColor={AppColors.TEAL}
-        >
-          <Text
-            alignSelf={"center"}
-            fontSize={12}
-            fontWeight={"semibold"}
-            // color="white"
-          >
-            PAST SERVICES
-          </Text>
-        </View>
+        <ChooserCardButton
+          selected={currentScreen === "UPCOMING"}
+          text={"UPCOMING SERVICES"}
+          screen="UPCOMING"
+        />
+        <ChooserCardButton
+          selected={currentScreen === "PAST"}
+          text={"PAST SERVICES"}
+          screen="PAST"
+        />
       </HStack>
     );
   };
@@ -112,11 +128,10 @@ const Services = (): JSX.Element => {
 
   return (
     <AppSafeAreaView mt={0} bg={AppColors.EEE}>
-      <VStack pb={150} pt={3}>
+      <VStack>
         <ChooserCard />
-        <VStack mt={2}>
-          <ServiceCard />
-        </VStack>
+        {currentScreen === "UPCOMING" && <UpcomingServices />}
+        {currentScreen === "PAST" && <ServiceCard />}
       </VStack>
       <FloatingButton onPress={() => navigate("ChooseService")} />
     </AppSafeAreaView>

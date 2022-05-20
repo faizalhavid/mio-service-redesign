@@ -69,18 +69,36 @@ const Profile = (): JSX.Element => {
       .toUpperCase();
   };
 
+  const Title = ({ text }: { text: string }): JSX.Element => {
+    return (
+      <Text color={AppColors.DARK_PRIMARY} letterSpacing={1} fontSize={12}>
+        {text}
+      </Text>
+    );
+  };
+
+  const ValueText = ({ text }: { text: string | number }): JSX.Element => {
+    return (
+      <Text
+        color={AppColors.SECONDARY}
+        textTransform={"uppercase"}
+        fontWeight={"semibold"}
+      >
+        {text}
+      </Text>
+    );
+  };
+
   const ProfileCard = (): JSX.Element => {
     return (
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
-          <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-            PERSONAL INFORMATION
-          </Text>
+          <Title text="PERSONAL INFORMATION" />
           <Text
             onPress={() => {
               setShowPersonalDetails(true);
             }}
-            color={"blue.400"}
+            color={AppColors.DARK_TEAL}
             fontWeight="semibold"
             fontSize={12}
           >
@@ -100,9 +118,7 @@ const Profile = (): JSX.Element => {
             children={<SvgCss width={40} height={40} xml={USER_ICON("#eee")} />}
           ></Circle>
           <VStack>
-            <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-              {customer?.firstName} {customer?.lastName}
-            </Text>
+            <ValueText text={`${customer?.firstName} ${customer?.lastName}`} />
             <Text color={AppColors.AAA} fontSize={12} fontWeight={"semibold"}>
               {customer?.email}
             </Text>
@@ -119,11 +135,9 @@ const Profile = (): JSX.Element => {
     return (
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
-          <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-            ADDRESS DETAILS
-          </Text>
+          <Title text="ADDRESS DETAILS" />
           <Text
-            color={"blue.400"}
+            color={AppColors.DARK_TEAL}
             fontWeight="semibold"
             onPress={() => {
               setAddressMode("UPDATE_ADDRESS");
@@ -142,17 +156,13 @@ const Profile = (): JSX.Element => {
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 STREET
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.street}
-              </Text>
+              <ValueText text={customer?.addresses[0]?.street} />
             </VStack>
             <VStack width={"50%"}>
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 CITY
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.city}
-              </Text>
+              <ValueText text={customer?.addresses[0]?.city} />
             </VStack>
           </HStack>
           <HStack justifyContent={"space-between"}>
@@ -160,16 +170,14 @@ const Profile = (): JSX.Element => {
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 STATE
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.state}
-              </Text>
+              <ValueText text={customer?.addresses[0]?.state} />
             </VStack>
             <VStack width={"50%"}>
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 ZIP
               </Text>
               <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.zip}
+                <ValueText text={customer?.addresses[0]?.zip} />
               </Text>
             </VStack>
           </HStack>
@@ -182,11 +190,9 @@ const Profile = (): JSX.Element => {
     return (
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
-          <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-            PROPERTY DETAILS
-          </Text>
+          <Title text="PROPERTY DETAILS" />
           <Text
-            color={"blue.400"}
+            color={AppColors.DARK_TEAL}
             fontWeight="semibold"
             onPress={() => {
               setAddressMode("UPDATE_PROPERTY");
@@ -205,17 +211,17 @@ const Profile = (): JSX.Element => {
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 BEDROOM
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.houseInfo?.bedrooms}
-              </Text>
+              <ValueText
+                text={customer?.addresses[0]?.houseInfo?.bedrooms || "-"}
+              />
             </VStack>
             <VStack width={"50%"}>
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 BATHROOM
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.houseInfo?.bathrooms}
-              </Text>
+              <ValueText
+                text={customer?.addresses[0]?.houseInfo?.bathrooms || "-"}
+              />
             </VStack>
           </HStack>
           <HStack justifyContent={"space-between"}>
@@ -223,17 +229,21 @@ const Profile = (): JSX.Element => {
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 LOT SIZE
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.houseInfo?.lotSize} sqft
-              </Text>
+              <ValueText
+                text={
+                  customer?.addresses[0]?.houseInfo?.lotSize + " sqft" || "-"
+                }
+              />
             </VStack>
             <VStack width={"50%"}>
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 POOL TYPE
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.houseInfo?.swimmingPoolType}
-              </Text>
+              <ValueText
+                text={
+                  customer?.addresses[0]?.houseInfo?.swimmingPoolType || "-"
+                }
+              />
             </VStack>
           </HStack>
           <HStack justifyContent={"space-between"}>
@@ -241,9 +251,11 @@ const Profile = (): JSX.Element => {
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 PEST TYPE
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                {customer?.addresses[0]?.houseInfo?.pestType?.join(",")}
-              </Text>
+              <ValueText
+                text={
+                  customer?.addresses[0]?.houseInfo?.pestType?.join(", ") || "-"
+                }
+              />
             </VStack>
           </HStack>
         </VStack>
@@ -255,11 +267,9 @@ const Profile = (): JSX.Element => {
     return (
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
-          <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-            PAYMENT METHOD
-          </Text>
+          <Title text="PAYMENT METHOD" />
           <Text
-            color={"blue.400"}
+            color={AppColors.DARK_TEAL}
             fontWeight="semibold"
             onPress={() => setShowAddCard(true)}
             fontSize={12}
