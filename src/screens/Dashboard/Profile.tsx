@@ -176,9 +176,7 @@ const Profile = (): JSX.Element => {
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 ZIP
               </Text>
-              <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                <ValueText text={customer?.addresses[0]?.zip} />
-              </Text>
+              <ValueText text={customer?.addresses[0]?.zip} />
             </VStack>
           </HStack>
         </VStack>

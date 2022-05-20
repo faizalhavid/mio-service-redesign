@@ -84,8 +84,6 @@ const Home = (): JSX.Element => {
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setUserId(cId || "");
     dispatch(getCustomerByIdAsync(cId));
-    // dispatch(getUpcomingOrdersAsync());
-    // dispatch(getPastOrdersAsync());
   }, []);
 
   React.useEffect(() => {
@@ -163,13 +161,44 @@ const Home = (): JSX.Element => {
                 }}
               />
             )}
-          <Center>
-            <Text fontWeight={"bold"} fontSize={18}>
-              Welcome back {customer?.firstName}
+          <View px={3}>
+            <Text mx={3} my={2} fontWeight={"bold"} fontSize={18}>
+              Hi, {customer?.firstName}
             </Text>
-          </Center>
-
-          <Divider my={5} thickness={1} />
+            {upcomingOrders && upcomingOrders.length > 0 && (
+              <ServiceCard
+                variant="solid"
+                dateTime={upcomingOrders[0].appointmentDateTime}
+                showWelcomeMessage={true}
+                showAddToCalendar={true}
+                showReschedule={true}
+                showChat={true}
+                serviceName={SERVICES[upcomingOrders[0].serviceId].text}
+                orderId={upcomingOrders[0].orderId}
+                subOrderId={upcomingOrders[0].subOrderId}
+                year={
+                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                    .year
+                }
+                date={
+                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                    .date
+                }
+                month={
+                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                    .month
+                }
+                day={
+                  getReadableDateTime(upcomingOrders[0].appointmentDateTime).day
+                }
+                slot={
+                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                    .slot
+                }
+              />
+            )}
+          </View>
+          <Divider my={2} thickness={1} />
           <UpcomingPast />
         </VStack>
       </VirtualizedView>

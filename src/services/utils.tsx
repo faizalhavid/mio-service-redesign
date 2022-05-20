@@ -29,7 +29,10 @@ export const getReadableDateTime = (dt: string) => {
       _slot.rangeMax + " " + _slot.maxMaxidian
     } `,
   };
-  return { ...result, all: `${result.day}, ${result.date}, ${result.slot}` };
+  return {
+    ...result,
+    all: `${result.month} ${result.date}, ${result.slot}`,
+  };
 };
 
 export const deepClone = (o: any): any => {
