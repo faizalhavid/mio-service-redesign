@@ -290,9 +290,7 @@ const Profile = (): JSX.Element => {
                 <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                   {card.cardType}
                 </Text>
-                <Text textTransform={"uppercase"} fontWeight={"semibold"}>
-                  {formatNumber(card.number)}
-                </Text>
+                <ValueText text={formatNumber(card.number)} />
               </VStack>
             </HStack>
           ))}

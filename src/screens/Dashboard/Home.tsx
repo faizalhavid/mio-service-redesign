@@ -7,7 +7,6 @@ import {
   HStack,
   Image,
   Pressable,
-  ScrollView,
   Skeleton,
   Text,
   View,
@@ -36,10 +35,7 @@ import {
   getCustomerByIdAsync,
   selectCustomer,
 } from "../../slices/customer-slice";
-import { Order } from "../../commons/types";
 import {
-  getPastOrdersAsync,
-  getUpcomingOrdersAsync,
   selectPastOrders,
   selectUpcomingOrders,
 } from "../../slices/order-slice";
@@ -49,6 +45,8 @@ import {
   AddressMode,
 } from "../../components/AddressBottomSheet";
 import WarningLabel from "../../components/WarningLabel";
+import UpcomingPast from "../../components/UpcomingPast";
+import VirtualizedView from "../../components/VirtualizedView";
 
 const Home = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -86,8 +84,8 @@ const Home = (): JSX.Element => {
     let cId = await StorageHelper.getValue("CUSTOMER_ID");
     setUserId(cId || "");
     dispatch(getCustomerByIdAsync(cId));
-    dispatch(getUpcomingOrdersAsync());
-    dispatch(getPastOrdersAsync());
+    // dispatch(getUpcomingOrdersAsync());
+    // dispatch(getPastOrdersAsync());
   }, []);
 
   React.useEffect(() => {
@@ -152,8 +150,8 @@ const Home = (): JSX.Element => {
       }
       bg={AppColors.EEE}
     >
-      <ScrollView>
-        <VStack pb={150}>
+      <VirtualizedView>
+        <VStack>
           {customer?.addresses &&
             (customer?.addresses.length === 0 ||
               (customer?.addresses.length > 0 &&
@@ -165,242 +163,16 @@ const Home = (): JSX.Element => {
                 }}
               />
             )}
-          <ImageBackground
-            resizeMode="cover"
-            style={{
-              padding: 10,
-            }}
-            source={require("../../assets/images/dashboard-bg.png")}
-          >
-            <VStack>
-              <Center>
-                <Text fontWeight={"bold"} fontSize={18}>
-                  Welcome back {customer?.firstName}
-                </Text>
-              </Center>
-              {upcomingOrdersUiState !== IN_PROGRESS ? (
-                upcomingOrders?.length > 0 ? (
-                  <>
-                    <ServiceCard
-                      variant="solid"
-                      dateTime={upcomingOrders[0].appointmentDateTime}
-                      showWelcomeMessage={true}
-                      showAddToCalendar={true}
-                      showReschedule={true}
-                      showChat={false}
-                      serviceName={SERVICES[upcomingOrders[0].serviceId].text}
-                      orderId={upcomingOrders[0].orderId}
-                      subOrderId={upcomingOrders[0].subOrderId}
-                      year={
-                        getReadableDateTime(
-                          upcomingOrders[0].appointmentDateTime
-                        ).year
-                      }
-                      date={
-                        getReadableDateTime(
-                          upcomingOrders[0].appointmentDateTime
-                        ).date
-                      }
-                      day={
-                        getReadableDateTime(
-                          upcomingOrders[0].appointmentDateTime
-                        ).day
-                      }
-                      slot={
-                        getReadableDateTime(
-                          upcomingOrders[0].appointmentDateTime
-                        ).slot
-                      }
-                    />
-                    <Divider my={2} thickness={0} />
-                    {SERVICE_TITLE("Service Details")}
-                    <HStack space={5} px={7} py={5}>
-                      <Circle
-                        size={75}
-                        borderWidth={2}
-                        borderColor={AppColors.TEAL}
-                        alignSelf="center"
-                        bg={AppColors.SECONDARY}
-                        children={
-                          <SvgCss
-                            width={50}
-                            height={50}
-                            xml={USER_ICON("#eee")}
-                          />
-                        }
-                      ></Circle>
-                      <VStack>
-                        <Text fontSize={16} justifyContent={"center"}>
-                          Mio Home Services
-                        </Text>
-                        <HStack>
-                          {Array.from(Array(5).keys()).map((v, i) => (
-                            <Text key={i}>{<SvgCss xml={STAR_ICON()} />}</Text>
-                          ))}
-                        </HStack>
-                        {/* <Text fontSize={16} mt={2}>
-                          Available
-                        </Text>
-                        <Text fontSize={16}>Monday - Friday</Text> */}
-                      </VStack>
-                    </HStack>
-                    <Divider
-                      width="80%"
-                      alignSelf={"center"}
-                      bg={AppColors.TEAL}
-                      thickness={0.5}
-                    />
-                    <Button
-                      variant={"solid"}
-                      width={"50%"}
-                      mt={5}
-                      alignSelf="center"
-                      borderRadius={20}
-                      bgColor={AppColors.TEAL}
-                      onPress={() => {
-                        Linking.openURL(
-                          `mailto:support@miohomeservices.com?subject=[${
-                            upcomingOrders[0]?.orderId
-                          }] Service Notes&body=Hi, \n\n Order ID: ${
-                            upcomingOrders[0]?.orderId
-                          } \n Service Name: ${
-                            SERVICES[upcomingOrders[0].serviceId].text
-                          } \n\n Service Note: \n`
-                        );
-                      }}
-                    >
-                      Add Service Note
-                    </Button>
-                  </>
-                ) : (
-                  upcomingOrders?.length === 0 && (
-                    <Button
-                      paddingX={5}
-                      mt={5}
-                      borderRadius={10}
-                      borderWidth={1}
-                      borderColor={AppColors.SECONDARY}
-                      bg={AppColors.SECONDARY}
-                      shadow={3}
-                      width={"100%"}
-                      _pressed={{
-                        backgroundColor: AppColors.DARK_PRIMARY,
-                      }}
-                      variant={"ghost"}
-                      onPress={() => navigate("ChooseService")}
-                    >
-                      <VStack p={5} space={5}>
-                        <Center>
-                          <Image
-                            w={20}
-                            h={12}
-                            alt="Logo"
-                            source={require("../../assets/images/mio-logo-white.png")}
-                          />
-                        </Center>
-                        <Center>
-                          <Text fontSize={16} color={"#fff"}>
-                            Create your first service
-                          </Text>
-                          <Text
-                            fontSize={12}
-                            fontStyle={"italic"}
-                            color={"#fff"}
-                          >
-                            Get 20% off on your first order
-                          </Text>
-                        </Center>
-                      </VStack>
-                    </Button>
-                  )
-                )
-              ) : (
-                <Skeleton mt={5} width={"100%"} h="100" borderRadius={10} />
-              )}
-              <Divider my={5} thickness={1} />
-              {SERVICE_TITLE("Upcoming Services")}
-              <ScrollView width={400} horizontal={true}>
-                <HStack mr={20} space={3}>
-                  {upcomingOrders?.length === 0 && (
-                    <>
-                      <Text mt={2} pl={2} fontStyle={"italic"}>
-                        No upcoming services are there!
-                      </Text>
-                    </>
-                  )}
-                  {upcomingOrders?.map((order: Order, index: number) => {
-                    return (
-                      <ServiceCard
-                        key={index}
-                        dateTime={order.appointmentDateTime}
-                        variant="outline"
-                        showAddToCalendar={true}
-                        showReschedule={true}
-                        showChat={true}
-                        serviceName={SERVICES[order.serviceId].text}
-                        orderId={order.orderId}
-                        subOrderId={order.subOrderId}
-                        year={
-                          getReadableDateTime(order.appointmentDateTime).year
-                        }
-                        date={
-                          getReadableDateTime(order.appointmentDateTime).date
-                        }
-                        day={getReadableDateTime(order.appointmentDateTime).day}
-                        slot={
-                          getReadableDateTime(order.appointmentDateTime).slot
-                        }
-                      />
-                    );
-                  })}
-                  {upcomingOrders?.length > 0 && ViewMore("UpcomingServices")}
-                </HStack>
-              </ScrollView>
-              <Divider my={5} thickness={1} />
-              <Text fontSize={18} pl={2} fontWeight={"semibold"}>
-                Past Services
-              </Text>
-              <ScrollView width={400} horizontal={true}>
-                <HStack mr={20} space={3}>
-                  {pastOrders?.length === 0 && (
-                    <>
-                      <Text mt={2} pl={2} fontStyle={"italic"}>
-                        No past services are there!
-                      </Text>
-                    </>
-                  )}
-                  {pastOrders.map((order: any, index: number) => {
-                    return (
-                      <ServiceCard
-                        key={index}
-                        dateTime={order.appointmentDateTime}
-                        variant="outline"
-                        showAddToCalendar={false}
-                        showReschedule={false}
-                        showChat={false}
-                        serviceName={SERVICES[order.serviceId].text}
-                        orderId={order.orderId}
-                        subOrderId={order.subOrderId}
-                        year={
-                          getReadableDateTime(order.appointmentDateTime).year
-                        }
-                        date={
-                          getReadableDateTime(order.appointmentDateTime).date
-                        }
-                        day={getReadableDateTime(order.appointmentDateTime).day}
-                        slot={
-                          getReadableDateTime(order.appointmentDateTime).slot
-                        }
-                      />
-                    );
-                  })}
-                  {pastOrders?.length > 0 && ViewMore("ServiceHistory")}
-                </HStack>
-              </ScrollView>
-            </VStack>
-          </ImageBackground>
+          <Center>
+            <Text fontWeight={"bold"} fontSize={18}>
+              Welcome back {customer?.firstName}
+            </Text>
+          </Center>
+
+          <Divider my={5} thickness={1} />
+          <UpcomingPast />
         </VStack>
-      </ScrollView>
+      </VirtualizedView>
       {showEditAddress && (
         <AddressBottomSheet
           mode={addressMode}

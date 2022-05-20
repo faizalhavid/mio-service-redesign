@@ -192,7 +192,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
             </Text>
             <HStack
               justifyContent={"center"}
-              alignItems={"center"}
+              alignContent={"center"}
               space={0}
               bg={"#eee"}
               p={3}

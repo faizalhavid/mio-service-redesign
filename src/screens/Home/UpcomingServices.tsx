@@ -1,4 +1,4 @@
-import { Center, Divider, FlatList, Text, VStack } from "native-base";
+import { Center, Divider, FlatList, Spinner, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SectionList } from "react-native";
 import { GroupedOrder, Order } from "../../commons/types";
@@ -38,6 +38,13 @@ const UpcomingServices = (): JSX.Element => {
           setOrderId(lastOrder.orderId);
           setSubOrderId(lastOrder.subOrderId);
           let groupedOrders: { [key: string]: any[] } = {};
+
+          // Build Old Data
+          for (let order of upcomingOrders) {
+            groupedOrders[order.month] = order.data;
+          }
+
+          // Build New Data
           for (let order of orders) {
             let { month, year } = getReadableDateTime(
               order.appointmentDateTime
@@ -56,8 +63,7 @@ const UpcomingServices = (): JSX.Element => {
               };
             }
           );
-          console.log(currentOrders);
-          setUpcomingOrders([...upcomingOrders, ...currentOrders]);
+          setUpcomingOrders(currentOrders);
         }
         if (orders.length < limit) {
           setFetchAgain(false);
@@ -72,18 +78,24 @@ const UpcomingServices = (): JSX.Element => {
         showsVerticalScrollIndicator={false}
         ListFooterComponent={
           <>
-            {/* <Center>
-            <Spinner size="sm" />
-          </Center> */}
-            <Divider thickness={0} mt={200} />
+            {upcomingOrdersUiState === "IN_PROGRESS" && (
+              <Center mt={3}>
+                <Spinner size="sm" />
+              </Center>
+            )}
+            <Divider thickness={0} mt={50} />
           </>
         }
         ListEmptyComponent={
-          <Center mt={2} fontStyle={"italic"}>
-            No upcoming services are there!
-          </Center>
+          !["INIT", "IN_PROGRESS"].includes(upcomingOrdersUiState) ? (
+            <Center mt={2} fontStyle={"italic"}>
+              No upcoming services are there!
+            </Center>
+          ) : (
+            <></>
+          )
         }
-        // ItemSeparatorComponent={() => <Divider mt={3} />}
+        ItemSeparatorComponent={() => <Divider mt={3} />}
         onEndReached={() => {
           if (fetchAgain) {
             setPage(page + 1);
@@ -116,46 +128,6 @@ const UpcomingServices = (): JSX.Element => {
           </Text>
         )}
       />
-      {/* <FlatList
-        ListFooterComponent={
-          <>
-            //  <Center>
-            //     <Spinner size="sm" />
-            //   </Center> 
-            <Divider thickness={0} mt={200} />
-          </>
-        }
-        ListEmptyComponent={
-          <Center mt={2} fontStyle={"italic"}>
-            No upcoming services are there!
-          </Center>
-        }
-        ItemSeparatorComponent={() => <Divider mt={3} />}
-        onEndReached={() => {
-          if (fetchAgain) {
-            setPage(page + 1);
-          }
-        }}
-        data={upcomingOrders}
-        renderItem={({ item, index }: { item: Order; index: number }) => (
-          <ServiceCard
-            key={index}
-            variant={"outline"}
-            w={"100%"}
-            dateTime={item.appointmentDateTime}
-            showAddToCalendar={true}
-            showReschedule={true}
-            showChat={true}
-            serviceName={SERVICES[item.serviceId]?.text}
-            orderId={item.orderId}
-            subOrderId={item.subOrderId}
-            year={getReadableDateTime(item.appointmentDateTime).year}
-            date={getReadableDateTime(item.appointmentDateTime).date}
-            day={getReadableDateTime(item.appointmentDateTime).day}
-            slot={getReadableDateTime(item.appointmentDateTime).slot}
-          />
-        )}
-      /> */}
     </VStack>
   );
 };
