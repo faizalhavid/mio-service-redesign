@@ -334,7 +334,7 @@ const Profile = (): JSX.Element => {
           <LogoutCard />
         </VStack>
       </ScrollView>
-      <FloatingButton onPress={() => navigate("ChooseService")} />
+      <FloatingButton />
       {showAddCard && (
         <AddCardBottomSheet
           showAddCard={showAddCard}

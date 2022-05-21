@@ -93,45 +93,55 @@ export const AddressBottomSheet = ({
   useEffect(() => {
     if (showEditAddress) {
       dispatch(getServicesAsync());
+    }
+  }, []);
 
-      if (customer?.addresses[0] && customer?.addresses[0].zip) {
+  useEffect(() => {
+    if (showEditAddress) {
+      if (
+        customer &&
+        customer?.addresses?.length > 0 &&
+        customer?.addresses[0] &&
+        customer?.addresses[0].zip
+      ) {
         setValue("street", customer.addresses[0].street);
         setValue("city", customer.addresses[0].city);
         setValue("state", customer.addresses[0].state);
         setValue("zip", customer.addresses[0].zip);
       }
 
-      let poolTypes: SelectOption[] = [];
-      for (let poolType of POOL_TYPES) {
-        let selected =
-          customer?.addresses[0]?.houseInfo?.swimmingPoolType === poolType.code;
-        poolTypes.push({
-          ...poolType,
-          selected,
-        });
-        if (selected) {
-          setSelectedPoolType(poolType.code);
+      if (customer && customer?.addresses?.length > 0) {
+        let poolTypes: SelectOption[] = [];
+        for (let poolType of POOL_TYPES) {
+          let selected =
+            customer?.addresses[0]?.houseInfo?.swimmingPoolType ===
+            poolType.code;
+          poolTypes.push({
+            ...poolType,
+            selected,
+          });
+          if (selected) {
+            setSelectedPoolType(poolType.code);
+          }
         }
-      }
-      setPoolTypeOptions(poolTypes);
+        setPoolTypeOptions(poolTypes);
 
-      let pestTypes: SelectOption[] = [];
-      for (let pestType of PEST_TYPES) {
-        let selected =
-          customer?.addresses[0]?.houseInfo?.pestType &&
-          ~customer?.addresses[0]?.houseInfo?.pestType.indexOf(pestType.code)
-            ? true
-            : false;
-        pestTypes.push({
-          ...pestType,
-          selected,
-        });
+        let pestTypes: SelectOption[] = [];
+        for (let pestType of PEST_TYPES) {
+          let selected =
+            customer?.addresses[0]?.houseInfo?.pestType &&
+            ~customer?.addresses[0]?.houseInfo?.pestType.indexOf(pestType.code)
+              ? true
+              : false;
+          pestTypes.push({
+            ...pestType,
+            selected,
+          });
+        }
+        setPestTypeOptions(pestTypes);
       }
-      setPestTypeOptions(pestTypes);
     }
   }, [dispatch, showEditAddress, customer]);
-
-  useEffect(() => {}, []);
 
   useEffect(() => {
     if (currentMode === "UPDATE_PROPERTY" && allServices.length > 0) {
@@ -229,8 +239,8 @@ export const AddressBottomSheet = ({
 
   const onSubmit = async (data: HouseInfoAddressRequest) => {
     Keyboard.dismiss();
-    if (!customer?.addresses[0]?.zip) {
-      let _houseInfo = await dispatch(
+    if (!customer?.addresses || !customer?.addresses[0]?.zip) {
+      await dispatch(
         getHouseInfoAsync({
           nva: data.street,
           addresses: [
@@ -239,20 +249,21 @@ export const AddressBottomSheet = ({
             },
           ],
         })
-      );
-      await dispatch(
-        putCustomerAsync({
-          ...customer,
-          addresses: [
-            {
-              ...data,
-              houseInfo: {
-                ..._houseInfo.payload.houseInfo,
+      ).then(async (_houseInfo) => {
+        await dispatch(
+          putCustomerAsync({
+            ...customer,
+            addresses: [
+              {
+                ...data,
+                houseInfo: {
+                  ..._houseInfo.payload.houseInfo,
+                },
               },
-            },
-          ],
-        })
-      );
+            ],
+          })
+        );
+      });
     } else {
       await dispatch(
         putCustomerAsync({
@@ -762,7 +773,10 @@ export const AddressBottomSheet = ({
             {currentMode === "UPDATE_PROPERTY" && (
               <FooterButton
                 disabled={
-                  !selectedArea || !selectedBathroomNo || !selectedBedroomNo
+                  !selectedArea ||
+                  !selectedBathroomNo ||
+                  !selectedBedroomNo ||
+                  !selectedPoolType
                 }
                 minLabel="SAVE"
                 maxLabel={"DETAILS"}

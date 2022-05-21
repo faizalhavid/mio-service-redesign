@@ -385,6 +385,8 @@ PODS:
     - react-native-config/App (= 1.4.5)
   - react-native-config/App (1.4.5):
     - React-Core
+  - react-native-image-picker (4.8.3):
+    - React-Core
   - react-native-netinfo (8.0.0):
     - React-Core
   - react-native-pdf (6.4.0):
@@ -539,6 +541,7 @@ DEPENDENCIES:
   - react-native-add-calendar-event (from `../node_modules/react-native-add-calendar-event`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
   - react-native-config (from `../node_modules/react-native-config`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -651,6 +654,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blob-util"
   react-native-config:
     :path: "../node_modules/react-native-config"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pdf:
@@ -760,6 +765,7 @@ SPEC CHECKSUMS:
   react-native-add-calendar-event: d7744f983d6770cc9e4f004db22bc4d4b4575f17
   react-native-blob-util: 7ac01cd4a4ba81016864727a756ce2c1af995e35
   react-native-config: 6502b1879f97ed5ac570a029961fc35ea606cd14
+  react-native-image-picker: e95b4785b685cfc06609bc50ed6fb55b59990c99
   react-native-netinfo: ba4ea50d836c60580c59079233c400753fe5bcb6
   react-native-pdf: a6a5a3f0bdf340eb2eed6c96034424d2cc3f84b0
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057

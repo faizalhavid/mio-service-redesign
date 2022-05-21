@@ -1,21 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  Center,
-  Divider,
-  HStack,
-  ScrollView,
-  Text,
-  View,
-  VStack,
-} from "native-base";
+import { Divider, HStack, ScrollView, Text, View, VStack } from "native-base";
 import React, { useEffect } from "react";
-import { SvgCss } from "react-native-svg";
-import {
-  INFO_ICON,
-  CIRCLE_TICK_ICON,
-  CALENDAR_ICON,
-  CHAT_OUTLINE_ICON,
-} from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import { SuperRootStackParamList } from "../../navigations";
@@ -104,7 +89,7 @@ const ViewServiceDetails = ({
             <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
               SERVICE TYPE
             </Text>
-            <ValueText text={SERVICES[orderDetail.serviceId].text} />
+            <ValueText text={SERVICES[orderDetail?.serviceId]?.text} />
           </View>
 
           <HStack justifyContent={"space-between"}>
@@ -197,7 +182,13 @@ const ViewServiceDetails = ({
             <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
               SERVICE NOTES
             </Text>
-            <ValueText text={orderDetail?.serviceNotes[0] || "-"} />
+            <ValueText
+              text={
+                orderDetail?.serviceNotes?.length > 0
+                  ? orderDetail?.serviceNotes[0]
+                  : "-"
+              }
+            />
           </View>
         </VStack>
       </VStack>

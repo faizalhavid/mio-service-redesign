@@ -13,8 +13,8 @@ const WarningLabel = ({ text, onPress }: WarningLabelProps): JSX.Element => {
     <>
       <HStack
         my={2}
-        // borderWidth={1}
-        // borderRadius={7}
+        borderWidth={1}
+        borderRadius={7}
         bg={AppColors.LIGHT_TEAL}
         borderColor={AppColors.TEAL}
         px={5}

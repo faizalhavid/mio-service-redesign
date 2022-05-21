@@ -1,19 +1,15 @@
 import {
-  Box,
   Button,
   Center,
-  Circle,
   Divider,
-  HStack,
   Image,
   Pressable,
-  Skeleton,
   Text,
+  Toast,
   View,
   VStack,
 } from "native-base";
-import React, { useState } from "react";
-import { ImageBackground, Linking } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
@@ -26,8 +22,6 @@ import { getReadableDateTime } from "../../services/utils";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
 import { useAnalytics } from "../../services/analytics";
-import { SvgCss } from "react-native-svg";
-import { CALENDAR_ICON, STAR_ICON, USER_ICON } from "../../commons/assets";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -61,10 +55,7 @@ const Home = (): JSX.Element => {
     member: { data: upcomingOrders = [] },
   } = useAppSelector(selectUpcomingOrders);
 
-  const {
-    uiState: pastOrdersUiState,
-    member: { data: pastOrders = [] },
-  } = useAppSelector(selectPastOrders);
+  const { uiState: pastOrdersUiState } = useAppSelector(selectPastOrders);
 
   const { uiState: customerUiState, member: customer } =
     useAppSelector(selectCustomer);
@@ -92,51 +83,39 @@ const Home = (): JSX.Element => {
     }
   }, [init, isFocused]);
 
-  const ViewMore = (navigateTo: string) => {
-    return (
-      <Pressable
-        justifyContent="center"
-        alignItems={"center"}
-        onPress={() => navigate(navigateTo)}
-      >
-        <View
-          paddingY={4}
-          paddingX={5}
-          mt={5}
-          height={130}
-          borderRadius={10}
-          borderWidth={1}
-          borderColor={AppColors.DARK_TEAL}
-          width={300}
-          justifyContent="center"
-          alignItems={"center"}
-        >
-          <Center>
-            <Text
-              color={AppColors.DARK_TEAL}
-              fontSize={"16"}
-              fontWeight={"semibold"}
-            >
-              View More
-            </Text>
-          </Center>
-        </View>
-      </Pressable>
-    );
-  };
+  const isAddressAvailable = useMemo(() => {
+    if (
+      (customer && !customer?.addresses) ||
+      customer?.addresses.length === 0 ||
+      (customer?.addresses.length > 0 &&
+        (!Boolean(customer?.addresses[0].street) ||
+          !Boolean(customer?.addresses[0].zip)))
+    ) {
+      setAddressMode("UPDATE_ADDRESS");
+      return false;
+    }
+    if (
+      !customer ||
+      !customer?.addresses ||
+      customer?.addresses.length === 0 ||
+      (customer?.addresses.length > 0 &&
+        (!Boolean(customer?.addresses[0]?.houseInfo?.lotSize) ||
+          !Boolean(customer?.addresses[0]?.houseInfo?.bedrooms) ||
+          !Boolean(customer?.addresses[0]?.houseInfo?.bathrooms) ||
+          !Boolean(customer?.addresses[0]?.houseInfo?.swimmingPoolType) ||
+          !Boolean(customer?.addresses[0]?.houseInfo?.pestType)))
+    ) {
+      setAddressMode("UPDATE_PROPERTY");
+      return false;
+    }
+    return true;
+  }, [customer]);
 
-  const SERVICE_TITLE = (title: string) => {
-    return (
-      <HStack space={0} ml={2} alignItems={"center"}>
-        <Box bg={AppColors.TEAL} p={2} borderRadius={5}>
-          <SvgCss xml={CALENDAR_ICON("#fff")} />
-        </Box>
-        <Text fontSize={18} pl={2}>
-          {title}
-        </Text>
-      </HStack>
-    );
-  };
+  useEffect(() => {
+    if (customerUiState === "SUCCESS") {
+      setShowEditAddress(!isAddressAvailable);
+    }
+  }, [customerUiState, isAddressAvailable]);
 
   return (
     <AppSafeAreaView
@@ -150,52 +129,103 @@ const Home = (): JSX.Element => {
     >
       <VirtualizedView>
         <VStack>
-          {customer?.addresses &&
-            (customer?.addresses.length === 0 ||
-              (customer?.addresses.length > 0 &&
-                !Boolean(customer?.addresses[0].street))) && (
+          <View px={3}>
+            {/* <Text
+              color={AppColors.SECONDARY}
+              mx={3}
+              my={2}
+              // textAlign="center"
+              fontWeight={"bold"}
+              fontSize={18}
+            >
+              Hi, {customer?.firstName}
+            </Text> */}
+            {!isAddressAvailable && (
               <WarningLabel
-                text="Update address & property details"
+                text="Update Address & Property details"
                 onPress={() => {
                   setShowEditAddress(true);
                 }}
               />
             )}
-          <View px={3}>
-            <Text mx={3} my={2} fontWeight={"bold"} fontSize={18}>
-              Hi, {customer?.firstName}
-            </Text>
+            {isAddressAvailable && upcomingOrders.length === 0 && (
+              <Pressable
+                borderRadius={10}
+                borderWidth={1}
+                borderColor={AppColors.TEAL}
+                width={"100%"}
+                bg="white"
+                mt={5}
+                _pressed={{
+                  backgroundColor: AppColors.DARK_PRIMARY,
+                }}
+                onPress={() => navigate("ChooseService")}
+              >
+                <VStack space={5} width={"100%"}>
+                  <Center py={5} bg={AppColors.TEAL}>
+                    <Image
+                      w={20}
+                      h={12}
+                      alt="Logo"
+                      source={require("../../assets/images/mio-logo-white.png")}
+                    />
+                  </Center>
+                </VStack>
+                <VStack py={3} space={5}>
+                  <Center>
+                    <Text
+                      fontWeight={"semibold"}
+                      fontSize={16}
+                      color={AppColors.DARK_TEAL}
+                    >
+                      Create your first service
+                    </Text>
+                    <Text
+                      fontSize={12}
+                      fontStyle={"italic"}
+                      color={AppColors.DARK_TEAL}
+                    >
+                      Get 20% off on your first order
+                    </Text>
+                  </Center>
+                </VStack>
+              </Pressable>
+            )}
             {upcomingOrders && upcomingOrders.length > 0 && (
-              <ServiceCard
-                variant="solid"
-                dateTime={upcomingOrders[0].appointmentDateTime}
-                showWelcomeMessage={true}
-                showAddToCalendar={true}
-                showReschedule={true}
-                showChat={true}
-                serviceName={SERVICES[upcomingOrders[0].serviceId].text}
-                orderId={upcomingOrders[0].orderId}
-                subOrderId={upcomingOrders[0].subOrderId}
-                year={
-                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                    .year
-                }
-                date={
-                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                    .date
-                }
-                month={
-                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                    .month
-                }
-                day={
-                  getReadableDateTime(upcomingOrders[0].appointmentDateTime).day
-                }
-                slot={
-                  getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                    .slot
-                }
-              />
+              <>
+                <Divider mt={5} thickness={0} />
+                <ServiceCard
+                  variant="solid"
+                  dateTime={upcomingOrders[0].appointmentDateTime}
+                  showWelcomeMessage={true}
+                  showAddToCalendar={true}
+                  showReschedule={true}
+                  showChat={true}
+                  serviceName={SERVICES[upcomingOrders[0].serviceId].text}
+                  orderId={upcomingOrders[0].orderId}
+                  subOrderId={upcomingOrders[0].subOrderId}
+                  year={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .year
+                  }
+                  date={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .date
+                  }
+                  month={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .month
+                  }
+                  day={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .day
+                  }
+                  slot={
+                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
+                      .slot
+                  }
+                />
+              </>
             )}
           </View>
           <Divider my={2} thickness={1} />
@@ -209,19 +239,7 @@ const Home = (): JSX.Element => {
           setShowEditAddress={setShowEditAddress}
         />
       )}
-      <FloatingButton
-        onPress={() => {
-          if (!customer?.addresses[0]?.zip) {
-            setAddressMode("UPDATE_ADDRESS");
-            setShowEditAddress(true);
-          } else if (!customer?.addresses[0]?.houseInfo?.bedrooms) {
-            setAddressMode("UPDATE_PROPERTY");
-            setShowEditAddress(true);
-          } else {
-            navigate("ChooseService");
-          }
-        }}
-      />
+      <FloatingButton />
     </AppSafeAreaView>
   );
 };

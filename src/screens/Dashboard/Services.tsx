@@ -9,7 +9,7 @@ const Services = (): JSX.Element => {
   return (
     <AppSafeAreaView mt={0} bg={AppColors.EEE}>
       <UpcomingPast />
-      <FloatingButton onPress={() => navigate("ChooseService")} />
+      <FloatingButton />
     </AppSafeAreaView>
   );
 };
