@@ -1,68 +1,102 @@
-import { Flex, PresenceTransition } from "native-base";
+import {
+  Box,
+  Center,
+  Divider,
+  Flex,
+  PresenceTransition,
+  Text,
+  VStack,
+} from "native-base";
 import React from "react";
 import { Image, ImageBackground, StyleSheet } from "react-native";
+import { SvgCss } from "react-native-svg";
+import { COLOR_LOGO } from "../../commons/assets";
+import AppSafeAreaView from "../../components/AppSafeAreaView";
 import { AppStatusBar } from "../../components/AppStatusBar";
 import AuthButton from "../../components/AuthButton";
 import CheckAppUpdate from "../../components/CheckAppUpdate";
 import CheckInternet from "../../components/CheckInternet";
+import GradientButton from "../../components/GradientButton";
 import Spacer from "../../components/Spacer";
 import { navigate } from "../../navigations/rootNavigation";
+import LottieView from "lottie-react-native";
+import { AppColors } from "../../commons/colors";
+import AppButton from "../../components/AppButton";
 
 const Welcome = (): JSX.Element => {
   return (
-    <>
+    <AppSafeAreaView>
       <AppStatusBar color={"transparent"} />
 
-      <ImageBackground
+      {/* <ImageBackground
         source={require("../../assets/images/intro-bg.png")}
         resizeMode="cover"
         style={styles.image}
-      >
-        <CheckInternet />
-        <CheckAppUpdate />
-        <Flex flexDirection={"column"} flex={1} bg={"rgba(0,0,0,0.3)"} pt={20}>
-          <PresenceTransition
-            visible={true}
-            initial={{
-              opacity: 0,
-              translateX: 0,
+      > */}
+      <CheckInternet />
+      <CheckAppUpdate />
+      <VStack pt={10}>
+        <PresenceTransition
+          visible={true}
+          initial={{
+            opacity: 0,
+            translateX: 0,
+          }}
+          animate={{
+            opacity: 1,
+            translateX: 1,
+            transition: {
+              duration: 350,
+            },
+          }}
+        >
+          <Center>
+            <SvgCss width={200} height={70} xml={COLOR_LOGO} />
+          </Center>
+        </PresenceTransition>
+        <Divider thickness={0} mt={30} />
+        <VStack alignItems={"center"}>
+          <Divider thickness={0} mt={30} />
+          <Center>
+            <Text fontWeight={"semibold"} fontSize={18}>
+              Welcome to Mio Home Services
+            </Text>
+            <Text fontWeight={"semibold"} color={AppColors.AAA}>
+              Your one destination for all the house needs
+            </Text>
+          </Center>
+          <Divider thickness={0} mt={31} />
+          <LottieView
+            source={require("../../assets/images/welcome.json")}
+            autoPlay
+            loop
+            style={{
+              marginTop: 10,
+              width: 200,
+              height: 200,
             }}
-            animate={{
-              opacity: 1,
-              translateX: 1,
-              transition: {
-                duration: 350,
-              },
-            }}
-          >
-            <Flex flexDirection={"row"} mt={100} justifyContent={"center"}>
-              <Image
-                source={require("../../assets/images/mio-logo-white.png")}
-              />
-              <Image
-                source={require("../../assets/images/mio-logo-text-white.png")}
-              />
-            </Flex>
-          </PresenceTransition>
-          <Spacer top={180} />
-          <Flex flexDirection={"column"} alignItems={"center"}>
-            <AuthButton
-              type="solid"
-              label="LOG IN"
-              // subText="if already have an account"
-              onPress={() => navigate("Login")}
+          />
+          <Divider thickness={0} mt={32} />
+          <Box mx={5} width="80%">
+            <GradientButton
+              text="Create Account"
+              onPress={() => {
+                navigate("Register");
+              }}
             />
-            <Spacer top={40} />
-            <AuthButton
+            <Divider thickness={0} mt={21} />
+            <AppButton
+              label="Existing user? Login"
               type="outline"
-              label="SIGN UP"
-              // subText="if don't have an account?"
-              onPress={() => navigate("Register")}
+              onPress={async (event) => {
+                navigate("Login");
+              }}
             />
-          </Flex>
-        </Flex>
-      </ImageBackground>
-    </>
+          </Box>
+        </VStack>
+      </VStack>
+      {/* </ImageBackground> */}
+    </AppSafeAreaView>
   );
 };
 

@@ -11,7 +11,7 @@ import {
 import AppInput from "../../components/AppInput";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import { Controller, useForm } from "react-hook-form";
-import { popToPop } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
 import {
   CustomerProfile,
   dummyProfile,
@@ -35,6 +35,7 @@ import {
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
 import { SAMPLE } from "../../commons/sample";
+import GradientButton from "../../components/GradientButton";
 
 const Register = (): JSX.Element => {
   const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
@@ -353,7 +354,12 @@ const Register = (): JSX.Element => {
                   Password do not match
                 </Text>
               )}
-              <Button
+              <Divider thickness={0} mt={18} />
+              <GradientButton
+                text="CREATE ACCOUNT"
+                onPress={handleSubmit(onSubmit)}
+              />
+              {/* <Button
                 mt={5}
                 height={50}
                 disabled={!isValid}
@@ -362,7 +368,7 @@ const Register = (): JSX.Element => {
                 onPress={handleSubmit(onSubmit)}
               >
                 CREATE ACCOUNT
-              </Button>
+              </Button> */}
             </>
           )}
 

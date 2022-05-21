@@ -35,6 +35,7 @@ import {
 import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SAMPLE } from "../../commons/sample";
+import GradientButton from "../../components/GradientButton";
 
 type LoginFormType = {
   email: string;
@@ -161,8 +162,8 @@ const Login = (): JSX.Element => {
             </Button>
             <Spacer top={30} />
             <Center>
-              <AppButton
-                label="SIGN IN"
+              <GradientButton
+                text="SIGN IN"
                 onPress={async (event) => {
                   await loginForm.trigger();
                   if (
@@ -268,7 +269,7 @@ const Login = (): JSX.Element => {
               }
             }}
           />
-          <Divider my="5" />
+          {/* <Divider my="5" />
           <Center size="16" width={"100%"}>
             Don't have an account?
           </Center>
@@ -278,7 +279,7 @@ const Login = (): JSX.Element => {
               label="SIGN UP FOR FREE"
               onPress={() => navigate("Register")}
             />
-          </Center>
+          </Center> */}
           <Divider thickness={0} mt={20} />
         </VStack>
       </ScrollView>

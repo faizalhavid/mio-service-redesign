@@ -5,6 +5,7 @@ import { AppColors } from "../../commons/colors";
 type AppButtonProps = {
   onPress: (param?: any) => void;
   color?: string;
+  type?: "outline" | "solid";
   label: string;
   disabled?: boolean;
 };
@@ -14,28 +15,29 @@ const AppButton = ({
   color,
   onPress,
   disabled,
+  type,
 }: AppButtonProps): JSX.Element => {
   const btnColor = color || AppColors.PRIMARY;
   return (
-    <>
-      <Button
-        bg={btnColor}
-        borderColor={btnColor}
-        borderRadius={50}
-        width={250}
-        height={60}
-        onPress={onPress}
-        _text={{
-          color: useContrastText(btnColor),
-        }}
-        _pressed={{
-          backgroundColor: `${btnColor}E6`,
-        }}
-        disabled={disabled}
-      >
-        {label}
-      </Button>
-    </>
+    <Button
+      bg={type === "outline" ? "white" : AppColors.TEAL}
+      borderColor={type === "outline" ? AppColors.TEAL : "white"}
+      borderWidth={1}
+      borderRadius={10}
+      width={"100%"}
+      height={50}
+      onPress={onPress}
+      _text={{
+        color: type === "outline" ? AppColors.TEAL : "white",
+        fontSize: 16,
+      }}
+      _pressed={{
+        backgroundColor: type === "outline" ? "white" : `${AppColors.TEAL}E6`,
+      }}
+      disabled={disabled}
+    >
+      {label}
+    </Button>
   );
 };
 
