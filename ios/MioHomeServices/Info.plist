@@ -73,7 +73,10 @@
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
 		<key>NSCalendarsUsageDescription</key>
+		<string>Calendar Usage</string>
 		<key>NSContactsUsageDescription</key>
+		<string>Contacts Usage</string>
 		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Access Photo Library</string>
 	</dict>
 </plist>

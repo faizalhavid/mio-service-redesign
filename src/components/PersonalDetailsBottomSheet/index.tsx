@@ -1,16 +1,18 @@
-import { Actionsheet, Center, Spacer, Text, VStack } from "native-base";
+import { Actionsheet, Button, Center, Spacer, Text, VStack } from "native-base";
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
-import { Phone } from "../../contexts/AuthContext";
+import { Phone, useAuth } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { selectSaveCard } from "../../slices/card-slice";
 import { selectCustomer, putCustomerAsync } from "../../slices/customer-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
+import * as ImagePicker from "react-native-image-picker";
+import { Image } from "react-native";
+import { firebase } from "@react-native-firebase/storage";
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -30,6 +32,9 @@ export const PersonalDetailsBottomSheet = ({
 }: PersonalDetailsBottomSheetProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const [errorMsg, setErrorMsg] = useState("");
+  const { currentUser } = useAuth();
+
+  const [uri, setUri] = useState("");
 
   const {
     uiState: customerUiState,
@@ -111,6 +116,47 @@ export const PersonalDetailsBottomSheet = ({
           >
             <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
               <ErrorView message={errorMsg} />
+              {/* {Boolean(uri) && <Image source={require(uri)} />} */}
+              <Button
+                onPress={() => {
+                  const options: any = {};
+
+                  ImagePicker.launchImageLibrary(
+                    {
+                      mediaType: "photo",
+                      includeBase64: false,
+                      maxHeight: 200,
+                      maxWidth: 200,
+                    },
+                    (response: any) => {
+                      console.log("Response = ", response);
+
+                      if (response.didCancel) {
+                        console.log("User cancelled image picker");
+                      } else if (response.error) {
+                        console.log("ImagePicker Error: ", response.error);
+                      } else {
+                        const { fileName, uri } = response.assets[0];
+                        console.log(fileName);
+                        console.log(uri);
+                        firebase
+                          .storage()
+                          .ref(`users/${currentUser.uid}/${fileName}`)
+                          .putFile(uri)
+                          .then((snapshot) => {
+                            console.log(snapshot);
+                            //You can check the image is now uploaded in the storage bucket
+                            console.log(
+                              `${fileName} has been successfully uploaded.`
+                            );
+                          });
+                      }
+                    }
+                  );
+                }}
+              >
+                Choose Image
+              </Button>
               <Controller
                 control={control}
                 rules={{
