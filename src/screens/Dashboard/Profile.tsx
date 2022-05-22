@@ -2,6 +2,7 @@ import {
   Circle,
   Divider,
   HStack,
+  Image,
   Pressable,
   Radio,
   ScrollView,
@@ -115,7 +116,19 @@ const Profile = (): JSX.Element => {
           <Circle
             size={60}
             bg={AppColors.EEE}
-            children={<SvgCss width={40} height={40} xml={USER_ICON("#eee")} />}
+            children={
+              Boolean(customer.pictureURL) && (
+                <Image
+                  borderRadius={60}
+                  source={{
+                    width: 60,
+                    height: 60,
+                    uri: customer.pictureURL,
+                  }}
+                  alt="Profile"
+                />
+              )
+            }
           ></Circle>
           <VStack>
             <ValueText text={`${customer?.firstName} ${customer?.lastName}`} />

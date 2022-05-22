@@ -1,4 +1,15 @@
-import { Actionsheet, Button, Center, Spacer, Text, VStack } from "native-base";
+import {
+  Actionsheet,
+  Button,
+  Center,
+  HStack,
+  Image,
+  Pressable,
+  Spacer,
+  Spinner,
+  Text,
+  VStack,
+} from "native-base";
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -11,7 +22,6 @@ import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
 import * as ImagePicker from "react-native-image-picker";
-import { Image } from "react-native";
 import { firebase } from "@react-native-firebase/storage";
 
 type PersonalDetailsForm = {
@@ -31,10 +41,10 @@ export const PersonalDetailsBottomSheet = ({
   setShowPersonalDetails,
 }: PersonalDetailsBottomSheetProps): JSX.Element => {
   const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [profileUrl, setProfileUrl] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState("");
   const { currentUser } = useAuth();
-
-  const [uri, setUri] = useState("");
 
   const {
     uiState: customerUiState,
@@ -48,6 +58,8 @@ export const PersonalDetailsBottomSheet = ({
       setValue("lastName", customer.lastName);
       setValue("phone", customer.phones[0].number);
       setValue("email", customer.email);
+      setProfileUrl(customer.pictureURL);
+      console.log(Boolean(customer.pictureURL));
     }
   }, [customer]);
 
@@ -77,6 +89,7 @@ export const PersonalDetailsBottomSheet = ({
             },
           ],
         },
+        pictureURL: profileUrl,
       })
     ).then(() => {
       setShowPersonalDetails(false);
@@ -116,47 +129,6 @@ export const PersonalDetailsBottomSheet = ({
           >
             <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
               <ErrorView message={errorMsg} />
-              {/* {Boolean(uri) && <Image source={require(uri)} />} */}
-              <Button
-                onPress={() => {
-                  const options: any = {};
-
-                  ImagePicker.launchImageLibrary(
-                    {
-                      mediaType: "photo",
-                      includeBase64: false,
-                      maxHeight: 200,
-                      maxWidth: 200,
-                    },
-                    (response: any) => {
-                      console.log("Response = ", response);
-
-                      if (response.didCancel) {
-                        console.log("User cancelled image picker");
-                      } else if (response.error) {
-                        console.log("ImagePicker Error: ", response.error);
-                      } else {
-                        const { fileName, uri } = response.assets[0];
-                        console.log(fileName);
-                        console.log(uri);
-                        firebase
-                          .storage()
-                          .ref(`users/${currentUser.uid}/${fileName}`)
-                          .putFile(uri)
-                          .then((snapshot) => {
-                            console.log(snapshot);
-                            //You can check the image is now uploaded in the storage bucket
-                            console.log(
-                              `${fileName} has been successfully uploaded.`
-                            );
-                          });
-                      }
-                    }
-                  );
-                }}
-              >
-                Choose Image
-              </Button>
               <Controller
                 control={control}
                 rules={{
@@ -218,6 +190,71 @@ export const PersonalDetailsBottomSheet = ({
                 )}
                 name="phone"
               />
+
+              <Text color={"gray.400"}>Profile Photo</Text>
+              <HStack mt={2} alignItems="center" space={2}>
+                {loading && <Spinner size={"sm"} />}
+                {!loading && Boolean(profileUrl) && profileUrl.length > 0 && (
+                  <Image
+                    source={{
+                      width: 100,
+                      height: 100,
+                      uri: profileUrl,
+                    }}
+                    alt="Profile"
+                  />
+                )}
+                <Pressable
+                  ml={0}
+                  _pressed={{
+                    backgroundColor: AppColors.LIGHT_TEAL,
+                  }}
+                  onPress={() => {
+                    ImagePicker.launchImageLibrary(
+                      {
+                        mediaType: "photo",
+                        includeBase64: false,
+                        maxHeight: 200,
+                        maxWidth: 200,
+                      },
+                      (response: any) => {
+                        // console.log("Response = ", response);
+
+                        if (response.didCancel) {
+                          console.log("User cancelled image picker");
+                        } else if (response.error) {
+                          console.log("ImagePicker Error: ", response.error);
+                        } else {
+                          setLoading(true);
+                          const { fileName, uri } = response.assets[0];
+                          let imageRef = `users/${currentUser.uid}/profile.${
+                            fileName.split(".")[1]
+                          }`;
+                          firebase
+                            .storage()
+                            .ref(imageRef)
+                            .putFile(uri)
+                            .then(async (snapshot) => {
+                              let imageDownload = firebase
+                                .storage()
+                                .ref(imageRef);
+                              let url = await imageDownload.getDownloadURL();
+                              console.log(url);
+                              setProfileUrl(url);
+                              setLoading(false);
+                            });
+                        }
+                      }
+                    );
+                  }}
+                >
+                  <Text color={AppColors.DARK_TEAL}>
+                    {Boolean(profileUrl)
+                      ? "Change Profile Picture"
+                      : "Choose Profile Picture"}
+                  </Text>
+                </Pressable>
+              </HStack>
             </VStack>
           </KeyboardAwareScrollView>
         </VStack>
