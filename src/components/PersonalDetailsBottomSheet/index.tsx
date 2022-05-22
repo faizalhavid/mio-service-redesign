@@ -59,7 +59,6 @@ export const PersonalDetailsBottomSheet = ({
       setValue("phone", customer.phones[0].number);
       setValue("email", customer.email);
       setProfileUrl(customer.pictureURL);
-      console.log(Boolean(customer.pictureURL));
     }
   }, [customer]);
 
@@ -239,7 +238,6 @@ export const PersonalDetailsBottomSheet = ({
                                 .storage()
                                 .ref(imageRef);
                               let url = await imageDownload.getDownloadURL();
-                              console.log(url);
                               setProfileUrl(url);
                               setLoading(false);
                             });

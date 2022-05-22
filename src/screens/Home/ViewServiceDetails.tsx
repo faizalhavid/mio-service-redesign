@@ -240,7 +240,7 @@ const ViewServiceDetails = ({
       bg={AppColors.EEE}
       loading={[customerUiState].indexOf(IN_PROGRESS) > 0}
     >
-      <ScrollView pt={3}>
+      <ScrollView mt={"1/5"}>
         <VStack space={3}>
           <OverviewCard />
           <ServiceDetailsCard />

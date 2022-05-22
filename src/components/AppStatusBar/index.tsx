@@ -11,9 +11,9 @@ export function AppStatusBar({ color }: AppStatusBarProps) {
     <>
       <StatusBar
         animated={true}
-        backgroundColor={color || "white"}
-        barStyle={barStyle}
-        translucent={true}
+        backgroundColor={"transparent"}
+        barStyle={"light-content"}
+        translucent={false}
         showHideTransition={"slide"}
         hidden={false}
       />

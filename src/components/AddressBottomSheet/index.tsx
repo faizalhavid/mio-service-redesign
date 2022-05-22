@@ -753,6 +753,7 @@ export const AddressBottomSheet = ({
                   </HStack>
                 </>
               )}
+              <Divider mt={20} thickness={0} />
             </VStack>
           </KeyboardAwareScrollView>
         </VStack>

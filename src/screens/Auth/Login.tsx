@@ -112,7 +112,7 @@ const Login = (): JSX.Element => {
   return (
     <AppSafeAreaView statusBarColor="#fff" loading={uiState === IN_PROGRESS}>
       <ScrollView>
-        <VStack mt={70} paddingX={5}>
+        <VStack mt={"1/3"} paddingX={5}>
           <Center width={"100%"}>
             <Text color={AppColors.SECONDARY} fontSize={30}>
               Login

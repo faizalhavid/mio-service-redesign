@@ -4,6 +4,7 @@ import {
   Divider,
   Flex,
   PresenceTransition,
+  ScrollView,
   Text,
   VStack,
 } from "native-base";
@@ -35,66 +36,68 @@ const Welcome = (): JSX.Element => {
       > */}
       <CheckInternet />
       <CheckAppUpdate />
-      <VStack pt={10}>
-        <PresenceTransition
-          visible={true}
-          initial={{
-            opacity: 0,
-            translateX: 0,
-          }}
-          animate={{
-            opacity: 1,
-            translateX: 1,
-            transition: {
-              duration: 350,
-            },
-          }}
-        >
-          <Center>
-            <SvgCss width={200} height={70} xml={COLOR_LOGO} />
-          </Center>
-        </PresenceTransition>
-        <Divider thickness={0} mt={30} />
-        <VStack alignItems={"center"}>
-          <Divider thickness={0} mt={30} />
-          <Center>
-            <Text fontWeight={"semibold"} fontSize={18}>
-              Welcome to Mio Home Services
-            </Text>
-            <Text fontWeight={"semibold"} color={AppColors.AAA}>
-              Your one destination for all the house needs
-            </Text>
-          </Center>
-          <Divider thickness={0} mt={31} />
-          <LottieView
-            source={require("../../assets/images/welcome.json")}
-            autoPlay
-            loop
-            style={{
-              marginTop: 10,
-              width: 200,
-              height: 200,
+      <ScrollView>
+        <VStack mt={"1/4"} pt={0}>
+          <PresenceTransition
+            visible={true}
+            initial={{
+              opacity: 0,
+              translateX: 0,
             }}
-          />
-          <Divider thickness={0} mt={32} />
-          <Box mx={5} width="80%">
-            <GradientButton
-              text="Create Account"
-              onPress={() => {
-                navigate("Register");
+            animate={{
+              opacity: 1,
+              translateX: 1,
+              transition: {
+                duration: 350,
+              },
+            }}
+          >
+            <Center>
+              <SvgCss width={200} height={70} xml={COLOR_LOGO} />
+            </Center>
+          </PresenceTransition>
+          <Divider thickness={0} mt={30} />
+          <VStack alignItems={"center"}>
+            <Divider thickness={0} mt={30} />
+            <Center>
+              <Text fontWeight={"semibold"} fontSize={18}>
+                Welcome to Mio Home Services
+              </Text>
+              <Text fontWeight={"semibold"} color={AppColors.AAA}>
+                Your one destination for all the house needs
+              </Text>
+            </Center>
+            <Divider thickness={0} mt={31} />
+            <LottieView
+              source={require("../../assets/images/welcome.json")}
+              autoPlay
+              loop
+              style={{
+                marginTop: 10,
+                width: 200,
+                height: 200,
               }}
             />
-            <Divider thickness={0} mt={21} />
-            <AppButton
-              label="Existing user? Login"
-              type="outline"
-              onPress={async (event) => {
-                navigate("Login");
-              }}
-            />
-          </Box>
+            <Divider thickness={0} mt={30} />
+            <Box mx={5} width="80%">
+              <GradientButton
+                text="Create Account"
+                onPress={() => {
+                  navigate("Register");
+                }}
+              />
+              <Divider thickness={0} mt={21} />
+              <AppButton
+                label="Existing user? Login"
+                type="outline"
+                onPress={async (event) => {
+                  navigate("Login");
+                }}
+              />
+            </Box>
+          </VStack>
         </VStack>
-      </VStack>
+      </ScrollView>
       {/* </ImageBackground> */}
     </AppSafeAreaView>
   );

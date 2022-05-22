@@ -1,4 +1,4 @@
-import { HStack, VStack, Pressable, Text } from "native-base";
+import { HStack, VStack, Pressable, Text, Divider } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import ServiceHistory from "../../screens/Home/ServiceHistory";
@@ -66,10 +66,11 @@ const UpcomingPast = (): JSX.Element => {
     );
   };
   return (
-    <VStack>
+    <VStack pb={100}>
       <ChooserCard />
       {currentScreen === "UPCOMING" && <UpcomingServices />}
       {currentScreen === "PAST" && <ServiceHistory />}
+      {/* <Divider mt={"200px"} thickness={0} /> */}
     </VStack>
   );
 };

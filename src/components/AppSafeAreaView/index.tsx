@@ -42,7 +42,7 @@ const AppSafeAreaView = ({
         color={statusBarColor || useColorModeValue("white", "black")}
       />
       {Platform.OS === "android" && (
-        <Divider thickness={0} mt={mt === undefined ? 100 : mt} />
+        <Divider thickness={0} mt={mt === undefined ? 0 : mt} />
       )}
       <CheckInternet mt={mt === undefined ? 0 : 10} />
       <CheckAppUpdate mt={mt === undefined ? 0 : 10} />

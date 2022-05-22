@@ -109,34 +109,6 @@ const Payment = (): JSX.Element => {
       .toUpperCase();
   };
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm<SaveCardType>({
-    defaultValues: {},
-    mode: "onChange",
-  });
-
-  const onSubmit = async (data: SaveCardType) => {
-    data.expMonth = data.expiry.split("/")[0];
-    data.expYear = data.expiry.split("/")[1];
-    dispatch(
-      saveCardAsync({
-        customerId: customer.customerId,
-        data: { card: { ...data, expiry: undefined } },
-      })
-    ).then((response) => {
-      let _savedCard = response.payload;
-      if (![200, 201].includes(_savedCard?.qbStatus)) {
-        setErrorMsg("Invalid Card Credentials!");
-      } else {
-        setSelectedCreditcard(_savedCard.qbResponse.id);
-        dispatch(getSavedCardsAsync({ customerId: customer.customerId }));
-      }
-    });
-  };
-
   return (
     <AppSafeAreaView
       loading={
@@ -150,7 +122,7 @@ const Payment = (): JSX.Element => {
         ].indexOf(IN_PROGRESS) >= 0
       }
     >
-      <ScrollView>
+      <ScrollView mt={16}>
         <VStack space={5}>
           <PriceBreakdown />
           <Divider thickness={10} />
@@ -283,7 +255,7 @@ const Payment = (): JSX.Element => {
       {/* {selectedCreditcard && selectedCreditcard !== "NEW" && ( */}
       <FooterButton
         label="PLACE ORDER"
-        disabled={selectedCreditcard === "NEW"}
+        disabled={!selectedCreditcard}
         subText="Choose credit card for payment"
         onPress={async () => {
           let payload = {

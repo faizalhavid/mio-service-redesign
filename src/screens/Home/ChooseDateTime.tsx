@@ -186,7 +186,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
     <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS"}>
       <VirtualizedView>
         <KeyboardAwareScrollView enableOnAndroid={true}>
-          <VStack mt={0} space={5}>
+          <VStack mt={3} space={5}>
             <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
               Choose Date
             </Text>

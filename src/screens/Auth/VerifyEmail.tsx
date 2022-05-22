@@ -44,15 +44,15 @@ const VerifyEmail = (): JSX.Element => {
 
           <Text color={AppColors.SECONDARY}>
             Not received verification link?{" "}
-            <Pressable
+            <Text
               onPress={async () => {
                 await resendEmail();
               }}
+              fontWeight={"semibold"}
+              color={AppColors.TEAL}
             >
-              <Text fontWeight={"semibold"} color={AppColors.TEAL}>
-                Send again
-              </Text>
-            </Pressable>
+              Send again
+            </Text>
           </Text>
           <Button
             mt={10}

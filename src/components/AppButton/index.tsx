@@ -20,7 +20,9 @@ const AppButton = ({
   const btnColor = color || AppColors.PRIMARY;
   return (
     <Button
-      bg={type === "outline" ? "white" : AppColors.TEAL}
+      bg={
+        disabled ? AppColors.AAA : type === "outline" ? "white" : AppColors.TEAL
+      }
       borderColor={type === "outline" ? AppColors.TEAL : "white"}
       borderWidth={1}
       borderRadius={10}

@@ -33,7 +33,7 @@ import {
   setCustomerState,
 } from "../../slices/customer-slice";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
+import { FAILED, INIT, IN_PROGRESS, SUCCESS } from "../../commons/ui-states";
 import { SAMPLE } from "../../commons/sample";
 import GradientButton from "../../components/GradientButton";
 
@@ -73,6 +73,8 @@ const Register = (): JSX.Element => {
       }
       setValue("email", userCredential.user.email || "");
       setValue("phone", "");
+
+      dispatch(setCustomerState({ uiState: SUCCESS }));
       // Sign-in the user with the credential
     } catch (error: any) {
       console.log("error", error);
@@ -149,6 +151,8 @@ const Register = (): JSX.Element => {
       }
       setValue("email", userCredential.user.email || "");
       setValue("phone", "");
+
+      dispatch(setCustomerState({ uiState: SUCCESS }));
     } catch (error) {
       console.log(error);
       dispatch(
@@ -184,7 +188,15 @@ const Register = (): JSX.Element => {
   const registerCustomer = (payload: CustomerProfile) => {
     dispatch(registerCustomerAsync(payload))
       .then(async () => {
-        popToPop("VerifyEmail");
+        if (socialLoginCompleted) {
+          await StorageHelper.setValue(
+            FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
+            STATUS.COMPLETED
+          );
+          popToPop("Dashboard");
+        } else {
+          popToPop("VerifyEmail");
+        }
       })
       .catch((err) => {
         dispatch(
@@ -238,7 +250,7 @@ const Register = (): JSX.Element => {
   return (
     <AppSafeAreaView loading={uiState === IN_PROGRESS}>
       <KeyboardAwareScrollView enableOnAndroid={true}>
-        <Center width={"100%"}>
+        <Center mt={"1/4"} width={"100%"}>
           {!socialLoginCompleted && (
             <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
               Create an account {"\n"}to manage your service
@@ -354,11 +366,7 @@ const Register = (): JSX.Element => {
                   Password do not match
                 </Text>
               )}
-              <Divider thickness={0} mt={18} />
-              <GradientButton
-                text="CREATE ACCOUNT"
-                onPress={handleSubmit(onSubmit)}
-              />
+
               {/* <Button
                 mt={5}
                 height={50}
@@ -371,7 +379,11 @@ const Register = (): JSX.Element => {
               </Button> */}
             </>
           )}
-
+          <Divider thickness={0} mt={18} />
+          <GradientButton
+            text="CREATE ACCOUNT"
+            onPress={handleSubmit(onSubmit)}
+          />
           <Spacer top={20} />
           {!socialLoginCompleted && (
             <SocialLogin

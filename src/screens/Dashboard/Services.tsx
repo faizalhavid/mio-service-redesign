@@ -7,7 +7,7 @@ import { navigate } from "../../navigations/rootNavigation";
 
 const Services = (): JSX.Element => {
   return (
-    <AppSafeAreaView mt={0} bg={AppColors.EEE}>
+    <AppSafeAreaView bg={AppColors.EEE}>
       <UpcomingPast />
       <FloatingButton />
     </AppSafeAreaView>

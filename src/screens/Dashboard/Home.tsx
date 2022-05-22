@@ -119,7 +119,6 @@ const Home = (): JSX.Element => {
 
   return (
     <AppSafeAreaView
-      mt={0}
       loading={
         customerUiState === IN_PROGRESS ||
         upcomingOrdersUiState === IN_PROGRESS ||

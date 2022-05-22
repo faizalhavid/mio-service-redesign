@@ -337,7 +337,7 @@ const Profile = (): JSX.Element => {
   };
 
   return (
-    <AppSafeAreaView mt={0} loading={loading} bg={AppColors.EEE}>
+    <AppSafeAreaView loading={loading} bg={AppColors.EEE}>
       <ScrollView>
         <VStack pb={150} pt={3} space={3}>
           <ProfileCard />

@@ -16,14 +16,14 @@ const PriceBreakdown = (): JSX.Element => {
   // }, [leadDetails]);
 
   return (
-    <VStack mt={2} space={2}>
+    <VStack space={2}>
       <Divider thickness={1} />
       <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
         Summary
       </Text>
       <Divider thickness={1} />
-      {leadDetails.subOrders.map((subOrder) => (
-        <HStack px={5} justifyContent={"space-between"}>
+      {leadDetails.subOrders.map((subOrder, index) => (
+        <HStack key={index} px={5} justifyContent={"space-between"}>
           <Text fontSize={14}>{SERVICES[subOrder.serviceId].text}</Text>
           <Text fontSize={14}>
             <Text fontSize={12} color={AppColors.AAA}>
