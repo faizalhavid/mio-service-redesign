@@ -41,6 +41,7 @@ import {
 import WarningLabel from "../../components/WarningLabel";
 import UpcomingPast from "../../components/UpcomingPast";
 import VirtualizedView from "../../components/VirtualizedView";
+import { Order } from "../../commons/types";
 
 const Home = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -72,9 +73,13 @@ const Home = (): JSX.Element => {
       popToPop("Welcome");
       return;
     }
-    let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    setUserId(cId || "");
-    dispatch(getCustomerByIdAsync(cId));
+  }, []);
+
+  useEffect(() => {
+    StorageHelper.getValue("CUSTOMER_ID").then((cId) => {
+      setUserId(cId || "");
+      dispatch(getCustomerByIdAsync(cId));
+    });
   }, []);
 
   React.useEffect(() => {
@@ -117,13 +122,24 @@ const Home = (): JSX.Element => {
     }
   }, [customerUiState, isAddressAvailable]);
 
+  const [firstOrder, setFirstOrder] = useState<Order>({} as Order);
+
+  const readableDateTime: any = useMemo(() => {
+    if (Object.keys(firstOrder).length > 0) {
+      return getReadableDateTime(firstOrder.appointmentDateTime);
+    }
+    return {};
+  }, [firstOrder]);
+
+  useEffect(() => {
+    if (upcomingOrders.length > 0 && Object.keys(firstOrder).length === 0) {
+      setFirstOrder(upcomingOrders[0]);
+    }
+  }, [upcomingOrders]);
+
   return (
     <AppSafeAreaView
-      loading={
-        customerUiState === IN_PROGRESS ||
-        upcomingOrdersUiState === IN_PROGRESS ||
-        pastOrdersUiState === IN_PROGRESS
-      }
+      loading={customerUiState === IN_PROGRESS}
       bg={AppColors.EEE}
     >
       <VirtualizedView>
@@ -190,42 +206,29 @@ const Home = (): JSX.Element => {
                 </VStack>
               </Pressable>
             )}
-            {upcomingOrders && upcomingOrders.length > 0 && (
-              <>
-                <Divider mt={5} thickness={0} />
-                <ServiceCard
-                  variant="solid"
-                  dateTime={upcomingOrders[0].appointmentDateTime}
-                  showWelcomeMessage={true}
-                  showAddToCalendar={true}
-                  showReschedule={true}
-                  showChat={true}
-                  serviceName={SERVICES[upcomingOrders[0].serviceId].text}
-                  orderId={upcomingOrders[0].orderId}
-                  subOrderId={upcomingOrders[0].subOrderId}
-                  year={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .year
-                  }
-                  date={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .date
-                  }
-                  month={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .month
-                  }
-                  day={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .day
-                  }
-                  slot={
-                    getReadableDateTime(upcomingOrders[0].appointmentDateTime)
-                      .slot
-                  }
-                />
-              </>
-            )}
+            {upcomingOrders &&
+              upcomingOrders.length > 0 &&
+              Object.keys(firstOrder).length > 0 && (
+                <>
+                  <Divider mt={5} thickness={0} />
+                  <ServiceCard
+                    variant="solid"
+                    dateTime={firstOrder?.appointmentDateTime}
+                    showWelcomeMessage={true}
+                    showAddToCalendar={true}
+                    showReschedule={true}
+                    showChat={true}
+                    serviceName={SERVICES[firstOrder?.serviceId].text}
+                    orderId={firstOrder?.orderId}
+                    subOrderId={firstOrder?.subOrderId}
+                    year={readableDateTime?.year}
+                    date={readableDateTime?.date}
+                    month={readableDateTime?.month}
+                    day={readableDateTime?.day}
+                    slot={readableDateTime?.slot}
+                  />
+                </>
+              )}
           </View>
           <Divider my={2} thickness={1} />
           <UpcomingPast />

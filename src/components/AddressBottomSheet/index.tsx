@@ -764,36 +764,37 @@ export const AddressBottomSheet = ({
           </ScrollView>
           {/* </KeyboardAwareScrollView> */}
         </VStack>
-        {houseInfoUiState === "IN_PROGRESS" ||
-        customerUiState === "IN_PROGRESS" ? (
-          <Spinner my={15} />
-        ) : (
-          <>
-            {currentMode === "UPDATE_ADDRESS" && (
-              <FooterButton
-                disabled={(!isValid && isDirty) || !isDirty}
-                minLabel="SAVE"
-                maxLabel={"ADDRESS"}
-                type="ADDRESS"
-                onPress={handleSubmit(onSubmit)}
-              />
-            )}
-            {currentMode === "UPDATE_PROPERTY" && (
-              <FooterButton
-                disabled={
-                  !selectedArea ||
-                  !selectedBathroomNo ||
-                  !selectedBedroomNo ||
-                  !selectedPoolType
-                }
-                minLabel="SAVE"
-                maxLabel={"DETAILS"}
-                type="ADDRESS"
-                onPress={savePropertyDetails}
-              />
-            )}
-          </>
-        )}
+
+        <>
+          {currentMode === "UPDATE_ADDRESS" && (
+            <FooterButton
+              disabled={(!isValid && isDirty) || !isDirty}
+              loading={
+                houseInfoUiState === "IN_PROGRESS" ||
+                customerUiState === "IN_PROGRESS"
+              }
+              minLabel="SAVE"
+              maxLabel={"ADDRESS"}
+              type="ADDRESS"
+              onPress={handleSubmit(onSubmit)}
+            />
+          )}
+          {currentMode === "UPDATE_PROPERTY" && (
+            <FooterButton
+              disabled={
+                !selectedArea ||
+                !selectedBathroomNo ||
+                !selectedBedroomNo ||
+                !selectedPoolType
+              }
+              loading={customerUiState === "IN_PROGRESS"}
+              minLabel="SAVE"
+              maxLabel={"DETAILS"}
+              type="ADDRESS"
+              onPress={savePropertyDetails}
+            />
+          )}
+        </>
       </Actionsheet.Content>
     </Actionsheet>
   );

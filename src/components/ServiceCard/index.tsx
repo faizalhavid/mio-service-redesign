@@ -8,7 +8,7 @@ import {
   View,
   VStack,
 } from "native-base";
-import React from "react";
+import React, { memo } from "react";
 import { Linking } from "react-native";
 import { LinearGradient, SvgCss } from "react-native-svg";
 import {
@@ -362,4 +362,4 @@ const ServiceCard = ({
   );
 };
 
-export default ServiceCard;
+export default memo(ServiceCard);

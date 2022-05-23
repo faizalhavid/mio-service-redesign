@@ -1,4 +1,4 @@
-import { HStack, Pressable, Text, View, VStack } from "native-base";
+import { HStack, Pressable, Spinner, Text, View, VStack } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -20,6 +20,7 @@ type FooterButtonProps = {
   maxLabel?: string;
   subText?: string;
   disabled?: boolean;
+  loading?: boolean;
   onPress: () => void;
   onPress2?: () => void;
 };
@@ -32,6 +33,7 @@ const FooterButton = ({
   onPress,
   onPress2,
   disabled,
+  loading = false,
 }: FooterButtonProps): JSX.Element => {
   const [showEditAddress, setShowEditAddress] = useState(false);
   const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
@@ -126,44 +128,51 @@ const FooterButton = ({
           )}
         </View>
         <Pressable
-          borderColor={disabled ? "#aaa" : AppColors.TEAL}
-          backgroundColor={disabled ? "#aaa" : AppColors.TEAL}
+          borderColor={disabled || loading ? "#aaa" : AppColors.TEAL}
+          backgroundColor={disabled || loading ? "#aaa" : AppColors.TEAL}
           height={50}
           borderRadius={5}
           width={"50%"}
+          disabled={disabled || loading}
           justifyContent="center"
           borderWidth={1}
           onPress={onPress}
         >
-          {minLabel && maxLabel && (
-            <VStack>
-              <Text
-                alignSelf={"center"}
-                color={"#fff"}
-                fontWeight={"semibold"}
-                fontSize="11"
-              >
-                {minLabel}
-              </Text>
-              <Text
-                alignSelf={"center"}
-                color={"#fff"}
-                fontWeight={"semibold"}
-                fontSize="14"
-              >
-                {maxLabel}
-              </Text>
-            </VStack>
-          )}
-          {label && (
-            <Text
-              alignSelf={"center"}
-              color={"#fff"}
-              fontWeight={"semibold"}
-              fontSize="14"
-            >
-              {label}
-            </Text>
+          {loading ? (
+            <Spinner color={"white"} />
+          ) : (
+            <>
+              {minLabel && maxLabel && (
+                <VStack>
+                  <Text
+                    alignSelf={"center"}
+                    color={"#fff"}
+                    fontWeight={"semibold"}
+                    fontSize="11"
+                  >
+                    {minLabel}
+                  </Text>
+                  <Text
+                    alignSelf={"center"}
+                    color={"#fff"}
+                    fontWeight={"semibold"}
+                    fontSize="14"
+                  >
+                    {maxLabel}
+                  </Text>
+                </VStack>
+              )}
+              {label && (
+                <Text
+                  alignSelf={"center"}
+                  color={"#fff"}
+                  fontWeight={"semibold"}
+                  fontSize="14"
+                >
+                  {label}
+                </Text>
+              )}
+            </>
           )}
         </Pressable>
       </HStack>

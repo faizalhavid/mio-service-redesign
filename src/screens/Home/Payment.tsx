@@ -260,6 +260,16 @@ const Payment = (): JSX.Element => {
       <FooterButton
         label="PLACE ORDER"
         disabled={!selectedCreditcard}
+        loading={
+          [
+            leadUiState,
+            cardsUiState,
+            customerUiState,
+            saveCardUiState,
+            validateCouponUiState,
+            createOrderUiState,
+          ].indexOf(IN_PROGRESS) >= 0
+        }
         subText="Choose credit card for payment"
         onPress={async () => {
           let payload = {

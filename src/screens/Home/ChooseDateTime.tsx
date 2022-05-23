@@ -333,6 +333,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
         type="DATETIME_SELECTION"
         label="DONE"
         disabled={!selectedDate || !selectedTime}
+        loading={leadDetailsUiState === "IN_PROGRESS"}
         onPress={async () => {
           await updateLead();
           goBack();

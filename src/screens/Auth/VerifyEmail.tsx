@@ -1,4 +1,13 @@
-import { Button, Center, Pressable, Text, View, VStack } from "native-base";
+import {
+  Alert,
+  Button,
+  Center,
+  Pressable,
+  Text,
+  Toast,
+  View,
+  VStack,
+} from "native-base";
 import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
 import { EXCLAMATION_ICON } from "../../commons/assets";
@@ -46,6 +55,7 @@ const VerifyEmail = (): JSX.Element => {
             Not received verification link?{" "}
             <Text
               onPress={async () => {
+                Toast.show({ title: "Verification Mail Sent!" });
                 await resendEmail();
               }}
               fontWeight={"semibold"}

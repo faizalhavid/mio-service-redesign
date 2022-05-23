@@ -187,7 +187,8 @@ export const AddCardBottomSheet = ({
           {Platform.OS === "ios" && <KeyboardSpacer />}
         </ScrollView>
         <FooterButton
-          disabled={!isValid || saveCardUiState === "IN_PROGRESS"}
+          disabled={!isValid}
+          loading={saveCardUiState === "IN_PROGRESS"}
           minLabel="SAVE"
           maxLabel={"CREDIT CARD"}
           type="DEFAULT"

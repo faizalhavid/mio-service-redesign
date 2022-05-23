@@ -521,6 +521,10 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         type="PLAN_SELECTION"
         label="DONE"
         disabled={false}
+        loading={
+          leadDetailsUiState === "IN_PROGRESS" ||
+          serviceCostUiState === "IN_PROGRESS"
+        }
         subText="Please add required services"
         onPress={async () => {
           dispatch(

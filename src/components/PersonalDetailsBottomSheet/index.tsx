@@ -270,7 +270,8 @@ export const PersonalDetailsBottomSheet = ({
           {Platform.OS === "ios" && <KeyboardSpacer />}
         </ScrollView>
         <FooterButton
-          disabled={!isValid || customerUiState === "IN_PROGRESS"}
+          disabled={!isValid || loading}
+          loading={customerUiState === "IN_PROGRESS"}
           minLabel="SAVE"
           maxLabel={"PERSONAL DETAILS"}
           type="DEFAULT"
