@@ -14,7 +14,7 @@ import {
 } from "native-base";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Dimensions, Keyboard } from "react-native";
+import { Dimensions, Keyboard, Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import { STATES } from "../../commons/dropdown-values";
@@ -35,6 +35,7 @@ import { getServicesAsync, selectServices } from "../../slices/service-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 
 type UPDATE_ADDRESS = "UPDATE_ADDRESS";
 type UPDATE_PROPERTY = "UPDATE_PROPERTY";
@@ -759,6 +760,7 @@ export const AddressBottomSheet = ({
                 </>
               )}
             </VStack>
+            {Platform.OS === "ios" && <KeyboardSpacer />}
           </ScrollView>
           {/* </KeyboardAwareScrollView> */}
         </VStack>

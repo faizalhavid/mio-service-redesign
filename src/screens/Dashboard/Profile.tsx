@@ -90,21 +90,38 @@ const Profile = (): JSX.Element => {
     );
   };
 
+  const EditButton = ({
+    text,
+    onPress,
+  }: {
+    text: string;
+    onPress: () => void;
+  }): JSX.Element => {
+    return (
+      <Pressable
+        onPress={onPress}
+        px={2}
+        borderRadius={5}
+        _pressed={{ backgroundColor: AppColors.LIGHT_TEAL }}
+      >
+        <Text color={AppColors.DARK_TEAL} fontWeight="semibold" fontSize={12}>
+          {text}
+        </Text>
+      </Pressable>
+    );
+  };
+
   const ProfileCard = (): JSX.Element => {
     return (
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
           <Title text="PERSONAL INFORMATION" />
-          <Text
+          <EditButton
             onPress={() => {
               setShowPersonalDetails(true);
             }}
-            color={AppColors.DARK_TEAL}
-            fontWeight="semibold"
-            fontSize={12}
-          >
-            EDIT
-          </Text>
+            text="EDIT"
+          />
         </HStack>
         <Divider my={1} borderWidth={1} borderColor={AppColors.EEE} />
         <HStack
@@ -149,17 +166,13 @@ const Profile = (): JSX.Element => {
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
           <Title text="ADDRESS DETAILS" />
-          <Text
-            color={AppColors.DARK_TEAL}
-            fontWeight="semibold"
+          <EditButton
             onPress={() => {
               setAddressMode("UPDATE_ADDRESS");
               setShowEditAddress(true);
             }}
-            fontSize={12}
-          >
-            EDIT
-          </Text>
+            text="EDIT"
+          />
         </HStack>
         <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
 
@@ -202,17 +215,13 @@ const Profile = (): JSX.Element => {
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
           <Title text="PROPERTY DETAILS" />
-          <Text
-            color={AppColors.DARK_TEAL}
-            fontWeight="semibold"
+          <EditButton
             onPress={() => {
               setAddressMode("UPDATE_PROPERTY");
               setShowEditAddress(true);
             }}
-            fontSize={12}
-          >
-            EDIT
-          </Text>
+            text="EDIT"
+          />
         </HStack>
         <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
 
@@ -279,14 +288,12 @@ const Profile = (): JSX.Element => {
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
           <Title text="PAYMENT METHOD" />
-          <Text
-            color={AppColors.DARK_TEAL}
-            fontWeight="semibold"
-            onPress={() => setShowAddCard(true)}
-            fontSize={12}
-          >
-            ADD
-          </Text>
+          <EditButton
+            onPress={() => {
+              setShowAddCard(true);
+            }}
+            text="ADD"
+          />
         </HStack>
         <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
         <VStack space={3}>

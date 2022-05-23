@@ -25,7 +25,8 @@ import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
 import * as ImagePicker from "react-native-image-picker";
 import { firebase } from "@react-native-firebase/storage";
-import { Animated, Keyboard } from "react-native";
+import { Animated, Keyboard, Platform } from "react-native";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -76,6 +77,7 @@ export const PersonalDetailsBottomSheet = ({
   });
 
   const onSubmit = async (data: PersonalDetailsForm) => {
+    Keyboard.dismiss();
     let formValues = getValues();
     dispatch(
       putCustomerAsync({
@@ -123,13 +125,16 @@ export const PersonalDetailsBottomSheet = ({
               </Text>
             </Center>
             <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
-            {/* <KeyboardAwareScrollView
-              enableOnAndroid={true}
-              style={{
-                padding: 0,
-                margin: 0,
-              }}
-            > */}
+            {/* <KeyboardAvoidingView
+              style={{ flex: 1 }}
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              enabled
+              keyboardVerticalOffset={Platform.select({
+                ios: 80,
+                android: 500,
+              })}
+            >
+              <KeyboardAwareScrollView enableOnAndroid={true}> */}
             <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
               <ErrorView message={errorMsg} />
               <Controller
@@ -259,8 +264,10 @@ export const PersonalDetailsBottomSheet = ({
                 </Pressable>
               </HStack>
             </VStack>
-            {/* </KeyboardAwareScrollView> */}
+            {/* </KeyboardAwareScrollView>
+            </KeyboardAvoidingView> */}
           </VStack>
+          {Platform.OS === "ios" && <KeyboardSpacer />}
         </ScrollView>
         <FooterButton
           disabled={!isValid || customerUiState === "IN_PROGRESS"}

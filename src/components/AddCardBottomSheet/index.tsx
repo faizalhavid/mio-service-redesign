@@ -9,7 +9,7 @@ import {
 } from "native-base";
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Platform } from "react-native";
+import { Keyboard, Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import { SaveCardType } from "../../commons/types";
@@ -25,6 +25,7 @@ import { selectCustomer } from "../../slices/customer-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 
 type AddCardBottomSheetProps = {
   showAddCard: boolean;
@@ -60,6 +61,7 @@ export const AddCardBottomSheet = ({
   });
 
   const onSubmit = async (data: SaveCardType) => {
+    Keyboard.dismiss();
     setErrorMsg("");
     data.expMonth = data.expiry.split("/")[0];
     data.expYear = data.expiry.split("/")[1];
@@ -182,6 +184,7 @@ export const AddCardBottomSheet = ({
             {/* </KeyboardAvoidingView> */}
             {/* </KeyboardAwareScrollView> */}
           </VStack>
+          {Platform.OS === "ios" && <KeyboardSpacer />}
         </ScrollView>
         <FooterButton
           disabled={!isValid || saveCardUiState === "IN_PROGRESS"}
