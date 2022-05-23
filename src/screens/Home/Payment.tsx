@@ -36,7 +36,11 @@ import {
   selectValidateCoupon,
   validateCouponAsync,
 } from "../../slices/coupon-slice";
-import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
+import {
+  resetLeadState,
+  selectLead,
+  updateLeadAsync,
+} from "../../slices/lead-slice";
 import {
   createOrderFromLeadAsync,
   selectCreateOrder,
@@ -273,7 +277,6 @@ const Payment = (): JSX.Element => {
             createOrderFromLeadAsync({ leadId: leadDetails.leadId })
           );
           await StorageHelper.removeValue("LEAD_ID");
-          // TODO: reset lead state
           popToPop("Booked");
         }}
       />

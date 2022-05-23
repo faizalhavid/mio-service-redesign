@@ -33,9 +33,16 @@ export const getLeadAsync = createAsyncThunk(
 export const leadSlice = createAsyncSlice({
   name: "lead",
   initialState: getInitialState<LeadDetails>(),
-  reducers: {},
+  reducers: {
+    resetLeadState: (state) => {
+      state.member = {} as LeadDetails;
+    },
+  },
   thunks: [createLeadAsync, updateLeadAsync, getLeadAsync],
 });
+
+// Actions
+export const { resetLeadState } = leadSlice.actions;
 
 // Selectors
 

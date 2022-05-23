@@ -9,7 +9,8 @@ import {
   VStack,
 } from "native-base";
 import React from "react";
-import { Dimensions, Platform, SafeAreaView } from "react-native";
+import { Dimensions, Platform } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AppColors } from "../../commons/colors";
 import { AppStatusBar } from "../../components/AppStatusBar";
 import CheckAppUpdate from "../CheckAppUpdate";
@@ -32,6 +33,7 @@ const AppSafeAreaView = ({
 }: AppSafeAreaViewProps): JSX.Element => {
   return (
     <SafeAreaView
+      edges={["top"]}
       style={{
         flex: 1,
         flexDirection: "column",
@@ -41,9 +43,9 @@ const AppSafeAreaView = ({
       <AppStatusBar
         color={statusBarColor || useColorModeValue("white", "black")}
       />
-      {Platform.OS === "android" && (
-        <Divider thickness={0} mt={mt === undefined ? 0 : mt} />
-      )}
+      {/* {Platform.OS === "ios" && (
+        <Divider thickness={0} mt={mt === undefined ? "1/6" : mt} />
+      )} */}
       <CheckInternet mt={mt === undefined ? 0 : 10} />
       <CheckAppUpdate mt={mt === undefined ? 0 : 10} />
       {loading && (

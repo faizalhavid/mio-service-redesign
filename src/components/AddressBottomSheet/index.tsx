@@ -10,6 +10,7 @@ import {
   HStack,
   Pressable,
   Spinner,
+  ScrollView,
 } from "native-base";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -250,14 +251,16 @@ export const AddressBottomSheet = ({
           ],
         })
       ).then(async (_houseInfo) => {
+        let response: any = _houseInfo.payload;
         await dispatch(
           putCustomerAsync({
             ...customer,
             addresses: [
               {
                 ...data,
+                googlePlaceId: response?.googlePlaceId,
                 houseInfo: {
-                  ..._houseInfo.payload.houseInfo,
+                  ...response?.houseInfo,
                 },
               },
             ],
@@ -349,13 +352,14 @@ export const AddressBottomSheet = ({
             </Center>
           )}
           <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
-          <KeyboardAwareScrollView
-            enableOnAndroid={true}
-            style={{
-              padding: 0,
-              margin: 0,
-            }}
-          >
+          {/* <KeyboardAwareScrollView
+              enableOnAndroid={true}
+              style={{
+                padding: 0,
+                margin: 0,
+              }}
+            > */}
+          <ScrollView width={"100%"}>
             <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
               {(customerUiState === FAILED || houseInfoUiState === FAILED) && (
                 <ErrorView
@@ -751,11 +755,12 @@ export const AddressBottomSheet = ({
                       </Pressable>
                     ))}
                   </HStack>
+                  <Divider mt={20} thickness={0} />
                 </>
               )}
-              <Divider mt={20} thickness={0} />
             </VStack>
-          </KeyboardAwareScrollView>
+          </ScrollView>
+          {/* </KeyboardAwareScrollView> */}
         </VStack>
         {houseInfoUiState === "IN_PROGRESS" ||
         customerUiState === "IN_PROGRESS" ? (

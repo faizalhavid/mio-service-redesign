@@ -1,6 +1,15 @@
-import { Actionsheet, Center, Spacer, Text, VStack } from "native-base";
+import {
+  Actionsheet,
+  Center,
+  KeyboardAvoidingView,
+  ScrollView,
+  Spacer,
+  Text,
+  VStack,
+} from "native-base";
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import { SaveCardType } from "../../commons/types";
@@ -87,20 +96,25 @@ export const AddCardBottomSheet = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <VStack pt={15} bg={"white"} width="100%">
-          <Center>
-            <Text fontSize={18} fontWeight="semibold">
-              Add Card
-            </Text>
-          </Center>
-          <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
-          <KeyboardAwareScrollView
+        <ScrollView width={"100%"}>
+          <VStack pt={15} bg={"white"} width="100%">
+            <Center>
+              <Text fontSize={18} fontWeight="semibold">
+                Add Card
+              </Text>
+            </Center>
+            <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
+            {/* <KeyboardAwareScrollView
             enableOnAndroid={true}
             style={{
               padding: 0,
               margin: 0,
             }}
-          >
+          > */}
+            {/* <KeyboardAvoidingView
+              behavior={Platform.OS == "ios" ? "padding" : undefined}
+              style={{ flex: 1 }}
+            > */}
             <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
               <ErrorView message={errorMsg} />
               <Controller
@@ -165,8 +179,10 @@ export const AddCardBottomSheet = ({
                 name="cvc"
               />
             </VStack>
-          </KeyboardAwareScrollView>
-        </VStack>
+            {/* </KeyboardAvoidingView> */}
+            {/* </KeyboardAwareScrollView> */}
+          </VStack>
+        </ScrollView>
         <FooterButton
           disabled={!isValid || saveCardUiState === "IN_PROGRESS"}
           minLabel="SAVE"

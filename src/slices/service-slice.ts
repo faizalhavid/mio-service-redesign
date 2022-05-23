@@ -56,6 +56,9 @@ export const selectedServicesSlice = createAsyncSlice({
     ) => {
       state.member = payload.selectedService;
     },
+    resetSelectedServices: (state) => {
+      state.collection = [];
+    },
   },
   thunks: [],
 });
@@ -72,6 +75,7 @@ export const {
   updateSelectedServices,
   removeSelectedServices,
   setActiveService,
+  resetSelectedServices,
 } = selectedServicesSlice.actions;
 
 // Selectors

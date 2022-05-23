@@ -23,6 +23,7 @@ export type Address = {
   city: string;
   state: string;
   zip: string;
+  googlePlaceId: string;
   houseInfo?: HouseInfo;
 };
 
@@ -112,6 +113,7 @@ export let dummyProfile: CustomerProfile = {
       city: "",
       state: "",
       zip: "",
+      googlePlaceId: "",
     },
   ],
   preferences: {

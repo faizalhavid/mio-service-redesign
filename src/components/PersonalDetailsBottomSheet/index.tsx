@@ -4,13 +4,15 @@ import {
   Center,
   HStack,
   Image,
+  KeyboardAvoidingView,
   Pressable,
+  ScrollView,
   Spacer,
   Spinner,
   Text,
   VStack,
 } from "native-base";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
@@ -23,6 +25,7 @@ import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
 import * as ImagePicker from "react-native-image-picker";
 import { firebase } from "@react-native-firebase/storage";
+import { Animated, Keyboard } from "react-native";
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -112,20 +115,21 @@ export const PersonalDetailsBottomSheet = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <VStack pt={15} bg={"white"} width="100%">
-          <Center>
-            <Text fontSize={18} fontWeight="semibold">
-              Personal Details
-            </Text>
-          </Center>
-          <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
-          <KeyboardAwareScrollView
-            enableOnAndroid={true}
-            style={{
-              padding: 0,
-              margin: 0,
-            }}
-          >
+        <ScrollView width={"100%"}>
+          <VStack pt={15} bg={"white"} width="100%">
+            <Center>
+              <Text fontSize={18} fontWeight="semibold">
+                Personal Details
+              </Text>
+            </Center>
+            <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
+            {/* <KeyboardAwareScrollView
+              enableOnAndroid={true}
+              style={{
+                padding: 0,
+                margin: 0,
+              }}
+            > */}
             <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
               <ErrorView message={errorMsg} />
               <Controller
@@ -143,6 +147,7 @@ export const PersonalDetailsBottomSheet = ({
                 )}
                 name="firstName"
               />
+
               <Controller
                 control={control}
                 rules={{
@@ -254,8 +259,9 @@ export const PersonalDetailsBottomSheet = ({
                 </Pressable>
               </HStack>
             </VStack>
-          </KeyboardAwareScrollView>
-        </VStack>
+            {/* </KeyboardAwareScrollView> */}
+          </VStack>
+        </ScrollView>
         <FooterButton
           disabled={!isValid || customerUiState === "IN_PROGRESS"}
           minLabel="SAVE"
