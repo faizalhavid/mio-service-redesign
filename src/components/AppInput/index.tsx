@@ -60,6 +60,7 @@ const AppInput = ({
           borderBottomWidth: focussed ? 0 : 1,
           borderColor: "#ccc",
         }}
+        autoCapitalize="none"
         disabled={disabled}
         returnKeyType="done"
         onFocus={() => setFocussed(true)}
@@ -97,6 +98,7 @@ const AppInput = ({
           }
         }}
         // baseColor={AppColors.SECONDARY}
+        selectionColor={AppColors.CCC}
         tintColor={AppColors.SECONDARY}
         textColor={AppColors.SECONDARY}
         value={value}

@@ -8,7 +8,7 @@ type ErrorViewProps = {
 const ErrorView = ({ message }: ErrorViewProps): JSX.Element => {
   return (
     <>
-      {message.length > 0 && (
+      {Boolean(message) && message.length > 0 && (
         <View
           borderLeftWidth={5}
           borderRadius={5}

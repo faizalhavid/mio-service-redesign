@@ -1,145 +1,380 @@
 import {
-  Center,
   Circle,
   Divider,
   HStack,
+  Image,
   Pressable,
+  Radio,
+  ScrollView,
   Text,
-  View,
   VStack,
 } from "native-base";
-import React from "react";
-import { SvgCss } from "react-native-svg";
-import {
-  BOX_ARROW_RIGHT_ICON,
-  CHEVRON_RIGHT_ICON,
-  CREDIT_CARD_ICON,
-  PERSONAL_DETAILS_ICON,
-  USER_ICON,
-} from "../../commons/assets";
+import React, { useEffect, useState } from "react";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import { navigate } from "../../navigations/rootNavigation";
 import { useAuth } from "../../contexts/AuthContext";
-import { ImageBackground } from "react-native";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  getCustomerByIdAsync,
+  selectCustomer,
+} from "../../slices/customer-slice";
+import { getSavedCardsAsync, selectCards } from "../../slices/card-slice";
+import { SvgCss } from "react-native-svg";
+import { USER_ICON } from "../../commons/assets";
+import { AddCardBottomSheet } from "../../components/AddCardBottomSheet";
+import { StorageHelper } from "../../services/storage-helper";
+import {
+  AddressBottomSheet,
+  AddressMode,
+} from "../../components/AddressBottomSheet";
+import { PersonalDetailsBottomSheet } from "../../components/PersonalDetailsBottomSheet";
 
 const Profile = (): JSX.Element => {
   const { logout } = useAuth();
   const [loading, setLoading] = React.useState(false);
-  return (
-    <AppSafeAreaView mt={0} loading={loading}>
-      <VStack pb={150}>
-        <ImageBackground
-          resizeMode="cover"
-          style={{
-            paddingVertical: 10,
-          }}
-          source={require("../../assets/images/dashboard-bg.png")}
+  const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
+  const [showEditAddress, setShowEditAddress] = useState(false);
+  const [showPersonalDetails, setShowPersonalDetails] = useState(false);
+  const [showAddCard, setShowAddCard] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
+
+  const {
+    uiState: cardsUiState,
+    collection: cards,
+    error: cardsError,
+  } = useAppSelector(selectCards);
+
+  useEffect(() => {
+    StorageHelper.getValue("CUSTOMER_ID").then(async (customerId) => {
+      if (customerId) {
+        dispatch(getCustomerByIdAsync(customerId));
+        dispatch(getSavedCardsAsync({ customerId }));
+      }
+    });
+  }, [dispatch]);
+
+  const formatNumber = (number: string) => {
+    return number
+      .split(/(.{4})/)
+      .filter((x) => x.length == 4)
+      .join("-")
+      .toUpperCase();
+  };
+
+  const Title = ({ text }: { text: string }): JSX.Element => {
+    return (
+      <Text color={AppColors.DARK_PRIMARY} letterSpacing={1} fontSize={12}>
+        {text}
+      </Text>
+    );
+  };
+
+  const ValueText = ({ text }: { text: string | number }): JSX.Element => {
+    return (
+      <Text
+        color={AppColors.SECONDARY}
+        textTransform={"uppercase"}
+        fontWeight={"semibold"}
+      >
+        {text}
+      </Text>
+    );
+  };
+
+  const EditButton = ({
+    text,
+    onPress,
+  }: {
+    text: string;
+    onPress: () => void;
+  }): JSX.Element => {
+    return (
+      <Pressable
+        onPress={onPress}
+        px={2}
+        borderRadius={5}
+        _pressed={{ backgroundColor: AppColors.LIGHT_TEAL }}
+      >
+        <Text color={AppColors.DARK_TEAL} fontWeight="semibold" fontSize={12}>
+          {text}
+        </Text>
+      </Pressable>
+    );
+  };
+
+  const ProfileCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent={"space-between"}>
+          <Title text="PERSONAL INFORMATION" />
+          <EditButton
+            onPress={() => {
+              setShowPersonalDetails(true);
+            }}
+            text="EDIT"
+          />
+        </HStack>
+        <Divider my={1} borderWidth={1} borderColor={AppColors.EEE} />
+        <HStack
+          mt={2}
+          space={5}
+          justifyContent="flex-start"
+          alignItems={"center"}
         >
-          <Center pt={20}>
-            <Circle
-              size={120}
-              bg={AppColors.SECONDARY}
-              children={
-                <SvgCss width={70} height={70} xml={USER_ICON("#eee")} />
-              }
-            ></Circle>
-            {/* <Circle
-              marginTop={-10}
-              marginLeft={20}
-              size={5}
-              bg={AppColors.SECONDARY}
-              p={5}
-            >
-              <SvgCss xml={CAMERA_ICON} />
-            </Circle> */}
-          </Center>
-          <VStack mt={10}>
-            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
-            <Pressable
-              _pressed={{
-                backgroundColor: "#eee",
-              }}
-              onPress={() => navigate("PersonalDetails")}
-            >
-              <HStack justifyContent={"space-between"} alignItems={"center"}>
-                <HStack px={5} space={3} alignItems={"center"}>
-                  <SvgCss
-                    xml={PERSONAL_DETAILS_ICON("#000")}
-                    width={20}
-                    height={20}
-                  />
-                  <Text py={5} fontWeight={"semibold"}>
-                    Personal Details
-                  </Text>
-                </HStack>
-                <View pr={5}>
-                  <SvgCss
-                    xml={CHEVRON_RIGHT_ICON("#aaa")}
-                    width={20}
-                    height={20}
-                  />
-                </View>
-              </HStack>
-            </Pressable>
-            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
-            <Pressable
-              _pressed={{
-                backgroundColor: "#eee",
-              }}
-              onPress={() => navigate("PaymentMethods")}
-            >
-              <HStack justifyContent={"space-between"} alignItems={"center"}>
-                <HStack px={5} space={3} alignItems={"center"}>
-                  <SvgCss
-                    xml={CREDIT_CARD_ICON("#000")}
-                    width={20}
-                    height={20}
-                  />
-                  <Text py={5} fontWeight={"semibold"}>
-                    Payment Methods
-                  </Text>
-                </HStack>
-                <View pr={5}>
-                  <SvgCss
-                    xml={CHEVRON_RIGHT_ICON("#aaa")}
-                    width={20}
-                    height={20}
-                  />
-                </View>
-              </HStack>
-            </Pressable>
-            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
-            <Pressable
-              _pressed={{
-                backgroundColor: "#eee",
-              }}
-              onPress={async () => {
-                setLoading(true);
-                await logout();
-                // setLoading(false);
-                navigate("Welcome");
-              }}
-            >
-              <HStack justifyContent={"space-between"} alignItems={"center"}>
-                <HStack px={5} space={3} alignItems={"center"}>
-                  <SvgCss
-                    xml={BOX_ARROW_RIGHT_ICON("#900C3F")}
-                    width={20}
-                    height={20}
-                  />
-                  <Text py={5} fontWeight={"semibold"} color={"#900C3F"}>
-                    Logout
-                  </Text>
-                </HStack>
-              </HStack>
-            </Pressable>
-            <Divider thickness={1} borderColor={AppColors.SECONDARY} />
+          <Circle
+            size={60}
+            bg={AppColors.EEE}
+            children={
+              Boolean(customer.pictureURL) && (
+                <Image
+                  borderRadius={60}
+                  source={{
+                    width: 60,
+                    height: 60,
+                    uri: customer.pictureURL,
+                  }}
+                  alt="Profile"
+                />
+              )
+            }
+          ></Circle>
+          <VStack>
+            <ValueText text={`${customer?.firstName} ${customer?.lastName}`} />
+            <Text color={AppColors.AAA} fontSize={12} fontWeight={"semibold"}>
+              {customer?.email}
+            </Text>
+            <Text color={AppColors.AAA} fontSize={12} fontWeight={"semibold"}>
+              {customer?.phones[0]?.number || "-"}
+            </Text>
           </VStack>
-        </ImageBackground>
+        </HStack>
       </VStack>
-      <FloatingButton onPress={() => navigate("ChooseService")} />
+    );
+  };
+
+  const AddressCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent={"space-between"}>
+          <Title text="ADDRESS DETAILS" />
+          <EditButton
+            onPress={() => {
+              setAddressMode("UPDATE_ADDRESS");
+              setShowEditAddress(true);
+            }}
+            text="EDIT"
+          />
+        </HStack>
+        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
+
+        <VStack space={3}>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                STREET
+              </Text>
+              <ValueText text={customer?.addresses[0]?.street} />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                CITY
+              </Text>
+              <ValueText text={customer?.addresses[0]?.city} />
+            </VStack>
+          </HStack>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                STATE
+              </Text>
+              <ValueText text={customer?.addresses[0]?.state} />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                ZIP
+              </Text>
+              <ValueText text={customer?.addresses[0]?.zip} />
+            </VStack>
+          </HStack>
+        </VStack>
+      </VStack>
+    );
+  };
+
+  const PropertyDetailsCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent={"space-between"}>
+          <Title text="PROPERTY DETAILS" />
+          <EditButton
+            onPress={() => {
+              setAddressMode("UPDATE_PROPERTY");
+              setShowEditAddress(true);
+            }}
+            text="EDIT"
+          />
+        </HStack>
+        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
+
+        <VStack space={3}>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                BEDROOM
+              </Text>
+              <ValueText
+                text={customer?.addresses[0]?.houseInfo?.bedrooms || "-"}
+              />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                BATHROOM
+              </Text>
+              <ValueText
+                text={customer?.addresses[0]?.houseInfo?.bathrooms || "-"}
+              />
+            </VStack>
+          </HStack>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                LOT SIZE
+              </Text>
+              <ValueText
+                text={
+                  customer?.addresses[0]?.houseInfo?.lotSize + " sqft" || "-"
+                }
+              />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                POOL TYPE
+              </Text>
+              <ValueText
+                text={
+                  customer?.addresses[0]?.houseInfo?.swimmingPoolType || "-"
+                }
+              />
+            </VStack>
+          </HStack>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"100%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                PEST TYPE
+              </Text>
+              <ValueText
+                text={
+                  customer?.addresses[0]?.houseInfo?.pestType?.join(", ") || "-"
+                }
+              />
+            </VStack>
+          </HStack>
+        </VStack>
+      </VStack>
+    );
+  };
+
+  const PaymentCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent={"space-between"}>
+          <Title text="PAYMENT METHOD" />
+          <EditButton
+            onPress={() => {
+              setShowAddCard(true);
+            }}
+            text="ADD"
+          />
+        </HStack>
+        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
+        <VStack space={3}>
+          {cards.length === 0 && (
+            <Text color={"amber.600"} fontSize={14}>
+              No cards added yet!
+            </Text>
+          )}
+          {cards.map((card, index) => (
+            <HStack justifyContent={"space-between"} key={index}>
+              <VStack>
+                <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                  {card.cardType}
+                </Text>
+                <ValueText text={formatNumber(card.number)} />
+              </VStack>
+            </HStack>
+          ))}
+        </VStack>
+      </VStack>
+    );
+  };
+
+  const LogoutCard = (): JSX.Element => {
+    return (
+      <Pressable
+        onPress={async () => {
+          await logout();
+          navigate("Welcome");
+        }}
+        bg={"white"}
+        mx={3}
+        p={5}
+        borderRadius={10}
+      >
+        <VStack>
+          <Text
+            color={"red.500"}
+            fontWeight="semibold"
+            letterSpacing={1}
+            fontSize={12}
+          >
+            LOGOUT
+          </Text>
+        </VStack>
+      </Pressable>
+    );
+  };
+
+  return (
+    <AppSafeAreaView loading={loading} bg={AppColors.EEE}>
+      <ScrollView>
+        <VStack pb={150} pt={3} space={3}>
+          <ProfileCard />
+          <AddressCard />
+          <PropertyDetailsCard />
+          <PaymentCard />
+          <LogoutCard />
+        </VStack>
+      </ScrollView>
+      <FloatingButton />
+      {showAddCard && (
+        <AddCardBottomSheet
+          showAddCard={showAddCard}
+          setShowAddCard={setShowAddCard}
+        />
+      )}
+      {showEditAddress && (
+        <AddressBottomSheet
+          mode={addressMode}
+          showEditAddress={showEditAddress}
+          setShowEditAddress={setShowEditAddress}
+          hideAfterSave={true}
+        />
+      )}
+      {showPersonalDetails && (
+        <PersonalDetailsBottomSheet
+          showPersonalDetails={showPersonalDetails}
+          setShowPersonalDetails={setShowPersonalDetails}
+        />
+      )}
     </AppSafeAreaView>
   );
 };

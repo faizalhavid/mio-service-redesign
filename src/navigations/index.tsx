@@ -26,6 +26,9 @@ import VerifyEmail from "../screens/Auth/VerifyEmail";
 import { FLAG_TYPE, STATUS } from "../commons/status";
 import { StorageHelper } from "../services/storage-helper";
 import { useAnalytics } from "../services/analytics";
+import ChoosePlan from "../screens/Home/ChoosePlan";
+import ChooseDateTime from "../screens/Home/ChooseDateTime";
+import ChooseSchedule from "../screens/Home/ChooseSchedule";
 
 export type SuperRootStackParamList = {
   Welcome: {};
@@ -33,6 +36,9 @@ export type SuperRootStackParamList = {
   Login: {};
   Address: { returnTo: string };
   ChooseService: {};
+  ChoosePlan: { serviceId: string; mode: "CREATE" | "UPDATE" };
+  ChooseSchedule: {};
+  ChooseDateTime: { serviceId: string; mode: "CREATE" | "UPDATE" };
   ServiceDetails: {};
   EditServiceDetails: { serviceId: string; mode: "CREATE" | "UPDATE" };
   Payment: {};
@@ -122,6 +128,22 @@ const index = (): JSX.Element => {
             initialParams={{ returnTo: "" }}
           />
           <RootStack.Screen name="ChooseService" component={ChooseService} />
+          <RootStack.Screen
+            name="ChoosePlan"
+            component={ChoosePlan}
+            initialParams={{ serviceId: "", mode: "CREATE" }}
+            options={{
+              animation: "slide_from_bottom",
+            }}
+          />
+          <RootStack.Screen name="ChooseSchedule" component={ChooseSchedule} />
+          <RootStack.Screen
+            name="ChooseDateTime"
+            component={ChooseDateTime}
+            options={{
+              animation: "slide_from_bottom",
+            }}
+          />
           <RootStack.Screen name="ServiceDetails" component={ServiceDetails} />
           <RootStack.Screen
             name="EditServiceDetails"

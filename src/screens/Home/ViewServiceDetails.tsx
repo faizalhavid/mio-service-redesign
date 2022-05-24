@@ -1,24 +1,25 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Center, Divider, HStack, ScrollView, Text, VStack } from "native-base";
+import { Divider, HStack, ScrollView, Text, View, VStack } from "native-base";
 import React, { useEffect } from "react";
-import { SvgCss } from "react-native-svg";
-import { useMutation } from "react-query";
-import {
-  INFO_ICON,
-  CIRCLE_TICK_ICON,
-  CALENDAR_ICON,
-  CHAT_OUTLINE_ICON,
-} from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
-import { SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import { useAuth } from "../../contexts/AuthContext";
 import { SuperRootStackParamList } from "../../navigations";
-import { getCustomer } from "../../services/customer";
-import { getOrderDetails } from "../../services/order";
 import { getReadableDateTime } from "../../services/utils";
-import { SERVICES } from "./ChooseService";
-import { StorageHelper } from "../../services/storage-helper";
+import {
+  HOUSE_CLEANING_ID,
+  LAWN_CARE_ID,
+  PEST_CONTROL_ID,
+  POOL_CLEANING_ID,
+  SERVICES,
+} from "./ChooseService";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { selectCustomer } from "../../slices/customer-slice";
+import {
+  getOrderDetailsAsync,
+  selectOrderDetails,
+} from "../../slices/order-slice";
+import { IN_PROGRESS } from "../../commons/ui-states";
 
 type ViewServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
@@ -27,224 +28,224 @@ type ViewServiceDetailsProps = NativeStackScreenProps<
 const ViewServiceDetails = ({
   route,
 }: ViewServiceDetailsProps): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
   const { orderId, subOrderId } = route.params;
-  const [customerId, setCustomerId] = React.useState<string | null>(null);
 
-  const { customerProfile, setCustomerProfile } = useAuth();
+  const dispatch = useAppDispatch();
 
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setCustomerProfile(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  const {
+    uiState: customerUiState,
+    member: customer,
+    error: customerError,
+  } = useAppSelector(selectCustomer);
 
-  const fetchCustomerProfile = React.useCallback(async () => {
-    let cId = await StorageHelper.getValue("CUSTOMER_ID");
-    setCustomerId(cId);
-    await getCustomerMutation.mutateAsync();
-  }, []);
-
-  React.useEffect(() => {
-    fetchCustomerProfile();
-  }, [fetchCustomerProfile]);
-
-  const [orderDetail, setOrderDetail] = React.useState<SubOrder>(
-    {} as SubOrder
-  );
-  const getOrderDetailMutation = useMutation(
-    "getOrderDetailOrders",
-    () => {
-      setLoading(true);
-      return getOrderDetails(orderId, subOrderId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setOrderDetail(data.data);
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
+  const {
+    uiState: orderDetailUiState,
+    member: orderDetail,
+    error: orderDetailError,
+  } = useAppSelector(selectOrderDetails);
 
   useEffect(() => {
     if (orderId && subOrderId) {
-      getOrderDetailMutation.mutate();
+      dispatch(getOrderDetailsAsync({ orderId, subOrderId }));
     } else {
       return;
     }
   }, [orderId, subOrderId]);
 
-  return (
-    <AppSafeAreaView loading={loading}>
-      <ScrollView>
-        {orderDetail?.appointmentInfo?.appointmentDateTime && (
+  const Title = ({ text }: { text: string }): JSX.Element => {
+    return (
+      <Text color={AppColors.DARK_PRIMARY} letterSpacing={1} fontSize={12}>
+        {text}
+      </Text>
+    );
+  };
+
+  const ValueText = ({ text }: { text: string | number }): JSX.Element => {
+    return (
+      <Text
+        color={AppColors.SECONDARY}
+        textTransform={"uppercase"}
+        fontWeight={"semibold"}
+      >
+        {text}
+      </Text>
+    );
+  };
+
+  const OverviewCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <Title text="OVERVIEW" />
+        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
+
+        <VStack space={3}>
+          <View>
+            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+              SERVICE PROVIDER
+            </Text>
+            <ValueText text={"Mio Home Services"} />
+          </View>
+          <View>
+            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+              SERVICE TYPE
+            </Text>
+            <ValueText text={SERVICES[orderDetail?.serviceId]?.text} />
+          </View>
+
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                SCHEDULED DATE
+              </Text>
+              <ValueText
+                text={`${
+                  getReadableDateTime(
+                    orderDetail?.appointmentInfo?.appointmentDateTime
+                  ).month
+                } ${
+                  getReadableDateTime(
+                    orderDetail?.appointmentInfo?.appointmentDateTime
+                  ).date
+                }, ${
+                  getReadableDateTime(
+                    orderDetail?.appointmentInfo?.appointmentDateTime
+                  ).year
+                }`}
+              />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                TIME SLOT
+              </Text>
+              <ValueText
+                text={
+                  getReadableDateTime(
+                    orderDetail?.appointmentInfo?.appointmentDateTime
+                  ).slot
+                }
+              />
+            </VStack>
+          </HStack>
+        </VStack>
+      </VStack>
+    );
+  };
+
+  const ServiceDetailsCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <Title text="SERVICE DETAILS" />
+        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
+
+        <VStack space={3}>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                PLAN
+              </Text>
+              <ValueText text={orderDetail?.flags?.plan} />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                DURATION
+              </Text>
+              <ValueText text={orderDetail?.flags?.recurringDuration} />
+            </VStack>
+          </HStack>
           <VStack>
-            <Center mb={2}>
-              <Text fontSize={20}>Service Details</Text>
-            </Center>
-            <Divider thickness={0} mt={5} />
-            <Center bg={AppColors.PRIMARY} shadow={2} px={6} py={2}>
-              <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
-                Overview
-              </Text>
-            </Center>
-            <VStack
-              my={2}
-              mx={2}
-              py={2}
-              space={2}
-              borderWidth={1}
-              borderRadius={10}
-              borderColor={AppColors.PRIMARY}
-            >
-              <Center>
-                <Text
-                  color={AppColors.SECONDARY}
-                  fontSize={16}
-                  fontWeight={"semibold"}
-                >
-                  {SERVICES[orderDetail.serviceId].text}
-                </Text>
-                <Text color={AppColors.SECONDARY} fontSize={14}>
-                  {
-                    getReadableDateTime(
-                      orderDetail?.appointmentInfo?.appointmentDateTime
-                    ).all
-                  }
-                </Text>
-                <Divider thickness={0} mt={5} />
-                {customerProfile?.addresses &&
-                  customerProfile?.addresses.length > 0 && (
-                    <>
-                      <Text
-                        color={AppColors.SECONDARY}
-                        fontSize={16}
-                        fontWeight={"semibold"}
-                      >
-                        {customerProfile?.addresses[0]?.street}
-                      </Text>
-                      <Text color={AppColors.SECONDARY} fontSize={14}>
-                        {customerProfile?.addresses[0]?.city},{" "}
-                        {customerProfile?.addresses[0]?.state}{" "}
-                        {customerProfile?.addresses[0]?.zip}
-                      </Text>
-                    </>
-                  )}
-              </Center>
-            </VStack>
-            <Center bg={AppColors.PRIMARY} shadow={2} px={6} py={2}>
-              <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
-                Service Provider
-              </Text>
-            </Center>
-            <VStack
-              my={2}
-              mx={2}
-              py={2}
-              space={2}
-              borderWidth={1}
-              borderRadius={10}
-              borderColor={AppColors.PRIMARY}
-            >
-              <Center>
-                <Text
-                  fontSize={16}
-                  color={AppColors.SECONDARY}
-                  fontWeight={"semibold"}
-                >
-                  Mio Home Services
-                </Text>
-                {/* <Text fontSize={14}>Jay's Green Lawns</Text>
-              <Divider thickness={0} mt={5} />
-              <Text fontSize={14}>12115 West Airport Blvd,</Text>
-              <Text fontSize={14}>Sugar Land, Texas 77404</Text>
-              <Text fontSize={14}>000-000-0000</Text>
-              <Text fontSize={14}>name@email.com</Text> */}
-              </Center>
-            </VStack>
-            <Center bg={AppColors.PRIMARY} shadow={2} px={6} py={2}>
-              <Text fontWeight={"semibold"} color={AppColors.SECONDARY}>
-                Service Details
-              </Text>
-            </Center>
-            <VStack
-              my={2}
-              mx={2}
-              space={2}
-              borderWidth={1}
-              py={3}
-              borderRadius={10}
-              borderColor={AppColors.PRIMARY}
-            >
-              {orderDetail.serviceId === "lawnCare" && (
-                <HStack space={2} alignItems={"center"} pl={3}>
-                  <SvgCss xml={INFO_ICON} width={20} height={20} />
-                  <Text color={AppColors.SECONDARY} fontSize={14}>
-                    {orderDetail.area + " Sq. Ft."}
-                  </Text>
-                </HStack>
-              )}
-              {orderDetail.serviceId === "houseCleaning" && (
-                <HStack space={2} alignItems={"center"} pl={3}>
-                  <SvgCss xml={INFO_ICON} width={20} height={20} />
-                  <Text color={AppColors.SECONDARY} fontSize={14}>
-                    Bedroom - {orderDetail.bedrooms} | Bathrooms -{" "}
-                    {orderDetail.bathrooms}
-                  </Text>
-                </HStack>
-              )}
-              <HStack space={2} alignItems={"center"} pl={3}>
-                <SvgCss xml={CIRCLE_TICK_ICON} width={20} height={20} />
-                <Text color={AppColors.SECONDARY} fontSize={14}>
-                  ${orderDetail?.servicePrice.cost}{" "}
-                  <Text textTransform={"capitalize"}>
-                    {orderDetail?.flags?.recurringDuration}
-                    {orderDetail?.flags?.isRecurring ? " - Recurring" : ""}
-                  </Text>
-                </Text>
-              </HStack>
-              <HStack space={2} alignItems={"center"} pl={3}>
-                <SvgCss
-                  xml={CALENDAR_ICON(AppColors.SECONDARY)}
-                  width={20}
-                  height={20}
-                />
-                <Text color={AppColors.SECONDARY} fontSize={14}>
-                  {
-                    getReadableDateTime(
-                      orderDetail?.appointmentInfo?.appointmentDateTime
-                    ).all
-                  }
-                </Text>
-              </HStack>
-              <HStack space={2} alignItems={"center"} pl={3}>
-                <SvgCss
-                  xml={CHAT_OUTLINE_ICON(AppColors.SECONDARY)}
-                  width={20}
-                  height={20}
-                />
-                <Text color={AppColors.SECONDARY} fontSize={14}>
-                  {orderDetail?.serviceNotes[0]}
-                </Text>
-              </HStack>
-            </VStack>
-            <Divider thickness={0} mt={150} />
+            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+              PROPERTY DETAILS
+            </Text>
+            {orderDetail.serviceId === LAWN_CARE_ID && (
+              <ValueText text={`${orderDetail.area} SQFT (AREA)`} />
+            )}
+            {orderDetail.serviceId === HOUSE_CLEANING_ID && (
+              <ValueText
+                text={`${orderDetail.bedrooms} (BEDROOM) | 
+                ${orderDetail.bathrooms} (BATHROOM)`}
+              />
+            )}
+            {orderDetail.serviceId === PEST_CONTROL_ID && (
+              <ValueText
+                text={`${customer?.addresses[0]?.houseInfo?.pestType?.join(
+                  ", "
+                )} (PEST TYPE)`}
+              />
+            )}
+            {orderDetail.serviceId === POOL_CLEANING_ID && (
+              <ValueText
+                text={`${customer?.addresses[0]?.houseInfo?.swimmingPoolType} (POOL TYPE)`}
+              />
+            )}
           </VStack>
-        )}
+          <View>
+            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+              SERVICE NOTES
+            </Text>
+            <ValueText
+              text={
+                orderDetail?.serviceNotes?.length > 0
+                  ? orderDetail?.serviceNotes[0]
+                  : "-"
+              }
+            />
+          </View>
+        </VStack>
+      </VStack>
+    );
+  };
+
+  const AddressCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <Title text="ADDRESS" />
+        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
+
+        <VStack space={3}>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                STREET
+              </Text>
+              <ValueText text={customer?.addresses[0]?.street} />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                CITY
+              </Text>
+              <ValueText text={customer?.addresses[0]?.city} />
+            </VStack>
+          </HStack>
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                STATE
+              </Text>
+              <ValueText text={customer?.addresses[0]?.state} />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                ZIP
+              </Text>
+              <ValueText text={customer?.addresses[0]?.zip} />
+            </VStack>
+          </HStack>
+        </VStack>
+      </VStack>
+    );
+  };
+
+  return (
+    <AppSafeAreaView
+      bg={AppColors.EEE}
+      loading={[customerUiState].indexOf(IN_PROGRESS) > 0}
+    >
+      <ScrollView mt={"1/5"}>
+        <VStack space={3}>
+          <OverviewCard />
+          <ServiceDetailsCard />
+          <AddressCard />
+        </VStack>
       </ScrollView>
     </AppSafeAreaView>
   );

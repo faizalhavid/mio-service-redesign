@@ -3,7 +3,7 @@ import {
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Icon } from "native-base";
+import { Text } from "native-base";
 import React from "react";
 import { SvgCss } from "react-native-svg";
 import { HOME_ICON, PROFILE_ICON, SERVICES_ICON } from "../commons/assets";
@@ -12,7 +12,6 @@ import { TabBarComponent } from "../components/BottomTabBar";
 import Home from "../screens/Dashboard/Home";
 import Profile from "../screens/Dashboard/Profile";
 import Services from "../screens/Dashboard/Services";
-import PersonalDetails from "../screens/Home/PersonalDetails";
 
 export type DashboardTabParamList = {
   Home: undefined;
@@ -68,33 +67,47 @@ const DashboardTab = () => {
   const tabBarOptions: BottomTabNavigationOptions = {
     tabBarShowLabel: true,
   };
+
   return (
     <Tab.Navigator
       tabBar={TabBarComponent}
       screenOptions={{
         tabBarStyle: {
           height: 75,
-          paddingBottom: 0,
-          borderRightWidth: 1,
-          borderRightColor: "#fff",
-          backgroundColor: AppColors.DARK_TEAL,
+          paddingBottom: 10,
+          // borderRightWidth: 1,
+          // borderRightColor: "#fff",
+          // backgroundColor: AppColors.DARK_TEAL,
         },
-        tabBarActiveTintColor: "#fff",
+        // tabBarActiveTintColor: "#fff",
         tabBarIconStyle: {
-          marginTop: 10,
+          marginBottom: -20,
         },
         tabBarLabelStyle: {
-          color: "#fff",
-          fontSize: 12,
-          paddingBottom: 10,
+          marginTop: 20,
+          // marginBottom: 20,
         },
-        tabBarActiveBackgroundColor: AppColors.TEAL,
+        // tabBarActiveBackgroundColor: AppColors.TEAL,
       }}
       initialRouteName="Home"
     >
       <Tab.Screen
         options={{
-          tabBarIcon: ({ focused }) => <SvgCss width={40} xml={HOME_ICON} />,
+          tabBarIcon: ({ focused }) => (
+            <SvgCss
+              width={25}
+              xml={HOME_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
+            />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              mt={1}
+              color={focused ? AppColors.TEAL : AppColors.AAA}
+              fontWeight="semibold"
+            >
+              Home
+            </Text>
+          ),
         }}
         component={HomeStack}
         name="Home"
@@ -102,7 +115,19 @@ const DashboardTab = () => {
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused }) => (
-            <SvgCss width={40} xml={SERVICES_ICON} />
+            <SvgCss
+              width={25}
+              xml={SERVICES_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
+            />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              mt={1}
+              color={focused ? AppColors.TEAL : AppColors.AAA}
+              fontWeight="semibold"
+            >
+              Services
+            </Text>
           ),
         }}
         component={ServicesStack}
@@ -110,7 +135,21 @@ const DashboardTab = () => {
       />
       <Tab.Screen
         options={{
-          tabBarIcon: ({ focused }) => <SvgCss width={40} xml={PROFILE_ICON} />,
+          tabBarIcon: ({ focused }) => (
+            <SvgCss
+              width={25}
+              xml={PROFILE_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
+            />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              mt={1}
+              color={focused ? AppColors.TEAL : AppColors.AAA}
+              fontWeight="semibold"
+            >
+              Profile
+            </Text>
+          ),
         }}
         component={ProfileStack}
         name="Profile"

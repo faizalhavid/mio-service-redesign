@@ -1,20 +1,8 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
 import React, { useEffect } from "react";
 import { useColorScheme } from "react-native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RootStackNavigation from "./src/navigations";
 import { extendTheme, NativeBaseProvider } from "native-base";
 import { LogBox } from "react-native";
-import { QueryClient, QueryClientProvider } from "react-query";
 import "@react-native-firebase/app";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -23,12 +11,16 @@ import { ENV } from "./src/commons/environment";
 import codePush, { CodePushOptions } from "react-native-code-push";
 import CodePush from "react-native-code-push";
 import { StorageHelper } from "./src/services/storage-helper";
+import { Provider } from "react-redux";
+import { store } from "./src/stores";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
 if (__DEV__) {
-  //   auth().useEmulator("http://192.168.0.248:9099");
-  import("./ReactotronConfig").then(() => console.log("Reactotron Configured"));
+  // firebase.auth().useEmulator("http://192.168.0.248:9099");
+  import("./ReactotronConfig").then(() => {
+    // console.log("Reactotron Configured")
+  });
 }
 
 firebase.appCheck().activate("com.miohomeservices.customer", true);
@@ -44,31 +36,34 @@ const App = () => {
     },
   });
 
-  const queryClient = new QueryClient();
-
   useEffect(() => {
-    CodePush.checkForUpdate().then((value) => {
-      if (value) {
-        StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
-      } else {
-        StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
-      }
-    });
+    // PROD_CONFIG
+    if (!__DEV__) {
+      CodePush.checkForUpdate().then((value) => {
+        if (value) {
+          StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
+        } else {
+          StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
+        }
+      });
+    }
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
       <NativeBaseProvider theme={customTheme}>
         <AuthProvider>
           <RootStackNavigation />
         </AuthProvider>
       </NativeBaseProvider>
-    </QueryClientProvider>
+    </Provider>
   );
 };
 
 const codePushOptions: CodePushOptions = {
   installMode: codePush.InstallMode.ON_NEXT_RESTART,
-  checkFrequency: codePush.CheckFrequency.ON_APP_START,
+  checkFrequency: !__DEV__
+    ? codePush.CheckFrequency.ON_APP_START
+    : codePush.CheckFrequency.MANUAL,
 };
 export default codePush(codePushOptions)(App);

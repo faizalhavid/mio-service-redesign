@@ -1,7 +1,7 @@
 import React from "react";
 import auth, { firebase, FirebaseAuthTypes } from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LeadDetails } from "../commons/types";
+import { HouseInfo, LeadDetails } from "../commons/types";
 import { navigate } from "../navigations/rootNavigation";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import appleAuth from "@invertase/react-native-apple-authentication";
@@ -23,11 +23,8 @@ export type Address = {
   city: string;
   state: string;
   zip: string;
-  houseInfo?: {
-    bathrooms?: number;
-    bedrooms?: number;
-    lotSize?: number;
-  };
+  googlePlaceId: string;
+  houseInfo?: HouseInfo;
 };
 
 export type CreditCard = {
@@ -116,6 +113,7 @@ export let dummyProfile: CustomerProfile = {
       city: "",
       state: "",
       zip: "",
+      googlePlaceId: "",
     },
   ],
   preferences: {
@@ -145,7 +143,7 @@ export function AuthProvider({ children }: AuthProviderType) {
   async function signup(data: RegisterForm): Promise<any> {
     return new Promise(async (resolve, reject) => {
       auth()
-        .createUserWithEmailAndPassword(data.email, data.password)
+        .createUserWithEmailAndPassword(data.email.trim(), data.password)
         .then(async (credential) => {
           setCurrentUser(credential.user);
           await credential.user.sendEmailVerification({

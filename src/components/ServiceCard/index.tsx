@@ -1,11 +1,22 @@
-import { Button, Divider, HStack, Pressable, Text, VStack } from "native-base";
-import React from "react";
+import {
+  Box,
+  Button,
+  Divider,
+  HStack,
+  Pressable,
+  Text,
+  View,
+  VStack,
+} from "native-base";
+import React, { memo } from "react";
 import { Linking } from "react-native";
-import { SvgCss } from "react-native-svg";
+import { LinearGradient, SvgCss } from "react-native-svg";
 import {
   ADD_CALENDAR_ICON,
   ADD_RESCHEDULE_ICON,
+  BOX_ARROW_RIGHT_ICON,
   CHAT_ICON,
+  CHEVRON_RIGHT_ICON,
   RESCHEDULE_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
@@ -24,6 +35,7 @@ type ServiceCardProps = {
   serviceName: string;
   date: string;
   day: string;
+  month?: string;
   slot: string;
   year: string;
   orderId: string;
@@ -41,6 +53,7 @@ const ServiceCard = ({
   serviceName,
   date,
   day,
+  month,
   slot,
   year,
   orderId,
@@ -59,185 +72,283 @@ const ServiceCard = ({
     <Pressable
       onPress={() => navigate("ViewServiceDetails", { orderId, subOrderId })}
     >
-      <VStack
-        paddingY={4}
-        paddingX={5}
-        mt={5}
-        borderRadius={20}
-        borderWidth={borderWidth}
-        borderColor={outlineColor}
-        bg={bg}
-        shadow={3}
-        width={width}
-      >
+      <VStack>
         {isOutline ? (
           <>
-            <Text fontWeight={"semibold"} fontSize={18} color={"#000"}>
-              {serviceName} Service
-            </Text>
-            <Text fontSize={14} color={"#000"}>
-              {date}, {slot}
-            </Text>
-            {showAddToCalendar && (
-              <Divider color={AppColors.TEAL} thickness={1} marginY={3} />
-            )}
-            <HStack space={3} justifyContent="space-between">
-              {showAddToCalendar && (
-                <Button
-                  padding={0}
-                  variant={"ghost"}
-                  onPress={() => {
-                    addToCalendar(serviceName, dateTime);
-                  }}
-                >
-                  <HStack
-                    space={2}
-                    alignItems={"center"}
-                    justifyContent={"center"}
-                  >
-                    <SvgCss xml={ADD_CALENDAR_ICON()} />
-                    <Text
-                      fontWeight={"bold"}
-                      fontSize={14}
-                      color={AppColors.PRIMARY}
-                    >
-                      Add
-                    </Text>
-                  </HStack>
-                </Button>
-              )}
-              {showReschedule && (
-                <Button
-                  padding={0}
-                  variant={"ghost"}
-                  onPress={() => {
-                    setShowRescheduleSheet(true);
-                  }}
-                >
-                  <HStack
-                    space={2}
-                    alignItems={"center"}
-                    justifyContent={"center"}
-                  >
-                    <SvgCss xml={ADD_RESCHEDULE_ICON()} />
-                    <Text
-                      fontWeight={"bold"}
-                      fontSize={14}
-                      color={AppColors.PRIMARY}
-                    >
-                      Reschedule
-                    </Text>
-                  </HStack>
-                </Button>
-              )}
-              {showChat && (
-                <Button
-                  padding={0}
-                  variant={"ghost"}
-                  onPress={() => {
-                    Linking.openURL(
-                      `mailto:support@miohomeservices.com?subject=[${orderId}] Service Notes&body=Hi, \n\n Order ID: ${orderId} \n Service Name: ${serviceName} \n\n Service Note: \n`
-                    );
-                  }}
-                >
-                  <HStack
-                    space={2}
-                    alignItems={"center"}
-                    justifyContent={"center"}
-                  >
-                    <SvgCss width={15} height={15} xml={CHAT_ICON()} />
-                    <Text
-                      fontWeight={"bold"}
-                      fontSize={14}
-                      color={AppColors.PRIMARY}
-                    >
-                      Note
-                    </Text>
-                  </HStack>
-                </Button>
-              )}
-              {!showAddToCalendar && !showReschedule && !showChat && (
-                <Button
-                  mt={3}
-                  px={3}
-                  py={1}
-                  borderWidth={1}
-                  borderColor={AppColors.TEAL}
-                  variant={"outline"}
-                  onPress={() => {
-                    navigate("ViewServiceDetails", { orderId, subOrderId });
-                  }}
+            <HStack
+              bg={"white"}
+              borderWidth={1}
+              borderColor="white"
+              justifyContent={"space-between"}
+              p={3}
+              borderTopRadius={10}
+              borderBottomRadius={showAddToCalendar ? 0 : 10}
+            >
+              <HStack>
+                <VStack
+                  alignItems={"center"}
+                  borderRadius={10}
+                  bg={AppColors.LIGHT_TEAL}
+                  px={5}
+                  py={2}
                 >
                   <Text
-                    fontWeight={"bold"}
+                    fontSize={12}
+                    color={AppColors.SECONDARY}
+                    textTransform="uppercase"
+                    fontWeight={"semibold"}
+                  >
+                    {day?.substring(0, 3)}
+                  </Text>
+                  <Text
+                    fontSize={16}
+                    color={AppColors.SECONDARY}
+                    fontWeight={"semibold"}
+                  >
+                    {date}
+                  </Text>
+                </VStack>
+                <VStack pl={3}>
+                  <Text
+                    fontSize={16}
+                    color={AppColors.SECONDARY}
+                    fontWeight={"semibold"}
+                  >
+                    {serviceName} Service
+                  </Text>
+                  <Text
+                    fontSize={14}
+                    fontWeight="semibold"
+                    color={AppColors.AAA}
+                  >
+                    {slot}
+                  </Text>
+                </VStack>
+              </HStack>
+              <SvgCss
+                style={{ marginTop: 8 }}
+                xml={CHEVRON_RIGHT_ICON(AppColors.TEAL)}
+              />
+            </HStack>
+            {showAddToCalendar && (
+              <HStack
+                borderTopWidth={1}
+                borderTopColor={AppColors.EEE}
+                borderBottomRadius={10}
+                px={4}
+                pt={3}
+                pb={1}
+                justifyContent="space-between"
+                bg={"white"}
+              >
+                {showAddToCalendar && (
+                  <Text
                     fontSize={14}
                     color={AppColors.TEAL}
+                    fontWeight={"semibold"}
+                    onPress={() => {
+                      addToCalendar(serviceName, dateTime);
+                    }}
                   >
-                    Details
+                    <HStack space={2} alignItems={"center"}>
+                      <SvgCss
+                        width={15}
+                        xml={ADD_CALENDAR_ICON(AppColors.TEAL)}
+                      />
+                      <Text
+                        fontWeight={"bold"}
+                        fontSize={14}
+                        color={AppColors.TEAL}
+                      >
+                        Calendar
+                      </Text>
+                    </HStack>
                   </Text>
-                </Button>
-              )}
-            </HStack>
+                )}
+                {showReschedule && (
+                  <Text
+                    fontSize={14}
+                    color={AppColors.TEAL}
+                    fontWeight={"semibold"}
+                    onPress={() => {
+                      setShowRescheduleSheet(true);
+                    }}
+                  >
+                    <HStack space={2} alignItems={"center"}>
+                      <SvgCss
+                        width={15}
+                        xml={ADD_RESCHEDULE_ICON(AppColors.TEAL)}
+                      />
+                      <Text
+                        fontWeight={"bold"}
+                        fontSize={14}
+                        color={AppColors.TEAL}
+                      >
+                        Reschedule
+                      </Text>
+                    </HStack>
+                  </Text>
+                )}
+                {showChat && (
+                  <Text
+                    fontSize={14}
+                    color={AppColors.TEAL}
+                    fontWeight={"semibold"}
+                    onPress={() => {
+                      Linking.openURL(
+                        `mailto:support@miohomeservices.com?subject=[${orderId}] Service Notes&body=Hi, \n\n Order ID: ${orderId} \n Service Name: ${serviceName} \n\n Service Note: \n`
+                      );
+                    }}
+                  >
+                    <HStack space={2} alignItems={"center"}>
+                      <SvgCss width={15} xml={CHAT_ICON(AppColors.TEAL)} />
+                      <Text
+                        fontWeight={"bold"}
+                        fontSize={14}
+                        color={AppColors.TEAL}
+                      >
+                        Note
+                      </Text>
+                    </HStack>
+                  </Text>
+                )}
+              </HStack>
+            )}
           </>
         ) : (
           <>
-            {showWelcomeMessage && (
-              <Text fontSize={16} color={textColor}>
-                Your {serviceName} Service is scheduled for
-              </Text>
-            )}
-            <Text fontSize={28} color={textColor}>
-              {day}
-            </Text>
-            <Text fontSize={28} color={textColor}>
-              {date}, {year}
-            </Text>
-            {showAddToCalendar && <Divider thickness={1} marginY={3} />}
-            <HStack space={3}>
-              {showAddToCalendar && (
-                <Button
-                  variant={"outline"}
-                  borderRadius={5}
-                  borderColor="white"
-                  bg="white"
-                  width={"45%"}
-                  onPress={() => {
-                    addToCalendar(serviceName, dateTime);
-                  }}
-                >
-                  <Text fontWeight={"bold"} fontSize={14} color={"#000"}>
-                    Add to calendar
-                  </Text>
-                </Button>
-              )}
-              {showReschedule && (
-                <Button
-                  variant={"outline"}
-                  borderRadius={5}
-                  borderColor="white"
-                  width={"40%"}
-                  onPress={() => {
-                    setShowRescheduleSheet(true);
-                  }}
-                >
-                  <Text fontSize={14} color={"#fff"}>
-                    Reschedule
-                  </Text>
-                </Button>
-              )}
-              {showChat && (
-                <HStack
-                  space={1}
-                  alignItems={"center"}
-                  justifyContent={"center"}
-                >
-                  <SvgCss width={15} height={15} xml={CHAT_ICON(textColor)} />
-                  <Text fontSize={12} color={textColor}>
-                    Chat
-                  </Text>
+            <VStack
+              borderTopRadius={10}
+              borderTopWidth={1}
+              borderColor={AppColors.TEAL}
+              borderLeftWidth={1}
+              borderRightWidth={1}
+              borderBottomRadius={showAddToCalendar ? 0 : 10}
+              bg={AppColors.LIGHT_TEAL}
+            >
+              <View px={3} py={2} bg={AppColors.TEAL} borderTopRadius={10}>
+                <Text fontSize={14} fontWeight="semibold" color={"white"}>
+                  Your next service on {month} {date}
+                </Text>
+              </View>
+              <HStack
+                // borderWidth={1}
+                borderColor="white"
+                justifyContent={"space-between"}
+                p={3}
+              >
+                <HStack>
+                  <VStack pl={3}>
+                    <Text
+                      fontSize={16}
+                      color={AppColors.SECONDARY}
+                      fontWeight={"semibold"}
+                    >
+                      {serviceName} Service
+                    </Text>
+                    <Text
+                      fontSize={14}
+                      fontWeight="semibold"
+                      color={AppColors.DARK_TEAL}
+                    >
+                      {day}, {slot}
+                    </Text>
+                  </VStack>
                 </HStack>
-              )}
-            </HStack>
+                <SvgCss
+                  style={{ marginTop: 8 }}
+                  xml={CHEVRON_RIGHT_ICON(AppColors.TEAL)}
+                />
+              </HStack>
+            </VStack>
+            {showAddToCalendar && (
+              <HStack
+                borderTopWidth={1}
+                borderTopColor={AppColors.EEE}
+                borderBottomRadius={10}
+                px={4}
+                pt={3}
+                pb={1}
+                borderColor={AppColors.TEAL}
+                borderLeftWidth={1}
+                borderRightWidth={1}
+                borderBottomWidth={1}
+                justifyContent="space-between"
+                bg={"white"}
+              >
+                {showAddToCalendar && (
+                  <Text
+                    fontSize={14}
+                    color={AppColors.TEAL}
+                    fontWeight={"semibold"}
+                    onPress={() => {
+                      addToCalendar(serviceName, dateTime);
+                    }}
+                  >
+                    <HStack space={2} alignItems={"center"}>
+                      <SvgCss
+                        width={15}
+                        xml={ADD_CALENDAR_ICON(AppColors.TEAL)}
+                      />
+                      <Text
+                        fontWeight={"bold"}
+                        fontSize={14}
+                        color={AppColors.TEAL}
+                      >
+                        Calendar
+                      </Text>
+                    </HStack>
+                  </Text>
+                )}
+                {showReschedule && (
+                  <Text
+                    fontSize={14}
+                    color={AppColors.TEAL}
+                    fontWeight={"semibold"}
+                    onPress={() => {
+                      setShowRescheduleSheet(true);
+                    }}
+                  >
+                    <HStack space={2} alignItems={"center"}>
+                      <SvgCss
+                        width={15}
+                        xml={ADD_RESCHEDULE_ICON(AppColors.TEAL)}
+                      />
+                      <Text
+                        fontWeight={"bold"}
+                        fontSize={14}
+                        color={AppColors.TEAL}
+                      >
+                        Reschedule
+                      </Text>
+                    </HStack>
+                  </Text>
+                )}
+                {showChat && (
+                  <Text
+                    fontSize={14}
+                    color={AppColors.TEAL}
+                    fontWeight={"semibold"}
+                    onPress={() => {
+                      Linking.openURL(
+                        `mailto:support@miohomeservices.com?subject=[${orderId}] Service Notes&body=Hi, \n\n Order ID: ${orderId} \n Service Name: ${serviceName} \n\n Service Note: \n`
+                      );
+                    }}
+                  >
+                    <HStack space={2} alignItems={"center"}>
+                      <SvgCss width={15} xml={CHAT_ICON(AppColors.TEAL)} />
+                      <Text
+                        fontWeight={"bold"}
+                        fontSize={14}
+                        color={AppColors.TEAL}
+                      >
+                        Note
+                      </Text>
+                    </HStack>
+                  </Text>
+                )}
+              </HStack>
+            )}
           </>
         )}
       </VStack>
@@ -251,4 +362,4 @@ const ServiceCard = ({
   );
 };
 
-export default ServiceCard;
+export default memo(ServiceCard);

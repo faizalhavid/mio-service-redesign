@@ -1,40 +1,24 @@
-import { Button, Center, Text, View, VStack } from "native-base";
+import {
+  Alert,
+  Button,
+  Center,
+  Pressable,
+  Text,
+  Toast,
+  View,
+  VStack,
+} from "native-base";
 import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
-import { useMutation } from "react-query";
 import { EXCLAMATION_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { useAuth } from "../../contexts/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getCustomer } from "../../services/customer";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
-import { StorageHelper } from "../../services/storage-helper";
+import { navigate } from "../../navigations/rootNavigation";
 
 const VerifyEmail = (): JSX.Element => {
-  const [loading, setLoading] = React.useState(false);
-  const [customerId, setCustomerId] = React.useState(null);
-  StorageHelper.getValue("CUSTOMER_ID").then((value: any) => {
-    setCustomerId(value);
-  });
-  const getCustomerMutation = useMutation(
-    "getCustomer",
-    () => {
-      setLoading(true);
-      return getCustomer(customerId);
-    },
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        popToPop("Address");
-      },
-      onError: (err) => {
-        setLoading(false);
-      },
-    }
-  );
-  const { currentUser, reload, resendEmail } = useAuth();
+  const { currentUser, resendEmail } = useAuth();
 
   useEffect(() => {
     if (currentUser) {
@@ -64,27 +48,34 @@ const VerifyEmail = (): JSX.Element => {
             color={AppColors.SECONDARY}
             fontWeight="semibold"
           >
-            Please check your mail inbox and click on the email verification
-            link. {"\n"}
-            Login once mail verification is completed.
+            Please click on the email verification link sent to mail. {"\n"}
+          </Text>
+
+          <Text color={AppColors.SECONDARY}>
+            Not received verification link?{" "}
+            <Text
+              onPress={async () => {
+                Toast.show({ title: "Verification Mail Sent!" });
+                await resendEmail();
+              }}
+              fontWeight={"semibold"}
+              color={AppColors.TEAL}
+            >
+              Send again
+            </Text>
           </Text>
           <Button
             mt={10}
-            colorScheme={"blue"}
-            variant={"ghost"}
-            onPress={async () => {
-              await resendEmail();
-            }}
+            w="xs"
+            height={50}
+            bg={AppColors.TEAL}
+            _text={{ color: "white" }}
+            onPress={() => navigate("Login")}
           >
-            Resend Mail
+            LOGIN
           </Button>
         </Center>
       </VStack>
-      <FooterButton
-        label={"Login"}
-        subText="Provide address in next step"
-        onPress={() => navigate("Login")}
-      />
     </AppSafeAreaView>
   );
 };

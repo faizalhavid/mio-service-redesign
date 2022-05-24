@@ -1,18 +1,20 @@
+import * as uiStates from "../commons/ui-states";
 export interface HouseInfo {
-  bedrooms: string;
-  bathrooms: string;
-  stories: string;
-  builtArea: number;
-  lotSize: number;
-  lotSizeUnit: string;
-  builtAreaUnit: string;
-  swimmingPool: boolean;
-  swimmingPoolSize: number;
-  swimmingPoolSizeUnit: string;
-  swimmingPoolType: string;
-  type: string;
-  rmId: string;
-  totalrooms: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  stories?: string;
+  builtArea?: number;
+  lotSize?: number;
+  lotSizeUnit?: string;
+  builtAreaUnit?: string;
+  swimmingPool?: boolean;
+  swimmingPoolSize?: number;
+  swimmingPoolSizeUnit?: string;
+  swimmingPoolType?: string;
+  pestType?: string[];
+  type?: string;
+  rmId?: string;
+  totalrooms?: string;
 }
 
 export interface FormattedAddress {
@@ -45,14 +47,15 @@ export interface PriceMap {
   bathrooms: number;
   bedrooms: number;
   duration: number;
+  plan: string;
   pricePerWeek: string;
   pricePer2Weeks: string;
   pricePerMonth: string;
   pricePerOnetime: string;
   rangeMin?: number;
   rangeMax?: number;
-  serviceId: number;
-  pricePerQuarterly?: number;
+  serviceId: string;
+  pricePerQuarterly: string;
 }
 
 export interface ServiceTask {
@@ -86,6 +89,20 @@ export interface Service {
   dashboardTextTitle: string;
 }
 
+// Order
+
+export type Order = {
+  orderId: string;
+  subOrderId: string;
+  appointmentDateTime: string;
+  serviceId: string;
+};
+
+export type GroupedOrder = {
+  month: string;
+  data: Order[];
+};
+
 // Lead
 
 export interface CustomerProfile {
@@ -96,12 +113,6 @@ export interface CustomerProfile {
   nva?: any;
   addresses: any[];
   phoneNumbers: any[];
-}
-
-export interface MetaData {
-  createdAt: Date;
-  modifiedAt: Date;
-  notes: any[];
 }
 
 export interface CreditCard {
@@ -119,6 +130,7 @@ export interface PromoCode {
 }
 
 export interface Flags2 {
+  plan: string;
   isRecurring: boolean;
   isCompleted: boolean;
   paymentStatus: string;
@@ -167,21 +179,86 @@ export interface SubOrder {
   serviceId: string;
   selectedAddons: any[];
   flags: Flags2;
-  area?: string;
-  bedrooms?: string;
-  bathrooms?: string;
+  area?: number;
+  bedrooms?: number;
+  bathrooms?: number;
   servicePrice: ServicePrice;
   chargeResponse: ChargeResponse;
   serviceNotes: string[];
   appointmentInfo: AppointmentInfo;
 }
 
-export interface LeadDetails {
+export type LeadDetails = {
   leadId: string;
   customerProfile: CustomerProfile;
-  metaData: MetaData;
   creditCard: CreditCard;
   flags: Flags;
   promoCode: PromoCode;
   subOrders: SubOrder[];
+};
+
+// State
+
+export type UiStateType = typeof uiStates[keyof typeof uiStates];
+export interface CommonState<T> {
+  collection: T[];
+  member: T;
+  uiState: UiStateType;
+  error: any;
 }
+
+export interface PaginatedOrder {
+  data: Order[];
+  total: number;
+  message: any;
+}
+
+export interface Option {
+  label: string;
+  code: string;
+}
+
+export interface PlanOption {
+  label: string;
+  cost: number;
+  selected: boolean;
+}
+
+export type SaveCardType = {
+  name: string;
+  number: string;
+  expiry: string;
+  expMonth: string;
+  expYear: string;
+  cvc: string;
+};
+
+export type CvcVerification = {
+  result: string;
+  date: Date;
+};
+
+export type ZeroDollarVerification = {
+  status: string;
+};
+
+export type Card = {
+  id: string;
+  number: string;
+  name: string;
+  created: Date;
+  updated: Date;
+  entityVersion: string;
+  cvcVerification: CvcVerification;
+  cardType: string;
+  entityId: string;
+  entityType: string;
+  numberSHA512: string;
+  status: string;
+  zeroDollarVerification: ZeroDollarVerification;
+  expMonth: string;
+  expYear: string;
+  default: boolean;
+  isBusiness: boolean;
+  isLevel3Eligible: boolean;
+};
