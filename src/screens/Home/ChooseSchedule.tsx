@@ -37,7 +37,7 @@ const ChooseSchedule = (): JSX.Element => {
 
   return (
     <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS"}>
-      <VStack mt={3} space={5}>
+      <VStack mt={"1/5"} space={5}>
         <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
           Choose Schedule
         </Text>

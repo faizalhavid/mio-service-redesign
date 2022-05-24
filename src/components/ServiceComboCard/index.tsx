@@ -77,6 +77,7 @@ const ServiceComboCard = ({
         fontWeight={"semibold"}
         fontSize={11}
         px={2}
+        mb={1}
       >
         {name}
       </Text>

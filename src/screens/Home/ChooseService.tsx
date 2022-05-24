@@ -122,7 +122,7 @@ const ChooseService = (): JSX.Element => {
         0
       }
     >
-      <VStack mt={3} space={5}>
+      <VStack mt={"1/5"} space={5}>
         <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
           Choose Service
         </Text>
