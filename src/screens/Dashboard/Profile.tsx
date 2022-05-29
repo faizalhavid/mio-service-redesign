@@ -31,6 +31,7 @@ import {
   AddressMode,
 } from "../../components/AddressBottomSheet";
 import { PersonalDetailsBottomSheet } from "../../components/PersonalDetailsBottomSheet";
+import { Alert } from "react-native";
 
 const Profile = (): JSX.Element => {
   const { logout } = useAuth();
@@ -321,8 +322,21 @@ const Profile = (): JSX.Element => {
     return (
       <Pressable
         onPress={async () => {
-          await logout();
-          navigate("Welcome");
+          Alert.alert("Would you like to logout?", "", [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel",
+            },
+            {
+              text: "Logout",
+              style: "destructive",
+              onPress: async () => {
+                await logout();
+                navigate("Welcome");
+              },
+            },
+          ]);
         }}
         bg={"white"}
         mx={3}

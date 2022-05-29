@@ -216,25 +216,25 @@ const Register = (): JSX.Element => {
         uiState: IN_PROGRESS,
       })
     );
+    let payload: CustomerProfile = {
+      ...dummyProfile,
+      ...data,
+      phones: [
+        {
+          ...({} as Phone),
+          number: data.phone,
+        },
+      ],
+      customerId: data.email,
+    };
     if (socialLoginCompleted) {
-      let payload: CustomerProfile = {
-        ...dummyProfile,
-        ...data,
-        phones: [
-          {
-            ...({} as Phone),
-            number: data.phone,
-          },
-        ],
-        customerId: data.email,
-      };
       registerCustomer(payload);
       return;
     }
     logEvent("signup_email_event");
 
     signup(data)
-      .then((payload) => {
+      .then((response) => {
         registerCustomer(payload);
       })
       .catch((error) => {

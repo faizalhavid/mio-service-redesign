@@ -13,6 +13,7 @@ type FooterButtonProps = {
     | "PLAN_SELECTION"
     | "SCHEDULE_SELECTION"
     | "DATETIME_SELECTION"
+    | "VIEW_SUMMARY"
     | "ADDRESS"
     | "DEFAULT";
   label?: string;
@@ -42,7 +43,9 @@ const FooterButton = ({
   const { member: customer } = useAppSelector(selectCustomer);
   return (
     <VStack position={"absolute"} bg={"#fff"} bottom={0} width={"100%"}>
-      {(type === "SERVICE_SELECTION" || type === "SCHEDULE_SELECTION") && (
+      {(type === "SERVICE_SELECTION" ||
+        type === "SCHEDULE_SELECTION" ||
+        type === "VIEW_SUMMARY") && (
         <HStack
           height={42}
           borderTopWidth={1}

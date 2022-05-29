@@ -158,12 +158,7 @@ export function AuthProvider({ children }: AuthProviderType) {
           });
           await StorageHelper.setValue("CUSTOMER_ID", data.email);
 
-          let payload: CustomerProfile = {
-            ...dummyProfile,
-            ...data,
-            customerId: data.email,
-          };
-          resolve(payload);
+          resolve("SIGNUP_SUCCESS");
         })
         .catch((error: any) => {
           console.log(error?.message);
@@ -196,7 +191,9 @@ export function AuthProvider({ children }: AuthProviderType) {
             error.message &&
             error.message.indexOf("user-not-found") > 0
           ) {
-            rej("Please signup and try to Login");
+            rej(
+              "Looks like you are new to Mio, please signup before you login"
+            );
           } else if (
             error &&
             error.message &&

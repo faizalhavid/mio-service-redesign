@@ -259,6 +259,7 @@ const Payment = (): JSX.Element => {
       {/* {selectedCreditcard && selectedCreditcard !== "NEW" && ( */}
       <FooterButton
         label="PLACE ORDER"
+        type="VIEW_SUMMARY"
         disabled={!selectedCreditcard}
         loading={
           [

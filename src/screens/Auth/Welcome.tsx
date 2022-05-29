@@ -36,7 +36,7 @@ const Welcome = (): JSX.Element => {
       > */}
       <CheckInternet />
       <CheckAppUpdate />
-      <ScrollView>
+      <ScrollView mb={"1/4"}>
         <VStack mt={"1/4"} pt={0}>
           <PresenceTransition
             visible={true}

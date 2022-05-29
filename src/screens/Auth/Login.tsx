@@ -100,13 +100,6 @@ const Login = (): JSX.Element => {
             error: error,
           })
         );
-      })
-      .finally(() => {
-        dispatch(
-          setCustomerState({
-            uiState: IN_PROGRESS,
-          })
-        );
       });
   };
   return (
