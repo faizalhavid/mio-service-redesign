@@ -186,6 +186,9 @@ const Payment = (): JSX.Element => {
                 label={"Code"}
                 onChange={(text) => {
                   setCouponCode(text);
+                  if (couponValidity === "VALID") {
+                    setCouponValidity("INIT");
+                  }
                 }}
                 suffix={
                   <Button

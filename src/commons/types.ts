@@ -185,6 +185,7 @@ export interface SubOrder {
   servicePrice: ServicePrice;
   chargeResponse: ChargeResponse;
   serviceNotes: string[];
+  serviceImages: string[];
   appointmentInfo: AppointmentInfo;
 }
 

@@ -1,16 +1,22 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
+  Box,
   FlatList,
   HStack,
+  Image,
   Pressable,
   Text,
   TextArea,
+  Toast,
+  View,
   VStack,
 } from "native-base";
 import { mode } from "native-base/lib/typescript/theme/tools";
 import React, { useState } from "react";
-import { Platform } from "react-native";
+import { Alert, Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { SvgCss } from "react-native-svg";
+import { PLUS_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import { LeadDetails, SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
@@ -23,6 +29,9 @@ import { goBack } from "../../navigations/rootNavigation";
 import { deepClone } from "../../services/utils";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import { selectSelectedServices } from "../../slices/service-slice";
+import * as ImagePicker from "react-native-image-picker";
+import { firebase } from "@react-native-firebase/storage";
+import { useAuth } from "../../contexts/AuthContext";
 
 type AppointmentDateOptionType = {
   fullDate: string;
@@ -67,6 +76,8 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
   const columns = 2;
   const dispatch = useAppDispatch();
   const { mode } = route.params;
+  const { currentUser } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
   const [serviceNotes, setServiceNotes] = React.useState<string>("");
   const [selectedDate, setSelectedDate] = React.useState("");
   const [selectedTime, setSelectedTime] = React.useState("");
@@ -76,6 +87,9 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
   const [appointmentTimeOptions, setAppointmentTimeOptions] = useState<
     AppointmentTimeOptionType[]
   >([]);
+
+  const [serviceImages, setServiceImages] = useState<string[]>([]);
+
   const { member: selectedService } = useAppSelector(selectSelectedServices);
   const { member: leadDetails, uiState: leadDetailsUiState } =
     useAppSelector(selectLead);
@@ -106,6 +120,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
             }
           }
         }
+        subOrder.serviceImages = serviceImages;
       }
       return subOrder;
     });
@@ -128,6 +143,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
     }
     if (isUpdate) {
       setServiceNotes(subOrder?.serviceNotes[0] || "");
+      setServiceImages(subOrder?.serviceImages || []);
     }
 
     let dates: AppointmentDateOptionType[] = [];
@@ -183,7 +199,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
   }, [mode]);
 
   return (
-    <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS"}>
+    <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS" || loading}>
       <VirtualizedView>
         <KeyboardAwareScrollView enableOnAndroid={true}>
           <VStack mt={"1/5"} space={5}>
@@ -309,6 +325,115 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                   </Pressable>
                 )}
               />
+            </HStack>
+            <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+              Choose Property Images{" "}
+              <Text color={AppColors.AAA} fontSize={14}>
+                (Optional)
+              </Text>
+            </Text>
+            <HStack
+              justifyContent={"center"}
+              alignItems={"center"}
+              space={2}
+              bg={"#eee"}
+              p={3}
+            >
+              {!loading &&
+                serviceImages.map((image, index) => (
+                  <Pressable
+                    key={index}
+                    onLongPress={() => {
+                      // TODO: Deleve image from firestore
+                      setLoading(true);
+                      let cache = [...serviceImages];
+                      cache = cache.filter((img) => img !== image);
+                      setServiceImages(cache);
+                      setLoading(false);
+                    }}
+                    onPress={() => {
+                      Toast.show({
+                        title: "Long press to remove!",
+                      });
+                    }}
+                  >
+                    <Image
+                      source={{
+                        width: 80,
+                        height: 80,
+                        uri: image,
+                        cache: "force-cache",
+                      }}
+                      alt="photo"
+                    />
+                  </Pressable>
+                ))}
+              <Pressable
+                borderWidth={1}
+                borderColor={AppColors.TEAL}
+                borderStyle="dashed"
+                height={20}
+                width={20}
+                justifyContent={"center"}
+                alignItems="center"
+                onPress={() => {
+                  if (serviceImages.length === 3) {
+                    Toast.show({
+                      title:
+                        "Not allowed more than 3 images. Long-press previously uploaded images to remove!",
+                      textAlign: "center",
+                    });
+                    return;
+                  }
+                  ImagePicker.launchImageLibrary(
+                    {
+                      mediaType: "photo",
+                      includeBase64: false,
+                      selectionLimit: 1,
+                      maxHeight: 200,
+                      maxWidth: 200,
+                    },
+                    (response: any) => {
+                      // console.log("Response = ", response);
+
+                      if (response.didCancel) {
+                        console.log("User cancelled image picker");
+                      } else if (response.error) {
+                        console.log("ImagePicker Error: ", response.error);
+                      } else {
+                        setLoading(true);
+                        const { fileName, uri } = response.assets[0];
+                        let imageRef = `users/${currentUser.uid}/${
+                          leadDetails.leadId
+                        }-${selectedService}-${new Date().getTime()}.${
+                          fileName.split(".")[1]
+                        }`;
+                        firebase
+                          .storage()
+                          .ref(imageRef)
+                          .putFile(uri)
+                          .then(async (snapshot) => {
+                            let imageDownload = firebase
+                              .storage()
+                              .ref(imageRef);
+                            let url = await imageDownload.getDownloadURL();
+                            setServiceImages([...serviceImages, url]);
+                            setLoading(false);
+                          })
+                          .catch(() => {
+                            setLoading(false);
+                          });
+                      }
+                    }
+                  );
+                }}
+              >
+                <SvgCss
+                  width={20}
+                  height={20}
+                  xml={PLUS_ICON(AppColors.TEAL)}
+                />
+              </Pressable>
             </HStack>
             <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
               Service Notes{" "}

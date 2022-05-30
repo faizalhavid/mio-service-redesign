@@ -153,15 +153,26 @@ export const AddCardBottomSheet = ({
                 control={control}
                 rules={{
                   required: true,
+                  pattern: /[0-9]{2}\/[0-9]{4}/gi,
                 }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="number"
-                    expiry={true}
-                    label="Valid thru (MM/YYYY)"
-                    onChange={onChange}
-                    value={value}
-                  />
+                render={({
+                  field: { onChange, onBlur, value },
+                  fieldState: { invalid },
+                }) => (
+                  <>
+                    <AppInput
+                      type="number"
+                      expiry={true}
+                      label="Valid thru (MM/YYYY)"
+                      onChange={onChange}
+                      value={value}
+                    />
+                    {invalid && (
+                      <Text fontSize={12} color={"red.600"}>
+                        Please follow format - MM/YYYY
+                      </Text>
+                    )}
+                  </>
                 )}
                 name="expiry"
               />

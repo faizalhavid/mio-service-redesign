@@ -111,6 +111,12 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     }
 
     let updatedSuborders = payload.subOrders.map((subOrder) => {
+      if (selectedService === LAWN_CARE_ID) {
+        subOrder.area = customer.addresses[0].houseInfo?.lotSize;
+      } else if (selectedService === HOUSE_CLEANING_ID) {
+        subOrder.bedrooms = customer.addresses[0].houseInfo?.bedrooms;
+        subOrder.bathrooms = customer.addresses[0].houseInfo?.bathrooms;
+      }
       if (subOrder.serviceId === selectedService) {
         if (!subOrder.servicePrice) {
           subOrder.servicePrice = {} as ServicePrice;
@@ -138,9 +144,11 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   };
 
   useEffect(() => {
+    console.log(selectedService);
     if (selectedService) {
       if (selectedService === LAWN_CARE_ID) {
         let lotsize: number = customer.addresses[0].houseInfo?.lotSize || 0;
+        console.log(lotsize);
         dispatch(
           getServiceCostAsync([
             {

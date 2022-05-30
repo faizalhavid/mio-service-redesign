@@ -1,5 +1,13 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Divider, HStack, ScrollView, Text, View, VStack } from "native-base";
+import {
+  Divider,
+  HStack,
+  Image,
+  ScrollView,
+  Text,
+  View,
+  VStack,
+} from "native-base";
 import React, { useEffect } from "react";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
@@ -190,6 +198,25 @@ const ViewServiceDetails = ({
               }
             />
           </View>
+          <View>
+            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+              SERVICE IMAGES
+            </Text>
+            <HStack space={2} mt={2}>
+              {orderDetail?.serviceImages?.map((image, index) => (
+                <Image
+                  key={index}
+                  source={{
+                    width: 80,
+                    height: 80,
+                    uri: image,
+                    cache: "force-cache",
+                  }}
+                  alt="photo"
+                />
+              ))}
+            </HStack>
+          </View>
         </VStack>
       </VStack>
     );
@@ -241,7 +268,7 @@ const ViewServiceDetails = ({
       loading={[customerUiState].indexOf(IN_PROGRESS) > 0}
     >
       <ScrollView mt={"1/5"}>
-        <VStack space={3}>
+        <VStack space={3} pb={20}>
           <OverviewCard />
           <ServiceDetailsCard />
           <AddressCard />

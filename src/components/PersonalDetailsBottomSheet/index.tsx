@@ -250,6 +250,9 @@ export const PersonalDetailsBottomSheet = ({
                               let url = await imageDownload.getDownloadURL();
                               setProfileUrl(url);
                               setLoading(false);
+                            })
+                            .catch(() => {
+                              setLoading(false);
                             });
                         }
                       }
