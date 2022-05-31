@@ -209,8 +209,10 @@ export const PersonalDetailsBottomSheet = ({
                       width: 100,
                       height: 100,
                       uri: profileUrl,
+                      cache: "force-cache",
                     }}
                     alt="Profile"
+                    bg={"gray.200"}
                   />
                 )}
                 <Pressable

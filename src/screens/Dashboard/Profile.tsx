@@ -142,8 +142,10 @@ const Profile = (): JSX.Element => {
                     width: 60,
                     height: 60,
                     uri: customer.pictureURL,
+                    cache: "force-cache",
                   }}
                   alt="Profile"
+                  bg={"gray.200"}
                 />
               )
             }
@@ -322,7 +324,7 @@ const Profile = (): JSX.Element => {
     return (
       <Pressable
         onPress={async () => {
-          Alert.alert("Would you like to logout?", "", [
+          Alert.alert("Logout", "Would you like to logout?", [
             {
               text: "Cancel",
               onPress: () => console.log("Cancel Pressed"),

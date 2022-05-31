@@ -159,8 +159,9 @@ export const RESCHEDULE_ICON = (color: string = "#89B682") => `
 `;
 
 export const CHAT_ICON = (color: string = "#89B682") => `
-<svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M24.125 11.2083C24.125 16.9153 18.9203 21.5417 12.5 21.5417C11.2094 21.5417 9.96786 21.3547 8.80788 21.0096L3.20018 24.125L3.95954 18.2189C2.04488 16.3768 0.875 13.914 0.875 11.2083C0.875 5.50139 6.07969 0.875 12.5 0.875C18.9203 0.875 24.125 5.50139 24.125 11.2083Z" fill="${color}"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${color}" class="bi bi-chat-right-text" viewBox="0 0 16 16">
+  <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"/>
+  <path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
 </svg>
 `;
 

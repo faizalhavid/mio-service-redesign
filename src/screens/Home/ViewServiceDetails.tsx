@@ -169,8 +169,7 @@ const ViewServiceDetails = ({
             )}
             {orderDetail.serviceId === HOUSE_CLEANING_ID && (
               <ValueText
-                text={`${orderDetail.bedrooms} (BEDROOM) | 
-                ${orderDetail.bathrooms} (BATHROOM)`}
+                text={`${orderDetail.bedrooms} (BEDROOM) | ${orderDetail.bathrooms} (BATHROOM)`}
               />
             )}
             {orderDetail.serviceId === PEST_CONTROL_ID && (
@@ -213,6 +212,7 @@ const ViewServiceDetails = ({
                     cache: "force-cache",
                   }}
                   alt="photo"
+                  bg={"gray.200"}
                 />
               ))}
             </HStack>

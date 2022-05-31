@@ -365,7 +365,8 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                         cache: "force-cache",
                       }}
                       alt="photo"
-                    />
+                      bg={"gray.200"}
+                    ></Image>
                   </Pressable>
                 ))}
               <Pressable
