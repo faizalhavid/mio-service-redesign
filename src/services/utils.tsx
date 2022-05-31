@@ -18,6 +18,15 @@ const timeHelper = (number: number) => {
 };
 
 export const getReadableDateTime = (dt: string) => {
+  if (!dt) {
+    return {
+      year: `-`,
+      date: `-`,
+      month: `-`,
+      day: "-",
+      slot: `-`,
+    };
+  }
   let _startDate = new Date(dt);
   let _slot = timeHelper(_startDate.getHours());
   let result = {

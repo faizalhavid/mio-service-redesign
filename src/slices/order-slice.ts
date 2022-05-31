@@ -79,7 +79,11 @@ export const pastOrdersSlice = createAsyncSlice({
 export const orderDetailsSlice = createAsyncSlice({
   name: "order/details",
   initialState: getInitialState<SubOrder>(),
-  reducers: {},
+  reducers: {
+    resetOrderDetails: (state) => {
+      state.member = {} as SubOrder;
+    },
+  },
   thunks: [getOrderDetailsAsync],
 });
 
@@ -93,6 +97,7 @@ export const createOrderSlice = createAsyncSlice({
 // Action
 
 export const { updateUpcomingOrders } = upcomingOrdersSlice.actions;
+export const { resetOrderDetails } = orderDetailsSlice.actions;
 
 // Selectors
 

@@ -75,7 +75,7 @@ const ViewServiceDetails = ({
         textTransform={"uppercase"}
         fontWeight={"semibold"}
       >
-        {text}
+        {text || "-"}
       </Text>
     );
   };
@@ -264,8 +264,9 @@ const ViewServiceDetails = ({
 
   return (
     <AppSafeAreaView
+      mt={42}
       bg={AppColors.EEE}
-      loading={[customerUiState].indexOf(IN_PROGRESS) > 0}
+      loading={[customerUiState, orderDetailUiState].indexOf(IN_PROGRESS) > 0}
     >
       <ScrollView mt={"1/5"}>
         <VStack space={3} pb={20}>
