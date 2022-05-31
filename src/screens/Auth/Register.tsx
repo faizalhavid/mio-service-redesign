@@ -248,7 +248,7 @@ const Register = (): JSX.Element => {
   };
 
   return (
-    <AppSafeAreaView loading={uiState === IN_PROGRESS}>
+    <AppSafeAreaView mt={60} loading={uiState === IN_PROGRESS}>
       <KeyboardAwareScrollView enableOnAndroid={true}>
         <Center mt={"1/4"} width={"100%"}>
           {!socialLoginCompleted && (

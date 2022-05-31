@@ -46,8 +46,8 @@ const AppSafeAreaView = ({
       {/* {Platform.OS === "ios" && (
         <Divider thickness={0} mt={mt === undefined ? "1/6" : mt} />
       )} */}
-      <CheckInternet mt={mt === undefined ? 0 : 10} />
-      <CheckAppUpdate mt={mt === undefined ? 0 : 10} />
+      <CheckInternet mt={mt === undefined ? 0 : mt} />
+      <CheckAppUpdate mt={mt === undefined ? 0 : mt} />
       {loading && (
         <View
           position={"absolute"}

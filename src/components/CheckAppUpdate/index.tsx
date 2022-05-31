@@ -55,7 +55,7 @@ const CheckAppUpdate = ({ mt }: CheckAppUpdateProps): JSX.Element => {
             zIndex={999}
             py={2}
             px={4}
-            mt={mt === undefined ? 10 : mt}
+            mt={mt === undefined ? 0 : mt}
             justifyContent={"space-between"}
             alignItems={"center"}
           >

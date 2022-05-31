@@ -36,7 +36,7 @@ const CheckInternet = ({ mt }: CheckInternetProps): JSX.Element => {
             width="100%"
             zIndex={999}
             py={3}
-            mt={mt === undefined ? 10 : mt}
+            mt={mt === undefined ? 0 : mt}
           >
             <Text
               textAlign={"center"}

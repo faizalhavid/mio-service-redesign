@@ -34,9 +34,7 @@ const Welcome = (): JSX.Element => {
         resizeMode="cover"
         style={styles.image}
       > */}
-      <CheckInternet />
-      <CheckAppUpdate />
-      <ScrollView mb={"1/4"}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         <VStack mt={"1/4"} pt={0}>
           <PresenceTransition
             visible={true}

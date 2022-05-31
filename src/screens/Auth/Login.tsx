@@ -103,7 +103,11 @@ const Login = (): JSX.Element => {
       });
   };
   return (
-    <AppSafeAreaView statusBarColor="#fff" loading={uiState === IN_PROGRESS}>
+    <AppSafeAreaView
+      mt={60}
+      statusBarColor="#fff"
+      loading={uiState === IN_PROGRESS}
+    >
       <ScrollView>
         <VStack mt={"1/3"} paddingX={5}>
           <Center width={"100%"}>
