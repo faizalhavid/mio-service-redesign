@@ -55,7 +55,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     React.useState<any[]>([]);
 
   const [planOptions, setPlanOptions] = React.useState<PlanOption[]>([]);
-  const [selectedPlan, setSelectedPlan] = React.useState<string>("BASIC");
+  const [selectedPlan, setSelectedPlan] = React.useState<PlanOption>();
 
   const { member: selectedService } = useAppSelector(selectSelectedServices);
 
@@ -124,13 +124,13 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         if (!subOrder.flags) {
           subOrder.flags = {} as Flags2;
         }
-        subOrder.flags.plan = selectedPlan;
+        subOrder.flags.plan = selectedPlan?.label || "BASIC";
         if (selectedSubscriptionMethod.type === "ONCE") {
-          subOrder.servicePrice.cost = selectedSubscriptionMethod.perCost;
+          subOrder.servicePrice.cost = selectedPlan?.cost || 0;
           subOrder.flags.recurringDuration = "ONCE";
           subOrder.flags.isRecurring = false;
         } else {
-          subOrder.servicePrice.cost = selectedSubscriptionMethod?.perCost;
+          subOrder.servicePrice.cost = selectedPlan?.cost || 0;
           subOrder.flags.recurringDuration = selectedSubscriptionMethod?.type;
           subOrder.flags.isRecurring = true;
         }
@@ -144,11 +144,9 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   };
 
   useEffect(() => {
-    console.log(selectedService);
     if (selectedService) {
       if (selectedService === LAWN_CARE_ID) {
         let lotsize: number = customer.addresses[0].houseInfo?.lotSize || 0;
-        console.log(lotsize);
         dispatch(
           getServiceCostAsync([
             {
@@ -308,37 +306,65 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           ["BASIC", "STANDARD", "PREMIUM"].indexOf(cost.plan) >= 0
       );
       let options: PlanOption[] = [];
-      for (let cost of serviceCosts) {
-        if (selectedSubscriptionMethod.type === "WEEKLY") {
-          options.push({
+      if (selectedSubscriptionMethod.type === "WEEKLY") {
+        for (let cost of serviceCosts) {
+          let option = {
             label: cost.plan,
             cost: parseInt(cost.pricePerWeek),
             selected: preSelectedPlan === cost.plan,
-          });
-        } else if (selectedSubscriptionMethod.type === "BIWEEKLY") {
-          options.push({
+          };
+          if (preSelectedPlan === cost.plan) {
+            setSelectedPlan(option);
+          }
+          options.push(option);
+        }
+      } else if (selectedSubscriptionMethod.type === "BIWEEKLY") {
+        for (let cost of serviceCosts) {
+          let option = {
             label: cost.plan,
             cost: parseInt(cost.pricePer2Weeks),
             selected: preSelectedPlan === cost.plan,
-          });
-        } else if (selectedSubscriptionMethod.type === "MONTHLY") {
-          options.push({
+          };
+          if (preSelectedPlan === cost.plan) {
+            setSelectedPlan(option);
+          }
+          options.push(option);
+        }
+      } else if (selectedSubscriptionMethod.type === "MONTHLY") {
+        for (let cost of serviceCosts) {
+          let option = {
             label: cost.plan,
             cost: parseInt(cost.pricePerMonth),
             selected: preSelectedPlan === cost.plan,
-          });
-        } else if (selectedSubscriptionMethod.type === "QUARTERLY") {
-          options.push({
+          };
+          if (preSelectedPlan === cost.plan) {
+            setSelectedPlan(option);
+          }
+          options.push(option);
+        }
+      } else if (selectedSubscriptionMethod.type === "QUARTERLY") {
+        for (let cost of serviceCosts) {
+          let option = {
             label: cost.plan,
             cost: parseInt(cost.pricePerQuarterly),
             selected: preSelectedPlan === cost.plan,
-          });
-        } else if (selectedSubscriptionMethod.type === "ONCE") {
-          options.push({
+          };
+          if (preSelectedPlan === cost.plan) {
+            setSelectedPlan(option);
+          }
+          options.push(option);
+        }
+      } else if (selectedSubscriptionMethod.type === "ONCE") {
+        for (let cost of serviceCosts) {
+          let option = {
             label: cost.plan,
             cost: parseInt(cost.pricePerOnetime),
             selected: preSelectedPlan === cost.plan,
-          });
+          };
+          if (preSelectedPlan === cost.plan) {
+            setSelectedPlan(option);
+          }
+          options.push(option);
         }
       }
       setPlanOptions(options);
@@ -456,7 +482,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                 onPress={() => {
                   let updatedOptions = planOptions.map((opt, i) => {
                     if (i === index) {
-                      setSelectedPlan(opt.label);
+                      setSelectedPlan(opt);
                       return {
                         ...opt,
                         selected: true,

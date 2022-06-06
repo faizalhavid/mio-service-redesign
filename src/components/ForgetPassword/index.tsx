@@ -8,6 +8,8 @@ import {
 } from "native-base";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Platform } from "react-native";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 import { AppColors } from "../../commons/colors";
 import { EMAIL_PATTERN } from "../../commons/patterns";
 import AppButton from "../AppButton";
@@ -81,6 +83,7 @@ const ForgetPassword = ({
               }}
             />
           </Center>
+          {Platform.OS === "ios" && <KeyboardSpacer />}
         </ScrollView>
       </Actionsheet.Content>
     </Actionsheet>

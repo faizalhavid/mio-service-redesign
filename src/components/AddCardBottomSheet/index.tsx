@@ -154,6 +154,28 @@ export const AddCardBottomSheet = ({
                 rules={{
                   required: true,
                   pattern: /[0-9]{2}\/[0-9]{4}/gi,
+                  validate: (value) => {
+                    if (value && value.length > 0) {
+                      let month = value.substring(0, 2);
+                      let year = value.substring(3, 7);
+                      if (!Number(month) || Number(month) > 12) {
+                        return false;
+                      } else if (
+                        !Number(year) ||
+                        Number(year) < new Date().getFullYear()
+                      ) {
+                        return false;
+                      } else if (
+                        Number(year) === new Date().getFullYear() &&
+                        Number(month) < new Date().getMonth() + 1
+                      ) {
+                        return false;
+                      } else {
+                        return true;
+                      }
+                    }
+                    return false;
+                  },
                 }}
                 render={({
                   field: { onChange, onBlur, value },
@@ -162,7 +184,7 @@ export const AddCardBottomSheet = ({
                   <>
                     <AppInput
                       type="number"
-                      expiry={true}
+                      expiry={false}
                       label="Valid thru (MM/YYYY)"
                       onChange={onChange}
                       value={value}

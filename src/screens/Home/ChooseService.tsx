@@ -99,7 +99,6 @@ const ChooseService = (): JSX.Element => {
   const fetchLead = React.useCallback(async () => {
     // await StorageHelper.removeValue("LEAD_ID");
     let leadId = await StorageHelper.getValue("LEAD_ID");
-    console.log(leadId);
     if (leadId) {
       dispatch(getLeadAsync({ leadId })).then((_leadDetails) => {
         _leadDetails.payload.subOrders.forEach((subOrder: any) => {

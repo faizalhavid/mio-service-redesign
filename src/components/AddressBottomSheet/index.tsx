@@ -31,11 +31,17 @@ import {
   getHouseInfoAsync,
   putCustomerAsync,
 } from "../../slices/customer-slice";
-import { getServicesAsync, selectServices } from "../../slices/service-slice";
+import {
+  getServicesAsync,
+  resetSelectedServices,
+  selectServices,
+} from "../../slices/service-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
 import KeyboardSpacer from "react-native-keyboard-spacer";
+import { StorageHelper } from "../../services/storage-helper";
+import { resetLeadState } from "../../slices/lead-slice";
 
 type UPDATE_ADDRESS = "UPDATE_ADDRESS";
 type UPDATE_PROPERTY = "UPDATE_PROPERTY";
@@ -289,6 +295,9 @@ export const AddressBottomSheet = ({
   };
 
   const savePropertyDetails = async () => {
+    dispatch(resetLeadState());
+    dispatch(resetSelectedServices());
+    await StorageHelper.removeValue("LEAD_ID");
     await dispatch(
       putCustomerAsync({
         ...customer,

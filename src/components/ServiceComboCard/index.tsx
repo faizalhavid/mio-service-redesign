@@ -13,6 +13,7 @@ import {
   ServicesType,
 } from "../../screens/Home/ChooseService";
 import { deepClone, getReadableDateTime } from "../../services/utils";
+import { selectCustomer } from "../../slices/customer-slice";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import {
   removeSelectedServices,
@@ -50,6 +51,8 @@ const ServiceComboCard = ({
   const { collection: selectedServices } = useAppSelector(
     selectSelectedServices
   );
+
+  const { member: customer } = useAppSelector(selectCustomer);
 
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
@@ -208,11 +211,11 @@ const ServiceComboCard = ({
           />
           <HStack space={2} flexWrap="wrap">
             {service?.id === LAWN_CARE_ID &&
-              Tag(`${groupedLeadDetails[service?.id]?.area} Sq Ft`)}
+              Tag(`${customer?.addresses[0]?.houseInfo?.lotSize} Sq Ft`)}
             {service?.id === HOUSE_CLEANING_ID &&
-              Tag(`${groupedLeadDetails[service?.id]?.bedrooms} Bedroom`)}
+              Tag(`${customer?.addresses[0]?.houseInfo?.bedrooms} Bedroom`)}
             {service?.id === HOUSE_CLEANING_ID &&
-              Tag(`${groupedLeadDetails[service?.id]?.bathrooms} Bathroom`)}
+              Tag(`${customer?.addresses[0]?.houseInfo?.bathrooms} Bathroom`)}
             {Tag(`${groupedLeadDetails[service?.id]?.flags?.plan}`)}
             {Tag(
               `$${groupedLeadDetails[service?.id]?.servicePrice?.cost}/${

@@ -268,11 +268,12 @@ const ViewServiceDetails = ({
       bg={AppColors.EEE}
       loading={[customerUiState, orderDetailUiState].indexOf(IN_PROGRESS) > 0}
     >
-      <ScrollView mt={"1/5"}>
+      <ScrollView pt={60}>
         <VStack space={3} pb={20}>
           <OverviewCard />
           <ServiceDetailsCard />
           <AddressCard />
+          <Divider mt={100} thickness={0} />
         </VStack>
       </ScrollView>
     </AppSafeAreaView>

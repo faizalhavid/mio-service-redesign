@@ -42,6 +42,7 @@ import WarningLabel from "../../components/WarningLabel";
 import UpcomingPast from "../../components/UpcomingPast";
 import VirtualizedView from "../../components/VirtualizedView";
 import { Order } from "../../commons/types";
+import { isAddressExists } from "../../services/address-validation";
 
 const Home = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -49,7 +50,6 @@ const Home = (): JSX.Element => {
   const isFocused = useIsFocused();
 
   const [showEditAddress, setShowEditAddress] = useState(false);
-  const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
 
   const {
     uiState: upcomingOrdersUiState,
@@ -60,6 +60,8 @@ const Home = (): JSX.Element => {
 
   const { uiState: customerUiState, member: customer } =
     useAppSelector(selectCustomer);
+
+  const { addressExists, addressMode } = isAddressExists();
 
   const { logout } = useAuth();
   const { setUserId } = useAnalytics();
@@ -88,39 +90,11 @@ const Home = (): JSX.Element => {
     }
   }, [init, isFocused]);
 
-  const isAddressAvailable = useMemo(() => {
-    if (
-      (customer && !customer?.addresses) ||
-      customer?.addresses.length === 0 ||
-      (customer?.addresses.length > 0 &&
-        (!Boolean(customer?.addresses[0].street) ||
-          !Boolean(customer?.addresses[0].zip)))
-    ) {
-      setAddressMode("UPDATE_ADDRESS");
-      return false;
-    }
-    if (
-      !customer ||
-      !customer?.addresses ||
-      customer?.addresses.length === 0 ||
-      (customer?.addresses.length > 0 &&
-        (!Boolean(customer?.addresses[0]?.houseInfo?.lotSize) ||
-          !Boolean(customer?.addresses[0]?.houseInfo?.bedrooms) ||
-          !Boolean(customer?.addresses[0]?.houseInfo?.bathrooms) ||
-          !Boolean(customer?.addresses[0]?.houseInfo?.swimmingPoolType) ||
-          !Boolean(customer?.addresses[0]?.houseInfo?.pestType)))
-    ) {
-      setAddressMode("UPDATE_PROPERTY");
-      return false;
-    }
-    return true;
-  }, [customer]);
-
   useEffect(() => {
     if (customerUiState === "SUCCESS") {
-      setShowEditAddress(!isAddressAvailable);
+      setShowEditAddress(!addressExists);
     }
-  }, [customerUiState, isAddressAvailable]);
+  }, [customerUiState, addressExists]);
 
   const [firstOrder, setFirstOrder] = useState<Order>({} as Order);
 
@@ -155,7 +129,7 @@ const Home = (): JSX.Element => {
             >
               Hi, {customer?.firstName}
             </Text> */}
-            {!isAddressAvailable && (
+            {!addressExists && (
               <WarningLabel
                 text="Update Address & Property details"
                 onPress={() => {
@@ -163,7 +137,7 @@ const Home = (): JSX.Element => {
                 }}
               />
             )}
-            {isAddressAvailable && upcomingOrders.length === 0 && (
+            {addressExists && upcomingOrders.length === 0 && (
               <Pressable
                 borderRadius={10}
                 borderWidth={1}
@@ -200,7 +174,7 @@ const Home = (): JSX.Element => {
                       fontStyle={"italic"}
                       color={AppColors.DARK_TEAL}
                     >
-                      Get 20% off on your first order
+                      Get 20% off on your first order with NC20P
                     </Text>
                   </Center>
                 </VStack>

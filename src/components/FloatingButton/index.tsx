@@ -4,13 +4,13 @@ import { SvgCss } from "react-native-svg";
 import { PLUS_ICON } from "../../commons/assets";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { navigate } from "../../navigations/rootNavigation";
+import { isAddressExists } from "../../services/address-validation";
 import { selectCustomer } from "../../slices/customer-slice";
 
 type FloatingButtonProps = {};
 
 const FloatingButton = ({}: FloatingButtonProps): JSX.Element => {
-  const { uiState: customerUiState, member: customer } =
-    useAppSelector(selectCustomer);
+  const { addressExists } = isAddressExists();
 
   const sayWarning = () => {
     Toast.show({
@@ -31,27 +31,10 @@ const FloatingButton = ({}: FloatingButtonProps): JSX.Element => {
         shadow={3}
         bg={"amber.400"}
         onPress={() => {
-          if (
-            !customer ||
-            !customer?.addresses ||
-            customer?.addresses.length === 0 ||
-            (customer?.addresses.length > 0 &&
-              (!Boolean(customer?.addresses[0].street) ||
-                !Boolean(customer?.addresses[0].zip)))
-          ) {
+          if (!addressExists) {
             sayWarning();
           }
-          if (
-            !customer ||
-            !customer?.addresses ||
-            customer?.addresses.length === 0 ||
-            (customer?.addresses.length > 0 &&
-              (!Boolean(customer?.addresses[0]?.houseInfo?.lotSize) ||
-                !Boolean(customer?.addresses[0]?.houseInfo?.bedrooms) ||
-                !Boolean(customer?.addresses[0]?.houseInfo?.bathrooms) ||
-                !Boolean(customer?.addresses[0]?.houseInfo?.swimmingPoolType) ||
-                !Boolean(customer?.addresses[0]?.houseInfo?.pestType)))
-          ) {
+          if (!addressExists) {
             sayWarning();
           } else {
             navigate("ChooseService");
