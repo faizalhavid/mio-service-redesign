@@ -183,7 +183,7 @@ export const AddCardBottomSheet = ({
                 }) => (
                   <>
                     <AppInput
-                      type="number"
+                      type="text"
                       expiry={false}
                       label="Valid thru (MM/YYYY)"
                       onChange={onChange}
