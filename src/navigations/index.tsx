@@ -10,15 +10,10 @@ import Register from "../screens/Auth/Register";
 import Welcome from "../screens/Auth/Welcome";
 import { navigationRef } from "./rootNavigation";
 import RNBootSplash from "react-native-bootsplash";
-import Address from "../screens/Auth/Address";
 import ChooseService from "../screens/Home/ChooseService";
-import ServiceDetails from "../screens/Home/ServiceDetails";
-import EditServiceDetails from "../screens/Home/EditServiceDetails";
 import Payment from "../screens/Home/Payment";
 import Booked from "../screens/Home/Booked";
 import DashboardTab from "./DashboardTab";
-import PersonalDetails from "../screens/Home/PersonalDetails";
-import PaymentMethods from "../screens/Home/PaymentMethods";
 import UpcomingServices from "../screens/Home/UpcomingServices";
 import ServiceHistory from "../screens/Home/ServiceHistory";
 import ViewServiceDetails from "../screens/Home/ViewServiceDetails";
@@ -122,11 +117,6 @@ const index = (): JSX.Element => {
           <RootStack.Screen name="Register" component={Register} />
           <RootStack.Screen name="VerifyEmail" component={VerifyEmail} />
           <RootStack.Screen name="Login" component={Login} />
-          <RootStack.Screen
-            name="Address"
-            component={Address}
-            initialParams={{ returnTo: "" }}
-          />
           <RootStack.Screen name="ChooseService" component={ChooseService} />
           <RootStack.Screen
             name="ChoosePlan"
@@ -144,23 +134,9 @@ const index = (): JSX.Element => {
               animation: "slide_from_bottom",
             }}
           />
-          <RootStack.Screen name="ServiceDetails" component={ServiceDetails} />
-          <RootStack.Screen
-            name="EditServiceDetails"
-            component={EditServiceDetails}
-            initialParams={{ serviceId: "", mode: "CREATE" }}
-            options={{
-              animation: "slide_from_bottom",
-            }}
-          />
           <RootStack.Screen name="Payment" component={Payment} />
           <RootStack.Screen name="Booked" component={Booked} />
           <RootStack.Screen name="Dashboard" component={DashboardTab} />
-          <RootStack.Screen
-            name="PersonalDetails"
-            component={PersonalDetails}
-          />
-          <RootStack.Screen name="PaymentMethods" component={PaymentMethods} />
           <RootStack.Screen
             name="UpcomingServices"
             component={UpcomingServices}

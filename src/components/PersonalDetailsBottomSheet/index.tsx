@@ -145,7 +145,7 @@ export const PersonalDetailsBottomSheet = ({
                 render={({ field: { onChange, onBlur, value } }) => (
                   <AppInput
                     type="text"
-                    label="Firstname"
+                    label="First Name"
                     onChange={onChange}
                     value={value}
                   />
@@ -161,7 +161,7 @@ export const PersonalDetailsBottomSheet = ({
                 render={({ field: { onChange, onBlur, value } }) => (
                   <AppInput
                     type="text"
-                    label="Lastname"
+                    label="Last Name"
                     onChange={onChange}
                     value={value}
                   />

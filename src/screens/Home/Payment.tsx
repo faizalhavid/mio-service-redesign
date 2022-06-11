@@ -251,7 +251,7 @@ const Payment = (): JSX.Element => {
             onPress={() => setShowTNC(true)}
           >
             <Text textAlign={"center"}>
-              By clicking "Submit Payment" your agree to {"\n"}our{" "}
+              By clicking "Place Order" you agree to {"\n"}our{" "}
               <Text color={"blue.500"}>terms & conditions</Text>
             </Text>
           </Button>

@@ -15,7 +15,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Dimensions, Keyboard, Platform } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import { STATES } from "../../commons/dropdown-values";
 import { POOL_TYPES, PEST_TYPES } from "../../commons/options";
@@ -272,7 +271,9 @@ export const AddressBottomSheet = ({
               },
             ],
           })
-        );
+        ).then(() => {
+          next();
+        });
       });
     } else {
       await dispatch(
@@ -285,8 +286,13 @@ export const AddressBottomSheet = ({
             },
           ],
         })
-      );
+      ).then(() => {
+        next();
+      });
     }
+  };
+
+  const next = () => {
     if (hideAfterSave) {
       setShowEditAddress(false);
     } else {
@@ -463,7 +469,7 @@ export const AddressBottomSheet = ({
                     render={({ field: { onChange, value } }) => (
                       <AppInput
                         type="number"
-                        label="Zipcode"
+                        label="Zip Code"
                         onChange={onChange}
                         value={value}
                       />

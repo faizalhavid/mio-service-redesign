@@ -1,4 +1,5 @@
-import { MONTH } from "../screens/Home/EditServiceDetails";
+import { FULL_MONTH } from "../screens/Home/ChooseDateTime";
+
 const DAY = [
   "Sunday",
   "Monday",
@@ -32,7 +33,7 @@ export const getReadableDateTime = (dt: string) => {
   let result = {
     year: `${_startDate.getFullYear()}`,
     date: `${_startDate.getDate()}`,
-    month: `${MONTH[_startDate.getMonth()]}`,
+    month: `${FULL_MONTH[_startDate.getMonth()]}`,
     day: DAY[_startDate.getDay()],
     slot: `${_slot.rangeMin + " " + _slot.minMeridian} - ${
       _slot.rangeMax + " " + _slot.maxMaxidian

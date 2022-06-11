@@ -65,6 +65,21 @@ export const MONTH = [
   "Dec",
 ];
 
+export const FULL_MONTH = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 type ChooseDateTimeProps = NativeStackScreenProps<
