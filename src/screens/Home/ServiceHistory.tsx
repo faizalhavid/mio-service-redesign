@@ -96,7 +96,7 @@ const ServiceHistory = (): JSX.Element => {
             setPage(page + 1);
           }
         }}
-        ItemSeparatorComponent={() => <Divider mt={3} />}
+        ItemSeparatorComponent={() => <Divider thickness={0} mt={3} />}
         data={pastOrders}
         renderItem={({ item, index }: { item: Order; index: number }) => (
           <ServiceCard

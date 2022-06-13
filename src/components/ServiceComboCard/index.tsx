@@ -12,12 +12,14 @@ import {
   LAWN_CARE_ID,
   ServicesType,
 } from "../../screens/Home/ChooseService";
+import { getServiceDetails } from "../../services/service-details";
 import { deepClone, getReadableDateTime } from "../../services/utils";
 import { selectCustomer } from "../../slices/customer-slice";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import {
   removeSelectedServices,
   selectSelectedServices,
+  selectServices,
   setActiveService,
   updateSelectedServices,
 } from "../../slices/service-slice";
@@ -52,8 +54,32 @@ const ServiceComboCard = ({
     selectSelectedServices
   );
 
-  const { member: customer } = useAppSelector(selectCustomer);
+  const { groupedServiceDetails } = getServiceDetails();
 
+  const weeklyPrice = useMemo(() => {
+    let price: number = groupedServiceDetails[service?.id].priceMap.reduce(
+      (updatedValue, price) => {
+        if (price.pricePerWeek && Number(price.pricePerWeek) < updatedValue) {
+          return Number(price.pricePerWeek);
+        } else if (
+          price.pricePer2Weeks &&
+          Number(price.pricePer2Weeks) < updatedValue
+        ) {
+          return Number(price.pricePer2Weeks);
+        } else if (
+          price.pricePerMonth &&
+          Number(price.pricePerMonth) < updatedValue
+        ) {
+          return Number(price.pricePerMonth);
+        }
+        return 30;
+      },
+      0
+    );
+    return price;
+  }, [groupedServiceDetails]);
+
+  const { member: customer } = useAppSelector(selectCustomer);
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
   }>({});
@@ -114,7 +140,11 @@ const ServiceComboCard = ({
       p={5}
       mx={5}
     >
-      <HStack alignContent={"space-between"} justifyContent={"space-between"}>
+      <HStack
+        key={Math.random()}
+        alignContent={"space-between"}
+        justifyContent={"space-between"}
+      >
         <VStack space={1} justifyContent={"center"} alignItems={"flex-start"}>
           <Text color={AppColors.DARK_TEAL} fontWeight={"semibold"}>
             {service?.text}
@@ -129,7 +159,7 @@ const ServiceComboCard = ({
           </HStack>
           {selectedServices.indexOf(service?.id) === -1 && (
             <Text color={AppColors.DARK_PRIMARY} fontWeight={"semibold"}>
-              Starts at $45
+              Starts at ${weeklyPrice}
             </Text>
           )}
         </VStack>
@@ -225,7 +255,7 @@ const ServiceComboCard = ({
           </HStack>
           {groupedLeadDetails[service?.id]?.appointmentInfo
             ?.appointmentDateTime && (
-            <HStack space={2} mt={2}>
+            <HStack key={Math.random()} space={2} mt={2}>
               {Tag(`${readableDateTime?.day}, ${readableDateTime?.date}`)}
               {Tag(readableDateTime?.slot)}
             </HStack>

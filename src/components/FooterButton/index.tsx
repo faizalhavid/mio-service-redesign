@@ -63,8 +63,11 @@ const FooterButton = ({
               fontSize="12"
               fontWeight="semibold"
             >
-              {customer?.addresses[0]?.street}, {customer?.addresses[0]?.city},{" "}
-              {customer?.addresses[0]?.state}, {customer?.addresses[0]?.zip}
+              {customer?.addresses[0]?.street?.length > 20
+                ? customer?.addresses[0]?.street?.substring(0, 15) + "..."
+                : customer?.addresses[0]?.street}
+              , {customer?.addresses[0]?.city}, {customer?.addresses[0]?.state},{" "}
+              {customer?.addresses[0]?.zip}
             </Text>
           </Text>
           <Pressable

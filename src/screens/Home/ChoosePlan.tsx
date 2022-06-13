@@ -2,6 +2,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FlatList, HStack, Pressable, Spacer, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { Dimensions } from "react-native";
+import { SvgCss } from "react-native-svg";
+import { FILLED_CIRCLE_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import {
   Flags2,
@@ -17,6 +19,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
+import { getServiceDetails } from "../../services/service-details";
 import { StorageHelper } from "../../services/storage-helper";
 import { deepClone } from "../../services/utils";
 import { selectCustomer } from "../../slices/customer-slice";
@@ -290,6 +293,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     }
   }, [serviceCost]);
 
+  const { groupedServiceDetails } = getServiceDetails();
+
   useEffect(() => {
     if (Object.keys(selectedSubscriptionMethod).length > 0) {
       let preSelectedPlan = "BASIC";
@@ -308,8 +313,12 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       let options: PlanOption[] = [];
       if (selectedSubscriptionMethod.type === "WEEKLY") {
         for (let cost of serviceCosts) {
-          let option = {
+          let option: PlanOption = {
             label: cost.plan,
+            benefits:
+              groupedServiceDetails[selectedService].packageDescription[
+                cost.plan
+              ] || [],
             cost: parseInt(cost.pricePerWeek),
             selected: preSelectedPlan === cost.plan,
           };
@@ -322,6 +331,10 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         for (let cost of serviceCosts) {
           let option = {
             label: cost.plan,
+            benefits:
+              groupedServiceDetails[selectedService].packageDescription[
+                cost.plan
+              ] || [],
             cost: parseInt(cost.pricePer2Weeks),
             selected: preSelectedPlan === cost.plan,
           };
@@ -334,6 +347,10 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         for (let cost of serviceCosts) {
           let option = {
             label: cost.plan,
+            benefits:
+              groupedServiceDetails[selectedService].packageDescription[
+                cost.plan
+              ] || [],
             cost: parseInt(cost.pricePerMonth),
             selected: preSelectedPlan === cost.plan,
           };
@@ -346,6 +363,10 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         for (let cost of serviceCosts) {
           let option = {
             label: cost.plan,
+            benefits:
+              groupedServiceDetails[selectedService].packageDescription[
+                cost.plan
+              ] || [],
             cost: parseInt(cost.pricePerQuarterly),
             selected: preSelectedPlan === cost.plan,
           };
@@ -358,6 +379,10 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         for (let cost of serviceCosts) {
           let option = {
             label: cost.plan,
+            benefits:
+              groupedServiceDetails[selectedService].packageDescription[
+                cost.plan
+              ] || [],
             cost: parseInt(cost.pricePerOnetime),
             selected: preSelectedPlan === cost.plan,
           };
@@ -497,7 +522,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                 }}
               >
                 <HStack justifyContent={"space-between"}>
-                  <VStack>
+                  <VStack width={"80%"}>
                     <Text
                       color={AppColors.TEAL}
                       fontSize={18}
@@ -518,14 +543,21 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                     >
                       Benefits
                     </Text>
-                    {[1, 2, 3].map((b, i) => (
-                      <Text
-                        key={i}
-                        color={AppColors.DARK_PRIMARY}
-                        fontSize={12}
-                      >
-                        {b}. This is the benefit one
-                      </Text>
+                    {item.benefits.map((b, i) => (
+                      <HStack key={i} alignItems="center">
+                        <SvgCss
+                          xml={FILLED_CIRCLE_ICON(AppColors.DARK_PRIMARY)}
+                          width={4}
+                          height={4}
+                        />
+                        <Text
+                          ml={2}
+                          color={AppColors.DARK_PRIMARY}
+                          fontSize={12}
+                        >
+                          {b}
+                        </Text>
+                      </HStack>
                     ))}
                   </VStack>
                   <VStack

@@ -1,11 +1,9 @@
 import {
-  Button,
   Center,
   Divider,
   Image,
   Pressable,
   Text,
-  Toast,
   View,
   VStack,
 } from "native-base";
@@ -34,10 +32,7 @@ import {
   selectUpcomingOrders,
 } from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
-import {
-  AddressBottomSheet,
-  AddressMode,
-} from "../../components/AddressBottomSheet";
+import { AddressBottomSheet } from "../../components/AddressBottomSheet";
 import WarningLabel from "../../components/WarningLabel";
 import UpcomingPast from "../../components/UpcomingPast";
 import VirtualizedView from "../../components/VirtualizedView";
@@ -52,14 +47,12 @@ const Home = (): JSX.Element => {
   const [showEditAddress, setShowEditAddress] = useState(false);
 
   const {
-    uiState: upcomingOrdersUiState,
     member: { data: upcomingOrders = [] },
   } = useAppSelector(selectUpcomingOrders);
 
   const { uiState: pastOrdersUiState } = useAppSelector(selectPastOrders);
 
-  const { uiState: customerUiState, member: customer } =
-    useAppSelector(selectCustomer);
+  const { uiState: customerUiState } = useAppSelector(selectCustomer);
 
   const { addressExists, addressMode } = isAddressExists();
 
@@ -119,16 +112,6 @@ const Home = (): JSX.Element => {
       <VirtualizedView>
         <VStack>
           <View px={3}>
-            {/* <Text
-              color={AppColors.SECONDARY}
-              mx={3}
-              my={2}
-              // textAlign="center"
-              fontWeight={"bold"}
-              fontSize={18}
-            >
-              Hi, {customer?.firstName}
-            </Text> */}
             {!addressExists && (
               <WarningLabel
                 text="Update Address & Property details"
@@ -146,9 +129,12 @@ const Home = (): JSX.Element => {
                 bg="white"
                 mt={5}
                 _pressed={{
-                  backgroundColor: AppColors.DARK_PRIMARY,
+                  backgroundColor: "white",
                 }}
-                onPress={() => navigate("ChooseService")}
+                onPress={() => {
+                  StorageHelper.setValue("COUPON_SELECTED", "NC20P");
+                  navigate("ChooseService");
+                }}
               >
                 <VStack space={5} width={"100%"}>
                   <Center py={5} bg={AppColors.TEAL}>

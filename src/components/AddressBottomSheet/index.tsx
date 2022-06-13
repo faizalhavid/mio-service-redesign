@@ -428,19 +428,27 @@ export const AddressBottomSheet = ({
                             State
                           </Text>
                         ) : (
-                          <Divider thickness={0} mt={2} />
+                          <></>
                         )}
                         <Select
                           accessibilityLabel="STATE"
                           placeholder="State"
                           borderBottomWidth={1}
+                          borderLeftWidth={0}
+                          borderRightWidth={0}
+                          borderTopWidth={0}
                           borderBottomColor={"#ccc"}
                           _selectedItem={{
                             bg: AppColors.PRIMARY,
-                            endIcon: <CheckIcon size="5" />,
+                            // endIcon: <CheckIcon size="5" />,
                           }}
+                          _important={{
+                            color: AppColors.SECONDARY,
+                          }}
+                          textDecorationColor={AppColors.SECONDARY}
                           pl={-10}
-                          mt={value ? -3 : 4}
+                          pt={value ? 6 : 0}
+                          mt={value ? -3 : 2}
                           fontSize={14}
                           variant="underlined"
                           onValueChange={onChange}
@@ -449,7 +457,7 @@ export const AddressBottomSheet = ({
                           {STATES.map((state) => {
                             return (
                               <Select.Item
-                                pl={0}
+                                pl={3}
                                 key={state.code}
                                 label={state.name}
                                 value={state.code}

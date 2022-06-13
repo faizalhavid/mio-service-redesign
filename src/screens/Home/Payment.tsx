@@ -103,7 +103,30 @@ const Payment = (): JSX.Element => {
         }
       );
     }
+    StorageHelper.getValue("COUPON_SELECTED").then((coupon) => {
+      if (coupon !== null) {
+        setCouponCode(coupon);
+        validateCouponCode(coupon);
+      }
+    });
   }, [customer]);
+
+  const validateCouponCode = async (coupon?: string) => {
+    dispatch(
+      validateCouponAsync({
+        code: coupon || couponCode,
+        leadId: leadDetails.leadId,
+      })
+    ).then((response) => {
+      let _validateCoupon = response.payload;
+      if (_validateCoupon.isValid) {
+        setCouponValidity("VALID");
+      } else {
+        setCouponValidity("INVALID");
+      }
+      setCouponMsg(_validateCoupon.message);
+    });
+  };
 
   const formatNumber = (number: string) => {
     return number
@@ -134,7 +157,7 @@ const Payment = (): JSX.Element => {
             Choose Credit Card
           </Text>
           <Divider thickness={1} />
-          <View pl={0}>
+          <View pl={2}>
             <Radio.Group
               value={selectedCreditcard || ""}
               name="myRadioGroup"
@@ -184,6 +207,7 @@ const Payment = (): JSX.Element => {
               <AppInput
                 type={"text"}
                 label={"Code"}
+                value={couponCode}
                 onChange={(text) => {
                   setCouponCode(text);
                   if (couponValidity === "VALID") {
@@ -201,20 +225,7 @@ const Payment = (): JSX.Element => {
                     p={1}
                     variant={"ghost"}
                     onPress={() => {
-                      dispatch(
-                        validateCouponAsync({
-                          code: couponCode,
-                          leadId: leadDetails.leadId,
-                        })
-                      ).then((response) => {
-                        let _validateCoupon = response.payload;
-                        if (_validateCoupon.isValid) {
-                          setCouponValidity("VALID");
-                        } else {
-                          setCouponValidity("INVALID");
-                        }
-                        setCouponMsg(_validateCoupon.message);
-                      });
+                      validateCouponCode();
                     }}
                   >
                     Apply
@@ -291,6 +302,7 @@ const Payment = (): JSX.Element => {
             createOrderFromLeadAsync({ leadId: leadDetails.leadId })
           );
           await StorageHelper.removeValue("LEAD_ID");
+          await StorageHelper.removeValue("COUPON_SELECTED");
           popToPop("Booked");
         }}
       />

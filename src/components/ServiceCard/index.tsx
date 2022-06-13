@@ -177,6 +177,7 @@ const ServiceCard = ({
         {isOutline ? (
           <>
             <HStack
+              key={Math.random()}
               bg={"white"}
               borderWidth={1}
               borderColor="white"
@@ -236,6 +237,7 @@ const ServiceCard = ({
         ) : (
           <>
             <VStack
+              key={Math.random()}
               borderTopRadius={10}
               borderTopWidth={1}
               borderColor={AppColors.TEAL}

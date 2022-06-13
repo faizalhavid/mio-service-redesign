@@ -95,7 +95,7 @@ const UpcomingServices = (): JSX.Element => {
             <></>
           )
         }
-        ItemSeparatorComponent={() => <Divider mt={3} />}
+        ItemSeparatorComponent={() => <Divider thickness={0} mt={3} />}
         onEndReached={() => {
           if (fetchAgain) {
             setPage(page + 1);
