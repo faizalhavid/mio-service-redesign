@@ -274,7 +274,7 @@ const Register = (): JSX.Element => {
             render={({ field: { onChange, value } }) => (
               <AppInput
                 type="text"
-                label="Firstname"
+                label="First Name"
                 onChange={onChange}
                 value={value}
               />
@@ -289,7 +289,7 @@ const Register = (): JSX.Element => {
             render={({ field: { onChange, value } }) => (
               <AppInput
                 type="text"
-                label="Lastname"
+                label="Last Name"
                 onChange={onChange}
                 value={value}
               />

@@ -1,5 +1,5 @@
 import { Divider, ScrollView, Text, VStack } from "native-base";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   HOUSE_CLEANING,
   LAWN_CARE,
@@ -70,15 +70,6 @@ export const SERVICES: { [key: string]: ServicesType } = {
 export type BathBedOptions = { number: number; selected: boolean };
 
 const ChooseService = (): JSX.Element => {
-  const [toggleServiceInfo, setToggleServiceInfo] = React.useState(false);
-
-  const [selectedServiceInfo, setSelectedServiceInfo] =
-    React.useState<ServicesType>();
-
-  // const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
-
-  // const [summaryHeight, setSummaryHeight] = React.useState<number>(75);
-
   const dispatch = useAppDispatch();
   const { uiState: customerUiState } = useAppSelector(selectCustomer);
   const { collection: selectedServices } = useAppSelector(
@@ -87,14 +78,6 @@ const ChooseService = (): JSX.Element => {
   const { uiState: servicesUiState } = useAppSelector(selectServices);
   const { uiState: leadUiState, member: leadDetails } =
     useAppSelector(selectLead);
-
-  useEffect(() => {
-    // dispatch(getServicesAsync()).then(() => {
-    //   for (let service of allServices) {
-    //     SERVICES[service.serviceId].description = service.description;
-    //   }
-    // });
-  }, []);
 
   const fetchLead = React.useCallback(async () => {
     // await StorageHelper.removeValue("LEAD_ID");

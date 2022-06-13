@@ -34,6 +34,13 @@ const PriceBreakdown = (): JSX.Element => {
         </HStack>
       ))}
       <Divider thickness={1} />
+      <HStack px={5} justifyContent={"space-between"}>
+        <Text fontSize={14}>Trust & Support Fee</Text>
+        <Text fontSize={14}>
+          ${leadDetails.subOrders[0].servicePrice.trustFee}
+        </Text>
+      </HStack>
+      <Divider thickness={1} />
       {/* <HStack justifyContent={"space-between"}>
         <Text fontSize={14} fontWeight={"semibold"}>
           Total Amount

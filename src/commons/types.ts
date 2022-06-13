@@ -79,6 +79,7 @@ export interface Service {
   calculatedPricePerVisit: number;
   customerJourneyTexts: CustomerJourneyTexts;
   imageURI: string;
+  packageDescription: { [key: string]: string[] };
   calculatedPricePerMonth: number;
   imageURIAlt: string;
   providerDescription: string;
@@ -142,6 +143,7 @@ export interface Flags2 {
 export interface ServicePrice {
   cost: number;
   discount: number;
+  trustFee: number;
   tax: number;
   total: number;
 }
@@ -221,6 +223,7 @@ export interface Option {
 
 export interface PlanOption {
   label: string;
+  benefits: string[];
   cost: number;
   selected: boolean;
 }

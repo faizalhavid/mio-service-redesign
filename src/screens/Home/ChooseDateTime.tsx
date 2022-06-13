@@ -1,6 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
-  Box,
   FlatList,
   HStack,
   Image,
@@ -8,12 +7,10 @@ import {
   Text,
   TextArea,
   Toast,
-  View,
   VStack,
 } from "native-base";
-import { mode } from "native-base/lib/typescript/theme/tools";
 import React, { useState } from "react";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SvgCss } from "react-native-svg";
 import { PLUS_ICON } from "../../commons/assets";
@@ -63,6 +60,21 @@ export const MONTH = [
   "Oct",
   "Nov",
   "Dec",
+];
+
+export const FULL_MONTH = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -451,6 +463,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
               value={serviceNotes}
               numberOfLines={5}
               mb={100}
+              autoCompleteType={undefined}
             />
           </VStack>
         </KeyboardAwareScrollView>
