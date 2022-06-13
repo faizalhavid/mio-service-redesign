@@ -210,7 +210,10 @@ const Payment = (): JSX.Element => {
                 value={couponCode}
                 onChange={(text) => {
                   setCouponCode(text);
-                  if (couponValidity === "VALID") {
+                  if (
+                    couponValidity === "VALID" ||
+                    couponValidity === "INVALID"
+                  ) {
                     setCouponValidity("INIT");
                   }
                 }}

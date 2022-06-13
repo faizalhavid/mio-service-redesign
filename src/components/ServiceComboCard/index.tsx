@@ -263,6 +263,7 @@ const ServiceComboCard = ({
           {datetime && (
             <>
               <Spacer
+                key={Math.random()}
                 borderWidth={0.5}
                 width={"100%"}
                 my={2}
@@ -270,6 +271,7 @@ const ServiceComboCard = ({
                 borderRadius={5}
               />
               <Pressable
+                key={Math.random()}
                 height={8}
                 borderRadius={5}
                 justifyContent="center"

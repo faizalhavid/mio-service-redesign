@@ -39,8 +39,19 @@ const ForgetPassword = ({
     <Actionsheet
       isOpen={showForgetPasswordForm}
       onClose={() => setShowForgetPasswordForm(false)}
+      hideDragIndicator={true}
     >
-      <Actionsheet.Content>
+      <Actionsheet.Content
+        style={{
+          borderTopLeftRadius: 3,
+          borderTopRightRadius: 3,
+          paddingTop: 0,
+          paddingLeft: 0,
+          paddingRight: 0,
+          margin: 0,
+          backgroundColor: AppColors.EEE,
+        }}
+      >
         <ScrollView pt={5} pb={10} width={"90%"}>
           <Center mb={10}>
             <Text fontSize={20} color={AppColors.SECONDARY}>

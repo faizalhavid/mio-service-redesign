@@ -190,7 +190,7 @@ const Home = (): JSX.Element => {
                 </>
               )}
           </View>
-          <Divider my={2} thickness={1} />
+          <Divider my={1} thickness={0} />
           <UpcomingPast />
         </VStack>
       </VirtualizedView>
