@@ -8,7 +8,7 @@ import {
   useToast,
   VStack,
 } from "native-base";
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
@@ -32,10 +32,11 @@ import {
   selectCustomer,
   setCustomerState,
 } from "../../slices/customer-slice";
-import { FAILED, IN_PROGRESS } from "../../commons/ui-states";
+import { FAILED, INIT, IN_PROGRESS } from "../../commons/ui-states";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SAMPLE } from "../../commons/sample";
 import GradientButton from "../../components/GradientButton";
+import { useIsFocused } from "@react-navigation/native";
 
 type LoginFormType = {
   email: string;
@@ -58,11 +59,20 @@ const Login = (): JSX.Element => {
 
   const { logEvent } = useAnalytics();
 
+  const isFocussed = useIsFocused();
+
+  useEffect(() => {
+    if (isFocussed) {
+      dispatch(setCustomerState({ uiState: INIT }));
+    }
+  }, [isFocussed]);
+
   const { uiState, member: customer, error } = useAppSelector(selectCustomer);
 
   const doLogin = async (userCredential: FirebaseAuthTypes.UserCredential) => {
+    dispatch(setCustomerState({ uiState: IN_PROGRESS }));
     let token = await userCredential.user.getIdToken();
-    StorageHelper.setValue("TOKEN", token);
+    await StorageHelper.setValue("TOKEN", token);
     await dispatch(getCustomerByIdAsync(userCredential.user.email));
     let navigateTo = "";
     if (!userCredential.user.emailVerified) {

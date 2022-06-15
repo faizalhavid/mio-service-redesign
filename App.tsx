@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { Alert, useColorScheme } from "react-native";
 import RootStackNavigation from "./src/navigations";
 import { extendTheme, NativeBaseProvider } from "native-base";
 import { LogBox } from "react-native";
@@ -13,6 +13,8 @@ import CodePush from "react-native-code-push";
 import { StorageHelper } from "./src/services/storage-helper";
 import { Provider } from "react-redux";
 import { store } from "./src/stores";
+import { setJSExceptionHandler } from "react-native-exception-handler";
+import { navigate } from "./src/navigations/rootNavigation";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
@@ -36,18 +38,33 @@ const App = () => {
     },
   });
 
-  useEffect(() => {
-    // PROD_CONFIG
-    if (!__DEV__) {
-      CodePush.checkForUpdate().then((value) => {
-        if (value) {
-          StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
-        } else {
-          StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
-        }
-      });
-    }
-  }, []);
+  setJSExceptionHandler((error, isFatal) => {
+    console.log("JSError", error);
+    console.log("isFatal", isFatal);
+    Alert.alert("Something went wrong", "Please login again!", [
+      {
+        text: "OK",
+        onPress: () => {
+          StorageHelper.clear();
+          navigate("Welcome");
+        },
+        style: "cancel",
+      },
+    ]);
+  }, true);
+
+  // useEffect(() => {
+  //   // PROD_CONFIG
+  //   if (!__DEV__) {
+  //     CodePush.checkForUpdate().then((value) => {
+  //       if (value) {
+  //         StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
+  //       } else {
+  //         StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
+  //       }
+  //     });
+  //   }
+  // }, []);
 
   return (
     <Provider store={store}>
@@ -61,7 +78,7 @@ const App = () => {
 };
 
 const codePushOptions: CodePushOptions = {
-  installMode: codePush.InstallMode.ON_NEXT_RESTART,
+  installMode: codePush.InstallMode.IMMEDIATE,
   checkFrequency: !__DEV__
     ? codePush.CheckFrequency.ON_APP_START
     : codePush.CheckFrequency.MANUAL,

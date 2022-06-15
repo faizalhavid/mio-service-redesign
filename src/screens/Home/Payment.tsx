@@ -297,7 +297,7 @@ const Payment = (): JSX.Element => {
               qbCardId: selectedCreditcard,
             },
             promoCode: {
-              id: couponValidity === "VALID" ? couponCode : undefined,
+              code: couponValidity === "VALID" ? couponCode : undefined,
             },
           };
           await dispatch(updateLeadAsync(payload));

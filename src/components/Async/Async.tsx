@@ -20,7 +20,12 @@ const Async = (
     <>
       {/* {mutation.isLoading ? (
         <View px={5}>
-          <Skeleton width={"100%"} h="100" borderRadius={10} />
+          <VStack space={1} mt={5} mx={3}>
+          <Skeleton borderRadius={10} h="40" startColor={"gray.300"} />
+          <Skeleton.Text startColor={"gray.300"} />
+          <Skeleton borderRadius={10} h="40" startColor={"gray.300"} />
+          <Skeleton.Text startColor={"gray.300"} />
+        </VStack>
         </View>
       ) : mutation.isIdle || mutation.isSuccess ? (
         children

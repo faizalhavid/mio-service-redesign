@@ -487,6 +487,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
               width: "100%",
               paddingBottom: 500,
             }}
+            showsVerticalScrollIndicator={false}
             renderItem={({ index, item }) => (
               <Pressable
                 alignSelf={"center"}

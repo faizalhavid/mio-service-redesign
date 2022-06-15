@@ -127,7 +127,7 @@ export interface Flags {
 }
 
 export interface PromoCode {
-  id: string;
+  code: string;
 }
 
 export interface Flags2 {

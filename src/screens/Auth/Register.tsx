@@ -1,5 +1,5 @@
 import { Button, Center, Divider, Flex, Text } from "native-base";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import Spacer from "../../components/Spacer";
@@ -36,6 +36,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { FAILED, INIT, IN_PROGRESS, SUCCESS } from "../../commons/ui-states";
 import { SAMPLE } from "../../commons/sample";
 import GradientButton from "../../components/GradientButton";
+import { useIsFocused } from "@react-navigation/native";
 
 const Register = (): JSX.Element => {
   const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
@@ -47,6 +48,15 @@ const Register = (): JSX.Element => {
   const { signup } = useAuth();
 
   const { logEvent } = useAnalytics();
+
+  const isFocussed = useIsFocused();
+
+  useEffect(() => {
+    if (isFocussed) {
+      dispatch(setCustomerState({ uiState: INIT }));
+    }
+  }, [isFocussed]);
+
   const loginWithGoogle = async () => {
     dispatch(setCustomerState({ uiState: IN_PROGRESS }));
     try {

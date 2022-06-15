@@ -16,7 +16,6 @@ const FloatingButton = ({}: FloatingButtonProps): JSX.Element => {
     Toast.show({
       title: "Profile information Missing",
       description: "Please update address & property details",
-      variant: "solid",
     });
   };
   return (
