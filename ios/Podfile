@@ -18,7 +18,6 @@ target 'MioHomeServices' do
   pod 'GoogleSignIn', '~> 6.1.0'
   
 
-  pod 'ReactNativeExceptionHandler', :path => '../node_modules/react-native-exception-handler'
 
   target 'MioHomeServicesTests' do
     inherit! :complete

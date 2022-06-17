@@ -48,9 +48,8 @@ const Home = (): JSX.Element => {
 
   const {
     member: { data: upcomingOrders = [] },
+    uiState: upcomingOrdersUiState,
   } = useAppSelector(selectUpcomingOrders);
-
-  const { uiState: pastOrdersUiState } = useAppSelector(selectPastOrders);
 
   const { uiState: customerUiState } = useAppSelector(selectCustomer);
 
@@ -73,7 +72,9 @@ const Home = (): JSX.Element => {
   useEffect(() => {
     StorageHelper.getValue("CUSTOMER_ID").then((cId) => {
       setUserId(cId || "");
-      dispatch(getCustomerByIdAsync(cId));
+      if (cId) {
+        dispatch(getCustomerByIdAsync(cId));
+      }
     });
   }, []);
 
@@ -112,14 +113,16 @@ const Home = (): JSX.Element => {
       <VirtualizedView>
         <VStack>
           <View px={3}>
-            {!addressExists && (
-              <WarningLabel
-                text="Update Address & Property details"
-                onPress={() => {
-                  setShowEditAddress(true);
-                }}
-              />
-            )}
+            {customerUiState !== IN_PROGRESS &&
+              upcomingOrdersUiState !== IN_PROGRESS &&
+              !addressExists && (
+                <WarningLabel
+                  text="Update Address & Property details"
+                  onPress={() => {
+                    setShowEditAddress(true);
+                  }}
+                />
+              )}
             {addressExists && upcomingOrders.length === 0 && (
               <Pressable
                 borderRadius={10}

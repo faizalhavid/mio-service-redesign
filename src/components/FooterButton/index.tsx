@@ -182,11 +182,13 @@ const FooterButton = ({
           )}
         </Pressable>
       </HStack>
-      <AddressBottomSheet
-        mode={addressMode}
-        showEditAddress={showEditAddress}
-        setShowEditAddress={setShowEditAddress}
-      />
+      {showEditAddress && (
+        <AddressBottomSheet
+          mode={addressMode}
+          showEditAddress={showEditAddress}
+          setShowEditAddress={setShowEditAddress}
+        />
+      )}
     </VStack>
   );
 };

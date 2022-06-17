@@ -41,16 +41,17 @@ const App = () => {
   setJSExceptionHandler((error, isFatal) => {
     console.log("JSError", error);
     console.log("isFatal", isFatal);
-    Alert.alert("Something went wrong", "Please login again!", [
-      {
-        text: "OK",
-        onPress: () => {
-          StorageHelper.clear();
-          navigate("Welcome");
-        },
-        style: "cancel",
-      },
-    ]);
+    StorageHelper.clear();
+    navigate("Welcome");
+    // Alert.alert("Something went wrong", "Please login again!", [
+    //   {
+    //     text: "OK",
+    //     onPress: () => {
+
+    //     },
+    //     style: "cancel",
+    //   },
+    // ]);
   }, true);
 
   // useEffect(() => {
