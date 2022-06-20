@@ -6,15 +6,17 @@ import { AppColors } from "../../commons/colors";
 type GradientButtonProps = {
   text: string;
   onPress: (param?: any) => void;
+  disabled?: boolean;
 };
 
 const GradientButton = ({
   text,
   onPress,
+  disabled,
 }: GradientButtonProps): JSX.Element => {
   return (
     <>
-      <Pressable width={"100%"} onPress={onPress}>
+      <Pressable disabled={disabled} width={"100%"} onPress={onPress}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}

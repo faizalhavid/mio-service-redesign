@@ -206,6 +206,12 @@ export function AuthProvider({ children }: AuthProviderType) {
             error.message.indexOf("the user does not have a password") > 0
           ) {
             rej("Invalid Password/Invalid Sign-in Method");
+          } else if (
+            error &&
+            error.message &&
+            error.message.indexOf("auth/invalid-email") > 0
+          ) {
+            rej("Invalid Email");
           } else {
             rej("Something went wrong.");
           }

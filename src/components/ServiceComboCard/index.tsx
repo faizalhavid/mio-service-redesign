@@ -56,28 +56,56 @@ const ServiceComboCard = ({
 
   const { groupedServiceDetails } = getServiceDetails();
 
-  const weeklyPrice = useMemo(() => {
+  const [weeklyPrice, setWeeklyPrice] = useState(0);
+
+  useEffect(() => {
+    if (weeklyPrice) return;
     let price: number = groupedServiceDetails[service?.id].priceMap.reduce(
       (updatedValue, price) => {
-        if (price.pricePerWeek && Number(price.pricePerWeek) < updatedValue) {
-          return Number(price.pricePerWeek);
+        if (
+          service?.id === LAWN_CARE_ID &&
+          price.rangeMin !== undefined &&
+          price.rangeMax !== undefined
+        ) {
+          let lotSize = customer?.addresses[0]?.houseInfo?.lotSize || 0;
+          if (!(lotSize >= price.rangeMin && lotSize <= price.rangeMax)) {
+            return updatedValue;
+          }
+        }
+        if (
+          service?.id === HOUSE_CLEANING_ID &&
+          price.bedrooms !== undefined &&
+          price.bathrooms !== undefined
+        ) {
+          if (
+            customer?.addresses[0]?.houseInfo?.bedrooms !== price.bedrooms ||
+            customer?.addresses[0]?.houseInfo?.bathrooms !== price.bathrooms
+          ) {
+            return updatedValue;
+          }
+        }
+        if (
+          price.pricePerWeek &&
+          (updatedValue === 0 || Number(price.pricePerWeek) < updatedValue)
+        ) {
+          updatedValue = Number(price.pricePerWeek);
         } else if (
           price.pricePer2Weeks &&
-          Number(price.pricePer2Weeks) < updatedValue
+          (updatedValue === 0 || Number(price.pricePer2Weeks) < updatedValue)
         ) {
-          return Number(price.pricePer2Weeks);
+          updatedValue = Number(price.pricePer2Weeks);
         } else if (
           price.pricePerMonth &&
-          Number(price.pricePerMonth) < updatedValue
+          (updatedValue === 0 || Number(price.pricePerMonth) < updatedValue)
         ) {
-          return Number(price.pricePerMonth);
+          updatedValue = Number(price.pricePerMonth);
         }
-        return 30;
+        return updatedValue;
       },
       0
     );
-    return price;
-  }, [groupedServiceDetails]);
+    setWeeklyPrice(price);
+  }, [groupedServiceDetails, service?.id]);
 
   const { member: customer } = useAppSelector(selectCustomer);
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{

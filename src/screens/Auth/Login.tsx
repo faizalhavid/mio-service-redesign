@@ -11,13 +11,12 @@ import {
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { AppColors } from "../../commons/colors";
-import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import SocialLogin from "../../components/SocialLogin";
 import Spacer from "../../components/Spacer";
 import { useAuth } from "../../contexts/AuthContext";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
+import { popToPop } from "../../navigations/rootNavigation";
 import auth from "@react-native-firebase/auth";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import ErrorView from "../../components/ErrorView";
@@ -170,6 +169,7 @@ const Login = (): JSX.Element => {
             <Spacer top={30} />
             <Center>
               <GradientButton
+                disabled={!loginForm.formState.isValid}
                 text="SIGN IN"
                 onPress={async (event) => {
                   await loginForm.trigger();
