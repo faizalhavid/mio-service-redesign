@@ -8,6 +8,7 @@ import appleAuth from "@invertase/react-native-apple-authentication";
 import { FLAG_TYPE, STATUS } from "../commons/status";
 import { StorageHelper } from "../services/storage-helper";
 import { ENV } from "../commons/environment";
+import { Skeleton, VStack } from "native-base";
 
 export type RegisterForm = {
   firstName: string;
@@ -138,7 +139,7 @@ export function AuthProvider({ children }: AuthProviderType) {
   const [customerProfile, setCustomerProfile] = React.useState<CustomerProfile>(
     {} as CustomerProfile
   );
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   async function signup(data: RegisterForm): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -291,6 +292,7 @@ export function AuthProvider({ children }: AuthProviderType) {
           .getIdToken()
           .then((token) => {
             StorageHelper.setValue("TOKEN", token);
+            setLoading(false);
           })
           .catch((error) => {
             console.log(error.message);
@@ -298,6 +300,8 @@ export function AuthProvider({ children }: AuthProviderType) {
             navigate("Welcome");
           });
         setCurrentUser(user);
+      } else {
+        setLoading(false);
       }
     });
     return unsubscribe;
@@ -322,7 +326,21 @@ export function AuthProvider({ children }: AuthProviderType) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <>
+          <VStack space={3} my={3} mx={3}>
+            <Skeleton borderRadius={10} height={100} />
+            <Skeleton borderRadius={10} height={100} />
+            <Skeleton borderRadius={10} height={100} />
+            <Skeleton borderRadius={10} height={100} />
+            <Skeleton borderRadius={10} height={100} />
+            <Skeleton borderRadius={10} height={100} />
+            <Skeleton borderRadius={10} height={100} />
+          </VStack>
+        </>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }

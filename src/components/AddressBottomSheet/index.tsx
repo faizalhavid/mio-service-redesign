@@ -99,12 +99,6 @@ export const AddressBottomSheet = ({
 
   useEffect(() => {
     if (showEditAddress) {
-      dispatch(getServicesAsync());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (showEditAddress) {
       if (
         customer &&
         customer?.addresses?.length > 0 &&

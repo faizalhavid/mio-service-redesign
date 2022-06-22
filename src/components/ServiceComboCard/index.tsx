@@ -58,9 +58,14 @@ const ServiceComboCard = ({
 
   const [weeklyPrice, setWeeklyPrice] = useState(0);
 
+  const { member: customer } = useAppSelector(selectCustomer);
+  const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
+    [key: string]: SubOrder;
+  }>({});
+
   useEffect(() => {
     if (weeklyPrice) return;
-    let price: number = groupedServiceDetails[service?.id].priceMap.reduce(
+    let price: number = groupedServiceDetails[service?.id]?.priceMap.reduce(
       (updatedValue, price) => {
         if (
           service?.id === LAWN_CARE_ID &&
@@ -107,10 +112,6 @@ const ServiceComboCard = ({
     setWeeklyPrice(price);
   }, [groupedServiceDetails, service?.id]);
 
-  const { member: customer } = useAppSelector(selectCustomer);
-  const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
-    [key: string]: SubOrder;
-  }>({});
   React.useEffect(() => {
     if (!leadDetails || Object.keys(leadDetails).length === 0) {
       return;

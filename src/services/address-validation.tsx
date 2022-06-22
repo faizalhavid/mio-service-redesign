@@ -4,7 +4,7 @@ import { useAppSelector } from "../hooks/useAppSelector";
 import { selectCustomer } from "../slices/customer-slice";
 
 export function isAddressExists() {
-  const [addressExists, setAddressExists] = useState<boolean>(false);
+  const [addressExists, setAddressExists] = useState<boolean>(true);
   const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
   const { member: customer, uiState: customerUiState } =
     useAppSelector(selectCustomer);

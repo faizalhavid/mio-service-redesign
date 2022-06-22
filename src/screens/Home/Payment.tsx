@@ -149,14 +149,14 @@ const Payment = (): JSX.Element => {
         ].indexOf(IN_PROGRESS) >= 0
       }
     >
-      <ScrollView mt={16}>
-        <VStack space={5}>
+      <ScrollView pt={70}>
+        <VStack space={3}>
           <PriceBreakdown />
           <Divider thickness={10} />
           <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
             Choose Credit Card
           </Text>
-          <Divider thickness={1} />
+          <Divider bgColor={"gray.200"} thickness={1} />
           <View pl={2}>
             <Radio.Group
               value={selectedCreditcard || ""}
@@ -202,7 +202,7 @@ const Payment = (): JSX.Element => {
             <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
               Apply Promo Code
             </Text>
-            <Divider thickness={1} mt={5} />
+            <Divider bgColor={"gray.200"} thickness={1} mt={4} />
             <VStack px={5}>
               <AppInput
                 type={"text"}

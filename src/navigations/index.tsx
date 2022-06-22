@@ -4,6 +4,7 @@ import {
   NativeStackNavigationOptions,
 } from "@react-navigation/native-stack";
 import React from "react";
+import auth from "@react-native-firebase/auth";
 import { TitleBar } from "../components/TitleBar/TitleBar";
 import Login from "../screens/Auth/Login";
 import Register from "../screens/Auth/Register";
@@ -60,7 +61,8 @@ const index = (): JSX.Element => {
       let initialSetupStatus = await StorageHelper.getValue(
         FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED
       );
-      if (initialSetupStatus === STATUS.COMPLETED) {
+
+      if (auth().currentUser && initialSetupStatus === STATUS.COMPLETED) {
         setInitialScreen("Dashboard");
         return;
       } else {

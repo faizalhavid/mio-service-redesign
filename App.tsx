@@ -41,8 +41,10 @@ const App = () => {
   setJSExceptionHandler((error, isFatal) => {
     console.log("JSError", error);
     console.log("isFatal", isFatal);
-    StorageHelper.clear();
-    navigate("Welcome");
+    if (!__DEV__) {
+      StorageHelper.clear();
+      navigate("Welcome");
+    }
     // Alert.alert("Something went wrong", "Please login again!", [
     //   {
     //     text: "OK",
