@@ -202,6 +202,8 @@ const ViewServiceDetails = ({
               SERVICE IMAGES
             </Text>
             <HStack space={2} mt={2}>
+              {!orderDetail?.serviceImages ||
+                (orderDetail?.serviceImages?.length === 0 && <Text>-</Text>)}
               {orderDetail?.serviceImages?.map((image, index) => (
                 <Image
                   key={index}

@@ -39,8 +39,30 @@ import GradientButton from "../../components/GradientButton";
 import { useIsFocused } from "@react-navigation/native";
 
 const Register = (): JSX.Element => {
-  const [socialLoginCompleted, setSocialLoginCompleted] = React.useState(false);
+  const socialLoginCompleted = React.useRef<boolean>(false);
   const password = useRef({});
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { isValid, isDirty, errors },
+    getValues,
+    trigger,
+  } = useForm<RegisterForm>({
+    mode: "all",
+    defaultValues: {
+      firstName: SAMPLE.FIRST_NAME,
+      lastName: SAMPLE.LAST_NAME,
+      phone: SAMPLE.PHONE,
+      email: SAMPLE.EMAIL,
+      password: SAMPLE.PASSWORD,
+      confirmPassword: SAMPLE.PASSWORD,
+    },
+  });
+
+  password.current = watch("password", "");
 
   const dispatch = useAppDispatch();
   const { uiState, member: customer, error } = useAppSelector(selectCustomer);
@@ -71,21 +93,30 @@ const Register = (): JSX.Element => {
       const userCredential = await auth().signInWithCredential(
         googleCredential
       );
-      setSocialLoginCompleted(true);
+      socialLoginCompleted.current = true;
       if (
         userCredential &&
         userCredential.user &&
         userCredential.user.displayName
       ) {
         let names = userCredential.user.displayName.split(" ");
-        setValue("firstName", names[0] || "");
-        setValue("lastName", names[1] || "");
+        onSubmit({
+          firstName: names[0],
+          lastName: names[1],
+          phone: "",
+          email: userCredential.user.email || "",
+          password: "",
+          confirmPassword: "",
+        });
+        return;
+      } else {
+        dispatch(
+          setCustomerState({
+            uiState: FAILED,
+            error: "Something went wrong!",
+          })
+        );
       }
-      setValue("email", userCredential.user.email || "");
-      setValue("phone", "");
-
-      dispatch(setCustomerState({ uiState: SUCCESS }));
-      // Sign-in the user with the credential
     } catch (error: any) {
       console.log("error", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -149,15 +180,24 @@ const Register = (): JSX.Element => {
         return;
       }
 
-      setSocialLoginCompleted(true);
-      if (
-        userCredential &&
-        userCredential.user &&
-        userCredential.user.displayName
-      ) {
-        let names = userCredential.user.displayName.split(" ");
-        setValue("firstName", names[0] || "");
-        setValue("lastName", names[1] || "");
+      socialLoginCompleted.current = true;
+      if (userCredential && userCredential.user) {
+        onSubmit({
+          firstName: appleAuthRequestResponse.fullName?.givenName || "",
+          lastName: appleAuthRequestResponse.fullName?.familyName || "",
+          phone: "",
+          email: userCredential.user.email || "",
+          password: "",
+          confirmPassword: "",
+        });
+        return;
+      } else {
+        dispatch(
+          setCustomerState({
+            uiState: FAILED,
+            error: "Something went wrong!",
+          })
+        );
       }
       setValue("email", userCredential.user.email || "");
       setValue("phone", "");
@@ -174,31 +214,10 @@ const Register = (): JSX.Element => {
     }
   };
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { isValid, isDirty, errors },
-    trigger,
-  } = useForm<RegisterForm>({
-    mode: "all",
-    defaultValues: {
-      firstName: SAMPLE.FIRST_NAME,
-      lastName: SAMPLE.LAST_NAME,
-      phone: SAMPLE.PHONE,
-      email: SAMPLE.EMAIL,
-      password: SAMPLE.PASSWORD,
-      confirmPassword: SAMPLE.PASSWORD,
-    },
-  });
-
-  password.current = watch("password", "");
-
-  const registerCustomer = (payload: CustomerProfile) => {
-    dispatch(registerCustomerAsync(payload))
+  const registerCustomer = async (payload: CustomerProfile) => {
+    dispatch(registerCustomerAsync({ ...payload }))
       .then(async () => {
-        if (socialLoginCompleted) {
+        if (socialLoginCompleted.current) {
           await StorageHelper.setValue(
             FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
             STATUS.COMPLETED
@@ -220,15 +239,17 @@ const Register = (): JSX.Element => {
   };
 
   const onSubmit = async (data: RegisterForm) => {
-    await trigger();
+    // await trigger();
     dispatch(
       setCustomerState({
         uiState: IN_PROGRESS,
       })
     );
+    let fcmToken = await StorageHelper.getValue("FCM_DEVICE_TOKEN");
     let payload: CustomerProfile = {
       ...dummyProfile,
       ...data,
+      fcmDeviceToken: fcmToken,
       phones: [
         {
           ...({} as Phone),
@@ -237,7 +258,7 @@ const Register = (): JSX.Element => {
       ],
       customerId: data.email,
     };
-    if (socialLoginCompleted) {
+    if (socialLoginCompleted.current) {
       registerCustomer(payload);
       return;
     }
@@ -261,16 +282,9 @@ const Register = (): JSX.Element => {
     <AppSafeAreaView mt={60} loading={uiState === IN_PROGRESS}>
       <KeyboardAwareScrollView enableOnAndroid={true}>
         <Center mt={"1/4"} width={"100%"}>
-          {!socialLoginCompleted && (
-            <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
-              Create an account {"\n"}to manage your service
-            </Text>
-          )}
-          {socialLoginCompleted && (
-            <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
-              Please provide the {"\n"}required information
-            </Text>
-          )}
+          <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
+            Create an account {"\n"}to manage your service
+          </Text>
         </Center>
         {/* <ScrollView> */}
 
@@ -332,62 +346,46 @@ const Register = (): JSX.Element => {
                 label="Email"
                 onChange={onChange}
                 value={value}
-                disabled={socialLoginCompleted}
               />
             )}
             name="email"
           />
-          {!socialLoginCompleted && (
-            <>
-              <Controller
-                control={control}
-                rules={{
-                  required: !socialLoginCompleted,
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <AppInput
-                    type="password"
-                    label="Password"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="password"
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, value } }) => (
+              <AppInput
+                type="password"
+                label="Password"
+                onChange={onChange}
+                value={value}
               />
-              <Controller
-                control={control}
-                rules={{
-                  required: !socialLoginCompleted,
-                  validate: (value) =>
-                    value === password.current || "The passwords do not match",
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <AppInput
-                    type="password"
-                    label="Confirm Password"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="confirmPassword"
+            )}
+            name="password"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+              validate: (value) =>
+                value === password.current || "The passwords do not match",
+            }}
+            render={({ field: { onChange, value } }) => (
+              <AppInput
+                type="password"
+                label="Confirm Password"
+                onChange={onChange}
+                value={value}
               />
-              {errors.confirmPassword && (
-                <Text fontSize={12} fontWeight={"semibold"} color={"red.500"}>
-                  Password do not match
-                </Text>
-              )}
-
-              {/* <Button
-                mt={5}
-                height={50}
-                disabled={!isValid}
-                bg={AppColors.TEAL}
-                _text={{ color: "white" }}
-                onPress={handleSubmit(onSubmit)}
-              >
-                CREATE ACCOUNT
-              </Button> */}
-            </>
+            )}
+            name="confirmPassword"
+          />
+          {errors.confirmPassword && (
+            <Text fontSize={12} fontWeight={"semibold"} color={"red.500"}>
+              Password do not match
+            </Text>
           )}
           <Divider thickness={0} mt={18} />
           <GradientButton
@@ -395,13 +393,11 @@ const Register = (): JSX.Element => {
             onPress={handleSubmit(onSubmit)}
           />
           <Spacer top={20} />
-          {!socialLoginCompleted && (
-            <SocialLogin
-              label="Sign up"
-              loginWithGoogle={loginWithGoogle}
-              loginWithApple={loginWithApple}
-            />
-          )}
+          <SocialLogin
+            label="Sign up"
+            loginWithGoogle={loginWithGoogle}
+            loginWithApple={loginWithApple}
+          />
         </Flex>
         <Divider thickness={0} mt={200} />
         {/* </ScrollView> */}

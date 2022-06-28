@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Alert, useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 import RootStackNavigation from "./src/navigations";
 import { extendTheme, NativeBaseProvider } from "native-base";
 import { LogBox } from "react-native";
@@ -7,9 +7,9 @@ import "@react-native-firebase/app";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { firebase } from "@react-native-firebase/app-check";
+import messaging from "@react-native-firebase/messaging";
 import { ENV } from "./src/commons/environment";
 import codePush, { CodePushOptions } from "react-native-code-push";
-import CodePush from "react-native-code-push";
 import { StorageHelper } from "./src/services/storage-helper";
 import { Provider } from "react-redux";
 import { store } from "./src/stores";
@@ -38,36 +38,52 @@ const App = () => {
     },
   });
 
-  setJSExceptionHandler((error, isFatal) => {
-    console.log("JSError", error);
-    console.log("isFatal", isFatal);
-    if (!__DEV__) {
-      StorageHelper.clear();
-      navigate("Welcome");
+  const requestUserPermission = async () => {
+    const authorizationStatus = await messaging().requestPermission({
+      provisional: true,
+    });
+
+    if (authorizationStatus) {
+      // console.log("Permission status:", authorizationStatus);
+      getFCMToken();
     }
-    // Alert.alert("Something went wrong", "Please login again!", [
-    //   {
-    //     text: "OK",
-    //     onPress: () => {
+  };
 
-    //     },
-    //     style: "cancel",
-    //   },
-    // ]);
-  }, true);
+  useEffect(() => {
+    // Exception handler
+    setJSExceptionHandler((error, isFatal) => {
+      console.log("JSError", error);
+      console.log("isFatal", isFatal);
+      if (!__DEV__) {
+        StorageHelper.clear();
+        navigate("Welcome");
+      }
+    }, true);
 
-  // useEffect(() => {
-  //   // PROD_CONFIG
-  //   if (!__DEV__) {
-  //     CodePush.checkForUpdate().then((value) => {
-  //       if (value) {
-  //         StorageHelper.setValue("NEW_UPDATE_FOUND", "true");
-  //       } else {
-  //         StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
-  //       }
-  //     });
-  //   }
-  // }, []);
+    // Request Push Permission
+    if (Platform.OS === "ios") {
+      requestUserPermission();
+    } else {
+      getFCMToken();
+    }
+
+    // Background Push Message Listener
+    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+      console.log("Message handled in the background!", remoteMessage);
+    });
+  }, []);
+
+  const getFCMToken = () => {
+    StorageHelper.getValue("FCM_DEVICE_TOKEN").then((value) => {
+      if (value === null) {
+        messaging()
+          .getToken()
+          .then((token) => {
+            StorageHelper.setValue("FCM_DEVICE_TOKEN", token);
+          });
+      }
+    });
+  };
 
   return (
     <Provider store={store}>

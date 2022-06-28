@@ -35,6 +35,9 @@ PODS:
     - FirebaseAuth (~> 8.12.0)
   - Firebase/CoreOnly (8.12.1):
     - FirebaseCore (= 8.12.1)
+  - Firebase/Messaging (8.12.1):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 8.12.0)
   - Firebase/Storage (8.12.1):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 8.12.0)
@@ -70,6 +73,15 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - GoogleUtilities/UserDefaults (~> 7.7)
     - PromisesObjC (< 3.0, >= 1.2)
+  - FirebaseMessaging (8.12.0):
+    - FirebaseCore (~> 8.0)
+    - FirebaseInstallations (~> 8.0)
+    - GoogleDataTransport (~> 9.1)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
+    - GoogleUtilities/Environment (~> 7.7)
+    - GoogleUtilities/Reachability (~> 7.7)
+    - GoogleUtilities/UserDefaults (~> 7.7)
+    - nanopb (~> 2.30908.0)
   - FirebaseStorage (8.12.0):
     - FirebaseCore (~> 8.0)
     - GTMSessionFetcher/Core (~> 1.5)
@@ -488,6 +500,10 @@ PODS:
     - Firebase/Auth (= 8.12.1)
     - React-Core
     - RNFBApp
+  - RNFBMessaging (14.5.0):
+    - Firebase/Messaging (= 8.12.1)
+    - React-Core
+    - RNFBApp
   - RNFBStorage (14.5.0):
     - Firebase/Storage (= 8.12.1)
     - React-Core
@@ -578,6 +594,7 @@ DEPENDENCIES:
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAppCheck (from `../node_modules/@react-native-firebase/app-check`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
+  - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -596,6 +613,7 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseCoreDiagnostics
     - FirebaseInstallations
+    - FirebaseMessaging
     - FirebaseStorage
     - Flipper
     - Flipper-Boost-iOSX
@@ -718,6 +736,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/app-check"
   RNFBAuth:
     :path: "../node_modules/@react-native-firebase/auth"
+  RNFBMessaging:
+    :path: "../node_modules/@react-native-firebase/messaging"
   RNFBStorage:
     :path: "../node_modules/@react-native-firebase/storage"
   RNGoogleSignin:
@@ -746,6 +766,7 @@ SPEC CHECKSUMS:
   FirebaseCore: 8138de860a90ca7eec5e324da5788fb0ebf1d93c
   FirebaseCoreDiagnostics: 92e07a649aeb66352b319d43bdd2ee3942af84cb
   FirebaseInstallations: 40bd9054049b2eae9a2c38ef1c3dd213df3605cd
+  FirebaseMessaging: 23db8bf05585e929ada8af0f0968933c25252808
   FirebaseStorage: 4b75458c35d8b728e4c1fc1371942997456ab299
   Flipper: 30e8eeeed6abdc98edaf32af0cda2f198be4b733
   Flipper-Boost-iOSX: fd1e2b8cbef7e662a122412d7ac5f5bea715403c
@@ -810,6 +831,7 @@ SPEC CHECKSUMS:
   RNFBApp: 06c8447270d295edc431bccd55970d8711a07a42
   RNFBAppCheck: 352d528a34d40478165d6f4e9e5eb7f2951bb826
   RNFBAuth: e248a56b1d28d3b53b54b72a296cf9270df1d96e
+  RNFBMessaging: 8e3575bb0303b43a852bf5decbe99c3272035048
   RNFBStorage: e061bbb005be42225e95cb62af7768bda4d24e3a
   RNGoogleSignin: d7f8368b82d94f1dec964785d496387ca7f19092
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19

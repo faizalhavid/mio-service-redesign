@@ -1,7 +1,6 @@
 import {
   Actionsheet,
   Center,
-  CheckIcon,
   Divider,
   Text,
   Select,
@@ -9,7 +8,6 @@ import {
   Spacer,
   HStack,
   Pressable,
-  Spinner,
   ScrollView,
 } from "native-base";
 import React, { useEffect, useState } from "react";
@@ -31,7 +29,6 @@ import {
   putCustomerAsync,
 } from "../../slices/customer-slice";
 import {
-  getServicesAsync,
   resetSelectedServices,
   selectServices,
 } from "../../slices/service-slice";
@@ -240,6 +237,7 @@ export const AddressBottomSheet = ({
 
   const onSubmit = async (data: HouseInfoAddressRequest) => {
     Keyboard.dismiss();
+    let fcmToken = await StorageHelper.getValue("FCM_DEVICE_TOKEN");
     if (!customer?.addresses || !customer?.addresses[0]?.zip) {
       await dispatch(
         getHouseInfoAsync({
@@ -255,6 +253,7 @@ export const AddressBottomSheet = ({
         await dispatch(
           putCustomerAsync({
             ...customer,
+            fcmDeviceToken: fcmToken,
             addresses: [
               {
                 ...data,
@@ -273,6 +272,7 @@ export const AddressBottomSheet = ({
       await dispatch(
         putCustomerAsync({
           ...customer,
+          fcmDeviceToken: fcmToken,
           addresses: [
             {
               ...customer?.addresses[0],
@@ -370,7 +370,13 @@ export const AddressBottomSheet = ({
               }}
             > */}
           <ScrollView width={"100%"}>
-            <VStack px={4} space={0} pb={75} bg={AppColors.EEE}>
+            <VStack
+              key={"ADDRESS_SHEET"}
+              px={4}
+              space={0}
+              pb={75}
+              bg={AppColors.EEE}
+            >
               {(customerUiState === FAILED || houseInfoUiState === FAILED) && (
                 <ErrorView
                   message={

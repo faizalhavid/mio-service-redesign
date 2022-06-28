@@ -56,6 +56,7 @@ export type CustomerProfile = {
   firstName: string;
   lastName: string;
   pictureURL: string;
+  fcmDeviceToken?: string | null;
   profileComplete?: boolean;
   paymentCardSaved: boolean;
   firstServiceAdded: boolean;

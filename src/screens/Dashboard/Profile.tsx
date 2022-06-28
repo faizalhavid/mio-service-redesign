@@ -1,11 +1,12 @@
 import {
+  Center,
   Circle,
   Divider,
   HStack,
   Image,
   Pressable,
-  Radio,
   ScrollView,
+  Spinner,
   Text,
   VStack,
 } from "native-base";
@@ -22,8 +23,6 @@ import {
   selectCustomer,
 } from "../../slices/customer-slice";
 import { getSavedCardsAsync, selectCards } from "../../slices/card-slice";
-import { SvgCss } from "react-native-svg";
-import { USER_ICON } from "../../commons/assets";
 import { AddCardBottomSheet } from "../../components/AddCardBottomSheet";
 import { StorageHelper } from "../../services/storage-helper";
 import {
@@ -32,6 +31,7 @@ import {
 } from "../../components/AddressBottomSheet";
 import { PersonalDetailsBottomSheet } from "../../components/PersonalDetailsBottomSheet";
 import { Alert } from "react-native";
+import { version } from "../../../package.json";
 
 const Profile = (): JSX.Element => {
   const { logout } = useAuth();
@@ -151,7 +151,11 @@ const Profile = (): JSX.Element => {
             }
           ></Circle>
           <VStack>
-            <ValueText text={`${customer?.firstName} ${customer?.lastName}`} />
+            <ValueText
+              text={`${customer?.firstName || "-"} ${
+                customer?.lastName || "-"
+              }`}
+            />
             <Text color={AppColors.AAA} fontSize={12} fontWeight={"semibold"}>
               {customer?.email}
             </Text>
@@ -300,21 +304,29 @@ const Profile = (): JSX.Element => {
         </HStack>
         <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
         <VStack space={3}>
-          {cards.length === 0 && (
+          {cardsUiState === "IN_PROGRESS" && (
+            <Spinner
+              alignSelf={"flex-start"}
+              color={AppColors.PRIMARY}
+              size="sm"
+            />
+          )}
+          {cardsUiState !== "IN_PROGRESS" && cards.length === 0 && (
             <Text color={"amber.600"} fontSize={14}>
               No cards added yet!
             </Text>
           )}
-          {cards.map((card, index) => (
-            <HStack justifyContent={"space-between"} key={index}>
-              <VStack>
-                <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                  {card.cardType}
-                </Text>
-                <ValueText text={formatNumber(card.number)} />
-              </VStack>
-            </HStack>
-          ))}
+          {cardsUiState === "SUCCESS" &&
+            cards.map((card, index) => (
+              <HStack justifyContent={"space-between"} key={index}>
+                <VStack>
+                  <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                    {card.cardType}
+                  </Text>
+                  <ValueText text={formatNumber(card.number)} />
+                </VStack>
+              </HStack>
+            ))}
         </VStack>
       </VStack>
     );
@@ -327,7 +339,7 @@ const Profile = (): JSX.Element => {
           Alert.alert("Logout", "Would you like to logout?", [
             {
               text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
+              onPress: () => {},
               style: "cancel",
             },
             {
@@ -368,6 +380,9 @@ const Profile = (): JSX.Element => {
           <PropertyDetailsCard />
           <PaymentCard />
           <LogoutCard />
+          <Center my={3}>
+            <Text color={"#ccc"}>v{version}</Text>
+          </Center>
         </VStack>
       </ScrollView>
       <FloatingButton />
