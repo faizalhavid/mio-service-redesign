@@ -33,6 +33,7 @@ type ServiceCardProps = {
   showReschedule?: boolean;
   showChat?: boolean;
   w?: string;
+  status?: string;
   dateTime: string;
   serviceName: string;
   date: string;
@@ -52,6 +53,7 @@ const ServiceCard = ({
   showReschedule,
   showChat,
   w,
+  status,
   serviceName,
   date,
   day,
@@ -190,7 +192,7 @@ const ServiceCard = ({
                 <VStack
                   alignItems={"center"}
                   borderRadius={10}
-                  bg={AppColors.LIGHT_TEAL}
+                  bg={status === "CANCELED" ? "red.100" : AppColors.LIGHT_TEAL}
                   px={5}
                   py={2}
                 >
@@ -216,7 +218,14 @@ const ServiceCard = ({
                     color={AppColors.SECONDARY}
                     fontWeight={"semibold"}
                   >
-                    {serviceName} Service
+                    {serviceName} Service{" "}
+                    {status === "CANCELED" ? (
+                      <Text fontSize={12} color={"red.700"}>
+                        CANCELED
+                      </Text>
+                    ) : (
+                      ""
+                    )}
                   </Text>
                   <Text
                     fontSize={14}

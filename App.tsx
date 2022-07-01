@@ -18,15 +18,6 @@ import { navigate } from "./src/navigations/rootNavigation";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
-if (__DEV__) {
-  // firebase.auth().useEmulator("http://192.168.0.248:9099");
-  import("./ReactotronConfig").then(() => {
-    // console.log("Reactotron Configured")
-  });
-}
-
-firebase.appCheck().activate("com.miohomeservices.customer", true);
-
 const App = () => {
   GoogleSignin.configure({
     webClientId: ENV.WEB_CLIENT_ID,
@@ -50,6 +41,11 @@ const App = () => {
   };
 
   useEffect(() => {
+    // if (__DEV__) {
+    //   firebase.auth().useEmulator("http://localhost:9099");
+    // }
+    // Enable AppChek
+    firebase.appCheck().activate("com.miohomeservices.customer", true);
     // Exception handler
     setJSExceptionHandler((error, isFatal) => {
       console.log("JSError", error);

@@ -92,10 +92,16 @@ export interface Service {
 
 // Order
 
+export type OrderStatus = {
+  status: string;
+  message: string;
+};
+
 export type Order = {
   orderId: string;
   subOrderId: string;
   appointmentDateTime: string;
+  status: string;
   serviceId: string;
 };
 
@@ -135,6 +141,7 @@ export interface Flags2 {
   isRecurring: boolean;
   isCompleted: boolean;
   paymentStatus: string;
+  status: string;
   refundStatus: string;
   isRefund: boolean;
   recurringDuration: string;

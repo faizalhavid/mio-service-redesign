@@ -13,6 +13,8 @@ export const API = {
   SAVE_CARD: "/payment/savecard",
   CREATE_ORDER_FROM_LEAD: "/orders",
   GET_ALL_ORDERS: "/orders/all",
+  CANCEL_ORDER: "/orders",
+  RESCHEDULE_ORDER: "/orders",
   GET_ORDER_DETAILS: "/orders",
   VALIDATE_COUPON: "/coupon/validate",
 };

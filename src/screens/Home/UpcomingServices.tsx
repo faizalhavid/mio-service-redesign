@@ -1,9 +1,7 @@
-import { Center, Divider, FlatList, Spinner, Text, VStack } from "native-base";
+import { Center, Divider, Spinner, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SectionList } from "react-native";
 import { GroupedOrder, Order } from "../../commons/types";
-import { IN_PROGRESS } from "../../commons/ui-states";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ServiceCard from "../../components/ServiceCard";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -11,6 +9,7 @@ import { getReadableDateTime } from "../../services/utils";
 import {
   getUpcomingOrdersAsync,
   selectUpcomingOrders,
+  setFirstOrder,
 } from "../../slices/order-slice";
 import { SERVICES } from "./ChooseService";
 
@@ -63,6 +62,17 @@ const UpcomingServices = (): JSX.Element => {
               };
             }
           );
+
+          if (page === 1 && orders.length > 0) {
+            dispatch(setFirstOrder({ order: {} as Order }));
+            for (let order of orders) {
+              if (order.status !== "CANCELED") {
+                dispatch(setFirstOrder({ order: order }));
+                break;
+              }
+            }
+          }
+
           setUpcomingOrders(currentOrders);
         }
         if (orders.length < limit) {
@@ -107,7 +117,8 @@ const UpcomingServices = (): JSX.Element => {
             variant={"outline"}
             w={"100%"}
             dateTime={item.appointmentDateTime}
-            showAddToCalendar={true}
+            status={item.status}
+            showAddToCalendar={item.status !== "CANCELED"}
             showReschedule={true}
             showChat={true}
             serviceName={SERVICES[item.serviceId]?.text}

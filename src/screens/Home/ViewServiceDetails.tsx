@@ -1,5 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
+  Button,
   Divider,
   HStack,
   Image,
@@ -8,7 +9,7 @@ import {
   View,
   VStack,
 } from "native-base";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import { SuperRootStackParamList } from "../../navigations";
@@ -28,6 +29,7 @@ import {
   selectOrderDetails,
 } from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
+import CancelOrderBottomSheet from "../../components/CancelOrderBottomSheet";
 
 type ViewServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
@@ -37,6 +39,7 @@ const ViewServiceDetails = ({
   route,
 }: ViewServiceDetailsProps): JSX.Element => {
   const { orderId, subOrderId } = route.params;
+  const [showCancelOrder, setShowCancelOrder] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
 
@@ -93,13 +96,20 @@ const ViewServiceDetails = ({
             </Text>
             <ValueText text={"Mio Home Services"} />
           </View>
-          <View>
-            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-              SERVICE TYPE
-            </Text>
-            <ValueText text={SERVICES[orderDetail?.serviceId]?.text} />
-          </View>
-
+          <HStack justifyContent={"space-between"}>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                STATUS
+              </Text>
+              <ValueText text={orderDetail?.flags?.status} />
+            </VStack>
+            <VStack width={"50%"}>
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                SERVICE TYPE
+              </Text>
+              <ValueText text={SERVICES[orderDetail?.serviceId]?.text} />
+            </VStack>
+          </HStack>
           <HStack justifyContent={"space-between"}>
             <VStack width={"50%"}>
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
@@ -275,9 +285,32 @@ const ViewServiceDetails = ({
           <OverviewCard />
           <ServiceDetailsCard />
           <AddressCard />
+          {["NEW", "ACTIVE", "RESCHEDULED", "CANCELLATION-FAILED"].indexOf(
+            orderDetail?.flags?.status
+          ) >= 0 && (
+            <Button
+              variant={"outline"}
+              mx={3}
+              _pressed={{
+                bgColor: "red.100",
+              }}
+              borderColor="red.600"
+              borderWidth={0.8}
+              onPress={() => setShowCancelOrder(true)}
+            >
+              <Text color="red.600">Cancel Order</Text>
+            </Button>
+          )}
           <Divider mt={100} thickness={0} />
         </VStack>
       </ScrollView>
+      {showCancelOrder && (
+        <CancelOrderBottomSheet
+          orderId={orderId}
+          showCancelOrder={showCancelOrder}
+          setShowCancelOrder={setShowCancelOrder}
+        />
+      )}
     </AppSafeAreaView>
   );
 };
