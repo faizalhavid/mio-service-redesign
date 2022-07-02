@@ -294,12 +294,14 @@ const ServiceCard = ({
           </>
         )}
       </VStack>
-      <Reschedule
-        isOpen={showRescheduleSheet}
-        setOpen={setShowRescheduleSheet}
-        orderId={orderId}
-        serviceName={serviceName}
-      />
+      {showRescheduleSheet && (
+        <Reschedule
+          isOpen={showRescheduleSheet}
+          setOpen={setShowRescheduleSheet}
+          orderId={orderId}
+          subOrderId={subOrderId}
+        />
+      )}
     </Pressable>
   );
 };

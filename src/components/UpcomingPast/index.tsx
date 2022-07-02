@@ -1,13 +1,31 @@
 import { HStack, VStack, Pressable, Text, Divider } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import ServiceHistory from "../../screens/Home/ServiceHistory";
 import UpcomingServices from "../../screens/Home/UpcomingServices";
+import {
+  selectRefreshNeeded,
+  setRefreshNeeded,
+} from "../../slices/shared-slice";
 
 type CurrentScreenType = "UPCOMING" | "PAST";
 const UpcomingPast = (): JSX.Element => {
+  const dispatch = useAppDispatch();
   const [currentScreen, setCurrentScreen] =
     useState<CurrentScreenType>("UPCOMING");
+  const [reload, setReload] = useState("NO");
+  const { member: refreshNeeded } = useAppSelector(selectRefreshNeeded);
+  React.useEffect(() => {
+    if (
+      refreshNeeded["UPCOMING_SERVICES"] &&
+      refreshNeeded["UPCOMING_SERVICES"] === true
+    ) {
+      setReload(`YES_${new Date().getTime()}`);
+      dispatch(setRefreshNeeded({ data: { UPCOMING_SERVICES: false } }));
+    }
+  }, [refreshNeeded]);
 
   const ChooserCardButton = ({
     selected,
@@ -68,7 +86,7 @@ const UpcomingPast = (): JSX.Element => {
   return (
     <VStack pb={100}>
       <ChooserCard />
-      {currentScreen === "UPCOMING" && <UpcomingServices />}
+      {currentScreen === "UPCOMING" && <UpcomingServices key={reload} />}
       {currentScreen === "PAST" && <ServiceHistory />}
       {/* <Divider mt={"200px"} thickness={0} /> */}
     </VStack>

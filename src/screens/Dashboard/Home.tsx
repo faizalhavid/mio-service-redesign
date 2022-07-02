@@ -3,12 +3,11 @@ import {
   Divider,
   Image,
   Pressable,
-  Skeleton,
   Text,
   View,
   VStack,
 } from "native-base";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
@@ -30,21 +29,15 @@ import {
 } from "../../slices/customer-slice";
 import {
   selectFirstOrder,
-  selectPastOrders,
   selectUpcomingOrders,
 } from "../../slices/order-slice";
-import { IN_PROGRESS } from "../../commons/ui-states";
 import { AddressBottomSheet } from "../../components/AddressBottomSheet";
 import WarningLabel from "../../components/WarningLabel";
 import UpcomingPast from "../../components/UpcomingPast";
 import VirtualizedView from "../../components/VirtualizedView";
-import { Order } from "../../commons/types";
 import { isAddressExists } from "../../services/address-validation";
 import { getServicesAsync } from "../../slices/service-slice";
-import {
-  selectRefreshNeeded,
-  setRefreshNeeded,
-} from "../../slices/shared-slice";
+import { selectRefreshNeeded } from "../../slices/shared-slice";
 
 const Home = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -58,16 +51,12 @@ const Home = (): JSX.Element => {
 
   const { uiState: customerUiState } = useAppSelector(selectCustomer);
 
-  const { member: refreshNeeded } = useAppSelector(selectRefreshNeeded);
-
   const { addressExists, addressMode } = isAddressExists();
 
   const { logout } = useAuth();
   const { setUserId } = useAnalytics();
 
   const [contentReady, setContentReady] = useState<boolean>(false);
-
-  const [reload, setReload] = useState("NO");
 
   const init = React.useCallback(async () => {
     let APP_INITIAL_SETUP_COMPLETED = await StorageHelper.getValue(
@@ -87,23 +76,9 @@ const Home = (): JSX.Element => {
     dispatch(getServicesAsync());
   }, []);
 
-  const isFocussed = useIsFocused();
-
   useEffect(() => {
     init();
   }, []);
-
-  useEffect(() => {
-    if (isFocussed) {
-      if (
-        refreshNeeded["UPCOMING_SERVICES"] &&
-        refreshNeeded["UPCOMING_SERVICES"] === true
-      ) {
-        setReload(`YES_${new Date().getTime()}`);
-        dispatch(setRefreshNeeded({ data: { UPCOMING_SERVICES: false } }));
-      }
-    }
-  }, [isFocussed]);
 
   useEffect(() => {
     if (customerUiState === "SUCCESS" && upcomingOrdersUiState === "SUCCESS") {
@@ -208,20 +183,7 @@ const Home = (): JSX.Element => {
               <Divider my={1} thickness={0} />
             </View>
           )}
-          <UpcomingPast key={reload} />
-          {/* {isFocussed ? (
-            <UpcomingPast />
-          ) : (
-            <VStack space={3} my={3} mx={3}>
-              <Skeleton bg={AppColors.CCC} borderRadius={10} height={100} />
-              <Skeleton bg={AppColors.CCC} borderRadius={10} height={100} />
-              <Skeleton bg={AppColors.CCC} borderRadius={10} height={100} />
-              <Skeleton bg={AppColors.CCC} borderRadius={10} height={100} />
-              <Skeleton bg={AppColors.CCC} borderRadius={10} height={100} />
-              <Skeleton bg={AppColors.CCC} borderRadius={10} height={100} />
-              <Skeleton bg={AppColors.CCC} borderRadius={10} height={100} />
-            </VStack>
-          )} */}
+          <UpcomingPast />
         </VStack>
       </VirtualizedView>
       {showEditAddress && (

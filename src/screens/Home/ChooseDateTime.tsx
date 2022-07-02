@@ -30,7 +30,7 @@ import * as ImagePicker from "react-native-image-picker";
 import { firebase } from "@react-native-firebase/storage";
 import { useAuth } from "../../contexts/AuthContext";
 
-type AppointmentDateOptionType = {
+export type AppointmentDateOptionType = {
   fullDate: string;
   date: number;
   day: string;
@@ -38,7 +38,7 @@ type AppointmentDateOptionType = {
   selected: boolean;
 };
 
-type AppointmentTimeOptionType = {
+export type AppointmentTimeOptionType = {
   actualMin: string;
   rangeMin: string;
   rangeMax: string;
@@ -77,7 +77,7 @@ export const FULL_MONTH = [
   "December",
 ];
 
-const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+export const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 type ChooseDateTimeProps = NativeStackScreenProps<
   SuperRootStackParamList,
