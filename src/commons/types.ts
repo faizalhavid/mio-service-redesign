@@ -176,6 +176,7 @@ export interface SelectedRange {
 
 export interface AppointmentInfo {
   appointmentDateTime?: any;
+  eaAppointmentId?: any;
   providerProfile: ProviderProfile;
   selectedRange: SelectedRange;
   duration: number;

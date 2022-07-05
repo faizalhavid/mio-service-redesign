@@ -2,23 +2,17 @@ import {
   Box,
   Center,
   Divider,
-  Flex,
   PresenceTransition,
   ScrollView,
   Text,
   VStack,
 } from "native-base";
 import React from "react";
-import { Image, ImageBackground, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { SvgCss } from "react-native-svg";
 import { COLOR_LOGO } from "../../commons/assets";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import { AppStatusBar } from "../../components/AppStatusBar";
-import AuthButton from "../../components/AuthButton";
-import CheckAppUpdate from "../../components/CheckAppUpdate";
-import CheckInternet from "../../components/CheckInternet";
 import GradientButton from "../../components/GradientButton";
-import Spacer from "../../components/Spacer";
 import { navigate } from "../../navigations/rootNavigation";
 import LottieView from "lottie-react-native";
 import { AppColors } from "../../commons/colors";
@@ -27,13 +21,6 @@ import AppButton from "../../components/AppButton";
 const Welcome = (): JSX.Element => {
   return (
     <AppSafeAreaView>
-      <AppStatusBar color={"transparent"} />
-
-      {/* <ImageBackground
-        source={require("../../assets/images/intro-bg.png")}
-        resizeMode="cover"
-        style={styles.image}
-      > */}
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         <VStack mt={"1/4"} pt={0}>
           <PresenceTransition

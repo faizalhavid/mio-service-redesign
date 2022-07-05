@@ -300,6 +300,7 @@ const ServiceCard = ({
           setOpen={setShowRescheduleSheet}
           orderId={orderId}
           subOrderId={subOrderId}
+          dt={dateTime}
         />
       )}
     </Pressable>

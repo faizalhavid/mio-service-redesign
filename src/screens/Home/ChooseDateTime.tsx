@@ -119,7 +119,6 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
             parseInt(selectedTime) > 9 ? selectedTime : "0" + selectedTime
           }:00:00`
         ).toISOString();
-        subOrder.appointmentInfo.providerProfile.eaProviderId = 2;
         subOrder.serviceNotes = [serviceNotes];
 
         if (appointmentTimeOptions) {

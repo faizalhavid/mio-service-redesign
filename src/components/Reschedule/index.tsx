@@ -20,6 +20,7 @@ import {
   MONTH,
 } from "../../screens/Home/ChooseDateTime";
 import { SERVICES } from "../../screens/Home/ChooseService";
+import { getReadableDateTime } from "../../services/utils";
 import {
   getOrderDetailsAsync,
   rescheduleOrderAsync,
@@ -35,6 +36,7 @@ type RescheduleProps = {
   setOpen: Function;
   orderId: string;
   subOrderId: string;
+  dt: string;
 };
 
 export const Reschedule = ({
@@ -42,6 +44,7 @@ export const Reschedule = ({
   setOpen,
   orderId,
   subOrderId,
+  dt,
 }: RescheduleProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const [rescheduleType, setRescheduleType] = useState<"ALL" | "ONCE">("ONCE");
@@ -54,6 +57,7 @@ export const Reschedule = ({
   );
   const [errorMsg, setErrorMsg] = useState("");
   const columns = 2;
+  const [readableDateTime, setReadableDateTime] = useState("");
   const [appointmentDateOptions, setAppointmentDateOptions] = useState<
     AppointmentDateOptionType[]
   >([]);
@@ -109,6 +113,16 @@ export const Reschedule = ({
     });
     setAppointmentTimeOptions(times);
   }, [orderDetail]);
+
+  useEffect(() => {
+    if (dt) {
+      let dateTime = getReadableDateTime(dt);
+      setReadableDateTime(
+        `${dateTime.month} ${dateTime.date}, ${dateTime.slot}`
+      );
+    }
+  }, [dt]);
+
   return (
     <>
       <Actionsheet
@@ -138,6 +152,9 @@ export const Reschedule = ({
                 fontWeight="semibold"
               >
                 {SERVICES[orderDetail?.serviceId]?.text} Service
+              </Text>
+              <Text fontSize={12} color={AppColors.TEAL} fontWeight="semibold">
+                {readableDateTime}
               </Text>
             </Center>
             <VStack mt={3} px={4} pb={75} bg={AppColors.EEE}>
@@ -288,7 +305,7 @@ export const Reschedule = ({
                   width={"100%"}
                   color={AppColors.SECONDARY}
                 >
-                  Cancellation Type
+                  Reschedule Type
                 </Text>
                 {orderDetail?.flags?.recurringDuration === "ONCE" ? (
                   <Pressable
