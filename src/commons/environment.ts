@@ -4,8 +4,8 @@ const VARIABLES = {
   DEV: {
     WEB_CLIENT_ID:
       "528727320506-qnn462uhd5d3bac306fg6bkdhs156mhp.apps.googleusercontent.com",
-    EMAIL_VERIFICATION_URL: "https://homeservices-dev-ab7f9.web.app",
-    API_BASE_URL: "https://homeservices-dev-ab7f9.web.app/api/v2",
+    EMAIL_VERIFICATION_URL: "https://homeservices-dev-ab7f9.firebaseapp.com",
+    API_BASE_URL: "https://homeservices-dev-ab7f9.firebaseapp.com/api/v2",
   },
   PROD: {
     WEB_CLIENT_ID:

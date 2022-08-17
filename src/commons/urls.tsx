@@ -1,7 +1,10 @@
 export const API = {
+  UI_CARDS: "/cards",
   REGISTER: "/customer/profile",
   GET_CUSTOMER: "/customer/profile",
   PUT_CUSTOMER: "/customer/profile",
+  PUT_ADDRESS: "/customer/property",
+  DELETE_ADDRESS: "/customer/property/remove",
   GET_HOUSE_INFO: "/houseinfo",
   GET_SERVICES: "/services",
   GET_APPOINTMENTS: "/customer/appointments",
@@ -17,4 +20,7 @@ export const API = {
   RESCHEDULE_ORDER: "/orders",
   GET_ORDER_DETAILS: "/orders",
   VALIDATE_COUPON: "/coupon/validate",
+  SEND_MESSAGAE: "/comments",
+  GET_INVITED_USERS: "/customer/invitedusers",
+  INVITE_USER: "/customer/invitenewuser",
 };

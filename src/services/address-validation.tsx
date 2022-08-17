@@ -27,9 +27,7 @@ export function isAddressExists() {
       (customer?.addresses?.length > 0 &&
         (!Boolean(customer?.addresses[0]?.houseInfo?.lotSize) ||
           !Boolean(customer?.addresses[0]?.houseInfo?.bedrooms) ||
-          !Boolean(customer?.addresses[0]?.houseInfo?.bathrooms) ||
-          !Boolean(customer?.addresses[0]?.houseInfo?.swimmingPoolType) ||
-          !Boolean(customer?.addresses[0]?.houseInfo?.pestType)))
+          !Boolean(customer?.addresses[0]?.houseInfo?.bathrooms)))
     ) {
       setAddressMode("UPDATE_PROPERTY");
       setAddressExists(false);

@@ -511,7 +511,7 @@ PODS:
   - RNGoogleSignin (7.2.2):
     - GoogleSignIn (~> 6.1.0)
     - React-Core
-  - RNScreens (3.13.1):
+  - RNScreens (3.10.2):
     - React-Core
     - React-RCTImage
   - RNSVG (12.3.0):
@@ -834,7 +834,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: 8e3575bb0303b43a852bf5decbe99c3272035048
   RNFBStorage: e061bbb005be42225e95cb62af7768bda4d24e3a
   RNGoogleSignin: d7f8368b82d94f1dec964785d496387ca7f19092
-  RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
+  RNScreens: d6da2b9e29cf523832c2542f47bf1287318b1868
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   Yoga: e7dc4e71caba6472ff48ad7d234389b91dadc280

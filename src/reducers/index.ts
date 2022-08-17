@@ -1,7 +1,11 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { saveCardSlice, savedCardsSlice } from "../slices/card-slice";
 import { validateCouponSlice } from "../slices/coupon-slice";
-import { customerSlice, houseInfoSlice } from "../slices/customer-slice";
+import {
+  addressSlice,
+  customerSlice,
+  houseInfoSlice,
+} from "../slices/customer-slice";
 import { leadSlice } from "../slices/lead-slice";
 import {
   cancelOrderSlice,
@@ -17,11 +21,19 @@ import {
   selectedServicesSlice,
   serviceCostSlice,
 } from "../slices/service-slice";
-import { refreshNeededSlice } from "../slices/shared-slice";
+import {
+  refreshNeededSlice,
+  selectedAddressSlice,
+} from "../slices/shared-slice";
+import { invitedUsersSlice, inviteNewUserSlice } from "../slices/invite-slice";
 
 const rootReducer = combineReducers({
   customer: customerSlice.reducer,
   refreshNeeded: refreshNeededSlice.reducer,
+  selectedAddress: selectedAddressSlice.reducer,
+  addresses: addressSlice.reducer,
+  invitedUsers: invitedUsersSlice.reducer,
+  inviteNewUser: inviteNewUserSlice.reducer,
   houseInfo: houseInfoSlice.reducer,
   firstOrder: firstOrderSlice.reducer,
   upcomingOrders: upcomingOrdersSlice.reducer,

@@ -15,11 +15,13 @@ import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import { navigate } from "../../navigations/rootNavigation";
-import { useAuth } from "../../contexts/AuthContext";
+import { Address, useAuth } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
+  deleteAddressAsync,
   getCustomerByIdAsync,
+  selectAddress,
   selectCustomer,
 } from "../../slices/customer-slice";
 import { getSavedCardsAsync, selectCards } from "../../slices/card-slice";
@@ -32,15 +34,18 @@ import {
 import { PersonalDetailsBottomSheet } from "../../components/PersonalDetailsBottomSheet";
 import { Alert } from "react-native";
 import { version } from "../../../package.json";
+import AddressListItem from "../../components/AddressListItem";
 
 const Profile = (): JSX.Element => {
   const { logout } = useAuth();
   const [loading, setLoading] = React.useState(false);
-  const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
+  const [addressMode, setAddressMode] = useState<AddressMode>("NEW_ADDRESS");
   const [showEditAddress, setShowEditAddress] = useState(false);
   const [showPersonalDetails, setShowPersonalDetails] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState({} as Address);
   const dispatch = useAppDispatch();
+  const { uiState: addressesUiState } = useAppSelector(selectAddress);
 
   const {
     uiState: customerUiState,
@@ -85,6 +90,7 @@ const Profile = (): JSX.Element => {
         color={AppColors.SECONDARY}
         textTransform={"uppercase"}
         fontWeight={"semibold"}
+        fontSize={13}
       >
         {text}
       </Text>
@@ -93,19 +99,27 @@ const Profile = (): JSX.Element => {
 
   const EditButton = ({
     text,
+    color,
+    px,
     onPress,
   }: {
     text: string;
+    px?: number;
+    color?: string;
     onPress: () => void;
   }): JSX.Element => {
     return (
       <Pressable
         onPress={onPress}
-        px={2}
+        px={px === undefined ? 2 : px}
         borderRadius={5}
         _pressed={{ backgroundColor: AppColors.LIGHT_TEAL }}
       >
-        <Text color={AppColors.DARK_TEAL} fontWeight="semibold" fontSize={12}>
+        <Text
+          color={color || AppColors.DARK_TEAL}
+          fontWeight="semibold"
+          fontSize={12}
+        >
           {text}
         </Text>
       </Pressable>
@@ -175,117 +189,73 @@ const Profile = (): JSX.Element => {
           <Title text="ADDRESS DETAILS" />
           <EditButton
             onPress={() => {
-              setAddressMode("UPDATE_ADDRESS");
+              setAddressMode("NEW_ADDRESS");
               setShowEditAddress(true);
             }}
-            text="EDIT"
+            text="ADD"
           />
         </HStack>
-        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
-
-        <VStack space={3}>
-          <HStack justifyContent={"space-between"}>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                STREET
-              </Text>
-              <ValueText text={customer?.addresses[0]?.street} />
-            </VStack>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                CITY
-              </Text>
-              <ValueText text={customer?.addresses[0]?.city} />
-            </VStack>
-          </HStack>
-          <HStack justifyContent={"space-between"}>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                STATE
-              </Text>
-              <ValueText text={customer?.addresses[0]?.state} />
-            </VStack>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                ZIP
-              </Text>
-              <ValueText text={customer?.addresses[0]?.zip} />
-            </VStack>
-          </HStack>
-        </VStack>
-      </VStack>
-    );
-  };
-
-  const PropertyDetailsCard = (): JSX.Element => {
-    return (
-      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
-        <HStack justifyContent={"space-between"}>
-          <Title text="PROPERTY DETAILS" />
-          <EditButton
-            onPress={() => {
-              setAddressMode("UPDATE_PROPERTY");
-              setShowEditAddress(true);
-            }}
-            text="EDIT"
-          />
-        </HStack>
-        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
-
-        <VStack space={3}>
-          <HStack justifyContent={"space-between"}>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                BEDROOM
-              </Text>
-              <ValueText
-                text={customer?.addresses[0]?.houseInfo?.bedrooms || "-"}
+        <Divider my={1} mb={1.5} borderWidth={1} borderColor={AppColors.EEE} />
+        {customerUiState === "IN_PROGRESS" ||
+        addressesUiState === "IN_PROGRESS" ? (
+          <>
+            <Spinner
+              key={"ADDRESS_SPINNER"}
+              alignSelf={"flex-start"}
+              color={AppColors.PRIMARY}
+              size="sm"
+            />
+          </>
+        ) : (
+          <VStack
+            divider={
+              <Divider
+                thickness={0.8}
+                mt={2}
+                mb={2}
+                borderStyle={"dashed"}
+                borderColor={AppColors.LIGHT_TEAL}
               />
-            </VStack>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                BATHROOM
-              </Text>
-              <ValueText
-                text={customer?.addresses[0]?.houseInfo?.bathrooms || "-"}
+            }
+          >
+            {customer?.addresses?.map((addressItem, index) => (
+              <AddressListItem
+                key={index}
+                address={addressItem}
+                position={index + 1}
+                showEdit={true}
+                showDelete={true}
+                onEdit={(address) => {
+                  setSelectedAddress(address);
+                  setAddressMode("UPDATE_ADDRESS");
+                  setShowEditAddress(true);
+                }}
+                onDelete={(address) => {
+                  Alert.alert("Delete Address", "Are you sure?", [
+                    {
+                      text: "Cancel",
+                      onPress: () => {},
+                      style: "cancel",
+                    },
+                    {
+                      text: "Delete",
+                      style: "destructive",
+                      onPress: async () => {
+                        await dispatch(
+                          deleteAddressAsync({
+                            serviceAccountId: customer.sAccountId,
+                            propertyId: address.googlePlaceId,
+                          })
+                        ).then(() => {});
+                        dispatch(getCustomerByIdAsync(customer.customerId));
+                      },
+                    },
+                  ]);
+                }}
               />
-            </VStack>
-          </HStack>
-          <HStack justifyContent={"space-between"}>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                LOT SIZE
-              </Text>
-              <ValueText
-                text={
-                  customer?.addresses[0]?.houseInfo?.lotSize + " sqft" || "-"
-                }
-              />
-            </VStack>
-            <VStack width={"50%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                POOL TYPE
-              </Text>
-              <ValueText
-                text={
-                  customer?.addresses[0]?.houseInfo?.swimmingPoolType || "-"
-                }
-              />
-            </VStack>
-          </HStack>
-          <HStack justifyContent={"space-between"}>
-            <VStack width={"100%"}>
-              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-                PEST TYPE
-              </Text>
-              <ValueText
-                text={
-                  customer?.addresses[0]?.houseInfo?.pestType?.join(", ") || "-"
-                }
-              />
-            </VStack>
-          </HStack>
-        </VStack>
+            ))}
+          </VStack>
+        )}
       </VStack>
     );
   };
@@ -377,7 +347,6 @@ const Profile = (): JSX.Element => {
         <VStack pb={150} pt={3} space={3}>
           <ProfileCard />
           <AddressCard />
-          <PropertyDetailsCard />
           <PaymentCard />
           <LogoutCard />
           <Center my={3}>
@@ -395,6 +364,8 @@ const Profile = (): JSX.Element => {
       {showEditAddress && (
         <AddressBottomSheet
           mode={addressMode}
+          selectedAddress={selectedAddress}
+          setSelectedAddress={setSelectedAddress}
           showEditAddress={showEditAddress}
           setShowEditAddress={setShowEditAddress}
           hideAfterSave={true}

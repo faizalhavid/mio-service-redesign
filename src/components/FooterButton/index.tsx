@@ -1,11 +1,17 @@
 import { HStack, Pressable, Spinner, Text, View, VStack } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SERVICES } from "../../screens/Home/ChooseService";
 import { selectCustomer } from "../../slices/customer-slice";
 import { selectSelectedServices } from "../../slices/service-slice";
+import {
+  selectSelectedAddress,
+  setSelectedAddress,
+} from "../../slices/shared-slice";
 import { AddressBottomSheet, AddressMode } from "../AddressBottomSheet";
+import AddressSelectionSheet from "../AddressSelectionSheet";
 
 type FooterButtonProps = {
   type?:
@@ -36,11 +42,23 @@ const FooterButton = ({
   disabled,
   loading = false,
 }: FooterButtonProps): JSX.Element => {
-  const [showEditAddress, setShowEditAddress] = useState(false);
+  const dispatch = useAppDispatch();
+  const [showSelection, setShowSelection] = useState(false);
   const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
   const { collection: selectedServices, member: selectedService } =
     useAppSelector(selectSelectedServices);
   const { member: customer } = useAppSelector(selectCustomer);
+  const { member: selectedAddress } = useAppSelector(selectSelectedAddress);
+
+  React.useEffect(() => {
+    if (customer?.addresses?.length > 0) {
+      let _selectedAddress = customer.addresses.filter(
+        (address) => address.isPrimary
+      )[0];
+      dispatch(setSelectedAddress(_selectedAddress));
+    }
+  }, [customer]);
+
   return (
     <VStack position={"absolute"} bg={"#fff"} bottom={0} width={"100%"}>
       {(type === "SERVICE_SELECTION" ||
@@ -63,19 +81,18 @@ const FooterButton = ({
               fontSize="12"
               fontWeight="semibold"
             >
-              {customer?.addresses[0]?.street?.length > 20
-                ? customer?.addresses[0]?.street?.substring(0, 15) + "..."
-                : customer?.addresses[0]?.street}
-              , {customer?.addresses[0]?.city}, {customer?.addresses[0]?.state},{" "}
-              {customer?.addresses[0]?.zip}
+              {selectedAddress?.street?.length > 20
+                ? selectedAddress?.street?.substring(0, 15) + "..."
+                : selectedAddress?.street}
+              , {selectedAddress?.city}, {selectedAddress?.state},{" "}
+              {selectedAddress?.zip}
             </Text>
           </Text>
           <Pressable
             height={50}
             justifyContent="center"
             onPress={() => {
-              setAddressMode("UPDATE_ADDRESS");
-              setShowEditAddress(true);
+              setShowSelection(true);
             }}
           >
             <Text
@@ -182,11 +199,10 @@ const FooterButton = ({
           )}
         </Pressable>
       </HStack>
-      {showEditAddress && (
-        <AddressBottomSheet
-          mode={addressMode}
-          showEditAddress={showEditAddress}
-          setShowEditAddress={setShowEditAddress}
+      {showSelection && (
+        <AddressSelectionSheet
+          showSelection={showSelection}
+          setShowSelection={setShowSelection}
         />
       )}
     </VStack>

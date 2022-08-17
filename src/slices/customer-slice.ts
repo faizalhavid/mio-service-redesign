@@ -1,9 +1,12 @@
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { CustomerProfile } from "../contexts/AuthContext";
+import { Address, CustomerProfile } from "../contexts/AuthContext";
 import { RootState } from "../reducers";
 import {
   CommonState,
+  DeleteAddressRequest,
+  FormattedAddress,
   HouseInfo,
+  HouseInfoAddressRequest,
   HouseInfoRequest,
   UiStateType,
 } from "../commons/types";
@@ -39,6 +42,32 @@ export const putCustomerAsync = createAsyncThunk(
   }
 );
 
+export const updateAddressAsync = createAsyncThunk(
+  "address/put",
+  async (data: HouseInfoAddressRequest, { rejectWithValue }) => {
+    const res = await AxiosClient.put(
+      `${API.PUT_ADDRESS}/${data.serviceAccountId}`,
+      data
+    );
+    if (res.data.status !== "success") {
+      return rejectWithValue({
+        error: res.data.result || res.data.message,
+      });
+    }
+    return res.data;
+  }
+);
+
+export const deleteAddressAsync = createAsyncThunk(
+  "address/delete",
+  async (data: DeleteAddressRequest) => {
+    const res = await AxiosClient.delete(
+      `${API.DELETE_ADDRESS}/${data.serviceAccountId}/${data.propertyId}`
+    );
+    return res.data;
+  }
+);
+
 export const getHouseInfoAsync = createAsyncThunk(
   "houseInfo",
   async (data: HouseInfoRequest) => {
@@ -64,9 +93,16 @@ export const customerSlice = createAsyncSlice({
   thunks: [registerCustomerAsync, getCustomerByIdAsync, putCustomerAsync],
 });
 
+export const addressSlice = createAsyncSlice({
+  name: "address",
+  initialState: getInitialState<Address>(),
+  reducers: {},
+  thunks: [updateAddressAsync, deleteAddressAsync],
+});
+
 export const houseInfoSlice = createAsyncSlice({
   name: "houseInfo",
-  initialState: getInitialState<HouseInfo>(),
+  initialState: getInitialState<FormattedAddress>(),
   reducers: {},
   thunks: [getHouseInfoAsync],
 });
@@ -75,5 +111,6 @@ export const houseInfoSlice = createAsyncSlice({
 export const { setCustomerState } = customerSlice.actions;
 
 // Selectors
+export const selectAddress = (state: RootState) => state.addresses;
 export const selectCustomer = (state: RootState) => state.customer;
 export const selectHouseInfo = (state: RootState) => state.houseInfo;

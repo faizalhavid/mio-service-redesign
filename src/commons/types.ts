@@ -34,12 +34,22 @@ export type HouseInfoAddressRequest = {
   state: string;
   street: string;
   zip: string;
+  isPrimary: boolean;
+  serviceAccountId: string;
+  googlePlaceId?: string | undefined;
+  houseInfo: {
+    bathrooms: number | any;
+    bedrooms: number | any;
+    stories?: number | any;
+    lotSize: number | any;
+    swimmingPoolType: string;
+  };
   suite?: string;
 };
 
 export type HouseInfoRequest = {
   nva: string;
-  addresses: HouseInfoAddressRequest[];
+  addresses?: HouseInfoAddressRequest[];
 };
 
 export interface PriceMap {
@@ -79,7 +89,7 @@ export interface Service {
   calculatedPricePerVisit: number;
   customerJourneyTexts: CustomerJourneyTexts;
   imageURI: string;
-  packageDescription: { [key: string]: string[] };
+  packageDescription: { [key: string]: Benefit[] };
   calculatedPricePerMonth: number;
   imageURIAlt: string;
   providerDescription: string;
@@ -229,9 +239,14 @@ export interface Option {
   code: string;
 }
 
+export interface Benefit {
+  title: string;
+  description: string;
+}
+
 export interface PlanOption {
   label: string;
-  benefits: string[];
+  benefits: Benefit[];
   cost: number;
   selected: boolean;
 }
@@ -273,4 +288,32 @@ export type Card = {
   default: boolean;
   isBusiness: boolean;
   isLevel3Eligible: boolean;
+};
+
+export type DeleteAddressRequest = {
+  serviceAccountId: string;
+  propertyId: string;
+};
+
+export type InvitedUser = {
+  randomKey: string;
+  customerId: string;
+  claim: string;
+  sAccountId: string;
+  email: string;
+  status: string;
+};
+
+export type InviteUserRequest = {
+  customerId: string;
+  inviterEmail: string;
+  claim: string;
+  sAccountId: string;
+  email: string;
+};
+
+export type InviteUserResponse = {
+  message: string;
+  status: string;
+  email: string;
 };

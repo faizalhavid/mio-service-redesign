@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { getInitialState } from "../commons/initial-state";
+import { Card } from "../commons/types";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
-import { Card } from "../screens/Home/PaymentMethods";
 import AxiosClient from "../services/axios-client";
 import { createAsyncSlice } from "./create-async-slice";
 

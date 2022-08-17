@@ -104,6 +104,13 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     let lead: LeadDetails = deepClone(_leadDetails);
     let payload = {
       ...lead,
+      customerProfile: {
+        ...lead.customerProfile,
+        ...customer,
+        addresses: [
+          ...customer?.addresses?.filter((address) => address.isPrimary),
+        ],
+      },
       subOrders: [...lead.subOrders],
     };
     if (isNewlyAdded) {
@@ -127,7 +134,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         if (!subOrder.flags) {
           subOrder.flags = {} as Flags2;
         }
-        subOrder.flags.plan = selectedPlan?.label || "BASIC";
+        subOrder.flags.plan = selectedPlan?.label || "STANDARD";
         if (selectedSubscriptionMethod.type === "ONCE") {
           subOrder.servicePrice.cost = selectedPlan?.cost || 0;
           subOrder.flags.recurringDuration = "ONCE";
@@ -297,7 +304,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
 
   useEffect(() => {
     if (Object.keys(selectedSubscriptionMethod).length > 0) {
-      let preSelectedPlan = "BASIC";
+      let preSelectedPlan = "STANDARD";
       let isUpdate = mode === "UPDATE";
       if (isUpdate) {
         let subOrder = leadDetails.subOrders.filter(
@@ -308,7 +315,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       const serviceCosts = serviceCost.filter(
         (cost) =>
           cost.serviceId === selectedService &&
-          ["BASIC", "STANDARD", "PREMIUM"].indexOf(cost.plan) >= 0
+          ["STANDARD", "PREMIUM", "FULL CARE"].indexOf(cost.plan) >= 0
       );
       let options: PlanOption[] = [];
       if (selectedSubscriptionMethod.type === "WEEKLY") {
@@ -556,7 +563,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                           color={AppColors.DARK_PRIMARY}
                           fontSize={12}
                         >
-                          {b}
+                          {b.title}
                         </Text>
                       </HStack>
                     ))}

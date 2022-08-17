@@ -25,6 +25,7 @@ export type Address = {
   state: string;
   zip: string;
   googlePlaceId: string;
+  isPrimary?: boolean;
   houseInfo?: HouseInfo;
 };
 
@@ -57,6 +58,10 @@ export type CustomerProfile = {
   lastName: string;
   pictureURL: string;
   fcmDeviceToken?: string | null;
+  sAccountId: string;
+  rid: string | null;
+  role: string | null;
+  uid: string | undefined;
   profileComplete?: boolean;
   paymentCardSaved: boolean;
   firstServiceAdded: boolean;
@@ -103,21 +108,17 @@ export let dummyProfile: CustomerProfile = {
   firstName: "",
   lastName: "",
   pictureURL: "",
+  sAccountId: "",
+  rid: "",
+  uid: "",
+  role: "",
   paymentCardSaved: false,
   firstServiceAdded: false,
   phones: [],
   payment: {
     creditCards: [],
   },
-  addresses: [
-    {
-      street: "",
-      city: "",
-      state: "",
-      zip: "",
-      googlePlaceId: "",
-    },
-  ],
+  addresses: [],
   preferences: {
     timeZone: "UTC",
     communicationReceiveTimeStart: "0900",
