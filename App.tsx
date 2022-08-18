@@ -14,7 +14,8 @@ import { StorageHelper } from "./src/services/storage-helper";
 import { Provider } from "react-redux";
 import { store } from "./src/stores";
 import { setJSExceptionHandler } from "react-native-exception-handler";
-import { navigate } from "./src/navigations/rootNavigation";
+import { navigate, popToPop } from "./src/navigations/rootNavigation";
+import dynamicLinks from "@react-native-firebase/dynamic-links";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
@@ -39,6 +40,56 @@ const App = () => {
       getFCMToken();
     }
   };
+
+  const updateInviteUser = async (url: string) => {
+    var regex = /[?&]([^=#]+)=([^&#]*)/g,
+      params: any = {},
+      match;
+    while ((match = regex.exec(url))) {
+      params[match[1]] = match[2];
+    }
+    // const params = new URLSearchParams(_url.searchParams);
+    console.log("params", params);
+    if (params["email"]) {
+      await StorageHelper.setValue(
+        "INVITE_EMAIL",
+        decodeURIComponent(params["email"]) || ""
+      );
+      await StorageHelper.setValue("INVITE_RID", params["rid"] || "");
+      await StorageHelper.setValue(
+        "INVITE_SACCOUNTID",
+        params["sAccountId"] || ""
+      );
+      await StorageHelper.setValue("INVITE_ROLE", params["role"] || "");
+    }
+  };
+
+  const handleDynamicLink = (link: any) => {
+    if (link?.url) {
+      updateInviteUser(link.url);
+    }
+  };
+
+  const getAppLaunchLink = async () => {
+    try {
+      const value = await dynamicLinks().getInitialLink();
+      console.log("getAppLaunchLink", value);
+      if (value) {
+        await updateInviteUser(value.url);
+        popToPop("Register");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    // console.log("handleDynamicLink-1");
+    getAppLaunchLink();
+    const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
+    // When the component is unmounted, remove the listener
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     // if (__DEV__) {

@@ -184,14 +184,14 @@ const ViewServiceDetails = ({
             )}
             {orderDetail.serviceId === PEST_CONTROL_ID && (
               <ValueText
-                text={`${customer?.addresses[0]?.houseInfo?.pestType?.join(
+                text={`${orderDetail?.customerProfile?.addresses[0]?.houseInfo?.pestType?.join(
                   ", "
                 )} (PEST TYPE)`}
               />
             )}
             {orderDetail.serviceId === POOL_CLEANING_ID && (
               <ValueText
-                text={`${customer?.addresses[0]?.houseInfo?.swimmingPoolType} (POOL TYPE)`}
+                text={`${orderDetail?.customerProfile?.addresses[0]?.houseInfo?.swimmingPoolType} (POOL TYPE)`}
               />
             )}
           </VStack>
@@ -246,13 +246,17 @@ const ViewServiceDetails = ({
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 STREET
               </Text>
-              <ValueText text={customer?.addresses[0]?.street} />
+              <ValueText
+                text={orderDetail?.customerProfile?.addresses[0]?.street}
+              />
             </VStack>
             <VStack width={"50%"}>
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 CITY
               </Text>
-              <ValueText text={customer?.addresses[0]?.city} />
+              <ValueText
+                text={orderDetail?.customerProfile?.addresses[0]?.city}
+              />
             </VStack>
           </HStack>
           <HStack justifyContent={"space-between"}>
@@ -260,13 +264,17 @@ const ViewServiceDetails = ({
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 STATE
               </Text>
-              <ValueText text={customer?.addresses[0]?.state} />
+              <ValueText
+                text={orderDetail?.customerProfile?.addresses[0]?.state}
+              />
             </VStack>
             <VStack width={"50%"}>
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 ZIP
               </Text>
-              <ValueText text={customer?.addresses[0]?.zip} />
+              <ValueText
+                text={orderDetail?.customerProfile?.addresses[0]?.zip}
+              />
             </VStack>
           </HStack>
         </VStack>

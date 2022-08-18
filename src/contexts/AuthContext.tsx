@@ -17,6 +17,7 @@ export type RegisterForm = {
   email: string;
   password: string;
   confirmPassword: string;
+  sAccountId?: string;
 };
 
 export type Address = {
@@ -149,16 +150,18 @@ export function AuthProvider({ children }: AuthProviderType) {
         .createUserWithEmailAndPassword(data.email.trim(), data.password)
         .then(async (credential) => {
           setCurrentUser(credential.user);
-          await credential.user.sendEmailVerification({
-            url: ENV.EMAIL_VERIFICATION_URL,
-            android: {
-              packageName: "com.miohomeservices.customer",
-              installApp: true,
-            },
-            iOS: {
-              bundleId: "com.miohomeservices.customer",
-            },
-          });
+          if (!data.sAccountId) {
+            await credential.user.sendEmailVerification({
+              url: ENV.EMAIL_VERIFICATION_URL,
+              android: {
+                packageName: "com.miohomeservices.customer",
+                installApp: true,
+              },
+              iOS: {
+                bundleId: "com.miohomeservices.customer",
+              },
+            });
+          }
           await StorageHelper.setValue("CUSTOMER_ID", data.email);
 
           resolve("SIGNUP_SUCCESS");

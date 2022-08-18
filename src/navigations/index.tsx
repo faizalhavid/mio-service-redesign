@@ -50,7 +50,7 @@ export type SuperRootStackParamList = {
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
   const [initialScreen, setInitialScreen] = React.useState<
-    "Address" | "VerifyEmail" | "Dashboard" | "Welcome"
+    "Register" | "Address" | "VerifyEmail" | "Dashboard" | "Welcome"
   >("Welcome");
   const [loading, setLoading] = React.useState(true);
 
@@ -61,8 +61,14 @@ const index = (): JSX.Element => {
       let initialSetupStatus = await StorageHelper.getValue(
         FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED
       );
+      let inviteEmail = await StorageHelper.getValue("INVITE_EMAIL");
 
-      if (auth().currentUser && initialSetupStatus === STATUS.COMPLETED) {
+      if (inviteEmail) {
+        setInitialScreen("Register");
+      } else if (
+        auth().currentUser &&
+        initialSetupStatus === STATUS.COMPLETED
+      ) {
         setInitialScreen("Dashboard");
         return;
       } else {

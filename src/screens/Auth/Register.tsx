@@ -41,6 +41,8 @@ import { useIsFocused } from "@react-navigation/native";
 const Register = (): JSX.Element => {
   const socialLoginCompleted = React.useRef<boolean>(false);
   const password = useRef({});
+  const [inviteBasedLogin, setInviteBasedLogin] =
+    React.useState<boolean>(false);
 
   const {
     control,
@@ -73,9 +75,18 @@ const Register = (): JSX.Element => {
 
   const isFocussed = useIsFocused();
 
+  const checkForInviteBasedLogin = React.useCallback(async () => {
+    let email = await StorageHelper.getValue("INVITE_EMAIL");
+    if (email) {
+      setValue("email", email);
+      setInviteBasedLogin(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (isFocussed) {
       dispatch(setCustomerState({ uiState: INIT }));
+      checkForInviteBasedLogin();
     }
   }, [isFocussed]);
 
@@ -217,7 +228,12 @@ const Register = (): JSX.Element => {
   const registerCustomer = async (payload: CustomerProfile) => {
     dispatch(registerCustomerAsync({ ...payload }))
       .then(async () => {
-        if (socialLoginCompleted.current) {
+        if (inviteBasedLogin) {
+          await StorageHelper.removeValue("INVITE_RID");
+          await StorageHelper.removeValue("INVITE_SACCOUNTID");
+          await StorageHelper.removeValue("INVITE_ROLE");
+        }
+        if (socialLoginCompleted.current || inviteBasedLogin) {
           await StorageHelper.setValue(
             FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
             STATUS.COMPLETED
@@ -245,6 +261,14 @@ const Register = (): JSX.Element => {
         uiState: IN_PROGRESS,
       })
     );
+    let rid = null,
+      role = null,
+      sAccountId = null;
+    if (inviteBasedLogin) {
+      rid = await StorageHelper.getValue("INVITE_RID");
+      sAccountId = await StorageHelper.getValue("INVITE_SACCOUNTID");
+      role = await StorageHelper.getValue("INVITE_ROLE");
+    }
     let fcmToken = await StorageHelper.getValue("FCM_DEVICE_TOKEN");
     let payload: CustomerProfile = {
       ...dummyProfile,
@@ -256,8 +280,17 @@ const Register = (): JSX.Element => {
           number: data.phone,
         },
       ],
+      rid: rid || null,
+      role: role || null,
+      sAccountId: sAccountId || "",
       customerId: data.email,
     };
+
+    if (sAccountId) {
+      data.sAccountId = sAccountId || "";
+    }
+
+    console.log(payload);
     if (socialLoginCompleted.current) {
       registerCustomer(payload);
       return;
@@ -344,6 +377,7 @@ const Register = (): JSX.Element => {
               <AppInput
                 type="email"
                 label="Email"
+                disabled={inviteBasedLogin}
                 onChange={onChange}
                 value={value}
               />
@@ -392,12 +426,16 @@ const Register = (): JSX.Element => {
             text="CREATE ACCOUNT"
             onPress={handleSubmit(onSubmit)}
           />
-          <Spacer top={20} />
-          <SocialLogin
-            label="Sign up"
-            loginWithGoogle={loginWithGoogle}
-            loginWithApple={loginWithApple}
-          />
+          {!inviteBasedLogin && (
+            <>
+              <Spacer top={20} />
+              <SocialLogin
+                label="Sign up"
+                loginWithGoogle={loginWithGoogle}
+                loginWithApple={loginWithApple}
+              />
+            </>
+          )}
         </Flex>
         <Divider thickness={0} mt={200} />
         {/* </ScrollView> */}

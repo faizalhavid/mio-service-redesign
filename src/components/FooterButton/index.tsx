@@ -81,8 +81,8 @@ const FooterButton = ({
               fontSize="12"
               fontWeight="semibold"
             >
-              {selectedAddress?.street?.length > 20
-                ? selectedAddress?.street?.substring(0, 15) + "..."
+              {selectedAddress?.street?.length > 15
+                ? selectedAddress?.street?.substring(0, 13) + "..."
                 : selectedAddress?.street}
               , {selectedAddress?.city}, {selectedAddress?.state},{" "}
               {selectedAddress?.zip}

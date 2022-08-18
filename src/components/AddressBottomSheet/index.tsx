@@ -207,12 +207,12 @@ export const AddressBottomSheet = ({
     formState: { isDirty, isValid },
   } = useForm<HouseInfoAddressRequest>({
     mode: "onChange",
-    defaultValues: {
-      street: SAMPLE.STREET,
-      city: SAMPLE.CITY,
-      state: SAMPLE.STATE,
-      zip: SAMPLE.ZIP,
-    },
+    // defaultValues: {
+    //   street: SAMPLE.STREET,
+    //   city: SAMPLE.CITY,
+    //   state: SAMPLE.STATE,
+    //   zip: SAMPLE.ZIP,
+    // },
   });
 
   const onSubmit = async (data: HouseInfoAddressRequest) => {
@@ -661,7 +661,7 @@ export const AddressBottomSheet = ({
         <FooterButton
           disabled={
             (!isValid && isDirty) ||
-            !isDirty ||
+            // !isDirty ||
             !selectedArea ||
             !selectedBathroomNo ||
             !selectedBedroomNo ||

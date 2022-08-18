@@ -198,6 +198,7 @@ export interface SubOrder {
   subOrderId: string;
   serviceId: string;
   selectedAddons: any[];
+  customerProfile?: CustomerProfile;
   flags: Flags2;
   area?: number;
   bedrooms?: number;

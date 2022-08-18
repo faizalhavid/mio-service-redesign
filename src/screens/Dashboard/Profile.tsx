@@ -35,6 +35,11 @@ import { PersonalDetailsBottomSheet } from "../../components/PersonalDetailsBott
 import { Alert } from "react-native";
 import { version } from "../../../package.json";
 import AddressListItem from "../../components/AddressListItem";
+import {
+  getInvitedUsersAsync,
+  selectInvitedUsers,
+} from "../../slices/invite-slice";
+import InviteBottomSheet from "../../components/InviteBottomSheet";
 
 const Profile = (): JSX.Element => {
   const { logout } = useAuth();
@@ -43,6 +48,9 @@ const Profile = (): JSX.Element => {
   const [showEditAddress, setShowEditAddress] = useState(false);
   const [showPersonalDetails, setShowPersonalDetails] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const { collection: invitedUsers, uiState: invitedUsersUiState } =
+    useAppSelector(selectInvitedUsers);
   const [selectedAddress, setSelectedAddress] = useState({} as Address);
   const dispatch = useAppDispatch();
   const { uiState: addressesUiState } = useAppSelector(selectAddress);
@@ -67,6 +75,14 @@ const Profile = (): JSX.Element => {
       }
     });
   }, [dispatch]);
+
+  const [invitedUsersLoaded, setInvitedUsersLoaded] = useState<boolean>(false);
+  useEffect(() => {
+    if (customer?.sAccountId && !invitedUsersLoaded) {
+      dispatch(getInvitedUsersAsync({ serviceAccountId: customer.sAccountId }));
+      setInvitedUsersLoaded(true);
+    }
+  }, [customer]);
 
   const formatNumber = (number: string) => {
     return number
@@ -260,6 +276,64 @@ const Profile = (): JSX.Element => {
     );
   };
 
+  const InviteCard = (): JSX.Element => {
+    return (
+      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent={"space-between"}>
+          <Title text="MANAGER USERS" />
+          <EditButton
+            onPress={() => {
+              setShowAddUser(true);
+            }}
+            text="ADD"
+          />
+        </HStack>
+        <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
+        <VStack space={3}>
+          {invitedUsersUiState === "IN_PROGRESS" && (
+            <Spinner
+              alignSelf={"flex-start"}
+              color={AppColors.PRIMARY}
+              size="sm"
+            />
+          )}
+          {invitedUsersUiState !== "IN_PROGRESS" && invitedUsers.length === 0 && (
+            <Text color={"amber.600"} fontSize={14}>
+              No user invited yet!
+            </Text>
+          )}
+          {invitedUsersUiState === "SUCCESS" &&
+            invitedUsers.map((user, index) => (
+              <VStack key={index}>
+                <HStack justifyContent={"space-between"} key={index}>
+                  <Text
+                    color={AppColors.AAA}
+                    textTransform="uppercase"
+                    letterSpacing={1}
+                    fontSize={12}
+                  >
+                    {user.claim}
+                  </Text>
+                  <Text color={AppColors.WARNING} fontSize={12}>
+                    {user.status}
+                  </Text>
+                </HStack>
+                <VStack>
+                  <Text
+                    color={AppColors.SECONDARY}
+                    fontWeight={"semibold"}
+                    fontSize={13}
+                  >
+                    {user.email}
+                  </Text>
+                </VStack>
+              </VStack>
+            ))}
+        </VStack>
+      </VStack>
+    );
+  };
+
   const PaymentCard = (): JSX.Element => {
     return (
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
@@ -347,6 +421,7 @@ const Profile = (): JSX.Element => {
         <VStack pb={150} pt={3} space={3}>
           <ProfileCard />
           <AddressCard />
+          <InviteCard />
           <PaymentCard />
           <LogoutCard />
           <Center my={3}>
@@ -355,6 +430,12 @@ const Profile = (): JSX.Element => {
         </VStack>
       </ScrollView>
       <FloatingButton />
+      {showAddUser && (
+        <InviteBottomSheet
+          showInviteUser={showAddUser}
+          setShowInviteUser={setShowAddUser}
+        />
+      )}
       {showAddCard && (
         <AddCardBottomSheet
           showAddCard={showAddCard}

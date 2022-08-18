@@ -21,3 +21,8 @@ export const POOL_TYPES: Option[] = [
   { label: "Mineral", code: "mineral" },
   { label: "None", code: "none" },
 ];
+
+export const ROLES: Option[] = [
+  { label: "View access", code: "Viewer" },
+  { label: "Admin access", code: "Admin" },
+];
