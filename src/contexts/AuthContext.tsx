@@ -93,6 +93,7 @@ type AuthContextType = {
   leadDetails: LeadDetails;
   setLeadDetails: (leadDetails: LeadDetails) => void;
   customerProfile: CustomerProfile;
+  isViewer: boolean;
   setCustomerProfile: (customerProfile: CustomerProfile) => void;
 };
 
@@ -143,6 +144,7 @@ export function AuthProvider({ children }: AuthProviderType) {
     {} as CustomerProfile
   );
   const [loading, setLoading] = React.useState(true);
+  const [isViewer, setIsViewer] = React.useState<boolean>(false);
 
   async function signup(data: RegisterForm): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -150,6 +152,8 @@ export function AuthProvider({ children }: AuthProviderType) {
         .createUserWithEmailAndPassword(data.email.trim(), data.password)
         .then(async (credential) => {
           setCurrentUser(credential.user);
+          let token = await credential.user.getIdToken();
+          await StorageHelper.setValue("TOKEN", token);
           if (!data.sAccountId) {
             await credential.user.sendEmailVerification({
               url: ENV.EMAIL_VERIFICATION_URL,
@@ -164,7 +168,7 @@ export function AuthProvider({ children }: AuthProviderType) {
           }
           await StorageHelper.setValue("CUSTOMER_ID", data.email);
 
-          resolve("SIGNUP_SUCCESS");
+          resolve(credential.user);
         })
         .catch((error: any) => {
           console.log(error?.message);
@@ -284,6 +288,23 @@ export function AuthProvider({ children }: AuthProviderType) {
     return displayName;
   }
 
+  function updateScopes(user: FirebaseAuthTypes.User) {
+    return new Promise(async (res, rej) => {
+      if (user) {
+        let result = await user.getIdTokenResult(true);
+        if (result?.claims?.["scopes"]) {
+          let scopes: any = result?.claims?.["scopes"];
+          if (scopes?.customer && scopes?.customer?.length > 1) {
+            // console.log("isViewer", scopes.customer[1] === "viewer");
+            setIsViewer(scopes.customer[1] === "viewer");
+          }
+        }
+        res(result);
+      }
+      res({});
+    });
+  }
+
   React.useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
       // console.log("on authstate change", user);
@@ -305,6 +326,7 @@ export function AuthProvider({ children }: AuthProviderType) {
             navigate("Welcome");
           });
         setCurrentUser(user);
+        updateScopes(user);
       } else {
         setLoading(false);
       }
@@ -327,6 +349,7 @@ export function AuthProvider({ children }: AuthProviderType) {
     setLeadDetails,
     customerProfile,
     setCustomerProfile,
+    isViewer,
   };
 
   return (

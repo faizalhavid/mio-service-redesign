@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { SectionList } from "react-native";
 import { GroupedOrder, Order } from "../../commons/types";
 import ServiceCard from "../../components/ServiceCard";
+import { useAuth } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { getReadableDateTime } from "../../services/utils";
@@ -22,6 +23,7 @@ const UpcomingServices = (): JSX.Element => {
     []
   );
   const limit = 10;
+  const { isViewer } = useAuth();
 
   const dispatch = useAppDispatch();
 
@@ -119,8 +121,8 @@ const UpcomingServices = (): JSX.Element => {
             dateTime={item.appointmentDateTime}
             status={item.status}
             showAddToCalendar={item.status !== "CANCELED"}
-            showReschedule={true}
-            showChat={true}
+            showReschedule={!isViewer}
+            showChat={!isViewer}
             serviceName={SERVICES[item.serviceId]?.text}
             orderId={item.orderId}
             subOrderId={item.subOrderId}

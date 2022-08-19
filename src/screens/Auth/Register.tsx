@@ -229,6 +229,7 @@ const Register = (): JSX.Element => {
     dispatch(registerCustomerAsync({ ...payload }))
       .then(async () => {
         if (inviteBasedLogin) {
+          await StorageHelper.removeValue("INVITE_EMAIL");
           await StorageHelper.removeValue("INVITE_RID");
           await StorageHelper.removeValue("INVITE_SACCOUNTID");
           await StorageHelper.removeValue("INVITE_ROLE");
@@ -290,7 +291,6 @@ const Register = (): JSX.Element => {
       data.sAccountId = sAccountId || "";
     }
 
-    console.log(payload);
     if (socialLoginCompleted.current) {
       registerCustomer(payload);
       return;
@@ -299,6 +299,11 @@ const Register = (): JSX.Element => {
 
     signup(data)
       .then((response) => {
+        payload = {
+          ...payload,
+          uid: response.uid,
+        };
+        console.log(payload);
         registerCustomer(payload);
       })
       .catch((error) => {

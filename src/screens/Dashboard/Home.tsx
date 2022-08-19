@@ -53,7 +53,7 @@ const Home = (): JSX.Element => {
 
   const { addressExists, addressMode } = isAddressExists();
 
-  const { logout } = useAuth();
+  const { logout, isViewer } = useAuth();
   const { setUserId } = useAnalytics();
 
   const [contentReady, setContentReady] = useState<boolean>(false);
@@ -167,8 +167,8 @@ const Home = (): JSX.Element => {
                       dateTime={firstOrder?.appointmentDateTime}
                       showWelcomeMessage={true}
                       showAddToCalendar={true}
-                      showReschedule={true}
-                      showChat={true}
+                      showReschedule={!isViewer}
+                      showChat={!isViewer}
                       serviceName={SERVICES[firstOrder?.serviceId].text}
                       orderId={firstOrder?.orderId}
                       subOrderId={firstOrder?.subOrderId}
@@ -193,7 +193,7 @@ const Home = (): JSX.Element => {
           setShowEditAddress={setShowEditAddress}
         />
       )}
-      <FloatingButton />
+      {!isViewer && <FloatingButton />}
     </AppSafeAreaView>
   );
 };

@@ -42,7 +42,7 @@ import {
 import InviteBottomSheet from "../../components/InviteBottomSheet";
 
 const Profile = (): JSX.Element => {
-  const { logout } = useAuth();
+  const { logout, isViewer } = useAuth();
   const [loading, setLoading] = React.useState(false);
   const [addressMode, setAddressMode] = useState<AddressMode>("NEW_ADDRESS");
   const [showEditAddress, setShowEditAddress] = useState(false);
@@ -203,13 +203,15 @@ const Profile = (): JSX.Element => {
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
           <Title text="ADDRESS DETAILS" />
-          <EditButton
-            onPress={() => {
-              setAddressMode("NEW_ADDRESS");
-              setShowEditAddress(true);
-            }}
-            text="ADD"
-          />
+          {!isViewer && (
+            <EditButton
+              onPress={() => {
+                setAddressMode("NEW_ADDRESS");
+                setShowEditAddress(true);
+              }}
+              text="ADD"
+            />
+          )}
         </HStack>
         <Divider my={1} mb={1.5} borderWidth={1} borderColor={AppColors.EEE} />
         {customerUiState === "IN_PROGRESS" ||
@@ -230,7 +232,7 @@ const Profile = (): JSX.Element => {
                 mt={2}
                 mb={2}
                 borderStyle={"dashed"}
-                borderColor={AppColors.LIGHT_TEAL}
+                bg={AppColors.CCC}
               />
             }
           >
@@ -239,8 +241,8 @@ const Profile = (): JSX.Element => {
                 key={index}
                 address={addressItem}
                 position={index + 1}
-                showEdit={true}
-                showDelete={true}
+                showEdit={!isViewer}
+                showDelete={!isViewer}
                 onEdit={(address) => {
                   setSelectedAddress(address);
                   setAddressMode("UPDATE_ADDRESS");
@@ -281,12 +283,14 @@ const Profile = (): JSX.Element => {
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
           <Title text="MANAGER USERS" />
-          <EditButton
-            onPress={() => {
-              setShowAddUser(true);
-            }}
-            text="ADD"
-          />
+          {!isViewer && (
+            <EditButton
+              onPress={() => {
+                setShowAddUser(true);
+              }}
+              text="ADD"
+            />
+          )}
         </HStack>
         <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
         <VStack space={3}>
@@ -305,7 +309,11 @@ const Profile = (): JSX.Element => {
           {invitedUsersUiState === "SUCCESS" &&
             invitedUsers.map((user, index) => (
               <VStack key={index}>
-                <HStack justifyContent={"space-between"} key={index}>
+                <HStack
+                  justifyContent={"space-between"}
+                  alignItems="center"
+                  key={index}
+                >
                   <Text
                     color={AppColors.AAA}
                     textTransform="uppercase"
@@ -314,9 +322,11 @@ const Profile = (): JSX.Element => {
                   >
                     {user.claim}
                   </Text>
-                  <Text color={AppColors.WARNING} fontSize={12}>
-                    {user.status}
-                  </Text>
+                  {user.status !== "COMPLETED" && (
+                    <Text color={AppColors.WARNING} fontSize={12}>
+                      {user.status}
+                    </Text>
+                  )}
                 </HStack>
                 <VStack>
                   <Text
@@ -339,12 +349,14 @@ const Profile = (): JSX.Element => {
       <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
         <HStack justifyContent={"space-between"}>
           <Title text="PAYMENT METHOD" />
-          <EditButton
-            onPress={() => {
-              setShowAddCard(true);
-            }}
-            text="ADD"
-          />
+          {!isViewer && (
+            <EditButton
+              onPress={() => {
+                setShowAddCard(true);
+              }}
+              text="ADD"
+            />
+          )}
         </HStack>
         <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
         <VStack space={3}>
@@ -429,7 +441,7 @@ const Profile = (): JSX.Element => {
           </Center>
         </VStack>
       </ScrollView>
-      <FloatingButton />
+      {!isViewer && <FloatingButton />}
       {showAddUser && (
         <InviteBottomSheet
           showInviteUser={showAddUser}

@@ -80,7 +80,7 @@ const AddressSelectionSheet = ({
                       mt={2}
                       mb={2}
                       borderStyle={"dashed"}
-                      borderColor={AppColors.LIGHT_TEAL}
+                      bg={AppColors.CCC}
                     />
                   }
                 >

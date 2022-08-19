@@ -30,6 +30,7 @@ import {
 } from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
 import CancelOrderBottomSheet from "../../components/CancelOrderBottomSheet";
+import { useAuth } from "../../contexts/AuthContext";
 
 type ViewServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
@@ -42,6 +43,8 @@ const ViewServiceDetails = ({
   const [showCancelOrder, setShowCancelOrder] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
+
+  const { isViewer } = useAuth();
 
   const {
     uiState: customerUiState,
@@ -295,20 +298,21 @@ const ViewServiceDetails = ({
           <AddressCard />
           {["NEW", "ACTIVE", "RESCHEDULED", "CANCELLATION-FAILED"].indexOf(
             orderDetail?.flags?.status
-          ) >= 0 && (
-            <Button
-              variant={"outline"}
-              mx={3}
-              _pressed={{
-                bgColor: "red.100",
-              }}
-              borderColor="red.600"
-              borderWidth={0.8}
-              onPress={() => setShowCancelOrder(true)}
-            >
-              <Text color="red.600">Cancel Order</Text>
-            </Button>
-          )}
+          ) >= 0 &&
+            !isViewer && (
+              <Button
+                variant={"outline"}
+                mx={3}
+                _pressed={{
+                  bgColor: "red.100",
+                }}
+                borderColor="red.600"
+                borderWidth={0.8}
+                onPress={() => setShowCancelOrder(true)}
+              >
+                <Text color="red.600">Cancel Order</Text>
+              </Button>
+            )}
           <Divider mt={100} thickness={0} />
         </VStack>
       </ScrollView>
