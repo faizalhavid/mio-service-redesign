@@ -303,7 +303,6 @@ const Register = (): JSX.Element => {
           ...payload,
           uid: response.uid,
         };
-        console.log(payload);
         registerCustomer(payload);
       })
       .catch((error) => {

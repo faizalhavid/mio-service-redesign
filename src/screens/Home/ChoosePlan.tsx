@@ -1,9 +1,18 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { FlatList, HStack, Pressable, Spacer, Text, VStack } from "native-base";
+import {
+  Divider,
+  FlatList,
+  HStack,
+  MinusIcon,
+  Pressable,
+  Spacer,
+  Text,
+  View,
+  VStack,
+} from "native-base";
 import React, { useEffect } from "react";
-import { Dimensions } from "react-native";
 import { SvgCss } from "react-native-svg";
-import { FILLED_CIRCLE_ICON } from "../../commons/assets";
+import { CHECKBOX_TICK_ICON, PLUS_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import {
   Flags2,
@@ -75,6 +84,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     useAppSelector(selectServiceCost);
 
   const frequencyColumns = 2;
+
+  const [benefitExpand, setBenefitExpand] = React.useState<any>({});
 
   const createLead = async () => {
     let subOrders = [];
@@ -544,29 +555,100 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                       borderColor="#eee"
                       borderRadius={5}
                     />
-                    <Text
-                      color={AppColors.DARK_PRIMARY}
-                      fontSize={14}
-                      fontWeight={"semibold"}
-                    >
-                      Benefits
-                    </Text>
-                    {item.benefits.map((b, i) => (
-                      <HStack key={i} alignItems="center">
-                        <SvgCss
-                          xml={FILLED_CIRCLE_ICON(AppColors.DARK_PRIMARY)}
-                          width={4}
-                          height={4}
+                    <VStack
+                      py={2}
+                      divider={
+                        <Divider
+                          thickness={0.6}
+                          mb={2}
+                          mt={2}
+                          bg={AppColors.CCC}
                         />
-                        <Text
-                          ml={2}
-                          color={AppColors.DARK_PRIMARY}
-                          fontSize={12}
-                        >
-                          {b.title}
-                        </Text>
-                      </HStack>
-                    ))}
+                      }
+                    >
+                      {item.benefits.map((b, i) => {
+                        const hasDescription =
+                          (typeof b.description === "string" ||
+                            typeof b.description === "object") &&
+                          b.description.length > 0
+                            ? true
+                            : false;
+                        return (
+                          <VStack key={i}>
+                            <Pressable
+                              onPress={() => {
+                                let payload = {
+                                  ...benefitExpand,
+                                  [selectedService]: {
+                                    [b.title]: hasDescription
+                                      ? benefitExpand?.[selectedService]?.[
+                                          b.title
+                                        ] === true
+                                        ? false
+                                        : true
+                                      : false,
+                                  },
+                                };
+                                setBenefitExpand(payload);
+                              }}
+                            >
+                              <HStack
+                                justifyContent={"space-between"}
+                                alignItems="center"
+                              >
+                                <HStack alignItems={"center"} space={1}>
+                                  <SvgCss
+                                    xml={CHECKBOX_TICK_ICON}
+                                    // width={30}
+                                    height={14}
+                                  />
+                                  <Text
+                                    color={AppColors.DARK_PRIMARY}
+                                    fontSize={14}
+                                    fontWeight={"semibold"}
+                                  >
+                                    {b.title}
+                                  </Text>
+                                </HStack>
+                                {hasDescription && (
+                                  <View px={3}>
+                                    {!benefitExpand?.[selectedService]?.[
+                                      b.title
+                                    ] ? (
+                                      <SvgCss
+                                        xml={PLUS_ICON(AppColors.TEAL)}
+                                        height={9}
+                                      />
+                                    ) : (
+                                      <Text
+                                        color={AppColors.TEAL}
+                                        fontSize={14}
+                                        pr={2.5}
+                                        fontWeight={"semibold"}
+                                      >
+                                        -
+                                      </Text>
+                                    )}
+                                  </View>
+                                )}
+                              </HStack>
+                            </Pressable>
+                            {(hasDescription
+                              ? benefitExpand?.[selectedService]?.[b.title]
+                              : false) && (
+                              <Text
+                                color={AppColors.DARK_PRIMARY}
+                                fontSize={12}
+                                pl={6}
+                                py={2}
+                              >
+                                {b.description}
+                              </Text>
+                            )}
+                          </VStack>
+                        );
+                      })}
+                    </VStack>
                   </VStack>
                   <VStack
                     alignItems={"center"}
