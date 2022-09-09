@@ -162,7 +162,7 @@ export function AuthProvider({ children }: AuthProviderType) {
                 installApp: true,
               },
               iOS: {
-                bundleId: "com.miohomeservices.customer",
+                bundleId: "com.miohomeservices.customer.app",
               },
             });
           }

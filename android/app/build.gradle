@@ -146,8 +146,8 @@ android {
         applicationId "com.miohomeservices.customer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 29
-        versionName "1.2.0"
+        versionCode 30
+        versionName "2.0.0"
     }
     splits {
         abi {
