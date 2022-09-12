@@ -212,6 +212,7 @@ const Login = (): JSX.Element => {
                   })
                 );
                 logEvent("login_google_event");
+                console.log("GoogleLogin");
                 const userInfo = await GoogleSignin.signIn();
                 const googleCredential = auth.GoogleAuthProvider.credential(
                   userInfo.idToken
@@ -221,6 +222,7 @@ const Login = (): JSX.Element => {
                 );
                 doLogin(userCredential);
               } catch (error) {
+                console.log("GoogleLoginError");
                 console.log(error);
               }
             }}
@@ -265,9 +267,10 @@ const Login = (): JSX.Element => {
                   );
                   return;
                 }
-
+                console.log("AppleLogin");
                 doLogin(userCredential);
               } catch (error) {
+                console.log("AppleLoginError");
                 console.log(error);
               } finally {
                 setCustomerState({
