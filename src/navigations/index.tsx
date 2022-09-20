@@ -25,18 +25,22 @@ import { useAnalytics } from "../services/analytics";
 import ChoosePlan from "../screens/Home/ChoosePlan";
 import ChooseDateTime from "../screens/Home/ChooseDateTime";
 import ChooseSchedule from "../screens/Home/ChooseSchedule";
+import EditAddress from "../screens/Home/EditAddress";
 
 export type SuperRootStackParamList = {
   Welcome: {};
   Register: {};
   Login: {};
+  EditAddress: {
+    returnTo: string;
+    mode: "NEW_ADDRESS" | "UPDATE_ADDRESS";
+    id?: string;
+  };
   Address: { returnTo: string };
   ChooseService: {};
   ChoosePlan: { serviceId: string; mode: "CREATE" | "UPDATE" };
-  ChooseSchedule: {};
+  ChooseSchedule: { serviceId: string };
   ChooseDateTime: { serviceId: string; mode: "CREATE" | "UPDATE" };
-  ServiceDetails: {};
-  EditServiceDetails: { serviceId: string; mode: "CREATE" | "UPDATE" };
   Payment: {};
   Booked: {};
   Dashboard: {};
@@ -58,17 +62,14 @@ const index = (): JSX.Element => {
 
   const setupInitialScreen = React.useCallback(async () => {
     try {
-      let initialSetupStatus = await StorageHelper.getValue(
-        FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED
+      let authenticationStatus = await StorageHelper.getValue(
+        FLAG_TYPE.AUTHENTICATED_USER
       );
       let inviteEmail = await StorageHelper.getValue("INVITE_EMAIL");
 
       if (inviteEmail) {
         setInitialScreen("Register");
-      } else if (
-        auth().currentUser &&
-        initialSetupStatus === STATUS.COMPLETED
-      ) {
+      } else if (auth().currentUser && authenticationStatus === STATUS.TRUE) {
         setInitialScreen("Dashboard");
         return;
       } else {
@@ -125,6 +126,7 @@ const index = (): JSX.Element => {
           <RootStack.Screen name="Register" component={Register} />
           <RootStack.Screen name="VerifyEmail" component={VerifyEmail} />
           <RootStack.Screen name="Login" component={Login} />
+          <RootStack.Screen name="EditAddress" component={EditAddress} />
           <RootStack.Screen name="ChooseService" component={ChooseService} />
           <RootStack.Screen
             name="ChoosePlan"

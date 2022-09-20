@@ -28,41 +28,6 @@ export const allServicesSlice = createAsyncSlice({
   thunks: [getServicesAsync],
 });
 
-export const selectedServicesSlice = createAsyncSlice({
-  name: "service/selected",
-  initialState: getInitialState<string>(),
-  reducers: {
-    updateSelectedServices: (
-      state,
-      { payload }: PayloadAction<{ selectedService: string }>
-    ) => {
-      let index = state.collection.indexOf(payload.selectedService);
-      if (!~index) {
-        state.collection = [...state.collection, payload.selectedService];
-      }
-    },
-    removeSelectedServices: (
-      state,
-      { payload }: PayloadAction<{ selectedService: string }>
-    ) => {
-      let index = state.collection.indexOf(payload.selectedService);
-      if (~index) {
-        state.collection.splice(index, 1);
-      }
-    },
-    setActiveService: (
-      state,
-      { payload }: PayloadAction<{ selectedService: string }>
-    ) => {
-      state.member = payload.selectedService;
-    },
-    resetSelectedServices: (state) => {
-      state.collection = [];
-    },
-  },
-  thunks: [],
-});
-
 export const serviceCostSlice = createAsyncSlice({
   name: "service/cost",
   initialState: getInitialState<PriceMap>(),
@@ -71,16 +36,8 @@ export const serviceCostSlice = createAsyncSlice({
 });
 
 // Actions
-export const {
-  updateSelectedServices,
-  removeSelectedServices,
-  setActiveService,
-  resetSelectedServices,
-} = selectedServicesSlice.actions;
 
 // Selectors
 
 export const selectServices = (state: RootState) => state.services;
-export const selectSelectedServices = (state: RootState) =>
-  state.selectedServices;
 export const selectServiceCost = (state: RootState) => state.serviceCost;

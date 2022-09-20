@@ -81,10 +81,7 @@ const Login = (): JSX.Element => {
       );
       navigateTo = "VERIFY_EMAIL";
     } else {
-      await StorageHelper.setValue(
-        FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
-        STATUS.COMPLETED
-      );
+      await StorageHelper.setValue(FLAG_TYPE.AUTHENTICATED_USER, STATUS.TRUE);
       navigateTo = "HOME";
     }
     switch (navigateTo) {

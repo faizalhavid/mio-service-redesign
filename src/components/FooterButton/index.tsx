@@ -1,16 +1,11 @@
 import { HStack, Pressable, Spinner, Text, View, VStack } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
+import { navigate } from "../../navigations/rootNavigation";
 import { SERVICES } from "../../screens/Home/ChooseService";
-import { selectCustomer } from "../../slices/customer-slice";
-import { selectSelectedServices } from "../../slices/service-slice";
-import {
-  selectSelectedAddress,
-  setSelectedAddress,
-} from "../../slices/shared-slice";
-import { AddressBottomSheet, AddressMode } from "../AddressBottomSheet";
+import { selectLead } from "../../slices/lead-slice";
 import AddressSelectionSheet from "../AddressSelectionSheet";
 
 type FooterButtonProps = {
@@ -25,6 +20,7 @@ type FooterButtonProps = {
   label?: string;
   minLabel?: string;
   maxLabel?: string;
+  serviceId?: string;
   subText?: string;
   disabled?: boolean;
   loading?: boolean;
@@ -37,27 +33,17 @@ const FooterButton = ({
   label,
   minLabel,
   maxLabel,
+  serviceId,
   onPress,
   onPress2,
   disabled,
   loading = false,
 }: FooterButtonProps): JSX.Element => {
-  const dispatch = useAppDispatch();
   const [showSelection, setShowSelection] = useState(false);
-  const [addressMode, setAddressMode] = useState<AddressMode>("UPDATE_ADDRESS");
-  const { collection: selectedServices, member: selectedService } =
-    useAppSelector(selectSelectedServices);
-  const { member: customer } = useAppSelector(selectCustomer);
-  const { member: selectedAddress } = useAppSelector(selectSelectedAddress);
 
-  React.useEffect(() => {
-    if (customer?.addresses?.length > 0) {
-      let _selectedAddress = customer.addresses.filter(
-        (address) => address.isPrimary
-      )[0];
-      dispatch(setSelectedAddress(_selectedAddress));
-    }
-  }, [customer]);
+  const isAuthenticated = useAuthenticatedUser();
+
+  const { member: leadDetails } = useAppSelector(selectLead);
 
   return (
     <VStack position={"absolute"} bg={"#fff"} bottom={0} width={"100%"}>
@@ -81,29 +67,35 @@ const FooterButton = ({
               fontSize="12"
               fontWeight="semibold"
             >
-              {selectedAddress?.street?.length > 15
-                ? selectedAddress?.street?.substring(0, 13) + "..."
-                : selectedAddress?.street}
-              , {selectedAddress?.city}, {selectedAddress?.state},{" "}
-              {selectedAddress?.zip}
+              {leadDetails?.customerProfile?.addresses?.[0]?.street?.length > 15
+                ? leadDetails?.customerProfile?.addresses?.[0]?.street?.substring(
+                    0,
+                    13
+                  ) + "..."
+                : leadDetails?.customerProfile?.addresses?.[0]?.street}
+              , {leadDetails?.customerProfile?.addresses?.[0]?.city},{" "}
+              {leadDetails?.customerProfile?.addresses?.[0]?.state},{" "}
+              {leadDetails?.customerProfile?.addresses?.[0]?.zip}
             </Text>
           </Text>
-          <Pressable
-            height={50}
-            justifyContent="center"
-            onPress={() => {
-              setShowSelection(true);
-            }}
-          >
-            <Text
-              alignSelf={"center"}
-              color={AppColors.TEAL}
-              fontWeight={"semibold"}
-              fontSize="12"
+          {isAuthenticated && (
+            <Pressable
+              height={50}
+              justifyContent="center"
+              onPress={() => {
+                setShowSelection(true);
+              }}
             >
-              CHANGE
-            </Text>
-          </Pressable>
+              <Text
+                alignSelf={"center"}
+                color={AppColors.TEAL}
+                fontWeight={"semibold"}
+                fontSize="12"
+              >
+                CHANGE
+              </Text>
+            </Pressable>
+          )}
         </HStack>
       )}
       <HStack
@@ -115,89 +107,121 @@ const FooterButton = ({
         alignItems="center"
         px={5}
       >
-        <View>
-          {type === "SERVICE_SELECTION" && (
-            <Text color={"#aaa"}>
-              {selectedServices.length === 0 ? "No" : selectedServices.length}{" "}
-              Service Selected
-            </Text>
-          )}
-          {(type === "PLAN_SELECTION" || type === "DATETIME_SELECTION") && (
+        {type === "SCHEDULE_SELECTION" && !isAuthenticated ? (
+          <VStack>
+            <Text fontWeight="semibold">Almost there!</Text>
             <VStack>
-              <Text
-                fontWeight={"semibold"}
-                fontSize={14}
-                color={AppColors.DARK_PRIMARY}
-              >
-                {SERVICES[selectedService].text}
-              </Text>
-              <Text color={"#aaa"}>Service</Text>
-            </VStack>
-          )}
-          {type === "SCHEDULE_SELECTION" && (
-            <VStack>
-              <Text color={"#aaa"}>Choose Date & Time</Text>
-            </VStack>
-          )}
-          {type === "ADDRESS" && (
-            <VStack alignContent={"center"}>
-              <Text fontSize={13} color={"#aaa"}>
-                Update Addres &
-              </Text>
-              <Text fontSize={13} color={"#aaa"}>
-                Property Details
+              <Text>
+                To Place Order, Please{" "}
+                <Text
+                  color={AppColors.DARK_TEAL}
+                  onPress={() => {
+                    navigate("Register");
+                  }}
+                >
+                  Register
+                </Text>
+                {" or "}
+                <Text
+                  color={AppColors.DARK_TEAL}
+                  onPress={() => {
+                    navigate("Login");
+                  }}
+                >
+                  Login
+                </Text>
               </Text>
             </VStack>
-          )}
-        </View>
-        <Pressable
-          borderColor={disabled || loading ? "#aaa" : AppColors.TEAL}
-          backgroundColor={disabled || loading ? "#aaa" : AppColors.TEAL}
-          height={50}
-          borderRadius={5}
-          width={"50%"}
-          disabled={disabled || loading}
-          justifyContent="center"
-          borderWidth={1}
-          onPress={onPress}
-        >
-          {loading ? (
-            <Spinner color={"white"} />
-          ) : (
-            <>
-              {minLabel && maxLabel && (
+          </VStack>
+        ) : (
+          <>
+            <View>
+              {type === "SERVICE_SELECTION" && (
+                <Text color={"#aaa"}>
+                  {leadDetails?.subOrders?.length === 0
+                    ? "No"
+                    : leadDetails?.subOrders?.length}{" "}
+                  Service Selected
+                </Text>
+              )}
+              {(type === "PLAN_SELECTION" || type === "DATETIME_SELECTION") && (
                 <VStack>
                   <Text
-                    alignSelf={"center"}
-                    color={"#fff"}
                     fontWeight={"semibold"}
-                    fontSize="11"
+                    fontSize={14}
+                    color={AppColors.DARK_PRIMARY}
                   >
-                    {minLabel}
+                    {serviceId ? SERVICES[serviceId].text : serviceId}
                   </Text>
-                  <Text
-                    alignSelf={"center"}
-                    color={"#fff"}
-                    fontWeight={"semibold"}
-                    fontSize="14"
-                  >
-                    {maxLabel}
+                  <Text color={"#aaa"}>Service</Text>
+                </VStack>
+              )}
+              {type === "SCHEDULE_SELECTION" && (
+                <VStack>
+                  <Text color={"#aaa"}>Choose Date & Time</Text>
+                </VStack>
+              )}
+              {type === "ADDRESS" && (
+                <VStack alignContent={"center"}>
+                  <Text fontSize={13} color={"#aaa"}>
+                    Update Addres &
+                  </Text>
+                  <Text fontSize={13} color={"#aaa"}>
+                    Property Details
                   </Text>
                 </VStack>
               )}
-              {label && (
-                <Text
-                  alignSelf={"center"}
-                  color={"#fff"}
-                  fontWeight={"semibold"}
-                  fontSize="14"
-                >
-                  {label}
-                </Text>
+            </View>
+            <Pressable
+              borderColor={disabled || loading ? "#aaa" : AppColors.TEAL}
+              backgroundColor={disabled || loading ? "#aaa" : AppColors.TEAL}
+              height={50}
+              borderRadius={5}
+              width={"50%"}
+              disabled={disabled || loading}
+              justifyContent="center"
+              borderWidth={1}
+              onPress={onPress}
+            >
+              {loading ? (
+                <Spinner color={"white"} />
+              ) : (
+                <>
+                  {minLabel && maxLabel && (
+                    <VStack>
+                      <Text
+                        alignSelf={"center"}
+                        color={"#fff"}
+                        fontWeight={"semibold"}
+                        fontSize="11"
+                      >
+                        {minLabel}
+                      </Text>
+                      <Text
+                        alignSelf={"center"}
+                        color={"#fff"}
+                        fontWeight={"semibold"}
+                        fontSize="14"
+                      >
+                        {maxLabel}
+                      </Text>
+                    </VStack>
+                  )}
+                  {label && (
+                    <Text
+                      alignSelf={"center"}
+                      color={"#fff"}
+                      fontWeight={"semibold"}
+                      fontSize="14"
+                    >
+                      {label}
+                    </Text>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </Pressable>
+            </Pressable>
+          </>
+        )}
       </HStack>
       {showSelection && (
         <AddressSelectionSheet

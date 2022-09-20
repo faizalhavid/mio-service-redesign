@@ -1,77 +1,76 @@
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
-  Actionsheet,
   Center,
+  Checkbox,
   Divider,
-  Text,
-  Select,
-  VStack,
-  Spacer,
   HStack,
   Pressable,
   ScrollView,
-  Checkbox,
+  Select,
+  Spacer,
+  Spinner,
+  Text,
+  VStack,
 } from "native-base";
 import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Dimensions, Keyboard, Platform } from "react-native";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 import { AppColors } from "../../commons/colors";
 import { STATES } from "../../commons/dropdown-values";
+import { ENV } from "../../commons/environment";
 import { POOL_TYPES } from "../../commons/options";
-import { SAMPLE } from "../../commons/sample";
-import { HouseInfoAddressRequest, Option, PriceMap } from "../../commons/types";
+import { Option, PriceMap, HouseInfoAddressRequest } from "../../commons/types";
 import { FAILED } from "../../commons/ui-states";
+import AppInput from "../../components/AppInput";
+import AppSafeAreaView from "../../components/AppSafeAreaView";
+import ErrorView from "../../components/ErrorView";
+import FooterButton from "../../components/FooterButton";
+import GoogleMapsInput from "../../components/GoogleMapsInput";
+import { Address } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { LAWN_CARE_ID } from "../../screens/Home/ChooseService";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
+import { SuperRootStackParamList } from "../../navigations";
+import { goBack, popToPop, replace } from "../../navigations/rootNavigation";
+import { StorageHelper } from "../../services/storage-helper";
 import {
   selectCustomer,
+  selectAddress,
   selectHouseInfo,
   updateAddressAsync,
   getCustomerByIdAsync,
-  selectAddress,
+  getHouseInfoAsync,
 } from "../../slices/customer-slice";
+import { selectLead, updateLeadState } from "../../slices/lead-slice";
 import { selectServices } from "../../slices/service-slice";
-import AppInput from "../AppInput";
-import ErrorView from "../ErrorView";
-import FooterButton from "../FooterButton";
-import KeyboardSpacer from "react-native-keyboard-spacer";
-import { Address } from "../../contexts/AuthContext";
+import { LAWN_CARE_ID } from "./ChooseService";
 
-type UPDATE_ADDRESS = "UPDATE_ADDRESS";
-type NEW_ADDRESS = "NEW_ADDRESS";
-
-export type AddressMode = NEW_ADDRESS | UPDATE_ADDRESS;
 export type BathBedOptions = { number: number; selected: boolean };
 interface SelectOption extends Option {
   selected: boolean;
 }
 
-type AddressBottomSheetProps = {
-  selectedAddress?: Address;
-  setSelectedAddress?: Function;
-  showEditAddress: boolean;
-  setShowEditAddress: Function;
-  mode: AddressMode;
-  hideAfterSave?: boolean;
-};
+type EditAddressProps = NativeStackScreenProps<
+  SuperRootStackParamList,
+  "EditAddress"
+>;
 
-export const AddressBottomSheet = ({
-  selectedAddress,
-  setSelectedAddress,
-  showEditAddress,
-  setShowEditAddress,
-  mode,
-  hideAfterSave,
-}: AddressBottomSheetProps): JSX.Element => {
+const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
   const dispatch = useAppDispatch();
 
+  const { returnTo, mode, id } = route.params;
+
   const screenWidth = Dimensions.get("screen").width;
-  const [currentMode, setCurrentMode] = useState<AddressMode>(mode);
   const [selectedArea, setSelectedArea] = React.useState<number>(0);
   const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>(0);
   const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>(0);
   const [areaOptions, setAreaOptions] = React.useState<PriceMap[]>([]);
   const [primary, setPrimary] = useState<boolean>(false);
+  const [selectedAddress, setSelectedAddress] = useState<Address>(
+    {} as Address
+  );
 
   const [bathroomOptions, setBathroomOptions] = React.useState<
     BathBedOptions[]
@@ -93,14 +92,15 @@ export const AddressBottomSheet = ({
   const { collection: allServices } = useAppSelector(selectServices);
 
   const { uiState: houseInfoUiState } = useAppSelector(selectHouseInfo);
+  const {
+    member: leadDetails,
+    uiState: leadDetailsUiState,
+    uiState: leadUiState,
+  } = useAppSelector(selectLead);
+  const isAuthenticated = useAuthenticatedUser();
 
   useEffect(() => {
-    if (
-      showEditAddress &&
-      mode === "UPDATE_ADDRESS" &&
-      selectedAddress &&
-      selectedAddress?.zip
-    ) {
+    if (selectedAddress && selectedAddress?.zip) {
       setValue("street", selectedAddress.street);
       setValue("city", selectedAddress.city);
       setValue("state", selectedAddress.state);
@@ -111,7 +111,15 @@ export const AddressBottomSheet = ({
           : true
       );
     }
-  }, [dispatch, showEditAddress, mode, selectedAddress, customer]);
+  }, [dispatch, mode, selectedAddress]);
+
+  useEffect(() => {
+    if (customer?.customerId && mode === "UPDATE_ADDRESS" && id) {
+      let address = customer.addresses.filter((a) => a.googlePlaceId === id)[0];
+      setSelectedAddress(address);
+      setAddressSelectedFromPopup(address);
+    }
+  }, [customer, mode, id]);
 
   useEffect(() => {
     if (allServices.length > 0) {
@@ -198,7 +206,7 @@ export const AddressBottomSheet = ({
       }
       setPoolTypeOptions(poolTypes);
     }
-  }, [currentMode, allServices]);
+  }, [selectedAddress, allServices]);
 
   const {
     control,
@@ -218,24 +226,32 @@ export const AddressBottomSheet = ({
   const onSubmit = async (data: HouseInfoAddressRequest) => {
     Keyboard.dismiss();
     // let fcmToken = await StorageHelper.getValue("FCM_DEVICE_TOKEN");
-    await dispatch(
-      updateAddressAsync({
-        ...data,
-        googlePlaceId:
-          mode === "NEW_ADDRESS" ? undefined : selectedAddress?.googlePlaceId,
-        houseInfo: {
-          lotSize: selectedArea,
-          bedrooms: selectedBedroomNo,
-          bathrooms: selectedBathroomNo,
-          swimmingPoolType: selectedPoolType,
-        },
-        isPrimary: primary,
-        serviceAccountId: customer.sAccountId,
-      })
-    ).then(() => {
-      dispatch(getCustomerByIdAsync(customer.customerId));
+    let payload = {
+      ...data,
+      googlePlaceId:
+        mode === "NEW_ADDRESS" ? undefined : selectedAddress?.googlePlaceId,
+      houseInfo: {
+        lotSize: selectedArea,
+        bedrooms: selectedBedroomNo,
+        bathrooms: selectedBathroomNo,
+        swimmingPoolType: selectedPoolType,
+      },
+      isPrimary: primary,
+    };
+    if (isAuthenticated) {
+      await dispatch(
+        updateAddressAsync({
+          ...payload,
+          serviceAccountId: customer.sAccountId,
+        })
+      ).then(() => {
+        dispatch(getCustomerByIdAsync(customer.customerId));
+        _onClose();
+      });
+    } else {
+      await StorageHelper.setValue("LOCAL_ADDRESS", JSON.stringify(payload));
       _onClose();
-    });
+    }
   };
 
   const _onClose = () => {
@@ -246,49 +262,97 @@ export const AddressBottomSheet = ({
     if (setSelectedAddress) {
       setSelectedAddress({} as Address);
     }
-    setShowEditAddress(false);
+    if (returnTo === "Profile") {
+      goBack();
+    } else {
+      replace(returnTo);
+    }
   };
 
+  const [addressSelectedFromPopup, setAddressSelectedFromPopup] = useState<any>(
+    {}
+  );
   return (
-    <Actionsheet
-      isOpen={showEditAddress}
-      onClose={_onClose}
-      hideDragIndicator={true}
-    >
-      <Actionsheet.Content
-        style={{
-          borderTopLeftRadius: 3,
-          borderTopRightRadius: 3,
-          paddingTop: 0,
-          paddingLeft: 0,
-          paddingRight: 0,
-          margin: 0,
-          backgroundColor: AppColors.EEE,
-        }}
-      >
-        <VStack pt={15} bg={"white"} width="100%">
-          <Center>
-            <Text fontSize={18} fontWeight="semibold">
-              Address Details
-            </Text>
-          </Center>
-
-          <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
-          {/* <KeyboardAwareScrollView
-              enableOnAndroid={true}
-              style={{
-                padding: 0,
-                margin: 0,
-              }}
-            > */}
-          <ScrollView width={"100%"}>
-            <VStack
-              key={"ADDRESS_SHEET"}
-              px={4}
-              space={0}
-              pb={75}
-              bg={AppColors.EEE}
+    <AppSafeAreaView>
+      <VStack bg={"white"} mt={"1/6"} height="100%" width="100%">
+        <Center>
+          <Text fontSize={18} fontWeight="semibold">
+            Property Information
+          </Text>
+        </Center>
+        {!addressSelectedFromPopup?.zip && (
+          <VStack height="100%" px={3}>
+            <Text
+              fontSize={14}
+              fontWeight={"semibold"}
+              width={"100%"}
+              color={AppColors.SECONDARY}
+              mt={3}
             >
+              Address
+            </Text>
+            <GoogleMapsInput
+              onSuccess={(address) => {
+                console.log("selected-address", address);
+                setAddressSelectedFromPopup(address);
+                dispatch(getHouseInfoAsync({ nva: address.formattedAddress }))
+                  .unwrap()
+                  .then((response) => {
+                    if (response) {
+                      let address: Address = response;
+                      setSelectedAddress(address);
+                      dispatch(
+                        updateLeadState({
+                          lead: {
+                            ...leadDetails,
+                            customerProfile: {
+                              ...leadDetails.customerProfile,
+                              addresses: [response],
+                            },
+                          },
+                        })
+                      );
+                    }
+                  });
+              }}
+              onFailure={() => {}}
+            />
+          </VStack>
+        )}
+        {houseInfoUiState !== "IN_PROGRESS" && addressSelectedFromPopup?.zip ? (
+          <>
+            <VStack px={4} key="SELECTED_ADDRESS">
+              <HStack justifyContent={"space-between"} alignItems="center">
+                <Text
+                  fontSize={14}
+                  fontWeight={"semibold"}
+                  color={AppColors.SECONDARY}
+                  mt={3}
+                >
+                  Selected Address
+                </Text>
+                <Text
+                  color={AppColors.TEAL}
+                  fontWeight={"semibold"}
+                  fontSize={12}
+                  onPress={() => {
+                    setAddressSelectedFromPopup({});
+                  }}
+                >
+                  CHANGE
+                </Text>
+              </HStack>
+              <Text
+                fontSize={14}
+                fontWeight={"semibold"}
+                color={AppColors.DARK_TEAL}
+                width={"100%"}
+                mt={2}
+              >
+                {addressSelectedFromPopup?.formattedAddress}
+              </Text>
+            </VStack>
+            <VStack key={"ADDRESS_SHEET"} px={4} space={0} pb={75}>
               {(customerUiState === FAILED || houseInfoUiState === FAILED) && (
                 <ErrorView
                   message={
@@ -296,104 +360,7 @@ export const AddressBottomSheet = ({
                   }
                 />
               )}
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Street"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="street"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="City"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="city"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <>
-                    {value ? (
-                      <Text mt={2} color={"gray.400"} fontSize={14}>
-                        State
-                      </Text>
-                    ) : (
-                      <></>
-                    )}
-                    <Select
-                      accessibilityLabel="STATE"
-                      placeholder="State"
-                      borderBottomWidth={1}
-                      borderLeftWidth={0}
-                      borderRightWidth={0}
-                      borderTopWidth={0}
-                      borderBottomColor={"#ccc"}
-                      _selectedItem={{
-                        bg: AppColors.PRIMARY,
-                        // endIcon: <CheckIcon size="5" />,
-                      }}
-                      _important={{
-                        color: AppColors.SECONDARY,
-                      }}
-                      textDecorationColor={AppColors.SECONDARY}
-                      pl={-10}
-                      pt={value ? 6 : 0}
-                      mt={value ? -3 : 2}
-                      fontSize={14}
-                      variant="underlined"
-                      onValueChange={onChange}
-                      selectedValue={value}
-                    >
-                      {STATES.map((state) => {
-                        return (
-                          <Select.Item
-                            pl={3}
-                            key={state.code}
-                            label={state.name}
-                            value={state.code}
-                          />
-                        );
-                      })}
-                    </Select>
-                  </>
-                )}
-                name="state"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <AppInput
-                    type="number"
-                    label="Zip Code"
-                    onChange={onChange}
-                    value={value}
-                  />
-                )}
-                name="zip"
-              />
+
               <Text
                 fontSize={14}
                 fontWeight={"semibold"}
@@ -418,8 +385,10 @@ export const AddressBottomSheet = ({
                     width={"45%"}
                     mt={2}
                     justifyContent="center"
-                    borderWidth={areaOption.selected ? 1 : 0}
-                    borderColor={AppColors.TEAL}
+                    borderWidth={1}
+                    borderColor={
+                      areaOption.selected ? AppColors.TEAL : AppColors.CCC
+                    }
                     bg={areaOption.selected ? AppColors.LIGHT_TEAL : "#fff"}
                     _pressed={{
                       borderColor: AppColors.TEAL,
@@ -476,8 +445,10 @@ export const AddressBottomSheet = ({
                     width={"13%"}
                     mt={2}
                     justifyContent="center"
-                    borderWidth={option.selected ? 1 : 0}
-                    borderColor={AppColors.TEAL}
+                    borderWidth={1}
+                    borderColor={
+                      option.selected ? AppColors.TEAL : AppColors.CCC
+                    }
                     bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
                     _pressed={{
                       borderColor: AppColors.TEAL,
@@ -534,8 +505,10 @@ export const AddressBottomSheet = ({
                     width={"13%"}
                     mt={2}
                     justifyContent="center"
-                    borderWidth={option.selected ? 1 : 0}
-                    borderColor={AppColors.TEAL}
+                    borderWidth={1}
+                    borderColor={
+                      option.selected ? AppColors.TEAL : AppColors.CCC
+                    }
                     bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
                     _pressed={{
                       borderColor: AppColors.TEAL,
@@ -592,8 +565,10 @@ export const AddressBottomSheet = ({
                     width={"30%"}
                     mt={2}
                     justifyContent="center"
-                    borderWidth={poolType.selected ? 1 : 0}
-                    borderColor={AppColors.TEAL}
+                    borderWidth={1}
+                    borderColor={
+                      poolType.selected ? AppColors.TEAL : AppColors.CCC
+                    }
                     bg={poolType.selected ? AppColors.LIGHT_TEAL : "#fff"}
                     _pressed={{
                       borderColor: AppColors.TEAL,
@@ -653,30 +628,52 @@ export const AddressBottomSheet = ({
               </Checkbox>
               <Divider mt={20} thickness={0} />
             </VStack>
-            {Platform.OS === "ios" && <KeyboardSpacer />}
-          </ScrollView>
-          {/* </KeyboardAwareScrollView> */}
-        </VStack>
+          </>
+        ) : (
+          <>
+            {houseInfoUiState === "IN_PROGRESS" && (
+              <Center key={"LOADING"}>
+                <Spinner my={5} size="sm" color={AppColors.SECONDARY} />
+                <Text color={AppColors.SECONDARY}>Getting house info...</Text>
+              </Center>
+            )}
+          </>
+        )}
+        {/* <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} /> */}
+        {/* <KeyboardAwareScrollView
+              enableOnAndroid={true}
+              style={{
+                padding: 0,
+                margin: 0,
+              }}
+            > */}
+        {/* <ScrollView width={"100%"}> */}
 
-        <FooterButton
-          disabled={
-            (!isValid && isDirty) ||
-            // !isDirty ||
-            !selectedArea ||
-            !selectedBathroomNo ||
-            !selectedBedroomNo ||
-            !selectedPoolType
-          }
-          loading={
-            customerUiState === "IN_PROGRESS" ||
-            addressesUiState === "IN_PROGRESS"
-          }
-          minLabel="SAVE"
-          maxLabel={"ADDRESS"}
-          type="ADDRESS"
-          onPress={handleSubmit(onSubmit)}
-        />
-      </Actionsheet.Content>
-    </Actionsheet>
+        {Platform.OS === "ios" && <KeyboardSpacer />}
+        {/* </ScrollView> */}
+        {/* </KeyboardAwareScrollView> */}
+      </VStack>
+
+      <FooterButton
+        disabled={
+          (!isValid && isDirty) ||
+          // !isDirty ||
+          !selectedArea ||
+          !selectedBathroomNo ||
+          !selectedBedroomNo ||
+          !selectedPoolType
+        }
+        loading={
+          customerUiState === "IN_PROGRESS" ||
+          addressesUiState === "IN_PROGRESS"
+        }
+        minLabel="SAVE"
+        maxLabel={"ADDRESS"}
+        type="ADDRESS"
+        onPress={handleSubmit(onSubmit)}
+      />
+    </AppSafeAreaView>
   );
 };
+
+export default EditAddress;

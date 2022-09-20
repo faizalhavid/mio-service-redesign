@@ -4,6 +4,7 @@ export const API = {
   GET_CUSTOMER: "/customer/profile",
   PUT_CUSTOMER: "/customer/profile",
   PUT_ADDRESS: "/customer/property",
+  DELETE_CUSTOMER: "/customer/delete",
   DELETE_ADDRESS: "/customer/property/remove",
   GET_HOUSE_INFO: "/houseinfo",
   GET_SERVICES: "/services",

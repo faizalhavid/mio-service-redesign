@@ -8,15 +8,10 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { navigate } from "../../navigations/rootNavigation";
 import { selectLead } from "../../slices/lead-slice";
-import { selectSelectedServices } from "../../slices/service-slice";
 import { SERVICES } from "./ChooseService";
 
 const ChooseSchedule = (): JSX.Element => {
   const dispatch = useAppDispatch();
-
-  const { collection: selectedServices } = useAppSelector(
-    selectSelectedServices
-  );
 
   const { member: leadDetails, uiState: leadDetailsUiState } =
     useAppSelector(selectLead);

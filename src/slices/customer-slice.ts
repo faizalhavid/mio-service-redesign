@@ -76,6 +76,16 @@ export const getHouseInfoAsync = createAsyncThunk(
   }
 );
 
+export const deleteCustomerAsync = createAsyncThunk(
+  "customer/delete",
+  async (id?: string | null) => {
+    const res = await AxiosClient.delete(
+      id ? `${API.DELETE_CUSTOMER}/${id}` : `${API.DELETE_CUSTOMER}`
+    );
+    return res.data;
+  }
+);
+
 // Types
 
 export const customerSlice = createAsyncSlice({
@@ -107,6 +117,13 @@ export const houseInfoSlice = createAsyncSlice({
   thunks: [getHouseInfoAsync],
 });
 
+export const deleteCustomerSlice = createAsyncSlice({
+  name: "deleteCustomer",
+  initialState: getInitialState<any>(),
+  reducers: {},
+  thunks: [deleteCustomerAsync],
+});
+
 // Actions
 export const { setCustomerState } = customerSlice.actions;
 
@@ -114,3 +131,4 @@ export const { setCustomerState } = customerSlice.actions;
 export const selectAddress = (state: RootState) => state.addresses;
 export const selectCustomer = (state: RootState) => state.customer;
 export const selectHouseInfo = (state: RootState) => state.houseInfo;
+export const selectDeleteCustomer = (state: RootState) => state.deleteCustomer;

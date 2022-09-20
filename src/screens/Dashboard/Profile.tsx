@@ -8,6 +8,7 @@ import {
   ScrollView,
   Spinner,
   Text,
+  Toast,
   VStack,
 } from "native-base";
 import React, { useEffect, useState } from "react";
@@ -20,17 +21,15 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
   deleteAddressAsync,
+  deleteCustomerAsync,
   getCustomerByIdAsync,
   selectAddress,
   selectCustomer,
+  selectDeleteCustomer,
 } from "../../slices/customer-slice";
 import { getSavedCardsAsync, selectCards } from "../../slices/card-slice";
 import { AddCardBottomSheet } from "../../components/AddCardBottomSheet";
 import { StorageHelper } from "../../services/storage-helper";
-import {
-  AddressBottomSheet,
-  AddressMode,
-} from "../../components/AddressBottomSheet";
 import { PersonalDetailsBottomSheet } from "../../components/PersonalDetailsBottomSheet";
 import { Alert } from "react-native";
 import { version } from "../../../package.json";
@@ -40,18 +39,15 @@ import {
   selectInvitedUsers,
 } from "../../slices/invite-slice";
 import InviteBottomSheet from "../../components/InviteBottomSheet";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
 
 const Profile = (): JSX.Element => {
   const { logout, isViewer } = useAuth();
-  const [loading, setLoading] = React.useState(false);
-  const [addressMode, setAddressMode] = useState<AddressMode>("NEW_ADDRESS");
-  const [showEditAddress, setShowEditAddress] = useState(false);
   const [showPersonalDetails, setShowPersonalDetails] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
   const [showAddUser, setShowAddUser] = useState(false);
   const { collection: invitedUsers, uiState: invitedUsersUiState } =
     useAppSelector(selectInvitedUsers);
-  const [selectedAddress, setSelectedAddress] = useState({} as Address);
   const dispatch = useAppDispatch();
   const { uiState: addressesUiState } = useAppSelector(selectAddress);
 
@@ -61,11 +57,16 @@ const Profile = (): JSX.Element => {
     error: customerError,
   } = useAppSelector(selectCustomer);
 
+  const { uiState: deleteCustomerUiState } =
+    useAppSelector(selectDeleteCustomer);
+
   const {
     uiState: cardsUiState,
     collection: cards,
     error: cardsError,
   } = useAppSelector(selectCards);
+
+  const isAuthenticated = useAuthenticatedUser();
 
   useEffect(() => {
     StorageHelper.getValue("CUSTOMER_ID").then(async (customerId) => {
@@ -206,14 +207,16 @@ const Profile = (): JSX.Element => {
           {!isViewer && (
             <EditButton
               onPress={() => {
-                setAddressMode("NEW_ADDRESS");
-                setShowEditAddress(true);
+                navigate("EditAddress", {
+                  returnTo: "Profile",
+                  mode: "NEW_ADDRESS",
+                });
               }}
               text="ADD"
             />
           )}
         </HStack>
-        <Divider my={1} mb={1.5} borderWidth={1} borderColor={AppColors.EEE} />
+        <Divider my={1} borderWidth={1} borderColor={AppColors.EEE} />
         {customerUiState === "IN_PROGRESS" ||
         addressesUiState === "IN_PROGRESS" ? (
           <>
@@ -226,6 +229,7 @@ const Profile = (): JSX.Element => {
           </>
         ) : (
           <VStack
+            key="ADDRESS_LIST"
             divider={
               <Divider
                 thickness={0.8}
@@ -244,9 +248,11 @@ const Profile = (): JSX.Element => {
                 showEdit={!isViewer}
                 showDelete={!isViewer}
                 onEdit={(address) => {
-                  setSelectedAddress(address);
-                  setAddressMode("UPDATE_ADDRESS");
-                  setShowEditAddress(true);
+                  navigate("EditAddress", {
+                    returnTo: "Profile",
+                    mode: "UPDATE_ADDRESS",
+                    id: address.googlePlaceId,
+                  });
                 }}
                 onDelete={(address) => {
                   Alert.alert("Delete Address", "Are you sure?", [
@@ -388,6 +394,60 @@ const Profile = (): JSX.Element => {
     );
   };
 
+  const DeleteCard = (): JSX.Element => {
+    return (
+      <Pressable
+        onPress={async () => {
+          Alert.alert(
+            "Delete Account",
+            "Are you sure? Because it cannot be un-done!",
+            [
+              {
+                text: "Cancel",
+                onPress: () => {},
+                style: "cancel",
+              },
+              {
+                text: "Confirm",
+                style: "destructive",
+                onPress: async () => {
+                  dispatch(deleteCustomerAsync())
+                    .unwrap()
+                    .then(async (response) => {
+                      if (response.status === "success") {
+                        Toast.show({
+                          title: "Account deleted successfully!",
+                        });
+                        await logout();
+                        navigate("Welcome");
+                      } else {
+                        Toast.show({ title: "Something went wrong!" });
+                      }
+                    });
+                },
+              },
+            ]
+          );
+        }}
+        bg={"white"}
+        mx={3}
+        p={5}
+        borderRadius={10}
+      >
+        <VStack>
+          <Text
+            color={AppColors.WARNING}
+            fontWeight="semibold"
+            letterSpacing={1}
+            fontSize={12}
+          >
+            DELETE ACCOUNT
+          </Text>
+        </VStack>
+      </Pressable>
+    );
+  };
+
   const LogoutCard = (): JSX.Element => {
     return (
       <Pressable
@@ -427,21 +487,71 @@ const Profile = (): JSX.Element => {
     );
   };
 
+  const NewUserCard = (): JSX.Element => {
+    return (
+      <Pressable
+        onPress={async () => {}}
+        bg={"white"}
+        mx={3}
+        p={5}
+        borderRadius={10}
+      >
+        <VStack>
+          <Text fontWeight="semibold">Looks like you are new to Mio!</Text>
+          <VStack mt={5}>
+            <Text>
+              Please{" "}
+              <Text
+                color={AppColors.DARK_TEAL}
+                onPress={() => {
+                  navigate("Register");
+                }}
+              >
+                Register
+              </Text>
+              {" or "}
+              <Text
+                color={AppColors.DARK_TEAL}
+                onPress={() => {
+                  navigate("Login");
+                }}
+              >
+                Login
+              </Text>
+            </Text>
+          </VStack>
+        </VStack>
+      </Pressable>
+    );
+  };
+
   return (
-    <AppSafeAreaView loading={loading} bg={AppColors.EEE}>
+    <AppSafeAreaView
+      loading={deleteCustomerUiState === "IN_PROGRESS"}
+      bg={AppColors.EEE}
+    >
       <ScrollView>
         <VStack pb={150} pt={3} space={3}>
-          <ProfileCard />
-          <AddressCard />
-          <InviteCard />
-          <PaymentCard />
-          <LogoutCard />
+          {isAuthenticated ? (
+            <>
+              <ProfileCard key={"ProfileCard"} />
+              <AddressCard key={"AddressCard"} />
+              <InviteCard key={"InviteCard"} />
+              <PaymentCard key={"PaymentCard"} />
+              <DeleteCard key={"DeleteCard"} />
+              <LogoutCard key={"LogoutCard"} />
+            </>
+          ) : (
+            <>
+              <NewUserCard />
+            </>
+          )}
           <Center my={3}>
             <Text color={"#ccc"}>v{version}</Text>
           </Center>
         </VStack>
       </ScrollView>
-      {!isViewer && <FloatingButton />}
+      {!isViewer && isAuthenticated && <FloatingButton />}
       {showAddUser && (
         <InviteBottomSheet
           showInviteUser={showAddUser}
@@ -452,16 +562,6 @@ const Profile = (): JSX.Element => {
         <AddCardBottomSheet
           showAddCard={showAddCard}
           setShowAddCard={setShowAddCard}
-        />
-      )}
-      {showEditAddress && (
-        <AddressBottomSheet
-          mode={addressMode}
-          selectedAddress={selectedAddress}
-          setSelectedAddress={setSelectedAddress}
-          showEditAddress={showEditAddress}
-          setShowEditAddress={setShowEditAddress}
-          hideAfterSave={true}
         />
       )}
       {showPersonalDetails && (

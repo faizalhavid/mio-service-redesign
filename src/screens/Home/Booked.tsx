@@ -8,13 +8,11 @@ import FooterButton from "../../components/FooterButton";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { popToPop } from "../../navigations/rootNavigation";
 import { resetLeadState } from "../../slices/lead-slice";
-import { resetSelectedServices } from "../../slices/service-slice";
 
 const Booked = (): JSX.Element => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(resetLeadState());
-    dispatch(resetSelectedServices());
   }, [dispatch]);
 
   return (

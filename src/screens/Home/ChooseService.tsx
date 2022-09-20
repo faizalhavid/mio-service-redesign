@@ -1,5 +1,5 @@
 import { Divider, ScrollView, Text, VStack } from "native-base";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   HOUSE_CLEANING,
   LAWN_CARE,
@@ -13,19 +13,18 @@ import { StorageHelper } from "../../services/storage-helper";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { selectCustomer } from "../../slices/customer-slice";
+import { selectServices } from "../../slices/service-slice";
 import {
-  selectSelectedServices,
-  selectServices,
-  updateSelectedServices,
-} from "../../slices/service-slice";
-import { getLeadAsync, selectLead } from "../../slices/lead-slice";
+  createLeadAsync,
+  getLeadAsync,
+  selectLead,
+  updateLeadAsync,
+} from "../../slices/lead-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
 import ServiceComboCard from "../../components/ServiceComboCard";
-import { SubOrder } from "../../commons/types";
-import {
-  selectSelectedAddress,
-  setSelectedAddress,
-} from "../../slices/shared-slice";
+import { LeadDetails, SubOrder } from "../../commons/types";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
+import { isNonNull } from "../../services/utils";
 
 export const LAWN_CARE_ID: string = "lawnCare";
 export const POOL_CLEANING_ID: string = "poolCleaning";
@@ -75,31 +74,66 @@ export type BathBedOptions = { number: number; selected: boolean };
 
 const ChooseService = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const { uiState: customerUiState } = useAppSelector(selectCustomer);
-  const { collection: selectedServices } = useAppSelector(
-    selectSelectedServices
-  );
+  const { member: customer, uiState: customerUiState } =
+    useAppSelector(selectCustomer);
+
   const { uiState: servicesUiState } = useAppSelector(selectServices);
   const { uiState: leadUiState, member: leadDetails } =
     useAppSelector(selectLead);
 
-  const fetchLead = React.useCallback(async () => {
-    // await StorageHelper.removeValue("LEAD_ID");
-    let leadId = await StorageHelper.getValue("LEAD_ID");
-    if (leadId) {
-      dispatch(getLeadAsync({ leadId })).then((_leadDetails) => {
-        _leadDetails.payload.subOrders.forEach((subOrder: any) => {
-          dispatch(
-            updateSelectedServices({ selectedService: subOrder.serviceId })
-          );
-        });
-      });
-    }
-  }, []);
+  const isAuthenticated = useAuthenticatedUser();
 
-  React.useEffect(() => {
-    fetchLead();
-  }, [fetchLead]);
+  const createLead = async () => {
+    let leadId = await StorageHelper.getValue("LEAD_ID");
+    let lead = leadDetails;
+    if (leadId) {
+      lead = await dispatch(getLeadAsync({ leadId })).unwrap();
+    } else {
+      if (isAuthenticated) {
+        lead = await dispatch(
+          createLeadAsync({
+            ...leadDetails,
+            customerProfile: {
+              ...leadDetails.customerProfile,
+              ...customer,
+              addresses: [
+                ...customer?.addresses?.filter((address) => address.isPrimary),
+              ],
+            },
+          })
+        ).unwrap();
+      } else {
+        let addresses = await StorageHelper.getValue("LOCAL_ADDRESS");
+        lead = await dispatch(
+          createLeadAsync({
+            ...leadDetails,
+            customerProfile: addresses
+              ? {
+                  addresses: [JSON.parse(addresses)],
+                }
+              : {},
+          })
+        ).unwrap();
+      }
+
+      StorageHelper.setValue("LEAD_ID", lead.leadId);
+    }
+    return lead;
+  };
+
+  const [oneTimeSetupCompleted, setOneTimeSetupCompleted] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (
+      isNonNull(isAuthenticated) &&
+      ((customer && customer?.customerId && !oneTimeSetupCompleted) ||
+        !isAuthenticated)
+    ) {
+      createLead();
+      setOneTimeSetupCompleted(true);
+    }
+  }, [customer, isAuthenticated]);
 
   return (
     <AppSafeAreaView
@@ -142,7 +176,7 @@ const ChooseService = (): JSX.Element => {
         type="SERVICE_SELECTION"
         minLabel="CHOOSE"
         maxLabel="SCHEDULE"
-        disabled={selectedServices.length === 0}
+        disabled={leadDetails?.subOrders?.length === 0}
         onPress={async () => {
           navigate("ChooseSchedule");
         }}

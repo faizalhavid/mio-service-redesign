@@ -236,8 +236,8 @@ const Register = (): JSX.Element => {
         }
         if (socialLoginCompleted.current || inviteBasedLogin) {
           await StorageHelper.setValue(
-            FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED,
-            STATUS.COMPLETED
+            FLAG_TYPE.AUTHENTICATED_USER,
+            STATUS.TRUE
           );
           popToPop("Dashboard");
         } else {

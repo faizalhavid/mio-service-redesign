@@ -30,7 +30,6 @@ import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
 import { getServiceDetails } from "../../services/service-details";
 import { StorageHelper } from "../../services/storage-helper";
-import { deepClone } from "../../services/utils";
 import { selectCustomer } from "../../slices/customer-slice";
 import {
   selectLead,
@@ -39,9 +38,7 @@ import {
 } from "../../slices/lead-slice";
 import {
   getServiceCostAsync,
-  selectSelectedServices,
   selectServiceCost,
-  updateSelectedServices,
 } from "../../slices/service-slice";
 import {
   LAWN_CARE_ID,
@@ -58,7 +55,7 @@ type ChoosePlanProps = NativeStackScreenProps<
 const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   const dispatch = useAppDispatch();
 
-  const { mode } = route.params;
+  const { mode, serviceId } = route.params;
 
   const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
     React.useState<any>({});
@@ -68,12 +65,6 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
 
   const [planOptions, setPlanOptions] = React.useState<PlanOption[]>([]);
   const [selectedPlan, setSelectedPlan] = React.useState<PlanOption>();
-
-  const { member: selectedService } = useAppSelector(selectSelectedServices);
-
-  const { collection: selectedServices } = useAppSelector(
-    selectSelectedServices
-  );
 
   const { member: customer } = useAppSelector(selectCustomer);
 
@@ -89,19 +80,21 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
 
   const createLead = async () => {
     let subOrders = [];
-    if (selectedService === LAWN_CARE_ID) {
+    if (serviceId === LAWN_CARE_ID) {
       subOrders.push({
-        area: customer.addresses[0].houseInfo?.lotSize,
-        serviceId: selectedService,
+        area: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.lotSize,
+        serviceId: serviceId,
       });
-    } else if (selectedService === HOUSE_CLEANING_ID) {
+    } else if (serviceId === HOUSE_CLEANING_ID) {
       subOrders.push({
-        bedrooms: customer.addresses[0].houseInfo?.bedrooms,
-        bathrooms: customer.addresses[0].houseInfo?.bathrooms,
-        serviceId: selectedService,
+        bedrooms:
+          leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bedrooms,
+        bathrooms:
+          leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bathrooms,
+        serviceId: serviceId,
       });
     } else {
-      subOrders.push({ serviceId: selectedService });
+      subOrders.push({ serviceId: serviceId });
     }
     return dispatch(createLeadAsync({ subOrders }));
   };
@@ -110,35 +103,28 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
     let existingServiceIds = _leadDetails.subOrders.map(
       (subOrder) => subOrder.serviceId
     );
-    let isNewlyAdded = existingServiceIds.indexOf(selectedService) < 0;
-
-    let lead: LeadDetails = deepClone(_leadDetails);
+    let isNewlyAdded = existingServiceIds.indexOf(serviceId) < 0;
     let payload = {
-      ...lead,
-      customerProfile: {
-        ...lead.customerProfile,
-        ...customer,
-        addresses: [
-          ...customer?.addresses?.filter((address) => address.isPrimary),
-        ],
-      },
-      subOrders: [...lead.subOrders],
+      ..._leadDetails,
+      subOrders: [..._leadDetails.subOrders],
     };
     if (isNewlyAdded) {
       payload.subOrders.push({
         ...({} as SubOrder),
-        serviceId: selectedService,
+        serviceId: serviceId,
       });
     }
-
     let updatedSuborders = payload.subOrders.map((subOrder) => {
-      if (selectedService === LAWN_CARE_ID) {
-        subOrder.area = customer.addresses[0].houseInfo?.lotSize;
-      } else if (selectedService === HOUSE_CLEANING_ID) {
-        subOrder.bedrooms = customer.addresses[0].houseInfo?.bedrooms;
-        subOrder.bathrooms = customer.addresses[0].houseInfo?.bathrooms;
+      if (serviceId === LAWN_CARE_ID) {
+        subOrder.area =
+          payload.customerProfile.addresses[0].houseInfo?.lotSize || 0;
+      } else if (serviceId === HOUSE_CLEANING_ID) {
+        subOrder.bedrooms =
+          payload.customerProfile.addresses[0].houseInfo?.bedrooms;
+        subOrder.bathrooms =
+          payload.customerProfile.addresses[0].houseInfo?.bathrooms;
       }
-      if (subOrder.serviceId === selectedService) {
+      if (subOrder.serviceId === serviceId) {
         if (!subOrder.servicePrice) {
           subOrder.servicePrice = {} as ServicePrice;
         }
@@ -158,52 +144,102 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       }
       return subOrder;
     });
-
     payload.subOrders = updatedSuborders;
-
     return dispatch(updateLeadAsync(payload));
   };
 
+  // const updateLead = async (pleadDetails: LeadDetails) => {
+  //   let _leadDetails = { ...pleadDetails };
+
+  //   if (isAuthenticated) {
+  //     _leadDetails = {
+  //       ..._leadDetails,
+  //       customerProfile: {
+  //         ..._leadDetails.customerProfile,
+  //         ...customer,
+  //         addresses: [
+  //           ...customer?.addresses?.filter((address) => address.isPrimary),
+  //         ],
+  //       },
+  //     };
+  //   }
+
+  //   _leadDetails.subOrders = updateSubOrders(_leadDetails);
+
+  //   return dispatch(updateLeadAsync(_leadDetails));
+  // };
+
+  const updateSubOrders = (_leadDetails: LeadDetails) => {
+    let _subOrders: SubOrder[] = [];
+
+    if (_leadDetails.subOrders && _leadDetails.subOrders.length > 0) {
+      _subOrders = [..._leadDetails.subOrders];
+    }
+
+    // Update Area
+    const index1 = _subOrders.findIndex(
+      (subOrder2) => subOrder2.serviceId === LAWN_CARE_ID
+    );
+    _subOrders[index1] = {
+      ..._subOrders[index1],
+      area: _leadDetails.customerProfile.addresses[0].houseInfo?.lotSize || 0,
+    };
+    // Update Bedroom Bathroom
+    const index2 = _subOrders.findIndex(
+      (subOrder2) => subOrder2.serviceId === HOUSE_CLEANING_ID
+    );
+    _subOrders[index2] = {
+      ..._subOrders[index2],
+      bedrooms: _leadDetails.customerProfile.addresses[0].houseInfo?.bedrooms,
+      bathrooms: _leadDetails.customerProfile.addresses[0].houseInfo?.bathrooms,
+    };
+
+    return _subOrders;
+  };
+
   useEffect(() => {
-    if (selectedService) {
-      if (selectedService === LAWN_CARE_ID) {
-        let lotsize: number = customer.addresses[0].houseInfo?.lotSize || 0;
+    if (serviceId) {
+      if (serviceId === LAWN_CARE_ID) {
+        let lotsize: number =
+          leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.lotSize || 0;
         dispatch(
           getServiceCostAsync([
             {
-              serviceId: selectedService,
+              serviceId: serviceId,
               serviceParameters: {
                 area: lotsize,
               },
             },
           ])
         );
-      } else if (selectedService === HOUSE_CLEANING_ID) {
+      } else if (serviceId === HOUSE_CLEANING_ID) {
         dispatch(
           getServiceCostAsync([
             {
-              serviceId: selectedService,
+              serviceId: serviceId,
               serviceParameters: {
-                bedrooms: customer.addresses[0].houseInfo?.bedrooms || 1,
-                bathrooms: customer.addresses[0].houseInfo?.bathrooms || 1,
+                bedrooms:
+                  leadDetails?.customerProfile?.addresses?.[0]?.houseInfo
+                    ?.bedrooms || 1,
+                bathrooms:
+                  leadDetails?.customerProfile?.addresses?.[0]?.houseInfo
+                    ?.bathrooms || 1,
               },
             },
           ])
         );
-      } else if (
-        [PEST_CONTROL_ID, POOL_CLEANING_ID].includes(selectedService)
-      ) {
+      } else if ([PEST_CONTROL_ID, POOL_CLEANING_ID].includes(serviceId)) {
         dispatch(
           getServiceCostAsync([
             {
-              serviceId: selectedService,
+              serviceId: serviceId,
               serviceParameters: {},
             },
           ])
         );
       }
     }
-  }, [selectedService]);
+  }, [serviceId]);
 
   useEffect(() => {
     if (serviceCost.length > 0) {
@@ -211,7 +247,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       let subOrder = {} as SubOrder;
       if (isUpdate) {
         subOrder = leadDetails.subOrders.filter(
-          (so) => so.serviceId === selectedService
+          (so) => so.serviceId === serviceId
         )[0];
       }
       let subscriptionOptions: any[] = [];
@@ -319,13 +355,13 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       let isUpdate = mode === "UPDATE";
       if (isUpdate) {
         let subOrder = leadDetails.subOrders.filter(
-          (so) => so.serviceId === selectedService
+          (so) => so.serviceId === serviceId
         )[0];
         preSelectedPlan = subOrder.flags.plan;
       }
       const serviceCosts = serviceCost.filter(
         (cost) =>
-          cost.serviceId === selectedService &&
+          cost.serviceId === serviceId &&
           ["STANDARD", "PREMIUM", "FULL CARE"].indexOf(cost.plan) >= 0
       );
       let options: PlanOption[] = [];
@@ -334,9 +370,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           let option: PlanOption = {
             label: cost.plan,
             benefits:
-              groupedServiceDetails[selectedService].packageDescription[
-                cost.plan
-              ] || [],
+              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
+              [],
             cost: parseInt(cost.pricePerWeek),
             selected: preSelectedPlan === cost.plan,
           };
@@ -350,9 +385,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           let option = {
             label: cost.plan,
             benefits:
-              groupedServiceDetails[selectedService].packageDescription[
-                cost.plan
-              ] || [],
+              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
+              [],
             cost: parseInt(cost.pricePer2Weeks),
             selected: preSelectedPlan === cost.plan,
           };
@@ -366,9 +400,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           let option = {
             label: cost.plan,
             benefits:
-              groupedServiceDetails[selectedService].packageDescription[
-                cost.plan
-              ] || [],
+              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
+              [],
             cost: parseInt(cost.pricePerMonth),
             selected: preSelectedPlan === cost.plan,
           };
@@ -382,9 +415,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           let option = {
             label: cost.plan,
             benefits:
-              groupedServiceDetails[selectedService].packageDescription[
-                cost.plan
-              ] || [],
+              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
+              [],
             cost: parseInt(cost.pricePerQuarterly),
             selected: preSelectedPlan === cost.plan,
           };
@@ -398,9 +430,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           let option = {
             label: cost.plan,
             benefits:
-              groupedServiceDetails[selectedService].packageDescription[
-                cost.plan
-              ] || [],
+              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
+              [],
             cost: parseInt(cost.pricePerOnetime),
             selected: preSelectedPlan === cost.plan,
           };
@@ -579,9 +610,9 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                               onPress={() => {
                                 let payload = {
                                   ...benefitExpand,
-                                  [selectedService]: {
+                                  [serviceId]: {
                                     [b.title]: hasDescription
-                                      ? benefitExpand?.[selectedService]?.[
+                                      ? benefitExpand?.[serviceId]?.[
                                           b.title
                                         ] === true
                                         ? false
@@ -612,9 +643,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                                 </HStack>
                                 {hasDescription && (
                                   <View px={3}>
-                                    {!benefitExpand?.[selectedService]?.[
-                                      b.title
-                                    ] ? (
+                                    {!benefitExpand?.[serviceId]?.[b.title] ? (
                                       <SvgCss
                                         xml={PLUS_ICON(AppColors.TEAL)}
                                         height={9}
@@ -634,7 +663,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                               </HStack>
                             </Pressable>
                             {(hasDescription
-                              ? benefitExpand?.[selectedService]?.[b.title]
+                              ? benefitExpand?.[serviceId]?.[b.title]
                               : false) && (
                               <Text
                                 color={AppColors.DARK_PRIMARY}
@@ -676,6 +705,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       <FooterButton
         type="PLAN_SELECTION"
         label="DONE"
+        serviceId={serviceId}
         disabled={false}
         loading={
           leadDetailsUiState === "IN_PROGRESS" ||
@@ -683,20 +713,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         }
         subText="Please add required services"
         onPress={async () => {
-          dispatch(
-            updateSelectedServices({ selectedService: selectedService })
-          );
-          const leadId = await StorageHelper.getValue("LEAD_ID");
-          if (!leadId) {
-            let _leadDetails = await createLead();
-            await StorageHelper.setValue(
-              "LEAD_ID",
-              _leadDetails.payload.leadId
-            );
-            await updateLead(_leadDetails.payload);
-          } else {
-            await updateLead(leadDetails);
-          }
+          await updateLead(leadDetails);
           goBack();
         }}
       />

@@ -45,6 +45,6 @@ export const getReadableDateTime = (dt: string) => {
   };
 };
 
-export const deepClone = (o: any): any => {
-  return JSON.parse(JSON.stringify(o));
-};
+export function isNonNull(value: any) {
+  return value !== null;
+}

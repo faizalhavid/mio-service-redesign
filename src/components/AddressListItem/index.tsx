@@ -1,15 +1,7 @@
 import { VStack, HStack, Divider, Text, Pressable } from "native-base";
 import React from "react";
-import { Alert } from "react-native";
 import { AppColors } from "../../commons/colors";
 import { Address } from "../../contexts/AuthContext";
-import index from "../../navigations";
-import { dispatch } from "../../navigations/rootNavigation";
-import {
-  deleteAddressAsync,
-  getCustomerByIdAsync,
-} from "../../slices/customer-slice";
-import { setSelectedAddress } from "../../slices/shared-slice";
 
 type AddressListItemProps = {
   showEdit?: boolean;
@@ -77,7 +69,7 @@ const AddressListItem = ({
   return (
     <VStack
       key={address.googlePlaceId}
-      space={2}
+      // space={2}
       // borderBottomWidth={2}
       borderRadius={3}
       borderColor={AppColors.TEAL}
@@ -144,15 +136,21 @@ const AddressListItem = ({
           )}
         </HStack>
       </HStack>
-      <Divider thickness={1} borderStyle={"dashed"} bg={AppColors.LIGHT_TEAL} />
+      <Divider
+        thickness={1}
+        my={1}
+        borderStyle={"dashed"}
+        bg={AppColors.LIGHT_TEAL}
+      />
       <Text fontSize={13} color={AppColors.SECONDARY} fontWeight={"semibold"}>
         {`${address.street}, ${address.city}, ${address.state}, ${address.zip}`}
       </Text>
-      {/* <Divider
-style={{ borderWidth: 1 }}
-// borderStyle={"dashed"}
-borderColor={AppColors.EEE}
-/> */}
+      <Divider
+        thickness={0}
+        my={1}
+        borderStyle={"dashed"}
+        bg={AppColors.LIGHT_TEAL}
+      />
       <HStack justifyContent={"space-between"}>
         <VStack>
           <Text color={AppColors.AAA} letterSpacing={0.5} fontSize={10}>

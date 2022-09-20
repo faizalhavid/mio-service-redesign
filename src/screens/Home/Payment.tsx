@@ -16,7 +16,6 @@ import FooterButton from "../../components/FooterButton";
 import TermsAndConditions from "../../components/TermsAndConditions";
 import { popToPop } from "../../navigations/rootNavigation";
 import AppInput from "../../components/AppInput";
-import { Controller, useForm } from "react-hook-form";
 import { SvgCss } from "react-native-svg";
 import {
   FILLED_CIRCLE_CLOSE_ICON,
@@ -28,7 +27,6 @@ import { useAppSelector } from "../../hooks/useAppSelector";
 import { selectCustomer } from "../../slices/customer-slice";
 import {
   getSavedCardsAsync,
-  saveCardAsync,
   selectCards,
   selectSaveCard,
 } from "../../slices/card-slice";
@@ -36,18 +34,13 @@ import {
   selectValidateCoupon,
   validateCouponAsync,
 } from "../../slices/coupon-slice";
-import {
-  resetLeadState,
-  selectLead,
-  updateLeadAsync,
-} from "../../slices/lead-slice";
+import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import {
   createOrderFromLeadAsync,
   selectCreateOrder,
 } from "../../slices/order-slice";
 import { IN_PROGRESS } from "../../commons/ui-states";
 import PriceBreakdown from "./PriceBreakdown";
-import { SaveCardType } from "../../commons/types";
 import { AddCardBottomSheet } from "../../components/AddCardBottomSheet";
 
 const Payment = (): JSX.Element => {

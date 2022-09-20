@@ -21,7 +21,6 @@ import {
   updateAddressAsync,
 } from "../../slices/customer-slice";
 import { resetLeadState } from "../../slices/lead-slice";
-import { resetSelectedServices } from "../../slices/service-slice";
 import AddressListItem from "../AddressListItem";
 
 type AddressSelectionSheetProps = {
@@ -103,7 +102,6 @@ const AddressSelectionSheet = ({
                         navigate("ChooseService");
                         setTimeout(() => {
                           dispatch(resetLeadState());
-                          dispatch(resetSelectedServices());
                         }, 500);
                       }}
                       address={addressItem}

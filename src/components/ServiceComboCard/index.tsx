@@ -13,16 +13,8 @@ import {
   ServicesType,
 } from "../../screens/Home/ChooseService";
 import { getServiceDetails } from "../../services/service-details";
-import { deepClone, getReadableDateTime } from "../../services/utils";
-import { selectCustomer } from "../../slices/customer-slice";
+import { getReadableDateTime } from "../../services/utils";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
-import {
-  removeSelectedServices,
-  selectSelectedServices,
-  selectServices,
-  setActiveService,
-  updateSelectedServices,
-} from "../../slices/service-slice";
 
 type ServiceComboCardProps = {
   service: ServicesType;
@@ -36,10 +28,9 @@ const ServiceComboCard = ({
   datetime,
 }: ServiceComboCardProps): JSX.Element => {
   const dispatch = useAppDispatch();
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   const chooseService = async (serviceId: string = "") => {
-    dispatch(setActiveService({ selectedService: serviceId }));
-
     navigate("ChoosePlan", {
       serviceId,
       mode: ~selectedServices.indexOf(service?.id) ? "UPDATE" : "CREATE",
@@ -50,18 +41,18 @@ const ServiceComboCard = ({
   const { uiState: leadUiState, member: leadDetails } =
     useAppSelector(selectLead);
 
-  const { collection: selectedServices } = useAppSelector(
-    selectSelectedServices
-  );
-
   const { groupedServiceDetails } = getServiceDetails();
 
   const [weeklyPrice, setWeeklyPrice] = useState(0);
 
-  const { member: customer } = useAppSelector(selectCustomer);
   const [groupedLeadDetails, setGroupedLeadDetails] = useState<{
     [key: string]: SubOrder;
   }>({});
+
+  useEffect(() => {
+    let serviceIds = leadDetails?.subOrders?.map((s) => s.serviceId) || [];
+    setSelectedServices(serviceIds);
+  }, [leadDetails]);
 
   useEffect(() => {
     if (weeklyPrice) return;
@@ -72,7 +63,7 @@ const ServiceComboCard = ({
           price.rangeMin !== undefined &&
           price.rangeMax !== undefined
         ) {
-          let lotSize = customer?.addresses[0]?.houseInfo?.lotSize || 0;
+          let lotSize = groupedLeadDetails[service?.id]?.area || 0;
           if (!(lotSize >= price.rangeMin && lotSize <= price.rangeMax)) {
             return updatedValue;
           }
@@ -83,8 +74,8 @@ const ServiceComboCard = ({
           price.bathrooms !== undefined
         ) {
           if (
-            customer?.addresses[0]?.houseInfo?.bedrooms !== price.bedrooms ||
-            customer?.addresses[0]?.houseInfo?.bathrooms !== price.bathrooms
+            groupedLeadDetails[service?.id]?.bedrooms !== price.bedrooms ||
+            groupedLeadDetails[service?.id]?.bathrooms !== price.bathrooms
           ) {
             return updatedValue;
           }
@@ -113,7 +104,12 @@ const ServiceComboCard = ({
   }, [groupedServiceDetails, service?.id]);
 
   React.useEffect(() => {
-    if (!leadDetails || Object.keys(leadDetails).length === 0) {
+    if (
+      !leadDetails ||
+      Object.keys(leadDetails).length === 0 ||
+      !leadDetails.subOrders ||
+      leadDetails.subOrders.length === 0
+    ) {
       return;
     }
     let details: { [key: string]: SubOrder } = {};
@@ -228,15 +224,15 @@ const ServiceComboCard = ({
               justifyContent="center"
               onPress={() => {
                 dispatch(
-                  removeSelectedServices({
-                    selectedService: service?.id,
+                  updateLeadAsync({
+                    ...leadDetails,
+                    subOrders: [
+                      ...leadDetails.subOrders.filter(
+                        (_subOrder) => _subOrder.serviceId !== service?.id
+                      ),
+                    ],
                   })
                 );
-                let _leadDetails: LeadDetails = deepClone(leadDetails);
-                _leadDetails.subOrders = _leadDetails.subOrders.filter(
-                  (lead) => lead.serviceId !== service?.id
-                );
-                dispatch(updateLeadAsync(_leadDetails));
               }}
               _pressed={{
                 backgroundColor: "red.100",
@@ -270,11 +266,11 @@ const ServiceComboCard = ({
           />
           <HStack space={2} flexWrap="wrap">
             {service?.id === LAWN_CARE_ID &&
-              Tag(`${customer?.addresses[0]?.houseInfo?.lotSize} Sq Ft`)}
+              Tag(`${groupedLeadDetails[service?.id]?.area} Sq Ft`)}
             {service?.id === HOUSE_CLEANING_ID &&
-              Tag(`${customer?.addresses[0]?.houseInfo?.bedrooms} Bedroom`)}
+              Tag(`${groupedLeadDetails[service?.id]?.bedrooms} Bedroom`)}
             {service?.id === HOUSE_CLEANING_ID &&
-              Tag(`${customer?.addresses[0]?.houseInfo?.bathrooms} Bathroom`)}
+              Tag(`${groupedLeadDetails[service?.id]?.bathrooms} Bathroom`)}
             {Tag(`${groupedLeadDetails[service?.id]?.flags?.plan}`)}
             {Tag(
               `$${groupedLeadDetails[service?.id]?.servicePrice?.cost}/${
@@ -305,7 +301,6 @@ const ServiceComboCard = ({
                 borderRadius={5}
                 justifyContent="center"
                 onPress={() => {
-                  dispatch(setActiveService({ selectedService: service?.id }));
                   if (
                     groupedLeadDetails[service?.id]?.appointmentInfo
                       ?.appointmentDateTime

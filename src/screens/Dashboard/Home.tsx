@@ -11,13 +11,11 @@ import React, { useEffect, useState } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
+import { navigate } from "../../navigations/rootNavigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { AppColors } from "../../commons/colors";
-import { useIsFocused } from "@react-navigation/native";
 import { SERVICES } from "../Home/ChooseService";
 import { getReadableDateTime } from "../../services/utils";
-import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { StorageHelper } from "../../services/storage-helper";
 import { useAnalytics } from "../../services/analytics";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -25,31 +23,33 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
   getCustomerByIdAsync,
+  selectAddress,
   selectCustomer,
+  updateAddressAsync,
 } from "../../slices/customer-slice";
 import {
   selectFirstOrder,
   selectUpcomingOrders,
 } from "../../slices/order-slice";
-import { AddressBottomSheet } from "../../components/AddressBottomSheet";
 import WarningLabel from "../../components/WarningLabel";
 import UpcomingPast from "../../components/UpcomingPast";
 import VirtualizedView from "../../components/VirtualizedView";
 import { isAddressExists } from "../../services/address-validation";
 import { getServicesAsync } from "../../slices/service-slice";
-import { selectRefreshNeeded } from "../../slices/shared-slice";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
 
 const Home = (): JSX.Element => {
   const dispatch = useAppDispatch();
-
-  const [showEditAddress, setShowEditAddress] = useState(false);
 
   const {
     member: { data: upcomingOrders = [] },
     uiState: upcomingOrdersUiState,
   } = useAppSelector(selectUpcomingOrders);
 
-  const { uiState: customerUiState } = useAppSelector(selectCustomer);
+  const { uiState: customerUiState, member: customer } =
+    useAppSelector(selectCustomer);
+
+  const { uiState: addressUiState } = useAppSelector(selectAddress);
 
   const { addressExists, addressMode } = isAddressExists();
 
@@ -57,16 +57,9 @@ const Home = (): JSX.Element => {
   const { setUserId } = useAnalytics();
 
   const [contentReady, setContentReady] = useState<boolean>(false);
+  const isAuthenticated = useAuthenticatedUser();
 
   const init = React.useCallback(async () => {
-    let APP_INITIAL_SETUP_COMPLETED = await StorageHelper.getValue(
-      FLAG_TYPE.ALL_INITIAL_SETUP_COMPLETED
-    );
-    if (APP_INITIAL_SETUP_COMPLETED !== STATUS.COMPLETED) {
-      logout();
-      popToPop("Welcome");
-      return;
-    }
     StorageHelper.getValue("CUSTOMER_ID").then((cId) => {
       setUserId(cId || "");
       if (cId) {
@@ -81,11 +74,38 @@ const Home = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    if (customerUiState === "SUCCESS" && upcomingOrdersUiState === "SUCCESS") {
-      setShowEditAddress(!addressExists);
+    if (
+      customerUiState === "SUCCESS" &&
+      upcomingOrdersUiState === "SUCCESS" &&
+      addressUiState !== "IN_PROGRESS"
+    ) {
       setContentReady(true);
     }
-  }, [customerUiState, upcomingOrdersUiState, addressExists]);
+    if (!isAuthenticated) {
+      setContentReady(true);
+    }
+  }, [customerUiState, upcomingOrdersUiState, addressExists, isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && customer?.customerId) {
+      StorageHelper.getValue("LOCAL_ADDRESS").then((localAddress) => {
+        if (localAddress) {
+          let payload: any = {
+            ...JSON.parse(localAddress),
+            isPrimary: true,
+            serviceAccountId: customer.sAccountId,
+          };
+          dispatch(updateAddressAsync(payload)).then((response) => {
+            if (response.meta.requestStatus === "fulfilled") {
+              StorageHelper.removeValue("LOCAL_ADDRESS");
+              dispatch(getCustomerByIdAsync(customer.customerId));
+              navigate("ChooseSchedule");
+            }
+          });
+        }
+      });
+    }
+  }, [customer, isAuthenticated]);
 
   const { member: firstOrder } = useAppSelector(selectFirstOrder);
 
@@ -103,15 +123,8 @@ const Home = (): JSX.Element => {
         <VStack>
           {contentReady && (
             <View px={3}>
-              {!addressExists && (
-                <WarningLabel
-                  text="Update Address & Property details"
-                  onPress={() => {
-                    setShowEditAddress(true);
-                  }}
-                />
-              )}
-              {addressExists && upcomingOrders.length === 0 && (
+              {(!isAuthenticated ||
+                (addressExists && upcomingOrders.length === 0)) && (
                 <Pressable
                   borderRadius={10}
                   borderWidth={1}
@@ -122,9 +135,23 @@ const Home = (): JSX.Element => {
                   _pressed={{
                     backgroundColor: "white",
                   }}
-                  onPress={() => {
+                  onPress={async () => {
                     StorageHelper.setValue("COUPON_SELECTED", "NC20P");
-                    navigate("ChooseService");
+                    if (isAuthenticated) {
+                      navigate("ChooseService");
+                    } else {
+                      let localAddress = await StorageHelper.getValue(
+                        "LOCAL_ADDRESS"
+                      );
+                      if (localAddress) {
+                        navigate("ChooseService");
+                      } else {
+                        navigate("EditAddress", {
+                          returnTo: "ChooseService",
+                          mode: "NEW_ADDRESS",
+                        });
+                      }
+                    }
                   }}
                 >
                   <VStack space={5} width={"100%"}>
@@ -183,17 +210,10 @@ const Home = (): JSX.Element => {
               <Divider my={1} thickness={0} />
             </View>
           )}
-          <UpcomingPast />
+          {isAuthenticated && <UpcomingPast />}
         </VStack>
       </VirtualizedView>
-      {showEditAddress && (
-        <AddressBottomSheet
-          mode={addressMode}
-          showEditAddress={showEditAddress}
-          setShowEditAddress={setShowEditAddress}
-        />
-      )}
-      {!isViewer && <FloatingButton />}
+      {!isViewer && isAuthenticated && <FloatingButton />}
     </AppSafeAreaView>
   );
 };

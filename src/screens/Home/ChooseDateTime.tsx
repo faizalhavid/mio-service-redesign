@@ -23,9 +23,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
-import { deepClone } from "../../services/utils";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
-import { selectSelectedServices } from "../../slices/service-slice";
 import * as ImagePicker from "react-native-image-picker";
 import { firebase } from "@react-native-firebase/storage";
 import { useAuth } from "../../contexts/AuthContext";
@@ -87,7 +85,7 @@ type ChooseDateTimeProps = NativeStackScreenProps<
 const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
   const columns = 2;
   const dispatch = useAppDispatch();
-  const { mode } = route.params;
+  const { mode, serviceId } = route.params;
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [serviceNotes, setServiceNotes] = React.useState<string>("");
@@ -102,24 +100,32 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
 
   const [serviceImages, setServiceImages] = useState<string[]>([]);
 
-  const { member: selectedService } = useAppSelector(selectSelectedServices);
   const { member: leadDetails, uiState: leadDetailsUiState } =
     useAppSelector(selectLead);
 
   const updateLead = async () => {
-    let _leadDetails: LeadDetails = deepClone(leadDetails);
+    let _leadDetails = {
+      ...leadDetails,
+    };
     let updatedSuborders = _leadDetails.subOrders.map((subOrder) => {
-      if (subOrder.serviceId === selectedService) {
+      if (subOrder.serviceId === serviceId) {
         let selecDate = selectedDate;
         if (Platform.OS === "ios") {
           selecDate = selecDate.replace(/-/g, "/");
         }
-        subOrder.appointmentInfo.appointmentDateTime = new Date(
-          `${selecDate} ${
-            parseInt(selectedTime) > 9 ? selectedTime : "0" + selectedTime
-          }:00:00`
-        ).toISOString();
-        subOrder.serviceNotes = [serviceNotes];
+
+        subOrder = {
+          ...subOrder,
+          appointmentInfo: {
+            ...subOrder.appointmentInfo,
+            appointmentDateTime: new Date(
+              `${selecDate} ${
+                parseInt(selectedTime) > 9 ? selectedTime : "0" + selectedTime
+              }:00:00`
+            ).toISOString(),
+          },
+          serviceNotes: [serviceNotes],
+        };
 
         if (appointmentTimeOptions) {
           for (let option of appointmentTimeOptions) {
@@ -149,7 +155,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
     let subOrder = {} as SubOrder;
     if (isUpdate) {
       subOrder = leadDetails.subOrders.filter(
-        (so) => so.serviceId === selectedService
+        (so) => so.serviceId === serviceId
       )[0];
     }
     if (isUpdate) {
@@ -417,7 +423,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                         const { fileName, uri } = response.assets[0];
                         let imageRef = `users/${currentUser.uid}/${
                           leadDetails.leadId
-                        }-${selectedService}-${new Date().getTime()}.${
+                        }-${serviceId}-${new Date().getTime()}.${
                           fileName.split(".")[1]
                         }`;
                         firebase
@@ -470,6 +476,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
       <FooterButton
         type="DATETIME_SELECTION"
         label="DONE"
+        serviceId={serviceId}
         disabled={!selectedDate || !selectedTime}
         loading={leadDetailsUiState === "IN_PROGRESS"}
         onPress={async () => {

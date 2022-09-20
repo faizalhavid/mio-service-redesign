@@ -185,18 +185,6 @@ const ViewServiceDetails = ({
                 text={`${orderDetail.bedrooms} (BEDROOM) | ${orderDetail.bathrooms} (BATHROOM)`}
               />
             )}
-            {orderDetail.serviceId === PEST_CONTROL_ID && (
-              <ValueText
-                text={`${orderDetail?.customerProfile?.addresses[0]?.houseInfo?.pestType?.join(
-                  ", "
-                )} (PEST TYPE)`}
-              />
-            )}
-            {orderDetail.serviceId === POOL_CLEANING_ID && (
-              <ValueText
-                text={`${orderDetail?.customerProfile?.addresses[0]?.houseInfo?.swimmingPoolType} (POOL TYPE)`}
-              />
-            )}
           </VStack>
           <View>
             <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>

@@ -9,6 +9,7 @@ import { SvgCss } from "react-native-svg";
 import { HOME_ICON, PROFILE_ICON, SERVICES_ICON } from "../commons/assets";
 import { AppColors } from "../commons/colors";
 import { TabBarComponent } from "../components/BottomTabBar";
+import { useAuthenticatedUser } from "../hooks/useAuthenticatedUser";
 import Home from "../screens/Dashboard/Home";
 import Profile from "../screens/Dashboard/Profile";
 import Services from "../screens/Dashboard/Services";
@@ -67,6 +68,7 @@ const DashboardTab = () => {
   const tabBarOptions: BottomTabNavigationOptions = {
     tabBarShowLabel: true,
   };
+  const isAuthenticated = useAuthenticatedUser();
 
   return (
     <Tab.Navigator
@@ -112,27 +114,29 @@ const DashboardTab = () => {
         component={HomeStack}
         name="Home"
       />
-      <Tab.Screen
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <SvgCss
-              width={25}
-              xml={SERVICES_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
-            />
-          ),
-          tabBarLabel: ({ focused }) => (
-            <Text
-              mt={1}
-              color={focused ? AppColors.TEAL : AppColors.AAA}
-              fontWeight="semibold"
-            >
-              Services
-            </Text>
-          ),
-        }}
-        component={ServicesStack}
-        name="Services"
-      />
+      {isAuthenticated && (
+        <Tab.Screen
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <SvgCss
+                width={25}
+                xml={SERVICES_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
+              />
+            ),
+            tabBarLabel: ({ focused }) => (
+              <Text
+                mt={1}
+                color={focused ? AppColors.TEAL : AppColors.AAA}
+                fontWeight="semibold"
+              >
+                Services
+              </Text>
+            ),
+          }}
+          component={ServicesStack}
+          name="Services"
+        />
+      )}
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused }) => (

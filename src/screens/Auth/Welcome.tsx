@@ -7,8 +7,8 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React from "react";
-import { StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { Pressable, StyleSheet } from "react-native";
 import { SvgCss } from "react-native-svg";
 import { COLOR_LOGO } from "../../commons/assets";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
@@ -17,8 +17,21 @@ import { navigate } from "../../navigations/rootNavigation";
 import LottieView from "lottie-react-native";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
+import { FLAG_TYPE, STATUS } from "../../commons/status";
+import { StorageHelper } from "../../services/storage-helper";
+import { resetLeadState } from "../../slices/lead-slice";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Welcome = (): JSX.Element => {
+  const dispatch = useAppDispatch();
+  const { logout } = useAuth();
+
+  useEffect(() => {
+    // logout(); // Just for testing
+    dispatch(resetLeadState());
+  }, []);
+
   return (
     <AppSafeAreaView>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
@@ -79,6 +92,20 @@ const Welcome = (): JSX.Element => {
                   navigate("Login");
                 }}
               />
+              <Divider thickness={0} mt={21} />
+              <Pressable
+                onPress={async () => {
+                  await StorageHelper.setValue(
+                    FLAG_TYPE.AUTHENTICATED_USER,
+                    STATUS.FALSE
+                  );
+                  navigate("Dashboard");
+                }}
+              >
+                <Text textAlign={"center"} color={AppColors.AAA}>
+                  Skip for now
+                </Text>
+              </Pressable>
             </Box>
           </VStack>
         </VStack>

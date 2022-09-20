@@ -1,11 +1,14 @@
 import { Center, Divider, Spinner, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SectionList } from "react-native";
+import { FLAG_TYPE, STATUS } from "../../commons/status";
 import { GroupedOrder, Order } from "../../commons/types";
 import ServiceCard from "../../components/ServiceCard";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
+import { StorageHelper } from "../../services/storage-helper";
 import { getReadableDateTime } from "../../services/utils";
 import {
   getUpcomingOrdersAsync,
@@ -30,7 +33,12 @@ const UpcomingServices = (): JSX.Element => {
   const { uiState: upcomingOrdersUiState, member: upcomingOrdersState } =
     useAppSelector(selectUpcomingOrders);
 
+  const isAuthenticated = useAuthenticatedUser();
+
   useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
     dispatch(getUpcomingOrdersAsync({ orderId, subOrderId, limit })).then(
       (response) => {
         let orders = response.payload.data;
@@ -82,7 +90,7 @@ const UpcomingServices = (): JSX.Element => {
         }
       }
     );
-  }, [page]);
+  }, [page, isAuthenticated]);
 
   return (
     <VStack px={3}>
