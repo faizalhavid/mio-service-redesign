@@ -12,12 +12,6 @@ type FloatingButtonProps = {};
 const FloatingButton = ({}: FloatingButtonProps): JSX.Element => {
   const { addressExists } = isAddressExists();
 
-  const sayWarning = () => {
-    Toast.show({
-      title: "Profile information Missing",
-      description: "Please update address & property details",
-    });
-  };
   return (
     <>
       <Button
@@ -31,10 +25,10 @@ const FloatingButton = ({}: FloatingButtonProps): JSX.Element => {
         bg={"amber.400"}
         onPress={() => {
           if (!addressExists) {
-            sayWarning();
-          }
-          if (!addressExists) {
-            sayWarning();
+            navigate("EditAddress", {
+              returnTo: "ChooseService",
+              mode: "NEW_ADDRESS",
+            });
           } else {
             navigate("ChooseService");
           }

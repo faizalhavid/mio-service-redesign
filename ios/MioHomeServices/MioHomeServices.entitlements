@@ -10,9 +10,9 @@
 		</array>
 		<key>com.apple.developer.associated-domains</key>
 		<array>
-			<string>applinks:miodevhomeservices.page.link</string>
-			<string>applinks:miohomeservices.page.link</string>
-			<string>applinks:homeservices-dev-ab7f9.firebaseapp.com</string>
+			<string>applinks:miodevhomeservices.page.link/api/v2</string>
+			<string>applinks:miohomeservices.page.link/api/v2</string>
+			<string>applinks:homeservices-dev-ab7f9.firebaseapp.com/api/v2</string>
 		</array>
 	</dict>
 </plist>

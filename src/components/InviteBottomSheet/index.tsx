@@ -9,6 +9,7 @@ import {
 } from "native-base";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Keyboard } from "react-native";
 import { AppColors } from "../../commons/colors";
 import { ROLES } from "../../commons/options";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -62,6 +63,7 @@ const InviteBottomSheet = ({
   });
 
   const onSubmit = async () => {
+    Keyboard.dismiss();
     let data = getValues();
     await dispatch(
       inviteUserAsync({

@@ -143,14 +143,14 @@ const Payment = (): JSX.Element => {
       }
     >
       <ScrollView pt={70}>
-        <VStack space={3}>
+        <VStack space={0}>
           <PriceBreakdown />
           <Divider thickness={10} />
-          <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
+          <Text fontSize={16} px={5} py={3} fontWeight={"semibold"}>
             Choose Credit Card
           </Text>
           <Divider bgColor={"gray.200"} thickness={1} />
-          <View pl={2}>
+          <View pl={2} pt={3}>
             <Radio.Group
               value={selectedCreditcard || ""}
               name="myRadioGroup"
@@ -192,11 +192,11 @@ const Payment = (): JSX.Element => {
           </View>
           <Divider thickness={10} />
           <VStack>
-            <Text textAlign={"center"} fontSize={18} fontWeight={"semibold"}>
+            <Text px={5} py={3} fontSize={16} fontWeight={"semibold"}>
               Apply Promo Code
             </Text>
-            <Divider bgColor={"gray.200"} thickness={1} mt={4} />
-            <VStack px={5}>
+            <Divider bgColor={"gray.200"} thickness={1} />
+            <VStack px={5} pb={3}>
               <AppInput
                 type={"text"}
                 label={"Code"}

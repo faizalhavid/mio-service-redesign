@@ -51,7 +51,7 @@ const Home = (): JSX.Element => {
 
   const { uiState: addressUiState } = useAppSelector(selectAddress);
 
-  const { addressExists, addressMode } = isAddressExists();
+  const { addressExists } = isAddressExists();
 
   const { logout, isViewer } = useAuth();
   const { setUserId } = useAnalytics();
@@ -123,8 +123,7 @@ const Home = (): JSX.Element => {
         <VStack>
           {contentReady && (
             <View px={3}>
-              {(!isAuthenticated ||
-                (addressExists && upcomingOrders.length === 0)) && (
+              {(!isAuthenticated || upcomingOrders.length === 0) && (
                 <Pressable
                   borderRadius={10}
                   borderWidth={1}
@@ -138,7 +137,14 @@ const Home = (): JSX.Element => {
                   onPress={async () => {
                     StorageHelper.setValue("COUPON_SELECTED", "NC20P");
                     if (isAuthenticated) {
-                      navigate("ChooseService");
+                      if (addressExists) {
+                        navigate("ChooseService");
+                      } else {
+                        navigate("EditAddress", {
+                          returnTo: "ChooseService",
+                          mode: "NEW_ADDRESS",
+                        });
+                      }
                     } else {
                       let localAddress = await StorageHelper.getValue(
                         "LOCAL_ADDRESS"

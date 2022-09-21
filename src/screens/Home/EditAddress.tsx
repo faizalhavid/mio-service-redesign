@@ -5,25 +5,18 @@ import {
   Divider,
   HStack,
   Pressable,
-  ScrollView,
-  Select,
-  Spacer,
   Spinner,
   Text,
   VStack,
 } from "native-base";
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Dimensions, Keyboard, Platform } from "react-native";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { AppColors } from "../../commons/colors";
-import { STATES } from "../../commons/dropdown-values";
-import { ENV } from "../../commons/environment";
 import { POOL_TYPES } from "../../commons/options";
 import { Option, PriceMap, HouseInfoAddressRequest } from "../../commons/types";
 import { FAILED } from "../../commons/ui-states";
-import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import ErrorView from "../../components/ErrorView";
 import FooterButton from "../../components/FooterButton";
@@ -33,7 +26,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
 import { SuperRootStackParamList } from "../../navigations";
-import { goBack, popToPop, replace } from "../../navigations/rootNavigation";
+import { goBack, replace } from "../../navigations/rootNavigation";
 import { StorageHelper } from "../../services/storage-helper";
 import {
   selectCustomer,

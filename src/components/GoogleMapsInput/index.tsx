@@ -54,6 +54,10 @@ const GoogleMapsInput = ({
         language: "en",
         components: "country:us",
       }}
+      textInputProps={{
+        clearButtonMode: "always",
+        placeholderTextColor: AppColors.AAA,
+      }}
       styles={{
         textInputContainer: {
           borderBottomColor: AppColors.CCC,
@@ -63,12 +67,16 @@ const GoogleMapsInput = ({
         },
         textInput: {
           margin: 0,
+          color: AppColors.SECONDARY,
           // backgroundColor: "transparent",
         },
         predefinedPlacesDescription: {
           margin: 0,
         },
+        description: { color: AppColors.SECONDARY },
       }}
+      // suppressDefaultStyles={true}
+      listUnderlayColor={AppColors.SECONDARY}
     />
   );
 };

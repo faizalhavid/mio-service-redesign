@@ -217,6 +217,13 @@ const Profile = (): JSX.Element => {
           )}
         </HStack>
         <Divider my={1} borderWidth={1} borderColor={AppColors.EEE} />
+        {customerUiState !== "IN_PROGRESS" &&
+          addressesUiState !== "IN_PROGRESS" &&
+          customer?.addresses?.length === 0 && (
+            <Text color={"amber.600"} fontSize={14}>
+              No address added yet!
+            </Text>
+          )}
         {customerUiState === "IN_PROGRESS" ||
         addressesUiState === "IN_PROGRESS" ? (
           <>
