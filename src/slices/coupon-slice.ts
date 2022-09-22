@@ -20,9 +20,16 @@ export const validateCouponAsync = createAsyncThunk(
 export const validateCouponSlice = createAsyncSlice({
   name: "coupon/validate",
   initialState: getInitialState<any>(),
-  reducers: {},
+  reducers: {
+    resetValidateCoupon: (state) => {
+      state.member = {};
+    },
+  },
   thunks: [validateCouponAsync],
 });
+
+// Actions
+export const { resetValidateCoupon } = validateCouponSlice.actions;
 
 // Selectors
 

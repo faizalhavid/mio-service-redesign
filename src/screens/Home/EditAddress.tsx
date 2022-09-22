@@ -5,6 +5,7 @@ import {
   Divider,
   HStack,
   Pressable,
+  ScrollView,
   Spinner,
   Text,
   VStack,
@@ -313,315 +314,318 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
           </VStack>
         )}
         {houseInfoUiState !== "IN_PROGRESS" && addressSelectedFromPopup?.zip ? (
-          <>
-            <VStack px={4} key="SELECTED_ADDRESS">
-              <HStack justifyContent={"space-between"} alignItems="center">
+          <ScrollView>
+            <>
+              <VStack px={4} key="SELECTED_ADDRESS">
+                <HStack justifyContent={"space-between"} alignItems="center">
+                  <Text
+                    fontSize={14}
+                    fontWeight={"semibold"}
+                    color={AppColors.SECONDARY}
+                    mt={3}
+                  >
+                    Selected Address
+                  </Text>
+                  <Text
+                    color={AppColors.TEAL}
+                    fontWeight={"semibold"}
+                    fontSize={12}
+                    onPress={() => {
+                      setAddressSelectedFromPopup({});
+                    }}
+                  >
+                    CHANGE
+                  </Text>
+                </HStack>
                 <Text
                   fontSize={14}
                   fontWeight={"semibold"}
+                  color={AppColors.DARK_TEAL}
+                  width={"100%"}
+                  mt={2}
+                >
+                  {addressSelectedFromPopup?.formattedAddress}
+                </Text>
+              </VStack>
+              <VStack key={"ADDRESS_SHEET"} px={4} space={0} pb={75}>
+                {(customerUiState === FAILED ||
+                  houseInfoUiState === FAILED) && (
+                  <ErrorView
+                    message={
+                      "Something went wrong while updating address. Please try again."
+                    }
+                  />
+                )}
+
+                <Text
+                  fontSize={14}
+                  fontWeight={"semibold"}
+                  width={"100%"}
                   color={AppColors.SECONDARY}
                   mt={3}
                 >
-                  Selected Address
+                  Choose Lawn Size (Sq Ft)
                 </Text>
+
+                <HStack
+                  space={2}
+                  maxWidth={screenWidth}
+                  flexWrap={"wrap"}
+                  flexDirection="row"
+                >
+                  {areaOptions.map((areaOption, index) => (
+                    <Pressable
+                      key={index}
+                      height={10}
+                      borderRadius={5}
+                      width={"45%"}
+                      mt={2}
+                      justifyContent="center"
+                      borderWidth={1}
+                      borderColor={
+                        areaOption.selected ? AppColors.TEAL : AppColors.CCC
+                      }
+                      bg={areaOption.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      _pressed={{
+                        borderColor: AppColors.TEAL,
+                        borderWidth: 1,
+                        backgroundColor: AppColors.LIGHT_TEAL,
+                      }}
+                      onPress={() => {
+                        let updatedList = areaOptions.map((pm2, index2) => {
+                          if (index == index2) {
+                            if (pm2.rangeMax) {
+                              setSelectedArea(pm2.rangeMax);
+                            }
+                            let selected: PriceMap = {
+                              ...pm2,
+                              selected: true,
+                            };
+                            return selected;
+                          }
+                          return { ...pm2, selected: false };
+                        });
+                        setAreaOptions(updatedList);
+                      }}
+                    >
+                      <Text
+                        alignSelf={"center"}
+                        color={AppColors.TEAL}
+                        fontWeight={"semibold"}
+                      >
+                        {areaOption.rangeMin} - {areaOption.rangeMax}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </HStack>
                 <Text
-                  color={AppColors.TEAL}
+                  fontSize={14}
                   fontWeight={"semibold"}
-                  fontSize={12}
-                  onPress={() => {
-                    setAddressSelectedFromPopup({});
+                  width={"100%"}
+                  color={AppColors.SECONDARY}
+                  mt={3}
+                >
+                  Choose no. of bedrooms
+                </Text>
+                <HStack
+                  space={2}
+                  maxWidth={screenWidth}
+                  flexWrap={"wrap"}
+                  flexDirection="row"
+                >
+                  {bedroomOptions.map((option, index) => (
+                    <Pressable
+                      key={index}
+                      height={10}
+                      borderRadius={5}
+                      width={"13%"}
+                      mt={2}
+                      justifyContent="center"
+                      borderWidth={1}
+                      borderColor={
+                        option.selected ? AppColors.TEAL : AppColors.CCC
+                      }
+                      bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      _pressed={{
+                        borderColor: AppColors.TEAL,
+                        borderWidth: 1,
+                        backgroundColor: AppColors.LIGHT_TEAL,
+                      }}
+                      onPress={() => {
+                        let updatedOptions = bedroomOptions.map((opt, i) => {
+                          if (i === index) {
+                            setSelectedBedroomNo(option.number);
+                            return {
+                              ...opt,
+                              selected: true,
+                            };
+                          }
+                          return {
+                            ...opt,
+                            selected: false,
+                          };
+                        });
+                        setBedroomOptions(updatedOptions);
+                      }}
+                    >
+                      <Text
+                        alignSelf={"center"}
+                        color={AppColors.TEAL}
+                        fontWeight={"semibold"}
+                      >
+                        {option.number}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </HStack>
+                <Text
+                  fontSize={14}
+                  fontWeight={"semibold"}
+                  width={"100%"}
+                  color={AppColors.SECONDARY}
+                  mt={3}
+                >
+                  Choose no. of bathrooms
+                </Text>
+                <HStack
+                  space={2}
+                  maxWidth={screenWidth}
+                  flexWrap={"wrap"}
+                  flexDirection="row"
+                >
+                  {bathroomOptions.map((option, index) => (
+                    <Pressable
+                      key={index}
+                      height={10}
+                      borderRadius={5}
+                      width={"13%"}
+                      mt={2}
+                      justifyContent="center"
+                      borderWidth={1}
+                      borderColor={
+                        option.selected ? AppColors.TEAL : AppColors.CCC
+                      }
+                      bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      _pressed={{
+                        borderColor: AppColors.TEAL,
+                        borderWidth: 1,
+                        backgroundColor: AppColors.LIGHT_TEAL,
+                      }}
+                      onPress={() => {
+                        let updatedOptions = bedroomOptions.map((opt, i) => {
+                          if (i === index) {
+                            setSelectedBathroomNo(option.number);
+                            return {
+                              ...opt,
+                              selected: true,
+                            };
+                          }
+                          return {
+                            ...opt,
+                            selected: false,
+                          };
+                        });
+                        setBathroomOptions(updatedOptions);
+                      }}
+                    >
+                      <Text
+                        alignSelf={"center"}
+                        color={AppColors.TEAL}
+                        fontWeight={"semibold"}
+                      >
+                        {option.number}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </HStack>
+                <Text
+                  fontSize={14}
+                  fontWeight={"semibold"}
+                  width={"100%"}
+                  color={AppColors.SECONDARY}
+                  mt={3}
+                >
+                  Choose Pool Type
+                </Text>
+                <HStack
+                  space={2}
+                  maxWidth={screenWidth}
+                  flexWrap={"wrap"}
+                  flexDirection="row"
+                >
+                  {poolTypeOptions.map((poolType, index) => (
+                    <Pressable
+                      key={index}
+                      height={10}
+                      borderRadius={5}
+                      width={"30%"}
+                      mt={2}
+                      justifyContent="center"
+                      borderWidth={1}
+                      borderColor={
+                        poolType.selected ? AppColors.TEAL : AppColors.CCC
+                      }
+                      bg={poolType.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      _pressed={{
+                        borderColor: AppColors.TEAL,
+                        borderWidth: 1,
+                        backgroundColor: AppColors.LIGHT_TEAL,
+                      }}
+                      onPress={() => {
+                        let updatedList = poolTypeOptions.map((pm2, index2) => {
+                          if (index == index2) {
+                            let selected: SelectOption = {
+                              ...pm2,
+                              selected: true,
+                            };
+                            setSelectedPoolType(pm2.code);
+                            return selected;
+                          }
+                          return { ...pm2, selected: false };
+                        });
+                        setPoolTypeOptions(updatedList);
+                      }}
+                    >
+                      <Text
+                        alignSelf={"center"}
+                        color={AppColors.TEAL}
+                        fontWeight={"semibold"}
+                      >
+                        {poolType.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </HStack>
+                <Checkbox
+                  value="primary"
+                  mt={4}
+                  ml={1}
+                  _text={{
+                    color: AppColors.DARK_TEAL,
+                    fontSize: 14,
+                    fontWeight: "semibold",
+                    padding: 0,
+                  }}
+                  _stack={{ space: 0 }}
+                  _checked={{
+                    borderColor: AppColors.TEAL,
+                    backgroundColor: AppColors.TEAL,
+                  }}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: AppColors.TEAL,
+                  }}
+                  isChecked={primary}
+                  onChange={(value) => {
+                    setPrimary(value);
                   }}
                 >
-                  CHANGE
-                </Text>
-              </HStack>
-              <Text
-                fontSize={14}
-                fontWeight={"semibold"}
-                color={AppColors.DARK_TEAL}
-                width={"100%"}
-                mt={2}
-              >
-                {addressSelectedFromPopup?.formattedAddress}
-              </Text>
-            </VStack>
-            <VStack key={"ADDRESS_SHEET"} px={4} space={0} pb={75}>
-              {(customerUiState === FAILED || houseInfoUiState === FAILED) && (
-                <ErrorView
-                  message={
-                    "Something went wrong while updating address. Please try again."
-                  }
-                />
-              )}
-
-              <Text
-                fontSize={14}
-                fontWeight={"semibold"}
-                width={"100%"}
-                color={AppColors.SECONDARY}
-                mt={3}
-              >
-                Choose Lawn Size (Sq Ft)
-              </Text>
-
-              <HStack
-                space={2}
-                maxWidth={screenWidth}
-                flexWrap={"wrap"}
-                flexDirection="row"
-              >
-                {areaOptions.map((areaOption, index) => (
-                  <Pressable
-                    key={index}
-                    height={10}
-                    borderRadius={5}
-                    width={"45%"}
-                    mt={2}
-                    justifyContent="center"
-                    borderWidth={1}
-                    borderColor={
-                      areaOption.selected ? AppColors.TEAL : AppColors.CCC
-                    }
-                    bg={areaOption.selected ? AppColors.LIGHT_TEAL : "#fff"}
-                    _pressed={{
-                      borderColor: AppColors.TEAL,
-                      borderWidth: 1,
-                      backgroundColor: AppColors.LIGHT_TEAL,
-                    }}
-                    onPress={() => {
-                      let updatedList = areaOptions.map((pm2, index2) => {
-                        if (index == index2) {
-                          if (pm2.rangeMax) {
-                            setSelectedArea(pm2.rangeMax);
-                          }
-                          let selected: PriceMap = {
-                            ...pm2,
-                            selected: true,
-                          };
-                          return selected;
-                        }
-                        return { ...pm2, selected: false };
-                      });
-                      setAreaOptions(updatedList);
-                    }}
-                  >
-                    <Text
-                      alignSelf={"center"}
-                      color={AppColors.TEAL}
-                      fontWeight={"semibold"}
-                    >
-                      {areaOption.rangeMin} - {areaOption.rangeMax}
-                    </Text>
-                  </Pressable>
-                ))}
-              </HStack>
-              <Text
-                fontSize={14}
-                fontWeight={"semibold"}
-                width={"100%"}
-                color={AppColors.SECONDARY}
-                mt={3}
-              >
-                Choose no. of bedrooms
-              </Text>
-              <HStack
-                space={2}
-                maxWidth={screenWidth}
-                flexWrap={"wrap"}
-                flexDirection="row"
-              >
-                {bedroomOptions.map((option, index) => (
-                  <Pressable
-                    key={index}
-                    height={10}
-                    borderRadius={5}
-                    width={"13%"}
-                    mt={2}
-                    justifyContent="center"
-                    borderWidth={1}
-                    borderColor={
-                      option.selected ? AppColors.TEAL : AppColors.CCC
-                    }
-                    bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
-                    _pressed={{
-                      borderColor: AppColors.TEAL,
-                      borderWidth: 1,
-                      backgroundColor: AppColors.LIGHT_TEAL,
-                    }}
-                    onPress={() => {
-                      let updatedOptions = bedroomOptions.map((opt, i) => {
-                        if (i === index) {
-                          setSelectedBedroomNo(option.number);
-                          return {
-                            ...opt,
-                            selected: true,
-                          };
-                        }
-                        return {
-                          ...opt,
-                          selected: false,
-                        };
-                      });
-                      setBedroomOptions(updatedOptions);
-                    }}
-                  >
-                    <Text
-                      alignSelf={"center"}
-                      color={AppColors.TEAL}
-                      fontWeight={"semibold"}
-                    >
-                      {option.number}
-                    </Text>
-                  </Pressable>
-                ))}
-              </HStack>
-              <Text
-                fontSize={14}
-                fontWeight={"semibold"}
-                width={"100%"}
-                color={AppColors.SECONDARY}
-                mt={3}
-              >
-                Choose no. of bathrooms
-              </Text>
-              <HStack
-                space={2}
-                maxWidth={screenWidth}
-                flexWrap={"wrap"}
-                flexDirection="row"
-              >
-                {bathroomOptions.map((option, index) => (
-                  <Pressable
-                    key={index}
-                    height={10}
-                    borderRadius={5}
-                    width={"13%"}
-                    mt={2}
-                    justifyContent="center"
-                    borderWidth={1}
-                    borderColor={
-                      option.selected ? AppColors.TEAL : AppColors.CCC
-                    }
-                    bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
-                    _pressed={{
-                      borderColor: AppColors.TEAL,
-                      borderWidth: 1,
-                      backgroundColor: AppColors.LIGHT_TEAL,
-                    }}
-                    onPress={() => {
-                      let updatedOptions = bedroomOptions.map((opt, i) => {
-                        if (i === index) {
-                          setSelectedBathroomNo(option.number);
-                          return {
-                            ...opt,
-                            selected: true,
-                          };
-                        }
-                        return {
-                          ...opt,
-                          selected: false,
-                        };
-                      });
-                      setBathroomOptions(updatedOptions);
-                    }}
-                  >
-                    <Text
-                      alignSelf={"center"}
-                      color={AppColors.TEAL}
-                      fontWeight={"semibold"}
-                    >
-                      {option.number}
-                    </Text>
-                  </Pressable>
-                ))}
-              </HStack>
-              <Text
-                fontSize={14}
-                fontWeight={"semibold"}
-                width={"100%"}
-                color={AppColors.SECONDARY}
-                mt={3}
-              >
-                Choose Pool Type
-              </Text>
-              <HStack
-                space={2}
-                maxWidth={screenWidth}
-                flexWrap={"wrap"}
-                flexDirection="row"
-              >
-                {poolTypeOptions.map((poolType, index) => (
-                  <Pressable
-                    key={index}
-                    height={10}
-                    borderRadius={5}
-                    width={"30%"}
-                    mt={2}
-                    justifyContent="center"
-                    borderWidth={1}
-                    borderColor={
-                      poolType.selected ? AppColors.TEAL : AppColors.CCC
-                    }
-                    bg={poolType.selected ? AppColors.LIGHT_TEAL : "#fff"}
-                    _pressed={{
-                      borderColor: AppColors.TEAL,
-                      borderWidth: 1,
-                      backgroundColor: AppColors.LIGHT_TEAL,
-                    }}
-                    onPress={() => {
-                      let updatedList = poolTypeOptions.map((pm2, index2) => {
-                        if (index == index2) {
-                          let selected: SelectOption = {
-                            ...pm2,
-                            selected: true,
-                          };
-                          setSelectedPoolType(pm2.code);
-                          return selected;
-                        }
-                        return { ...pm2, selected: false };
-                      });
-                      setPoolTypeOptions(updatedList);
-                    }}
-                  >
-                    <Text
-                      alignSelf={"center"}
-                      color={AppColors.TEAL}
-                      fontWeight={"semibold"}
-                    >
-                      {poolType.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </HStack>
-              <Checkbox
-                value="primary"
-                mt={4}
-                ml={1}
-                _text={{
-                  color: AppColors.DARK_TEAL,
-                  fontSize: 14,
-                  fontWeight: "semibold",
-                  padding: 0,
-                }}
-                _stack={{ space: 0 }}
-                _checked={{
-                  borderColor: AppColors.TEAL,
-                  backgroundColor: AppColors.TEAL,
-                }}
-                style={{
-                  borderWidth: 1,
-                  borderColor: AppColors.TEAL,
-                }}
-                isChecked={primary}
-                onChange={(value) => {
-                  setPrimary(value);
-                }}
-              >
-                Set as primary
-              </Checkbox>
-              <Divider mt={20} thickness={0} />
-            </VStack>
-          </>
+                  Set as primary
+                </Checkbox>
+                <Divider mt={20} thickness={0} />
+              </VStack>
+            </>
+          </ScrollView>
         ) : (
           <>
             {houseInfoUiState === "IN_PROGRESS" && (

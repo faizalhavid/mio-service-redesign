@@ -146,6 +146,17 @@ export function AuthProvider({ children }: AuthProviderType) {
   const [loading, setLoading] = React.useState(true);
   const [isViewer, setIsViewer] = React.useState<boolean>(false);
 
+  const emailVerificationConfig = {
+    url: ENV.EMAIL_VERIFICATION_URL,
+    android: {
+      packageName: "com.miohomeservices.customer",
+      installApp: true,
+    },
+    iOS: {
+      bundleId: "com.miohomeservices.customer.app",
+    },
+  };
+
   async function signup(data: RegisterForm): Promise<any> {
     return new Promise(async (resolve, reject) => {
       auth()
@@ -155,16 +166,9 @@ export function AuthProvider({ children }: AuthProviderType) {
           let token = await credential.user.getIdToken();
           await StorageHelper.setValue("TOKEN", token);
           if (!data.sAccountId) {
-            await credential.user.sendEmailVerification({
-              url: ENV.EMAIL_VERIFICATION_URL,
-              android: {
-                packageName: "com.miohomeservices.customer",
-                installApp: true,
-              },
-              iOS: {
-                bundleId: "com.miohomeservices.customer.app",
-              },
-            });
+            await credential.user.sendEmailVerification(
+              emailVerificationConfig
+            );
           }
           await StorageHelper.setValue("CUSTOMER_ID", data.email);
 
@@ -272,7 +276,9 @@ export function AuthProvider({ children }: AuthProviderType) {
 
   function resendEmail(): Promise<any> {
     return new Promise(async (res, rej) => {
-      const value = await currentUser.sendEmailVerification();
+      const value = await currentUser.sendEmailVerification(
+        emailVerificationConfig
+      );
       res(value);
     });
   }

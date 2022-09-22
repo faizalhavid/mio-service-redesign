@@ -150,7 +150,7 @@ const Payment = (): JSX.Element => {
             Choose Credit Card
           </Text>
           <Divider bgColor={"gray.200"} thickness={1} />
-          <View pl={2} pt={3}>
+          <View pl={2} pt={cards.length > 0 ? 3 : 0}>
             <Radio.Group
               value={selectedCreditcard || ""}
               name="myRadioGroup"
@@ -176,8 +176,8 @@ const Payment = (): JSX.Element => {
                 <Button
                   _text={{ color: AppColors.DARK_TEAL }}
                   variant={"ghost"}
-                  ml={2}
-                  my={1}
+                  // ml={2}
+                  // my={1}
                   _pressed={{
                     backgroundColor: AppColors.LIGHT_TEAL,
                   }}

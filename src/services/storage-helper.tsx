@@ -17,7 +17,7 @@ export const StorageHelper = {
   printAllValues: async () => {
     (await AsyncStorage.getAllKeys()).forEach(async (key: string) => {
       if (!["TOKEN"].includes(key)) {
-        // console.log(`${key} - ${await StorageHelper.getValue(key)}`);
+        console.log(`${key} - ${await StorageHelper.getValue(key)}`);
       }
     });
   },

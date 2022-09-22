@@ -51,7 +51,18 @@ const Welcome = (): JSX.Element => {
             }}
           >
             <Center>
-              <SvgCss width={200} height={70} xml={COLOR_LOGO} />
+              <Pressable
+                onPress={async () => {
+                  try {
+                    await StorageHelper.clear();
+                    console.log("STORAGE CLEARED");
+                  } catch (error) {
+                    console.log("ERROR CLEARING STORAGE");
+                  }
+                }}
+              >
+                <SvgCss width={200} height={70} xml={COLOR_LOGO} />
+              </Pressable>
             </Center>
           </PresenceTransition>
           <Divider thickness={0} mt={30} />

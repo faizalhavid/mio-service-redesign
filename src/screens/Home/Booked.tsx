@@ -7,12 +7,14 @@ import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { popToPop } from "../../navigations/rootNavigation";
+import { resetValidateCoupon } from "../../slices/coupon-slice";
 import { resetLeadState } from "../../slices/lead-slice";
 
 const Booked = (): JSX.Element => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(resetLeadState());
+    dispatch(resetValidateCoupon());
   }, [dispatch]);
 
   return (

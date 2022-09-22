@@ -7,7 +7,8 @@ import ServiceComboCard from "../../components/ServiceComboCard";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { navigate } from "../../navigations/rootNavigation";
-import { selectLead } from "../../slices/lead-slice";
+import { selectCustomer } from "../../slices/customer-slice";
+import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import { SERVICES } from "./ChooseService";
 
 const ChooseSchedule = (): JSX.Element => {
@@ -15,6 +16,7 @@ const ChooseSchedule = (): JSX.Element => {
 
   const { member: leadDetails, uiState: leadDetailsUiState } =
     useAppSelector(selectLead);
+  const { member: customer } = useAppSelector(selectCustomer);
 
   const isAllFieldsFilled: boolean = React.useMemo(() => {
     if (!leadDetails || Object.keys(leadDetails).length === 0) {
@@ -61,8 +63,20 @@ const ChooseSchedule = (): JSX.Element => {
         type="SCHEDULE_SELECTION"
         minLabel="VIEW"
         maxLabel="SUMMARY"
+        loading={leadDetailsUiState === "IN_PROGRESS"}
         disabled={!isAllFieldsFilled}
         onPress={async () => {
+          if (!leadDetails?.customerProfile?.customerId) {
+            await dispatch(
+              updateLeadAsync({
+                ...leadDetails,
+                customerProfile: {
+                  ...customer,
+                  addresses: leadDetails.customerProfile.addresses,
+                },
+              })
+            );
+          }
           navigate("Payment");
         }}
       />

@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
-import { navigate } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
 import { Address, useAuth } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -426,9 +426,14 @@ const Profile = (): JSX.Element => {
                           title: "Account deleted successfully!",
                         });
                         await logout();
-                        navigate("Welcome");
+                        popToPop("Welcome");
                       } else {
-                        Toast.show({ title: "Something went wrong!" });
+                        console.log("deleteAccount", response);
+                        if (response.customerMessage) {
+                          Toast.show({ title: response.customerMessage });
+                        } else {
+                          Toast.show({ title: "Something went wrong!" });
+                        }
                       }
                     });
                 },
