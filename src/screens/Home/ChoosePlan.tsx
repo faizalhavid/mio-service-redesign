@@ -100,7 +100,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   };
 
   const updateLead = async (_leadDetails: LeadDetails) => {
-    let existingServiceIds = _leadDetails.subOrders.map(
+    let existingServiceIds = _leadDetails?.subOrders?.map(
       (subOrder) => subOrder.serviceId
     );
     let isNewlyAdded = existingServiceIds.indexOf(serviceId) < 0;

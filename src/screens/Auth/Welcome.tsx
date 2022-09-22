@@ -22,6 +22,7 @@ import { StorageHelper } from "../../services/storage-helper";
 import { resetLeadState } from "../../slices/lead-slice";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAuth } from "../../contexts/AuthContext";
+import { resetCustomerState } from "../../slices/customer-slice";
 
 const Welcome = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -29,6 +30,7 @@ const Welcome = (): JSX.Element => {
 
   useEffect(() => {
     // logout(); // Just for testing
+    dispatch(resetCustomerState());
     dispatch(resetLeadState());
   }, []);
 

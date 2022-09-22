@@ -83,7 +83,7 @@ const PriceBreakdown = (): JSX.Element => {
         </HStack>
       </HStack>
       <Divider bgColor={"gray.200"} thickness={1} />
-      {leadDetails.subOrders.map((subOrder, index) => (
+      {leadDetails?.subOrders?.map((subOrder, index) => (
         <VStack
           key={index}
           borderWidth={1}

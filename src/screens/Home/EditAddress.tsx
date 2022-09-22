@@ -238,8 +238,8 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
           ...payload,
           serviceAccountId: customer.sAccountId,
         })
-      ).then(() => {
-        dispatch(getCustomerByIdAsync(customer.customerId));
+      ).then(async () => {
+        await dispatch(getCustomerByIdAsync(customer.customerId));
         _onClose();
       });
     } else {

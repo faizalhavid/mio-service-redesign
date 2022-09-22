@@ -80,7 +80,7 @@ const index = (): JSX.Element => {
     } finally {
       setLoading(false);
       // StorageHelper.removeValue("LEAD_ID"); // Just for testing
-      StorageHelper.printAllValues();
+      // StorageHelper.printAllValues();
     }
   }, []);
 

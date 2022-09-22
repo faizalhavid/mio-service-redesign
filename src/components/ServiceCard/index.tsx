@@ -39,6 +39,7 @@ type ServiceCardProps = {
   date: string;
   day: string;
   month?: string;
+  type?: string;
   slot: string;
   year: string;
   orderId: string;
@@ -58,6 +59,7 @@ const ServiceCard = ({
   date,
   day,
   month,
+  type = "UPCOMING",
   slot,
   year,
   orderId,
@@ -192,7 +194,13 @@ const ServiceCard = ({
                 <VStack
                   alignItems={"center"}
                   borderRadius={10}
-                  bg={status === "CANCELED" ? "red.100" : AppColors.LIGHT_TEAL}
+                  bg={
+                    status === "CANCELED"
+                      ? "red.100"
+                      : type === "UPCOMING"
+                      ? AppColors.LIGHT_TEAL
+                      : AppColors.EEE
+                  }
                   px={5}
                   py={2}
                 >

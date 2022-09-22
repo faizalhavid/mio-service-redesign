@@ -103,6 +103,7 @@ const ServiceHistory = (): JSX.Element => {
             key={index}
             variant="outline"
             w={"100%"}
+            type="PAST"
             dateTime={item.appointmentDateTime}
             showAddToCalendar={false}
             showReschedule={false}

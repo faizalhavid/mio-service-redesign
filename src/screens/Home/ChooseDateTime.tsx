@@ -107,7 +107,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
     let _leadDetails = {
       ...leadDetails,
     };
-    let updatedSuborders = _leadDetails.subOrders.map((subOrder) => {
+    let updatedSuborders = _leadDetails?.subOrders?.map((subOrder) => {
       if (subOrder.serviceId === serviceId) {
         let selecDate = selectedDate;
         if (Platform.OS === "ios") {

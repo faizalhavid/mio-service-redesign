@@ -136,12 +136,7 @@ const AddressListItem = ({
           )}
         </HStack>
       </HStack>
-      <Divider
-        thickness={1}
-        my={1}
-        borderStyle={"dashed"}
-        bg={AppColors.LIGHT_TEAL}
-      />
+      <Divider thickness={0.8} my={1} bg={AppColors.LIGHT_TEAL} />
       <Text fontSize={13} color={AppColors.SECONDARY} fontWeight={"semibold"}>
         {`${address.street}, ${address.city}, ${address.state}, ${address.zip}`}
       </Text>

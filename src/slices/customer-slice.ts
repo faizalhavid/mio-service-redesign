@@ -99,6 +99,9 @@ export const customerSlice = createAsyncSlice({
       state.error = payload.error;
       state.uiState = payload.uiState;
     },
+    resetCustomerState: (state) => {
+      state.member = {} as CustomerProfile;
+    },
   },
   thunks: [registerCustomerAsync, getCustomerByIdAsync, putCustomerAsync],
 });
@@ -125,7 +128,7 @@ export const deleteCustomerSlice = createAsyncSlice({
 });
 
 // Actions
-export const { setCustomerState } = customerSlice.actions;
+export const { setCustomerState, resetCustomerState } = customerSlice.actions;
 
 // Selectors
 export const selectAddress = (state: RootState) => state.addresses;

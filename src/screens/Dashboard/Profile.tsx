@@ -220,7 +220,7 @@ const Profile = (): JSX.Element => {
         {customerUiState !== "IN_PROGRESS" &&
           addressesUiState !== "IN_PROGRESS" &&
           customer?.addresses?.length === 0 && (
-            <Text color={"amber.600"} fontSize={14}>
+            <Text color={"amber.600"} mt={3} fontSize={14}>
               No address added yet!
             </Text>
           )}

@@ -48,7 +48,7 @@ const ChooseSchedule = (): JSX.Element => {
             mb={250}
             pt={3}
           >
-            {leadDetails.subOrders.map((service, index) => (
+            {leadDetails?.subOrders?.map((service, index) => (
               <ServiceComboCard
                 key={index}
                 service={SERVICES[service.serviceId]}
