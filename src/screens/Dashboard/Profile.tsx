@@ -475,7 +475,7 @@ const Profile = (): JSX.Element => {
               style: "destructive",
               onPress: async () => {
                 await logout();
-                navigate("Welcome");
+                popToPop("Welcome");
               },
             },
           ]);

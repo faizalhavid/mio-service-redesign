@@ -1,7 +1,6 @@
-import { Button, Center, Divider, Flex, Text } from "native-base";
+import { Center, Divider, Flex, Text } from "native-base";
 import React, { useEffect, useRef } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
-import FooterButton from "../../components/FooterButton";
 import Spacer from "../../components/Spacer";
 import auth from "@react-native-firebase/auth";
 import {
@@ -11,7 +10,7 @@ import {
 import AppInput from "../../components/AppInput";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import { Controller, useForm } from "react-hook-form";
-import { navigate, popToPop } from "../../navigations/rootNavigation";
+import { popToPop } from "../../navigations/rootNavigation";
 import {
   CustomerProfile,
   dummyProfile,
@@ -49,9 +48,7 @@ const Register = (): JSX.Element => {
     handleSubmit,
     setValue,
     watch,
-    formState: { isValid, isDirty, errors },
-    getValues,
-    trigger,
+    formState: { errors },
   } = useForm<RegisterForm>({
     mode: "all",
     defaultValues: {

@@ -2,6 +2,7 @@ export const API = {
   UI_CARDS: "/cards",
   REGISTER: "/customer/profile",
   GET_CUSTOMER: "/customer/profile",
+  CUSTOMER_EXISTS: "/customer/exist",
   PUT_CUSTOMER: "/customer/profile",
   PUT_ADDRESS: "/customer/property",
   DELETE_CUSTOMER: "/customer/delete",

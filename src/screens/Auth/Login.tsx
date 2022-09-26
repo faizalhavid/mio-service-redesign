@@ -15,7 +15,12 @@ import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import SocialLogin from "../../components/SocialLogin";
 import Spacer from "../../components/Spacer";
-import { useAuth } from "../../contexts/AuthContext";
+import {
+  CustomerProfile,
+  dummyProfile,
+  Phone,
+  useAuth,
+} from "../../contexts/AuthContext";
 import { popToPop } from "../../navigations/rootNavigation";
 import auth from "@react-native-firebase/auth";
 import appleAuth from "@invertase/react-native-apple-authentication";
@@ -28,6 +33,8 @@ import { useAnalytics } from "../../services/analytics";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import {
   getCustomerByIdAsync,
+  getCustomerExistsAsync,
+  registerCustomerAsync,
   selectCustomer,
   setCustomerState,
 } from "../../slices/customer-slice";
@@ -55,6 +62,7 @@ const Login = (): JSX.Element => {
     },
     mode: "all",
   });
+  const socialLoginCompleted = React.useRef<boolean>(false);
 
   const { logEvent } = useAnalytics();
 
@@ -71,8 +79,53 @@ const Login = (): JSX.Element => {
   const doLogin = async (userCredential: FirebaseAuthTypes.UserCredential) => {
     dispatch(setCustomerState({ uiState: IN_PROGRESS }));
     let token = await userCredential.user.getIdToken();
+    let email = userCredential.user.email;
     await StorageHelper.setValue("TOKEN", token);
-    await dispatch(getCustomerByIdAsync(userCredential.user.email));
+    console.log("userCredential.user.email", email);
+    let result = await dispatch(getCustomerExistsAsync(email));
+    // console.log("result", result);
+    // console.log("result.meta.requestStatus", result.meta.requestStatus);
+    // console.log("value", result.payload);
+    // if (
+    //   !result?.payload?.customerId ||
+    //   result.meta.requestStatus === "rejected"
+    // ) {
+    if (!result.payload.isExist) {
+      // console.log("User not exist");
+      if (socialLoginCompleted.current) {
+        let payload: CustomerProfile = {
+          ...dummyProfile,
+          ...{
+            email: userCredential.user.email || "",
+          },
+          uid: userCredential.user.uid,
+          phones: [
+            {
+              ...({} as Phone),
+              number: "",
+            },
+          ],
+          customerId: userCredential.user.email || "",
+        };
+        // console.log("payload", payload);
+        let registeredResult = await dispatch(
+          registerCustomerAsync({ ...payload })
+        );
+        // console.log("meta", registeredResult.meta);
+        // console.log("registeredResult", registeredResult.payload);
+        if (registeredResult.meta.requestStatus === "rejected") {
+          dispatch(
+            setCustomerState({
+              uiState: FAILED,
+              error: "Something went wrong! Please try again!",
+            })
+          );
+          return;
+        }
+      }
+    }
+    // }
+    // console.log("outside");
     let navigateTo = "";
     if (!userCredential.user.emailVerified) {
       await StorageHelper.setValue(
@@ -217,6 +270,7 @@ const Login = (): JSX.Element => {
                 const userCredential = await auth().signInWithCredential(
                   googleCredential
                 );
+                socialLoginCompleted.current = true;
                 doLogin(userCredential);
               } catch (error) {
                 console.log("GoogleLoginError");
@@ -264,6 +318,7 @@ const Login = (): JSX.Element => {
                   );
                   return;
                 }
+                socialLoginCompleted.current = true;
                 console.log("AppleLogin");
                 doLogin(userCredential);
               } catch (error) {

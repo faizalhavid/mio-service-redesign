@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import ServiceCard from "../../components/ServiceCard";
-import { navigate } from "../../navigations/rootNavigation";
+import { navigate, popToPop } from "../../navigations/rootNavigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { AppColors } from "../../commons/colors";
 import { SERVICES } from "../Home/ChooseService";
@@ -53,17 +53,26 @@ const Home = (): JSX.Element => {
 
   const { addressExists } = isAddressExists();
 
-  const { logout, isViewer } = useAuth();
+  const { logout, isViewer, currentUser } = useAuth();
   const { setUserId } = useAnalytics();
 
   const [contentReady, setContentReady] = useState<boolean>(false);
   const isAuthenticated = useAuthenticatedUser();
 
   const init = React.useCallback(async () => {
-    StorageHelper.getValue("CUSTOMER_ID").then((cId) => {
+    StorageHelper.getValue("CUSTOMER_ID").then(async (cId) => {
       setUserId(cId || "");
       if (cId) {
-        dispatch(getCustomerByIdAsync(cId));
+        // console.log("Get Customer", cId);
+        let result = await dispatch(getCustomerByIdAsync(cId));
+        // console.log("result-home", result);
+        if (
+          !result?.payload?.customerId ||
+          result.meta.requestStatus === "rejected"
+        ) {
+          await logout();
+          popToPop("Welcome");
+        }
       }
     });
     dispatch(getServicesAsync());
@@ -72,6 +81,13 @@ const Home = (): JSX.Element => {
   useEffect(() => {
     init();
   }, []);
+
+  useEffect(() => {
+    if (!currentUser?.email) {
+      logout();
+      popToPop("Welcome");
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (

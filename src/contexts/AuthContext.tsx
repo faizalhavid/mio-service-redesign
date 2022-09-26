@@ -17,6 +17,7 @@ export type RegisterForm = {
   email: string;
   password: string;
   confirmPassword: string;
+  uid?: string;
   sAccountId?: string;
 };
 

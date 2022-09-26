@@ -39,57 +39,61 @@ const UpcomingServices = (): JSX.Element => {
     if (!isAuthenticated) {
       return;
     }
-    dispatch(getUpcomingOrdersAsync({ orderId, subOrderId, limit })).then(
-      (response) => {
-        let orders = response.payload.data;
-        if (orders.length > 0) {
-          let lastOrder = orders[orders.length - 1];
-          setOrderId(lastOrder.orderId);
-          setSubOrderId(lastOrder.subOrderId);
-          let groupedOrders: { [key: string]: any[] } = {};
+    dispatch(
+      getUpcomingOrdersAsync({
+        orderId,
+        subOrderId,
+        limit,
+      })
+    ).then((response) => {
+      // console.log("get upcoming services", response.payload);
+      // console.log("get upcoming services", response.meta.requestStatus);
+      let orders = response.payload.data;
+      if (orders.length > 0) {
+        let lastOrder = orders[orders.length - 1];
+        setOrderId(lastOrder.orderId);
+        setSubOrderId(lastOrder.subOrderId);
+        let groupedOrders: { [key: string]: any[] } = {};
 
-          // Build Old Data
-          for (let order of upcomingOrders) {
-            groupedOrders[order.month] = order.data;
+        // Build Old Data
+        for (let order of upcomingOrders) {
+          groupedOrders[order.month] = order.data;
+        }
+
+        // Build New Data
+        for (let order of orders) {
+          let { month, year } = getReadableDateTime(order.appointmentDateTime);
+          let title = `${month} ${year}`;
+          groupedOrders[title] = groupedOrders[title]
+            ? groupedOrders[title]
+            : [];
+          groupedOrders[title].push(order);
+        }
+        let currentOrders: GroupedOrder[] = Object.entries(groupedOrders).map(
+          ([key, value]) => {
+            return {
+              month: key,
+              data: value,
+            };
           }
+        );
 
-          // Build New Data
+        if (page === 1 && orders.length > 0) {
+          dispatch(setFirstOrder({ order: {} as Order }));
           for (let order of orders) {
-            let { month, year } = getReadableDateTime(
-              order.appointmentDateTime
-            );
-            let title = `${month} ${year}`;
-            groupedOrders[title] = groupedOrders[title]
-              ? groupedOrders[title]
-              : [];
-            groupedOrders[title].push(order);
-          }
-          let currentOrders: GroupedOrder[] = Object.entries(groupedOrders).map(
-            ([key, value]) => {
-              return {
-                month: key,
-                data: value,
-              };
-            }
-          );
-
-          if (page === 1 && orders.length > 0) {
-            dispatch(setFirstOrder({ order: {} as Order }));
-            for (let order of orders) {
-              if (order.status !== "CANCELED") {
-                dispatch(setFirstOrder({ order: order }));
-                break;
-              }
+            if (order.status !== "CANCELED") {
+              dispatch(setFirstOrder({ order: order }));
+              break;
             }
           }
+        }
 
-          setUpcomingOrders(currentOrders);
-        }
-        if (orders.length < limit) {
-          setFetchAgain(false);
-        }
+        setUpcomingOrders(currentOrders);
       }
-    );
+      if (orders.length < limit) {
+        setFetchAgain(false);
+      }
+    });
   }, [page, isAuthenticated]);
 
   return (

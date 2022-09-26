@@ -31,6 +31,14 @@ export const getCustomerByIdAsync = createAsyncThunk(
   }
 );
 
+export const getCustomerExistsAsync = createAsyncThunk(
+  "customer/getCustomerExists",
+  async (id: string | null) => {
+    const res = await AxiosClient.post(`${API.CUSTOMER_EXISTS}/${id}`);
+    return res.data;
+  }
+);
+
 export const putCustomerAsync = createAsyncThunk(
   "customer/putCustomer",
   async (data: CustomerProfile) => {

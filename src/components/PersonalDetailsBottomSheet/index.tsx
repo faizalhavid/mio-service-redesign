@@ -60,7 +60,7 @@ export const PersonalDetailsBottomSheet = ({
     if (customer) {
       setValue("firstName", customer.firstName);
       setValue("lastName", customer.lastName);
-      setValue("phone", customer.phones[0].number);
+      setValue("phone", customer.phones?.[0]?.number || "");
       setValue("email", customer.email);
       setProfileUrl(customer.pictureURL);
     }

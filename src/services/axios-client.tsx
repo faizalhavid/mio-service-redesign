@@ -6,6 +6,9 @@ const AxiosClient = axios.create({
   baseURL: ENV.API_BASE_URL,
   headers: {
     "Content-Type": "application/json;charset=utf-8",
+    "Cache-Control": "no-cache",
+    Pragma: "no-cache",
+    Expires: "0",
   },
 });
 
@@ -14,6 +17,7 @@ AxiosClient.interceptors.request.use(async (config: any) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  config.params = { ...config.params, timestamp: Date.now() };
   return config;
 });
 
