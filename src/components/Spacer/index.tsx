@@ -6,8 +6,8 @@ type SpacerProps = {
   left?: number;
 };
 
-const Spacer = ({ top = 0, left = 0 }: SpacerProps): JSX.Element => {
-  return <View style={{ marginTop: top, marginLeft: left }}></View>;
-};
+function Spacer({ top = 0, left = 0 }: SpacerProps): JSX.Element {
+  return <View style={{ marginTop: top, marginLeft: left }} />;
+}
 
 export default Spacer;

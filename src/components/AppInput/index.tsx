@@ -1,12 +1,11 @@
 import React from "react";
-import { AppColors } from "../../commons/colors";
 import { TextField } from "rn-material-ui-textfield";
 import { KeyboardTypeOptions } from "react-native";
 import { Pressable, Text } from "native-base";
 import { SvgCss } from "react-native-svg";
+import { AppColors } from "../../commons/colors";
 import {
   EYE_ICON,
-  FILLED_CIRCLE_TICK_ICON,
   SLASHED_EYE_ICON,
 } from "../../commons/assets";
 
@@ -21,7 +20,7 @@ type AppInputProps = {
   onChange?: (...event: any[]) => void;
 };
 
-const AppInput = ({
+function AppInput({
   type,
   label,
   value,
@@ -30,7 +29,7 @@ const AppInput = ({
   suffix,
   error,
   onChange,
-}: AppInputProps): JSX.Element => {
+}: AppInputProps): JSX.Element {
   const keyboardType: { [key: string]: KeyboardTypeOptions } = {
     text: "default",
     number: "numeric",
@@ -39,7 +38,7 @@ const AppInput = ({
 
   const formatText = (text: string) => {
     if (text && text.length >= 2) {
-      let inputText = text.replace(/\//gi, "");
+      const inputText = text.replace(/\//gi, "");
       return `${inputText.substring(0, 2)}/${inputText.substring(2)}`;
     }
     return text;
@@ -68,7 +67,7 @@ const AppInput = ({
         fontSize={14}
         lineWidth={focussed ? 1 : 0}
         disabledLineWidth={0}
-        secureTextEntry={type === "password" && (showPassword ? false : true)}
+        secureTextEntry={type === "password" && (!showPassword)}
         renderRightAccessory={() => {
           switch (type) {
             case "password":
@@ -105,12 +104,12 @@ const AppInput = ({
         onChangeText={onChange}
       />
       {error !== undefined && error.length > 0 && (
-        <Text fontSize={"14"} color="red.500" fontWeight={"semibold"}>
+        <Text fontSize="14" color="red.500" fontWeight="semibold">
           {error}
         </Text>
       )}
     </>
   );
-};
+}
 
 export default AppInput;

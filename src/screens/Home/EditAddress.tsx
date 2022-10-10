@@ -1,4 +1,4 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   Center,
   Checkbox,
@@ -9,26 +9,26 @@ import {
   Spinner,
   Text,
   VStack,
-} from "native-base";
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Dimensions, Keyboard, Platform } from "react-native";
-import KeyboardSpacer from "react-native-keyboard-spacer";
-import { AppColors } from "../../commons/colors";
-import { POOL_TYPES } from "../../commons/options";
-import { Option, PriceMap, HouseInfoAddressRequest } from "../../commons/types";
-import { FAILED } from "../../commons/ui-states";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import ErrorView from "../../components/ErrorView";
-import FooterButton from "../../components/FooterButton";
-import GoogleMapsInput from "../../components/GoogleMapsInput";
-import { Address } from "../../contexts/AuthContext";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
-import { SuperRootStackParamList } from "../../navigations";
-import { goBack, replace } from "../../navigations/rootNavigation";
-import { StorageHelper } from "../../services/storage-helper";
+} from 'native-base';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Dimensions, Keyboard, Platform } from 'react-native';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
+import { AppColors } from '../../commons/colors';
+import { POOL_TYPES } from '../../commons/options';
+import { Option, PriceMap, HouseInfoAddressRequest } from '../../commons/types';
+import { FAILED } from '../../commons/ui-states';
+import AppSafeAreaView from '../../components/AppSafeAreaView';
+import ErrorView from '../../components/ErrorView';
+import FooterButton from '../../components/FooterButton';
+import GoogleMapsInput from '../../components/GoogleMapsInput';
+import { Address } from '../../contexts/AuthContext';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useAuthenticatedUser } from '../../hooks/useAuthenticatedUser';
+import { SuperRootStackParamList } from '../../navigations';
+import { goBack, replace } from '../../navigations/rootNavigation';
+import { StorageHelper } from '../../services/storage-helper';
 import {
   selectCustomer,
   selectAddress,
@@ -36,51 +36,39 @@ import {
   updateAddressAsync,
   getCustomerByIdAsync,
   getHouseInfoAsync,
-} from "../../slices/customer-slice";
-import { selectLead, updateLeadState } from "../../slices/lead-slice";
-import { selectServices } from "../../slices/service-slice";
-import { LAWN_CARE_ID } from "./ChooseService";
+} from '../../slices/customer-slice';
+import { selectLead, updateLeadState } from '../../slices/lead-slice';
+import { selectServices } from '../../slices/service-slice';
+import { LAWN_CARE_ID } from './ChooseService';
 
 export type BathBedOptions = { number: number; selected: boolean };
 interface SelectOption extends Option {
   selected: boolean;
 }
 
-type EditAddressProps = NativeStackScreenProps<
-  SuperRootStackParamList,
-  "EditAddress"
->;
+type EditAddressProps = NativeStackScreenProps<SuperRootStackParamList, 'EditAddress'>;
 
-const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
+function EditAddress({ route }: EditAddressProps): JSX.Element {
   const dispatch = useAppDispatch();
 
   const { returnTo, mode, id } = route.params;
 
-  const screenWidth = Dimensions.get("screen").width;
+  const screenWidth = Dimensions.get('screen').width;
   const [selectedArea, setSelectedArea] = React.useState<number>(0);
   const [selectedBathroomNo, setSelectedBathroomNo] = React.useState<number>(0);
   const [selectedBedroomNo, setSelectedBedroomNo] = React.useState<number>(0);
   const [areaOptions, setAreaOptions] = React.useState<PriceMap[]>([]);
   const [primary, setPrimary] = useState<boolean>(false);
-  const [selectedAddress, setSelectedAddress] = useState<Address>(
-    {} as Address
-  );
+  const [selectedAddress, setSelectedAddress] = useState<Address>({} as Address);
 
-  const [bathroomOptions, setBathroomOptions] = React.useState<
-    BathBedOptions[]
-  >([]);
-  const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>(
-    []
-  );
+  const [bathroomOptions, setBathroomOptions] = React.useState<BathBedOptions[]>([]);
+  const [bedroomOptions, setBedroomOptions] = React.useState<BathBedOptions[]>([]);
 
-  const [poolTypeOptions, setPoolTypeOptions] = React.useState<SelectOption[]>(
-    []
-  );
+  const [poolTypeOptions, setPoolTypeOptions] = React.useState<SelectOption[]>([]);
 
-  const [selectedPoolType, setSelectedPoolType] = useState<string>("");
+  const [selectedPoolType, setSelectedPoolType] = useState<string>('');
 
-  const { uiState: customerUiState, member: customer } =
-    useAppSelector(selectCustomer);
+  const { uiState: customerUiState, member: customer } = useAppSelector(selectCustomer);
   const { uiState: addressesUiState } = useAppSelector(selectAddress);
 
   const { collection: allServices } = useAppSelector(selectServices);
@@ -95,21 +83,17 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
 
   useEffect(() => {
     if (selectedAddress && selectedAddress?.zip) {
-      setValue("street", selectedAddress.street);
-      setValue("city", selectedAddress.city);
-      setValue("state", selectedAddress.state);
-      setValue("zip", selectedAddress.zip);
-      setPrimary(
-        selectedAddress.isPrimary !== undefined
-          ? selectedAddress.isPrimary
-          : true
-      );
+      setValue('street', selectedAddress.street);
+      setValue('city', selectedAddress.city);
+      setValue('state', selectedAddress.state);
+      setValue('zip', selectedAddress.zip);
+      setPrimary(selectedAddress.isPrimary !== undefined ? selectedAddress.isPrimary : true);
     }
   }, [dispatch, mode, selectedAddress]);
 
   useEffect(() => {
-    if (customer?.customerId && mode === "UPDATE_ADDRESS" && id) {
-      let address = customer.addresses.filter((a) => a.googlePlaceId === id)[0];
+    if (customer?.customerId && mode === 'UPDATE_ADDRESS' && id) {
+      const address = customer.addresses.filter((a) => a.googlePlaceId === id)[0];
       setSelectedAddress(address);
       setAddressSelectedFromPopup(address);
     }
@@ -121,8 +105,8 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
         let hasArea = false;
         for (const service of allServices) {
           if (service.serviceId === LAWN_CARE_ID) {
-            let priceMap: PriceMap[] = [];
-            let lotsize: number = selectedAddress?.houseInfo?.lotSize || 0;
+            const priceMap: PriceMap[] = [];
+            const lotsize: number = selectedAddress?.houseInfo?.lotSize || 0;
             for (const price of service.priceMap) {
               if (
                 lotsize &&
@@ -143,21 +127,19 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                 priceMap.push(price);
               }
             }
-            setAreaOptions(
-              priceMap.filter((price) => price.plan === "STANDARD")
-            );
+            setAreaOptions(priceMap.filter((price) => price.plan === 'STANDARD'));
 
             break;
           }
         }
         setBathroomOptions([]);
         setBedroomOptions([]);
-        let houseInfo = selectedAddress?.houseInfo;
+        const houseInfo = selectedAddress?.houseInfo;
         // console.log(houseInfo);
-        let bathOptions: BathBedOptions[] = [];
-        let bedOptions: BathBedOptions[] = [];
-        for (let i of [1, 2, 3, 4, 5]) {
-          let _bathRoomNo: number =
+        const bathOptions: BathBedOptions[] = [];
+        const bedOptions: BathBedOptions[] = [];
+        for (const i of [1, 2, 3, 4, 5]) {
+          const _bathRoomNo: number =
             houseInfo && houseInfo?.bathrooms && houseInfo?.bathrooms === i
               ? houseInfo?.bathrooms
               : 0;
@@ -169,10 +151,8 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
             selected: _bathRoomNo === i,
           });
 
-          let _bedRoomNo: number =
-            houseInfo && houseInfo?.bedrooms && houseInfo?.bedrooms === i
-              ? houseInfo?.bedrooms
-              : 0;
+          const _bedRoomNo: number =
+            houseInfo && houseInfo?.bedrooms && houseInfo?.bedrooms === i ? houseInfo?.bedrooms : 0;
           if (_bedRoomNo === i) {
             setSelectedBedroomNo(_bedRoomNo);
           }
@@ -186,10 +166,9 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
       } catch (error) {
         console.log(error);
       }
-      let poolTypes: SelectOption[] = [];
-      for (let poolType of POOL_TYPES) {
-        let selected =
-          selectedAddress?.houseInfo?.swimmingPoolType === poolType.code;
+      const poolTypes: SelectOption[] = [];
+      for (const poolType of POOL_TYPES) {
+        const selected = selectedAddress?.houseInfo?.swimmingPoolType === poolType.code;
         poolTypes.push({
           ...poolType,
           selected,
@@ -208,7 +187,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
     setValue,
     formState: { isDirty, isValid },
   } = useForm<HouseInfoAddressRequest>({
-    mode: "onChange",
+    mode: 'onChange',
     // defaultValues: {
     //   street: SAMPLE.STREET,
     //   city: SAMPLE.CITY,
@@ -220,10 +199,9 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
   const onSubmit = async (data: HouseInfoAddressRequest) => {
     Keyboard.dismiss();
     // let fcmToken = await StorageHelper.getValue("FCM_DEVICE_TOKEN");
-    let payload = {
+    const payload = {
       ...data,
-      googlePlaceId:
-        mode === "NEW_ADDRESS" ? undefined : selectedAddress?.googlePlaceId,
+      googlePlaceId: mode === 'NEW_ADDRESS' ? undefined : selectedAddress?.googlePlaceId,
       houseInfo: {
         lotSize: selectedArea,
         bedrooms: selectedBedroomNo,
@@ -243,7 +221,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
         _onClose();
       });
     } else {
-      await StorageHelper.setValue("LOCAL_ADDRESS", JSON.stringify(payload));
+      await StorageHelper.setValue('LOCAL_ADDRESS', JSON.stringify(payload));
       _onClose();
     }
   };
@@ -256,19 +234,17 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
     if (setSelectedAddress) {
       setSelectedAddress({} as Address);
     }
-    if (returnTo === "Profile") {
+    if (returnTo === 'Profile') {
       goBack();
     } else {
       replace(returnTo);
     }
   };
 
-  const [addressSelectedFromPopup, setAddressSelectedFromPopup] = useState<any>(
-    {}
-  );
+  const [addressSelectedFromPopup, setAddressSelectedFromPopup] = useState<any>({});
   return (
     <AppSafeAreaView>
-      <VStack bg={"white"} mt={"1/6"} height="100%" width="100%">
+      <VStack bg="white" mt="1/6" height="100%" width="100%">
         <Center>
           <Text fontSize={18} fontWeight="semibold">
             Property Information
@@ -278,8 +254,8 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
           <VStack height="100%" px={3}>
             <Text
               fontSize={14}
-              fontWeight={"semibold"}
-              width={"100%"}
+              fontWeight="semibold"
+              width="100%"
               color={AppColors.SECONDARY}
               mt={3}
             >
@@ -287,13 +263,13 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
             </Text>
             <GoogleMapsInput
               onSuccess={(address) => {
-                console.log("selected-address", address);
+                console.log('selected-address', address);
                 setAddressSelectedFromPopup(address);
                 dispatch(getHouseInfoAsync({ nva: address.formattedAddress }))
                   .unwrap()
                   .then((response) => {
                     if (response) {
-                      let address: Address = response;
+                      const address: Address = response;
                       setSelectedAddress(address);
                       dispatch(
                         updateLeadState({
@@ -313,22 +289,17 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
             />
           </VStack>
         )}
-        {houseInfoUiState !== "IN_PROGRESS" && addressSelectedFromPopup?.zip ? (
+        {houseInfoUiState !== 'IN_PROGRESS' && addressSelectedFromPopup?.zip ? (
           <ScrollView>
             <>
               <VStack px={4} key="SELECTED_ADDRESS">
-                <HStack justifyContent={"space-between"} alignItems="center">
-                  <Text
-                    fontSize={14}
-                    fontWeight={"semibold"}
-                    color={AppColors.SECONDARY}
-                    mt={3}
-                  >
+                <HStack justifyContent="space-between" alignItems="center">
+                  <Text fontSize={14} fontWeight="semibold" color={AppColors.SECONDARY} mt={3}>
                     Selected Address
                   </Text>
                   <Text
                     color={AppColors.TEAL}
-                    fontWeight={"semibold"}
+                    fontWeight="semibold"
                     fontSize={12}
                     onPress={() => {
                       setAddressSelectedFromPopup({});
@@ -339,65 +310,53 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                 </HStack>
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
+                  fontWeight="semibold"
                   color={AppColors.DARK_TEAL}
-                  width={"100%"}
+                  width="100%"
                   mt={2}
                 >
                   {addressSelectedFromPopup?.formattedAddress}
                 </Text>
               </VStack>
-              <VStack key={"ADDRESS_SHEET"} px={4} space={0} pb={75}>
-                {(customerUiState === FAILED ||
-                  houseInfoUiState === FAILED) && (
-                  <ErrorView
-                    message={
-                      "Something went wrong while updating address. Please try again."
-                    }
-                  />
+              <VStack key="ADDRESS_SHEET" px={4} space={0} pb={75}>
+                {(customerUiState === FAILED || houseInfoUiState === FAILED) && (
+                  <ErrorView message="Something went wrong while updating address. Please try again." />
                 )}
 
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
-                  width={"100%"}
+                  fontWeight="semibold"
+                  width="100%"
                   color={AppColors.SECONDARY}
                   mt={3}
                 >
                   Choose Lawn Size (Sq Ft)
                 </Text>
 
-                <HStack
-                  space={2}
-                  maxWidth={screenWidth}
-                  flexWrap={"wrap"}
-                  flexDirection="row"
-                >
+                <HStack space={2} maxWidth={screenWidth} flexWrap="wrap" flexDirection="row">
                   {areaOptions.map((areaOption, index) => (
                     <Pressable
                       key={index}
                       height={10}
                       borderRadius={5}
-                      width={"45%"}
+                      width="45%"
                       mt={2}
                       justifyContent="center"
                       borderWidth={1}
-                      borderColor={
-                        areaOption.selected ? AppColors.TEAL : AppColors.CCC
-                      }
-                      bg={areaOption.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      borderColor={areaOption.selected ? AppColors.TEAL : AppColors.CCC}
+                      bg={areaOption.selected ? AppColors.LIGHT_TEAL : '#fff'}
                       _pressed={{
                         borderColor: AppColors.TEAL,
                         borderWidth: 1,
                         backgroundColor: AppColors.LIGHT_TEAL,
                       }}
                       onPress={() => {
-                        let updatedList = areaOptions.map((pm2, index2) => {
+                        const updatedList = areaOptions.map((pm2, index2) => {
                           if (index == index2) {
                             if (pm2.rangeMax) {
                               setSelectedArea(pm2.rangeMax);
                             }
-                            let selected: PriceMap = {
+                            const selected: PriceMap = {
                               ...pm2,
                               selected: true,
                             };
@@ -408,11 +367,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                         setAreaOptions(updatedList);
                       }}
                     >
-                      <Text
-                        alignSelf={"center"}
-                        color={AppColors.TEAL}
-                        fontWeight={"semibold"}
-                      >
+                      <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
                         {areaOption.rangeMin} - {areaOption.rangeMax}
                       </Text>
                     </Pressable>
@@ -420,39 +375,32 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                 </HStack>
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
-                  width={"100%"}
+                  fontWeight="semibold"
+                  width="100%"
                   color={AppColors.SECONDARY}
                   mt={3}
                 >
                   Choose no. of bedrooms
                 </Text>
-                <HStack
-                  space={2}
-                  maxWidth={screenWidth}
-                  flexWrap={"wrap"}
-                  flexDirection="row"
-                >
+                <HStack space={2} maxWidth={screenWidth} flexWrap="wrap" flexDirection="row">
                   {bedroomOptions.map((option, index) => (
                     <Pressable
                       key={index}
                       height={10}
                       borderRadius={5}
-                      width={"13%"}
+                      width="13%"
                       mt={2}
                       justifyContent="center"
                       borderWidth={1}
-                      borderColor={
-                        option.selected ? AppColors.TEAL : AppColors.CCC
-                      }
-                      bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      borderColor={option.selected ? AppColors.TEAL : AppColors.CCC}
+                      bg={option.selected ? AppColors.LIGHT_TEAL : '#fff'}
                       _pressed={{
                         borderColor: AppColors.TEAL,
                         borderWidth: 1,
                         backgroundColor: AppColors.LIGHT_TEAL,
                       }}
                       onPress={() => {
-                        let updatedOptions = bedroomOptions.map((opt, i) => {
+                        const updatedOptions = bedroomOptions.map((opt, i) => {
                           if (i === index) {
                             setSelectedBedroomNo(option.number);
                             return {
@@ -468,11 +416,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                         setBedroomOptions(updatedOptions);
                       }}
                     >
-                      <Text
-                        alignSelf={"center"}
-                        color={AppColors.TEAL}
-                        fontWeight={"semibold"}
-                      >
+                      <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
                         {option.number}
                       </Text>
                     </Pressable>
@@ -480,39 +424,32 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                 </HStack>
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
-                  width={"100%"}
+                  fontWeight="semibold"
+                  width="100%"
                   color={AppColors.SECONDARY}
                   mt={3}
                 >
                   Choose no. of bathrooms
                 </Text>
-                <HStack
-                  space={2}
-                  maxWidth={screenWidth}
-                  flexWrap={"wrap"}
-                  flexDirection="row"
-                >
+                <HStack space={2} maxWidth={screenWidth} flexWrap="wrap" flexDirection="row">
                   {bathroomOptions.map((option, index) => (
                     <Pressable
                       key={index}
                       height={10}
                       borderRadius={5}
-                      width={"13%"}
+                      width="13%"
                       mt={2}
                       justifyContent="center"
                       borderWidth={1}
-                      borderColor={
-                        option.selected ? AppColors.TEAL : AppColors.CCC
-                      }
-                      bg={option.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      borderColor={option.selected ? AppColors.TEAL : AppColors.CCC}
+                      bg={option.selected ? AppColors.LIGHT_TEAL : '#fff'}
                       _pressed={{
                         borderColor: AppColors.TEAL,
                         borderWidth: 1,
                         backgroundColor: AppColors.LIGHT_TEAL,
                       }}
                       onPress={() => {
-                        let updatedOptions = bedroomOptions.map((opt, i) => {
+                        const updatedOptions = bedroomOptions.map((opt, i) => {
                           if (i === index) {
                             setSelectedBathroomNo(option.number);
                             return {
@@ -528,11 +465,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                         setBathroomOptions(updatedOptions);
                       }}
                     >
-                      <Text
-                        alignSelf={"center"}
-                        color={AppColors.TEAL}
-                        fontWeight={"semibold"}
-                      >
+                      <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
                         {option.number}
                       </Text>
                     </Pressable>
@@ -540,41 +473,34 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                 </HStack>
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
-                  width={"100%"}
+                  fontWeight="semibold"
+                  width="100%"
                   color={AppColors.SECONDARY}
                   mt={3}
                 >
                   Choose Pool Type
                 </Text>
-                <HStack
-                  space={2}
-                  maxWidth={screenWidth}
-                  flexWrap={"wrap"}
-                  flexDirection="row"
-                >
+                <HStack space={2} maxWidth={screenWidth} flexWrap="wrap" flexDirection="row">
                   {poolTypeOptions.map((poolType, index) => (
                     <Pressable
                       key={index}
                       height={10}
                       borderRadius={5}
-                      width={"30%"}
+                      width="30%"
                       mt={2}
                       justifyContent="center"
                       borderWidth={1}
-                      borderColor={
-                        poolType.selected ? AppColors.TEAL : AppColors.CCC
-                      }
-                      bg={poolType.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                      borderColor={poolType.selected ? AppColors.TEAL : AppColors.CCC}
+                      bg={poolType.selected ? AppColors.LIGHT_TEAL : '#fff'}
                       _pressed={{
                         borderColor: AppColors.TEAL,
                         borderWidth: 1,
                         backgroundColor: AppColors.LIGHT_TEAL,
                       }}
                       onPress={() => {
-                        let updatedList = poolTypeOptions.map((pm2, index2) => {
+                        const updatedList = poolTypeOptions.map((pm2, index2) => {
                           if (index == index2) {
-                            let selected: SelectOption = {
+                            const selected: SelectOption = {
                               ...pm2,
                               selected: true,
                             };
@@ -586,11 +512,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                         setPoolTypeOptions(updatedList);
                       }}
                     >
-                      <Text
-                        alignSelf={"center"}
-                        color={AppColors.TEAL}
-                        fontWeight={"semibold"}
-                      >
+                      <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
                         {poolType.label}
                       </Text>
                     </Pressable>
@@ -603,7 +525,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
                   _text={{
                     color: AppColors.DARK_TEAL,
                     fontSize: 14,
-                    fontWeight: "semibold",
+                    fontWeight: 'semibold',
                     padding: 0,
                   }}
                   _stack={{ space: 0 }}
@@ -628,8 +550,8 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
           </ScrollView>
         ) : (
           <>
-            {houseInfoUiState === "IN_PROGRESS" && (
-              <Center key={"LOADING"}>
+            {houseInfoUiState === 'IN_PROGRESS' && (
+              <Center key="LOADING">
                 <Spinner my={5} size="sm" color={AppColors.SECONDARY} />
                 <Text color={AppColors.SECONDARY}>Getting house info...</Text>
               </Center>
@@ -646,7 +568,7 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
             > */}
         {/* <ScrollView width={"100%"}> */}
 
-        {Platform.OS === "ios" && <KeyboardSpacer />}
+        {Platform.OS === 'ios' && <KeyboardSpacer />}
         {/* </ScrollView> */}
         {/* </KeyboardAwareScrollView> */}
       </VStack>
@@ -660,17 +582,14 @@ const EditAddress = ({ route }: EditAddressProps): JSX.Element => {
           !selectedBedroomNo ||
           !selectedPoolType
         }
-        loading={
-          customerUiState === "IN_PROGRESS" ||
-          addressesUiState === "IN_PROGRESS"
-        }
+        loading={customerUiState === 'IN_PROGRESS' || addressesUiState === 'IN_PROGRESS'}
         minLabel="SAVE"
-        maxLabel={"ADDRESS"}
+        maxLabel="ADDRESS"
         type="ADDRESS"
         onPress={handleSubmit(onSubmit)}
       />
     </AppSafeAreaView>
   );
-};
+}
 
 export default EditAddress;

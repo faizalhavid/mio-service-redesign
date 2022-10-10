@@ -10,11 +10,11 @@ import {
 import React, { useEffect } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { SvgCss } from "react-native-svg";
+import LottieView from "lottie-react-native";
 import { COLOR_LOGO } from "../../commons/assets";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import GradientButton from "../../components/GradientButton";
 import { navigate } from "../../navigations/rootNavigation";
-import LottieView from "lottie-react-native";
 import { AppColors } from "../../commons/colors";
 import AppButton from "../../components/AppButton";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
@@ -24,7 +24,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAuth } from "../../contexts/AuthContext";
 import { resetCustomerState } from "../../slices/customer-slice";
 
-const Welcome = (): JSX.Element => {
+function Welcome(): JSX.Element {
   const dispatch = useAppDispatch();
   const { logout } = useAuth();
 
@@ -37,9 +37,9 @@ const Welcome = (): JSX.Element => {
   return (
     <AppSafeAreaView>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <VStack mt={"1/4"} pt={0}>
+        <VStack mt="1/4" pt={0}>
           <PresenceTransition
-            visible={true}
+            visible
             initial={{
               opacity: 0,
               translateX: 0,
@@ -68,13 +68,13 @@ const Welcome = (): JSX.Element => {
             </Center>
           </PresenceTransition>
           <Divider thickness={0} mt={30} />
-          <VStack alignItems={"center"}>
+          <VStack alignItems="center">
             <Divider thickness={0} mt={30} />
             <Center>
-              <Text fontWeight={"semibold"} fontSize={18}>
+              <Text fontWeight="semibold" fontSize={18}>
                 Welcome to Mio Home Services
               </Text>
-              <Text fontWeight={"semibold"} color={AppColors.AAA}>
+              <Text fontWeight="semibold" color={AppColors.AAA}>
                 Your one destination for all the house needs
               </Text>
             </Center>
@@ -115,7 +115,7 @@ const Welcome = (): JSX.Element => {
                   navigate("Dashboard");
                 }}
               >
-                <Text textAlign={"center"} color={AppColors.AAA}>
+                <Text textAlign="center" color={AppColors.AAA}>
                   Skip for now
                 </Text>
               </Pressable>
@@ -126,7 +126,7 @@ const Welcome = (): JSX.Element => {
       {/* </ImageBackground> */}
     </AppSafeAreaView>
   );
-};
+}
 
 export default Welcome;
 

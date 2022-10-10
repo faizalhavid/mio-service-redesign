@@ -14,7 +14,7 @@ type AddressListItemProps = {
   onChoose?: (address: Address) => void;
 };
 
-const AddressListItem = ({
+function AddressListItem({
   showChoose = false,
   showEdit = false,
   showDelete = false,
@@ -23,21 +23,21 @@ const AddressListItem = ({
   onEdit,
   onDelete,
   onChoose,
-}: AddressListItemProps): JSX.Element => {
-  const ValueText = ({ text }: { text: string | number }): JSX.Element => {
+}: AddressListItemProps): JSX.Element {
+  function ValueText({ text }: { text: string | number }): JSX.Element {
     return (
       <Text
         color={AppColors.SECONDARY}
-        textTransform={"uppercase"}
-        fontWeight={"semibold"}
+        textTransform="uppercase"
+        fontWeight="semibold"
         fontSize={13}
       >
         {text}
       </Text>
     );
-  };
+  }
 
-  const EditButton = ({
+  function EditButton({
     text,
     color,
     px,
@@ -47,7 +47,7 @@ const AddressListItem = ({
     px?: number;
     color?: string;
     onPress: () => void;
-  }): JSX.Element => {
+  }): JSX.Element {
     return (
       <Pressable
         onPress={onPress}
@@ -64,7 +64,7 @@ const AddressListItem = ({
         </Text>
       </Pressable>
     );
-  };
+  }
 
   return (
     <VStack
@@ -73,24 +73,24 @@ const AddressListItem = ({
       // borderBottomWidth={2}
       borderRadius={3}
       borderColor={AppColors.TEAL}
-      borderStyle={"dotted"}
+      borderStyle="dotted"
       // py={1}
       // px={1}
     >
-      <HStack justifyContent={"space-between"}>
-        <HStack alignItems={"flex-end"} space={1}>
+      <HStack justifyContent="space-between">
+        <HStack alignItems="flex-end" space={1}>
           <Text
             color={AppColors.TEAL}
             letterSpacing={0.3}
             fontSize={13}
-            fontWeight={"semibold"}
+            fontWeight="semibold"
           >
             Property {position}
           </Text>
           {address?.isPrimary && (
             <Text
               color={AppColors.AAA}
-              fontWeight={"normal"}
+              fontWeight="normal"
               letterSpacing={1}
               fontSize={10}
             >
@@ -137,16 +137,16 @@ const AddressListItem = ({
         </HStack>
       </HStack>
       <Divider thickness={0.8} my={1} bg={AppColors.LIGHT_TEAL} />
-      <Text fontSize={13} color={AppColors.SECONDARY} fontWeight={"semibold"}>
+      <Text fontSize={13} color={AppColors.SECONDARY} fontWeight="semibold">
         {`${address.street}, ${address.city}, ${address.state}, ${address.zip}`}
       </Text>
       <Divider
         thickness={0}
         my={1}
-        borderStyle={"dashed"}
+        borderStyle="dashed"
         bg={AppColors.LIGHT_TEAL}
       />
-      <HStack justifyContent={"space-between"}>
+      <HStack justifyContent="space-between">
         <VStack>
           <Text color={AppColors.AAA} letterSpacing={0.5} fontSize={10}>
             LOT SIZE (SQFT)
@@ -175,6 +175,6 @@ const AddressListItem = ({
       </HStack>
     </VStack>
   );
-};
+}
 
 export default AddressListItem;

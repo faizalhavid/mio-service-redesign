@@ -34,10 +34,10 @@ type InviteUserForm = {
   role: string;
 };
 
-const InviteBottomSheet = ({
+function InviteBottomSheet({
   showInviteUser,
   setShowInviteUser,
-}: InviteBottomSheetProps): JSX.Element => {
+}: InviteBottomSheetProps): JSX.Element {
   const dispatch = useAppDispatch();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -64,7 +64,7 @@ const InviteBottomSheet = ({
 
   const onSubmit = async () => {
     Keyboard.dismiss();
-    let data = getValues();
+    const data = getValues();
     await dispatch(
       inviteUserAsync({
         customerId: customer.customerId,
@@ -87,7 +87,7 @@ const InviteBottomSheet = ({
     <Actionsheet
       isOpen={showInviteUser}
       onClose={() => setShowInviteUser(false)}
-      hideDragIndicator={true}
+      hideDragIndicator
     >
       <Actionsheet.Content
         style={{
@@ -100,8 +100,8 @@ const InviteBottomSheet = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <ScrollView width={"100%"}>
-          <VStack pt={15} bg={"white"} width="100%">
+        <ScrollView width="100%">
+          <VStack pt={15} bg="white" width="100%">
             <Center>
               <Text fontSize={18} fontWeight="semibold">
                 Invite User
@@ -134,7 +134,7 @@ const InviteBottomSheet = ({
                 render={({ field: { onChange, onBlur, value } }) => (
                   <>
                     {value ? (
-                      <Text mt={2} color={"gray.400"} fontSize={14}>
+                      <Text mt={2} color="gray.400" fontSize={14}>
                         Role
                       </Text>
                     ) : (
@@ -147,7 +147,7 @@ const InviteBottomSheet = ({
                       borderLeftWidth={0}
                       borderRightWidth={0}
                       borderTopWidth={0}
-                      borderBottomColor={"#ccc"}
+                      borderBottomColor="#ccc"
                       _selectedItem={{
                         bg: AppColors.PRIMARY,
                         // endIcon: <CheckIcon size="5" />,
@@ -164,16 +164,14 @@ const InviteBottomSheet = ({
                       onValueChange={onChange}
                       selectedValue={value}
                     >
-                      {ROLES.map((role) => {
-                        return (
+                      {ROLES.map((role) => (
                           <Select.Item
                             pl={3}
                             key={role.code}
                             label={role.label}
                             value={role.code}
                           />
-                        );
-                      })}
+                        ))}
                     </Select>
                   </>
                 )}
@@ -186,13 +184,13 @@ const InviteBottomSheet = ({
           disabled={!isValid}
           loading={inviteNewUserUiState === "IN_PROGRESS"}
           minLabel="INVITE"
-          maxLabel={"NEW USER"}
+          maxLabel="NEW USER"
           type="DEFAULT"
           onPress={handleSubmit(onSubmit)}
         />
       </Actionsheet.Content>
     </Actionsheet>
   );
-};
+}
 
 export default InviteBottomSheet;

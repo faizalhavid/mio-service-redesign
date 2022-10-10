@@ -1,22 +1,20 @@
-import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { Address, CustomerProfile } from "../contexts/AuthContext";
-import { RootState } from "../reducers";
+import { createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { Address, CustomerProfile } from '../contexts/AuthContext';
+import { RootState } from '../reducers';
 import {
-  CommonState,
   DeleteAddressRequest,
   FormattedAddress,
-  HouseInfo,
   HouseInfoAddressRequest,
   HouseInfoRequest,
   UiStateType,
-} from "../commons/types";
-import { createAsyncSlice } from "./create-async-slice";
-import AxiosClient from "../services/axios-client";
-import { API } from "../commons/urls";
-import { getInitialState } from "../commons/initial-state";
+} from '../commons/types';
+import { createAsyncSlice } from './create-async-slice';
+import AxiosClient from '../services/axios-client';
+import { API } from '../commons/urls';
+import { getInitialState } from '../commons/initial-state';
 
 export const registerCustomerAsync = createAsyncThunk(
-  "customer/register",
+  'customer/register',
   async (data: CustomerProfile) => {
     const res = await AxiosClient.post(API.REGISTER, data);
     return res.data;
@@ -24,7 +22,7 @@ export const registerCustomerAsync = createAsyncThunk(
 );
 
 export const getCustomerByIdAsync = createAsyncThunk(
-  "customer/getCustomerById",
+  'customer/getCustomerById',
   async (id: string | null) => {
     const res = await AxiosClient.get(`${API.GET_CUSTOMER}/${id}`);
     return res.data;
@@ -32,7 +30,7 @@ export const getCustomerByIdAsync = createAsyncThunk(
 );
 
 export const getCustomerExistsAsync = createAsyncThunk(
-  "customer/getCustomerExists",
+  'customer/getCustomerExists',
   async (id: string | null) => {
     const res = await AxiosClient.post(`${API.CUSTOMER_EXISTS}/${id}`);
     return res.data;
@@ -40,24 +38,18 @@ export const getCustomerExistsAsync = createAsyncThunk(
 );
 
 export const putCustomerAsync = createAsyncThunk(
-  "customer/putCustomer",
+  'customer/putCustomer',
   async (data: CustomerProfile) => {
-    const res = await AxiosClient.put(
-      `${API.PUT_CUSTOMER}/${data.customerId}`,
-      data
-    );
+    const res = await AxiosClient.put(`${API.PUT_CUSTOMER}/${data.customerId}`, data);
     return res.data;
   }
 );
 
 export const updateAddressAsync = createAsyncThunk(
-  "address/put",
+  'address/put',
   async (data: HouseInfoAddressRequest, { rejectWithValue }) => {
-    const res = await AxiosClient.put(
-      `${API.PUT_ADDRESS}/${data.serviceAccountId}`,
-      data
-    );
-    if (res.data.status !== "success") {
+    const res = await AxiosClient.put(`${API.PUT_ADDRESS}/${data.serviceAccountId}`, data);
+    if (res.data.status !== 'success') {
       return rejectWithValue({
         error: res.data.result || res.data.message,
       });
@@ -67,7 +59,7 @@ export const updateAddressAsync = createAsyncThunk(
 );
 
 export const deleteAddressAsync = createAsyncThunk(
-  "address/delete",
+  'address/delete',
   async (data: DeleteAddressRequest) => {
     const res = await AxiosClient.delete(
       `${API.DELETE_ADDRESS}/${data.serviceAccountId}/${data.propertyId}`
@@ -76,16 +68,13 @@ export const deleteAddressAsync = createAsyncThunk(
   }
 );
 
-export const getHouseInfoAsync = createAsyncThunk(
-  "houseInfo",
-  async (data: HouseInfoRequest) => {
-    const res = await AxiosClient.post(API.GET_HOUSE_INFO, data);
-    return res.data;
-  }
-);
+export const getHouseInfoAsync = createAsyncThunk('houseInfo', async (data: HouseInfoRequest) => {
+  const res = await AxiosClient.post(API.GET_HOUSE_INFO, data);
+  return res.data;
+});
 
 export const deleteCustomerAsync = createAsyncThunk(
-  "customer/delete",
+  'customer/delete',
   async (id?: string | null) => {
     const res = await AxiosClient.delete(
       id ? `${API.DELETE_CUSTOMER}/${id}` : `${API.DELETE_CUSTOMER}`
@@ -97,7 +86,7 @@ export const deleteCustomerAsync = createAsyncThunk(
 // Types
 
 export const customerSlice = createAsyncSlice({
-  name: "customer",
+  name: 'customer',
   initialState: getInitialState<CustomerProfile>(),
   reducers: {
     setCustomerState: (
@@ -115,21 +104,21 @@ export const customerSlice = createAsyncSlice({
 });
 
 export const addressSlice = createAsyncSlice({
-  name: "address",
+  name: 'address',
   initialState: getInitialState<Address>(),
   reducers: {},
   thunks: [updateAddressAsync, deleteAddressAsync],
 });
 
 export const houseInfoSlice = createAsyncSlice({
-  name: "houseInfo",
+  name: 'houseInfo',
   initialState: getInitialState<FormattedAddress>(),
   reducers: {},
   thunks: [getHouseInfoAsync],
 });
 
 export const deleteCustomerSlice = createAsyncSlice({
-  name: "deleteCustomer",
+  name: 'deleteCustomer',
   initialState: getInitialState<any>(),
   reducers: {},
   thunks: [deleteCustomerAsync],

@@ -13,9 +13,11 @@ import React, { useState } from "react";
 import { Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SvgCss } from "react-native-svg";
+import * as ImagePicker from "react-native-image-picker";
+import { firebase } from "@react-native-firebase/storage";
 import { PLUS_ICON } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
-import { LeadDetails, SubOrder } from "../../commons/types";
+import { SubOrder } from "../../commons/types";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FooterButton from "../../components/FooterButton";
 import VirtualizedView from "../../components/VirtualizedView";
@@ -24,8 +26,6 @@ import { useAppSelector } from "../../hooks/useAppSelector";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
-import * as ImagePicker from "react-native-image-picker";
-import { firebase } from "@react-native-firebase/storage";
 import { useAuth } from "../../contexts/AuthContext";
 
 export type AppointmentDateOptionType = {
@@ -82,7 +82,7 @@ type ChooseDateTimeProps = NativeStackScreenProps<
   "ChooseDateTime"
 >;
 
-const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
+function ChooseDateTime({ route }: ChooseDateTimeProps): JSX.Element {
   const columns = 2;
   const dispatch = useAppDispatch();
   const { mode, serviceId } = route.params;
@@ -104,10 +104,10 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
     useAppSelector(selectLead);
 
   const updateLead = async () => {
-    let _leadDetails = {
+    const _leadDetails = {
       ...leadDetails,
     };
-    let updatedSuborders = _leadDetails?.subOrders?.map((subOrder) => {
+    const updatedSuborders = _leadDetails?.subOrders?.map((subOrder) => {
       if (subOrder.serviceId === serviceId) {
         let selecDate = selectedDate;
         if (Platform.OS === "ios") {
@@ -120,7 +120,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
             ...subOrder.appointmentInfo,
             appointmentDateTime: new Date(
               `${selecDate} ${
-                parseInt(selectedTime) > 9 ? selectedTime : "0" + selectedTime
+                parseInt(selectedTime) > 9 ? selectedTime : `0${  selectedTime}`
               }:00:00`
             ).toISOString(),
           },
@@ -128,7 +128,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
         };
 
         if (appointmentTimeOptions) {
-          for (let option of appointmentTimeOptions) {
+          for (const option of appointmentTimeOptions) {
             if (option.selected) {
               subOrder.appointmentInfo.selectedRange = {
                 rangeStart: `${option.rangeMin} ${option.minMeridian}`,
@@ -141,7 +141,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
       }
       return subOrder;
     });
-    let payload = {
+    const payload = {
       ..._leadDetails,
       subOrders: updatedSuborders,
     };
@@ -151,7 +151,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
   };
 
   React.useEffect(() => {
-    let isUpdate = mode === "UPDATE";
+    const isUpdate = mode === "UPDATE";
     let subOrder = {} as SubOrder;
     if (isUpdate) {
       subOrder = leadDetails.subOrders.filter(
@@ -163,15 +163,15 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
       setServiceImages(subOrder?.serviceImages || []);
     }
 
-    let dates: AppointmentDateOptionType[] = [];
+    const dates: AppointmentDateOptionType[] = [];
     [7, 8, 9, 10].forEach((number) => {
-      let date = new Date();
+      const date = new Date();
       date.setDate(date.getDate() + number);
-      let month = date.getMonth() + 1;
-      let numberDate = date.getDate();
-      let fullDate = `${date.getFullYear()}-${
-        month > 9 ? month : "0" + month
-      }-${numberDate > 9 ? numberDate : "0" + numberDate}`;
+      const month = date.getMonth() + 1;
+      const numberDate = date.getDate();
+      const fullDate = `${date.getFullYear()}-${
+        month > 9 ? month : `0${  month}`
+      }-${numberDate > 9 ? numberDate : `0${  numberDate}`}`;
       let isSelected = false;
       if (isUpdate) {
         isSelected =
@@ -190,10 +190,10 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
       });
     });
     setAppointmentDateOptions(dates);
-    let times: AppointmentTimeOptionType[] = [];
+    const times: AppointmentTimeOptionType[] = [];
     [8, 10, 12, 14].forEach((number) => {
-      let rangeMin = `${number > 12 ? number - 12 : number}`;
-      let actualMin = `${number}`;
+      const rangeMin = `${number > 12 ? number - 12 : number}`;
+      const actualMin = `${number}`;
       let isSelected = false;
       if (isUpdate) {
         isSelected =
@@ -218,21 +218,21 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
   return (
     <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS" || loading}>
       <VirtualizedView>
-        <KeyboardAwareScrollView enableOnAndroid={true}>
-          <VStack mt={"1/5"} space={5}>
-            <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+        <KeyboardAwareScrollView enableOnAndroid>
+          <VStack mt="1/5" space={5}>
+            <Text textAlign="center" fontWeight="semibold" fontSize={18}>
               Choose Date
             </Text>
             <HStack
-              justifyContent={"center"}
-              alignContent={"center"}
+              justifyContent="center"
+              alignContent="center"
               space={0}
-              bg={"#eee"}
+              bg="#eee"
               p={3}
             >
               <FlatList
                 data={appointmentDateOptions}
-                horizontal={true}
+                horizontal
                 contentContainerStyle={{
                   width: "100%",
                 }}
@@ -245,7 +245,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                     mr={2}
                     p={2}
                     justifyContent="center"
-                    alignItems={"center"}
+                    alignItems="center"
                     borderWidth={item.selected ? 1 : 0}
                     borderColor={AppColors.TEAL}
                     bg={item.selected ? AppColors.LIGHT_TEAL : "#fff"}
@@ -255,7 +255,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                       backgroundColor: AppColors.LIGHT_TEAL,
                     }}
                     onPress={() => {
-                      let updatedAppointmentDateOptions =
+                      const updatedAppointmentDateOptions =
                         appointmentDateOptions.map((option, optionIndex) => {
                           if (optionIndex === index) {
                             setSelectedDate(option.fullDate);
@@ -270,9 +270,9 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                     }}
                   >
                     <Text
-                      alignSelf={"center"}
+                      alignSelf="center"
                       color={AppColors.TEAL}
-                      fontWeight={"semibold"}
+                      fontWeight="semibold"
                       textAlign="center"
                     >
                       {item.day} {"\n"} {item.month} {item.date}
@@ -281,14 +281,14 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                 )}
               />
             </HStack>
-            <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+            <Text textAlign="center" fontWeight="semibold" fontSize={18}>
               Choose Slot
             </Text>
             <HStack
-              justifyContent={"center"}
-              alignItems={"center"}
+              justifyContent="center"
+              alignItems="center"
               space={0}
-              bg={"#eee"}
+              bg="#eee"
               p={3}
             >
               <FlatList
@@ -305,7 +305,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                     key={index}
                     height={10}
                     borderRadius={5}
-                    width={"48%"}
+                    width="48%"
                     m={1}
                     justifyContent="center"
                     p={2}
@@ -318,7 +318,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                       backgroundColor: AppColors.LIGHT_TEAL,
                     }}
                     onPress={() => {
-                      let updatedAppointmentTimeOptions =
+                      const updatedAppointmentTimeOptions =
                         appointmentTimeOptions.map((option, optionIndex) => {
                           if (optionIndex === index) {
                             setSelectedTime(option.actualMin);
@@ -333,9 +333,9 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                     }}
                   >
                     <Text
-                      alignSelf={"center"}
+                      alignSelf="center"
                       color={AppColors.TEAL}
-                      fontWeight={"semibold"}
+                      fontWeight="semibold"
                     >
                       {`${item.rangeMin} ${item.minMeridian} - ${item.rangeMax} ${item.maxMaxidian}`}
                     </Text>
@@ -343,17 +343,17 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                 )}
               />
             </HStack>
-            <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+            <Text textAlign="center" fontWeight="semibold" fontSize={18}>
               Choose Property Images{" "}
               <Text color={AppColors.AAA} fontSize={14}>
                 (Optional)
               </Text>
             </Text>
             <HStack
-              justifyContent={"center"}
-              alignItems={"center"}
+              justifyContent="center"
+              alignItems="center"
               space={2}
-              bg={"#eee"}
+              bg="#eee"
               p={3}
             >
               {!loading &&
@@ -382,8 +382,8 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                         cache: "force-cache",
                       }}
                       alt="photo"
-                      bg={"gray.200"}
-                    ></Image>
+                      bg="gray.200"
+                     />
                   </Pressable>
                 ))}
               <Pressable
@@ -392,7 +392,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                 borderStyle="dashed"
                 height={20}
                 width={20}
-                justifyContent={"center"}
+                justifyContent="center"
                 alignItems="center"
                 onPress={() => {
                   if (serviceImages.length === 3) {
@@ -421,7 +421,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                       } else {
                         setLoading(true);
                         const { fileName, uri } = response.assets[0];
-                        let imageRef = `users/${currentUser.uid}/${
+                        const imageRef = `users/${currentUser.uid}/${
                           leadDetails.leadId
                         }-${serviceId}-${new Date().getTime()}.${
                           fileName.split(".")[1]
@@ -431,10 +431,10 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                           .ref(imageRef)
                           .putFile(uri)
                           .then(async (snapshot) => {
-                            let imageDownload = firebase
+                            const imageDownload = firebase
                               .storage()
                               .ref(imageRef);
-                            let url = await imageDownload.getDownloadURL();
+                            const url = await imageDownload.getDownloadURL();
                             setServiceImages([...serviceImages, url]);
                             setLoading(false);
                           })
@@ -453,7 +453,7 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
                 />
               </Pressable>
             </HStack>
-            <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+            <Text textAlign="center" fontWeight="semibold" fontSize={18}>
               Service Notes{" "}
               <Text color={AppColors.AAA} fontSize={14}>
                 (Optional)
@@ -486,6 +486,6 @@ const ChooseDateTime = ({ route }: ChooseDateTimeProps): JSX.Element => {
       />
     </AppSafeAreaView>
   );
-};
+}
 
 export default ChooseDateTime;

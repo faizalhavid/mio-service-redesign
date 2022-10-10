@@ -2,8 +2,7 @@ import analytics from "@react-native-firebase/analytics";
 
 const Analytics = analytics();
 
-export const useAnalytics = () => {
-  return {
+export const useAnalytics = () => ({
     logEvent: async (
       eventName: string,
       params: { [key: string]: any } = {}
@@ -25,5 +24,4 @@ export const useAnalytics = () => {
     setUserProperty: (name: string, property: string) => {
       Analytics.setUserProperty(name, property);
     },
-  };
-};
+  });

@@ -28,7 +28,7 @@ type FooterButtonProps = {
   onPress2?: () => void;
 };
 
-const FooterButton = ({
+function FooterButton({
   type,
   label,
   minLabel,
@@ -38,7 +38,7 @@ const FooterButton = ({
   onPress2,
   disabled,
   loading = false,
-}: FooterButtonProps): JSX.Element => {
+}: FooterButtonProps): JSX.Element {
   const [showSelection, setShowSelection] = useState(false);
 
   const isAuthenticated = useAuthenticatedUser();
@@ -46,32 +46,32 @@ const FooterButton = ({
   const { member: leadDetails } = useAppSelector(selectLead);
 
   return (
-    <VStack position={"absolute"} bg={"#fff"} bottom={0} width={"100%"}>
+    <VStack position="absolute" bg="#fff" bottom={0} width="100%">
       {(type === "SERVICE_SELECTION" ||
         type === "SCHEDULE_SELECTION" ||
         type === "VIEW_SUMMARY") && (
         <HStack
           height={42}
           borderTopWidth={1}
-          bg={"#fff"}
-          borderColor={"#ccc"}
-          justifyContent={"space-between"}
+          bg="#fff"
+          borderColor="#ccc"
+          justifyContent="space-between"
           alignItems="center"
           px={5}
         >
-          <Text color={"#000"} fontSize="12" fontWeight="semibold">
+          <Text color="#000" fontSize="12" fontWeight="semibold">
             HOME{"   "}
             <Text
-              color={"#aaa"}
+              color="#aaa"
               alignSelf="center"
               fontSize="12"
               fontWeight="semibold"
             >
               {leadDetails?.customerProfile?.addresses?.[0]?.street?.length > 15
-                ? leadDetails?.customerProfile?.addresses?.[0]?.street?.substring(
+                ? `${leadDetails?.customerProfile?.addresses?.[0]?.street?.substring(
                     0,
                     13
-                  ) + "..."
+                  )  }...`
                 : leadDetails?.customerProfile?.addresses?.[0]?.street}
               , {leadDetails?.customerProfile?.addresses?.[0]?.city},{" "}
               {leadDetails?.customerProfile?.addresses?.[0]?.state},{" "}
@@ -87,9 +87,9 @@ const FooterButton = ({
               }}
             >
               <Text
-                alignSelf={"center"}
+                alignSelf="center"
                 color={AppColors.TEAL}
-                fontWeight={"semibold"}
+                fontWeight="semibold"
                 fontSize="12"
               >
                 CHANGE
@@ -101,9 +101,9 @@ const FooterButton = ({
       <HStack
         height={70}
         borderTopWidth={1}
-        bg={"#fff"}
-        borderColor={"#ccc"}
-        justifyContent={"space-between"}
+        bg="#fff"
+        borderColor="#ccc"
+        justifyContent="space-between"
         alignItems="center"
         px={5}
       >
@@ -137,7 +137,7 @@ const FooterButton = ({
           <>
             <View>
               {type === "SERVICE_SELECTION" && (
-                <Text color={"#aaa"}>
+                <Text color="#aaa">
                   {leadDetails?.subOrders?.length === 0
                     ? "No"
                     : leadDetails?.subOrders?.length}{" "}
@@ -147,26 +147,26 @@ const FooterButton = ({
               {(type === "PLAN_SELECTION" || type === "DATETIME_SELECTION") && (
                 <VStack>
                   <Text
-                    fontWeight={"semibold"}
+                    fontWeight="semibold"
                     fontSize={14}
                     color={AppColors.DARK_PRIMARY}
                   >
                     {serviceId ? SERVICES[serviceId].text : serviceId}
                   </Text>
-                  <Text color={"#aaa"}>Service</Text>
+                  <Text color="#aaa">Service</Text>
                 </VStack>
               )}
               {type === "SCHEDULE_SELECTION" && (
                 <VStack>
-                  <Text color={"#aaa"}>Choose Date & Time</Text>
+                  <Text color="#aaa">Choose Date & Time</Text>
                 </VStack>
               )}
               {type === "ADDRESS" && (
-                <VStack alignContent={"center"}>
-                  <Text fontSize={13} color={"#aaa"}>
+                <VStack alignContent="center">
+                  <Text fontSize={13} color="#aaa">
                     Update Addres &
                   </Text>
-                  <Text fontSize={13} color={"#aaa"}>
+                  <Text fontSize={13} color="#aaa">
                     Property Details
                   </Text>
                 </VStack>
@@ -177,30 +177,30 @@ const FooterButton = ({
               backgroundColor={disabled || loading ? "#aaa" : AppColors.TEAL}
               height={50}
               borderRadius={5}
-              width={"50%"}
+              width="50%"
               disabled={disabled || loading}
               justifyContent="center"
               borderWidth={1}
               onPress={onPress}
             >
               {loading ? (
-                <Spinner color={"white"} />
+                <Spinner color="white" />
               ) : (
                 <>
                   {minLabel && maxLabel && (
                     <VStack>
                       <Text
-                        alignSelf={"center"}
-                        color={"#fff"}
-                        fontWeight={"semibold"}
+                        alignSelf="center"
+                        color="#fff"
+                        fontWeight="semibold"
                         fontSize="11"
                       >
                         {minLabel}
                       </Text>
                       <Text
-                        alignSelf={"center"}
-                        color={"#fff"}
-                        fontWeight={"semibold"}
+                        alignSelf="center"
+                        color="#fff"
+                        fontWeight="semibold"
                         fontSize="14"
                       >
                         {maxLabel}
@@ -209,9 +209,9 @@ const FooterButton = ({
                   )}
                   {label && (
                     <Text
-                      alignSelf={"center"}
-                      color={"#fff"}
-                      fontWeight={"semibold"}
+                      alignSelf="center"
+                      color="#fff"
+                      fontWeight="semibold"
                       fontSize="14"
                     >
                       {label}
@@ -231,6 +231,6 @@ const FooterButton = ({
       )}
     </VStack>
   );
-};
+}
 
 export default FooterButton;

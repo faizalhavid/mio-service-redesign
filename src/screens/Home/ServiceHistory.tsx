@@ -1,21 +1,19 @@
-import { Center, Divider, FlatList, Spinner, Text, VStack } from "native-base";
-import React, { useEffect } from "react";
-import { SectionList } from "react-native";
-import { GroupedOrder, Order } from "../../commons/types";
-import { IN_PROGRESS } from "../../commons/ui-states";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import ServiceCard from "../../components/ServiceCard";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { getReadableDateTime } from "../../services/utils";
-import { getPastOrdersAsync, selectPastOrders } from "../../slices/order-slice";
-import { SERVICES } from "./ChooseService";
+import { Center, Divider, Spinner, Text, VStack } from 'native-base';
+import React, { useEffect } from 'react';
+import { SectionList } from 'react-native';
+import { GroupedOrder, Order } from '../../commons/types';
+import ServiceCard from '../../components/ServiceCard';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { getReadableDateTime } from '../../services/utils';
+import { getPastOrdersAsync, selectPastOrders } from '../../slices/order-slice';
+import { SERVICES } from './ChooseService';
 
-const ServiceHistory = (): JSX.Element => {
+function ServiceHistory(): JSX.Element {
   const [page, setPage] = React.useState<number>(1);
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
-  const [orderId, setOrderId] = React.useState<string>("");
-  const [subOrderId, setSubOrderId] = React.useState<string>("");
+  const [orderId, setOrderId] = React.useState<string>('');
+  const [subOrderId, setSubOrderId] = React.useState<string>('');
   const [pastOrders, setPastOrders] = React.useState<GroupedOrder[]>([]);
   const limit = 10;
   const dispatch = useAppDispatch();
@@ -27,45 +25,35 @@ const ServiceHistory = (): JSX.Element => {
   } = useAppSelector(selectPastOrders);
 
   useEffect(() => {
-    dispatch(getPastOrdersAsync({ orderId, subOrderId, limit })).then(
-      (response) => {
-        let orders = response.payload.data;
-        if (orders.length > 0) {
-          let lastOrder = orders[orders.length - 1];
-          setOrderId(lastOrder.orderId);
-          setSubOrderId(lastOrder.subOrderId);
-          let groupedOrders: { [key: string]: any[] } = {};
-          // Build Old Data
-          for (let order of pastOrders) {
-            groupedOrders[order.month] = order.data;
-          }
+    dispatch(getPastOrdersAsync({ orderId, subOrderId, limit })).then((response) => {
+      const orders = response.payload.data;
+      if (orders.length > 0) {
+        const lastOrder = orders[orders.length - 1];
+        setOrderId(lastOrder.orderId);
+        setSubOrderId(lastOrder.subOrderId);
+        const groupedOrders: { [key: string]: any[] } = {};
+        // Build Old Data
+        for (const order of pastOrders) {
+          groupedOrders[order.month] = order.data;
+        }
 
-          // Build New Data
-          for (let order of orders) {
-            let { month, year } = getReadableDateTime(
-              order.appointmentDateTime
-            );
-            let title = `${month} ${year}`;
-            groupedOrders[title] = groupedOrders[title]
-              ? groupedOrders[title]
-              : [];
-            groupedOrders[title].push(order);
-          }
-          let currentOrders: GroupedOrder[] = Object.entries(groupedOrders).map(
-            ([key, value]) => {
-              return {
-                month: key,
-                data: value,
-              };
-            }
-          );
-          setPastOrders(currentOrders);
+        // Build New Data
+        for (const order of orders) {
+          const { month, year } = getReadableDateTime(order.appointmentDateTime);
+          const title = `${month} ${year}`;
+          groupedOrders[title] = groupedOrders[title] ? groupedOrders[title] : [];
+          groupedOrders[title].push(order);
         }
-        if (orders.length < limit) {
-          setFetchAgain(false);
-        }
+        const currentOrders: GroupedOrder[] = Object.entries(groupedOrders).map(([key, value]) => ({
+          month: key,
+          data: value,
+        }));
+        setPastOrders(currentOrders);
       }
-    );
+      if (orders.length < limit) {
+        setFetchAgain(false);
+      }
+    });
   }, [page]);
 
   return (
@@ -74,7 +62,7 @@ const ServiceHistory = (): JSX.Element => {
         showsVerticalScrollIndicator={false}
         ListFooterComponent={
           <>
-            {pastOrdersUiState === "IN_PROGRESS" && (
+            {pastOrdersUiState === 'IN_PROGRESS' && (
               <Center mt={3}>
                 <Spinner size="sm" />
               </Center>
@@ -83,8 +71,8 @@ const ServiceHistory = (): JSX.Element => {
           </>
         }
         ListEmptyComponent={
-          !["INIT", "IN_PROGRESS"].includes(pastOrdersUiState) ? (
-            <Center mt={2} fontStyle={"italic"}>
+          !['INIT', 'IN_PROGRESS'].includes(pastOrdersUiState) ? (
+            <Center mt={2} fontStyle="italic">
               No past services are there!
             </Center>
           ) : (
@@ -102,7 +90,7 @@ const ServiceHistory = (): JSX.Element => {
           <ServiceCard
             key={index}
             variant="outline"
-            w={"100%"}
+            w="100%"
             type="PAST"
             dateTime={item.appointmentDateTime}
             showAddToCalendar={false}
@@ -118,16 +106,16 @@ const ServiceHistory = (): JSX.Element => {
           />
         )}
         sections={pastOrders}
-        stickyHeaderHiddenOnScroll={true}
+        stickyHeaderHiddenOnScroll
         stickySectionHeadersEnabled={false}
         renderSectionHeader={({ section }) => (
-          <Text px={3} fontSize={16} my={2} fontWeight={"semibold"}>
+          <Text px={3} fontSize={16} my={2} fontWeight="semibold">
             {section.month}
           </Text>
         )}
       />
     </VStack>
   );
-};
+}
 
 export default ServiceHistory;

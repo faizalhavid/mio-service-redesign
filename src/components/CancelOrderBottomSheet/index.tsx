@@ -20,11 +20,11 @@ type CancelOrderBottomSheetProps = {
   setShowCancelOrder: Function;
 };
 
-const CancelOrderBottomSheet = ({
+function CancelOrderBottomSheet({
   orderId,
   showCancelOrder,
   setShowCancelOrder,
-}: CancelOrderBottomSheetProps): JSX.Element => {
+}: CancelOrderBottomSheetProps): JSX.Element {
   const [cancelType, setCancelType] = useState<"ALL" | "ONCE">("ONCE");
   const { member: orderDetail } = useAppSelector(selectOrderDetails);
   const dispatch = useAppDispatch();
@@ -35,7 +35,7 @@ const CancelOrderBottomSheet = ({
     <Actionsheet
       isOpen={showCancelOrder}
       onClose={() => setShowCancelOrder(false)}
-      hideDragIndicator={true}
+      hideDragIndicator
     >
       <Actionsheet.Content
         style={{
@@ -48,7 +48,7 @@ const CancelOrderBottomSheet = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <VStack pt={15} bg={"white"} width="100%">
+        <VStack pt={15} bg="white" width="100%">
           <Center>
             <Text fontSize={18} fontWeight="semibold">
               Cancel Order
@@ -58,10 +58,10 @@ const CancelOrderBottomSheet = ({
             <ErrorView message={errorMsg} />
             {orderDetail?.flags?.recurringDuration === "ONCE" && (
               <VStack my={3} space={2}>
-                <Text color={AppColors.TEAL} fontWeight={"semibold"}>
+                <Text color={AppColors.TEAL} fontWeight="semibold">
                   Cancel Current Order
                 </Text>
-                <Text fontSize={12} color={"amber.600"} fontWeight={"semibold"}>
+                <Text fontSize={12} color="amber.600" fontWeight="semibold">
                   This action will cancel the current scheduled order.
                 </Text>
               </VStack>
@@ -70,7 +70,7 @@ const CancelOrderBottomSheet = ({
               <VStack my={3} space={2}>
                 <Pressable
                   borderRadius={5}
-                  width={"100%"}
+                  width="100%"
                   px={3}
                   py={3}
                   justifyContent="center"
@@ -87,13 +87,13 @@ const CancelOrderBottomSheet = ({
                   }}
                 >
                   <VStack>
-                    <Text color={AppColors.TEAL} fontWeight={"semibold"}>
+                    <Text color={AppColors.TEAL} fontWeight="semibold">
                       Cancel Current Order
                     </Text>
                     <Text
                       fontSize={12}
-                      color={"amber.600"}
-                      fontWeight={"semibold"}
+                      color="amber.600"
+                      fontWeight="semibold"
                     >
                       This action will cancel the current scheduled order.
                     </Text>
@@ -101,7 +101,7 @@ const CancelOrderBottomSheet = ({
                 </Pressable>
                 <Pressable
                   borderRadius={5}
-                  width={"100%"}
+                  width="100%"
                   px={3}
                   py={3}
                   justifyContent="center"
@@ -118,13 +118,13 @@ const CancelOrderBottomSheet = ({
                   }}
                 >
                   <VStack>
-                    <Text color={AppColors.TEAL} fontWeight={"semibold"}>
+                    <Text color={AppColors.TEAL} fontWeight="semibold">
                       Cancel All Upcoming Orders
                     </Text>
                     <Text
                       fontSize={12}
-                      color={"amber.600"}
-                      fontWeight={"semibold"}
+                      color="amber.600"
+                      fontWeight="semibold"
                     >
                       This action will delete all the upcoming orders.
                     </Text>
@@ -142,12 +142,12 @@ const CancelOrderBottomSheet = ({
               dispatch(
                 cancelOrderAsync({
                   type: cancelType,
-                  orderId: orderId,
+                  orderId,
                   subOrderId: orderDetail.subOrderId,
                   dateTime: orderDetail.appointmentInfo.appointmentDateTime,
                 })
               ).then((response) => {
-                let result: OrderStatus = response.payload;
+                const result: OrderStatus = response.payload;
                 if (result.status === "SUCCESS") {
                   setShowCancelOrder(false);
                   dispatch(
@@ -169,6 +169,6 @@ const CancelOrderBottomSheet = ({
       </Actionsheet.Content>
     </Actionsheet>
   );
-};
+}
 
 export default CancelOrderBottomSheet;

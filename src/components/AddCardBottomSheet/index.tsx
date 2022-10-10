@@ -1,7 +1,6 @@
 import {
   Actionsheet,
   Center,
-  KeyboardAvoidingView,
   ScrollView,
   Spacer,
   Text,
@@ -10,10 +9,9 @@ import {
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Keyboard, Platform } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 import { AppColors } from "../../commons/colors";
 import { SaveCardType } from "../../commons/types";
-import { FAILED } from "../../commons/ui-states";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -25,17 +23,16 @@ import { selectCustomer } from "../../slices/customer-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
-import KeyboardSpacer from "react-native-keyboard-spacer";
 
 type AddCardBottomSheetProps = {
   showAddCard: boolean;
   setShowAddCard: Function;
 };
 
-export const AddCardBottomSheet = ({
+export function AddCardBottomSheet({
   showAddCard,
   setShowAddCard,
-}: AddCardBottomSheetProps): JSX.Element => {
+}: AddCardBottomSheetProps): JSX.Element {
   const dispatch = useAppDispatch();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -71,7 +68,7 @@ export const AddCardBottomSheet = ({
         data: { card: { ...data, expiry: undefined } },
       })
     ).then((response) => {
-      let savedCard = response.payload;
+      const savedCard = response.payload;
       if (![200, 201].includes(savedCard?.qbStatus)) {
         setErrorMsg("Invalid Card Credentials!");
       } else {
@@ -85,7 +82,7 @@ export const AddCardBottomSheet = ({
     <Actionsheet
       isOpen={showAddCard}
       onClose={() => setShowAddCard(false)}
-      hideDragIndicator={true}
+      hideDragIndicator
     >
       <Actionsheet.Content
         style={{
@@ -98,8 +95,8 @@ export const AddCardBottomSheet = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <ScrollView width={"100%"}>
-          <VStack pt={15} bg={"white"} width="100%">
+        <ScrollView width="100%">
+          <VStack pt={15} bg="white" width="100%">
             <Center>
               <Text fontSize={18} fontWeight="semibold">
                 Add Card
@@ -156,23 +153,23 @@ export const AddCardBottomSheet = ({
                   pattern: /[0-9]{2}\/[0-9]{4}/gi,
                   validate: (value) => {
                     if (value && value.length > 0) {
-                      let month = value.substring(0, 2);
-                      let year = value.substring(3, 7);
+                      const month = value.substring(0, 2);
+                      const year = value.substring(3, 7);
                       if (!Number(month) || Number(month) > 12) {
                         return false;
-                      } else if (
+                      } if (
                         !Number(year) ||
                         Number(year) < new Date().getFullYear()
                       ) {
                         return false;
-                      } else if (
+                      } if (
                         Number(year) === new Date().getFullYear() &&
                         Number(month) < new Date().getMonth() + 1
                       ) {
                         return false;
-                      } else {
+                      } 
                         return true;
-                      }
+                      
                     }
                     return false;
                   },
@@ -190,7 +187,7 @@ export const AddCardBottomSheet = ({
                       value={value}
                     />
                     {invalid && (
-                      <Text fontSize={12} color={"red.600"}>
+                      <Text fontSize={12} color="red.600">
                         Please follow format - MM/YYYY
                       </Text>
                     )}
@@ -223,11 +220,11 @@ export const AddCardBottomSheet = ({
           disabled={!isValid}
           loading={saveCardUiState === "IN_PROGRESS"}
           minLabel="SAVE"
-          maxLabel={"CREDIT CARD"}
+          maxLabel="CREDIT CARD"
           type="DEFAULT"
           onPress={handleSubmit(onSubmit)}
         />
       </Actionsheet.Content>
     </Actionsheet>
   );
-};
+}

@@ -11,7 +11,7 @@ import { selectCustomer } from "../../slices/customer-slice";
 import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
 import { SERVICES } from "./ChooseService";
 
-const ChooseSchedule = (): JSX.Element => {
+function ChooseSchedule(): JSX.Element {
   const dispatch = useAppDispatch();
 
   const { member: leadDetails, uiState: leadDetailsUiState } =
@@ -23,7 +23,7 @@ const ChooseSchedule = (): JSX.Element => {
       return false;
     }
     if (leadDetails.subOrders.length > 0) {
-      for (let subOrder of leadDetails.subOrders) {
+      for (const subOrder of leadDetails.subOrders) {
         if (!subOrder?.appointmentInfo?.appointmentDateTime) {
           return false;
         }
@@ -34,14 +34,14 @@ const ChooseSchedule = (): JSX.Element => {
 
   return (
     <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS"}>
-      <VStack mt={"1/5"} space={5}>
-        <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+      <VStack mt="1/5" space={5}>
+        <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Schedule
         </Text>
         <ScrollView>
           <VStack
             space={2}
-            bg={"#eee"}
+            bg="#eee"
             borderTopLeftRadius={10}
             borderTopRightRadius={10}
             height={900}
@@ -52,8 +52,8 @@ const ChooseSchedule = (): JSX.Element => {
               <ServiceComboCard
                 key={index}
                 service={SERVICES[service.serviceId]}
-                datetime={true}
-              ></ServiceComboCard>
+                datetime
+               />
             ))}
           </VStack>
         </ScrollView>
@@ -82,6 +82,6 @@ const ChooseSchedule = (): JSX.Element => {
       />
     </AppSafeAreaView>
   );
-};
+}
 
 export default ChooseSchedule;

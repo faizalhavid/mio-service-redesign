@@ -28,10 +28,10 @@ type AddressSelectionSheetProps = {
   setShowSelection: Function;
 };
 
-const AddressSelectionSheet = ({
+function AddressSelectionSheet({
   showSelection,
   setShowSelection,
-}: AddressSelectionSheetProps): JSX.Element => {
+}: AddressSelectionSheetProps): JSX.Element {
   const dispatch = useAppDispatch();
   const {
     uiState: customerUiState,
@@ -44,7 +44,7 @@ const AddressSelectionSheet = ({
     <Actionsheet
       isOpen={showSelection}
       onClose={() => setShowSelection(false)}
-      hideDragIndicator={true}
+      hideDragIndicator
     >
       <Actionsheet.Content
         style={{
@@ -57,20 +57,18 @@ const AddressSelectionSheet = ({
           backgroundColor: AppColors.WHITE,
         }}
       >
-        <VStack pt={15} bg={"white"} width="100%">
+        <VStack pt={15} bg="white" width="100%">
           <Center>
             <Text fontSize={18} fontWeight="semibold">
               Choose Address
             </Text>
           </Center>
           <Spacer borderWidth={0.5} mt={3} borderColor={AppColors.CCC} />
-          <ScrollView width={"100%"}>
+          <ScrollView width="100%">
             <VStack px={4} py={4} space={0} pb={75} bg={AppColors.WHITE}>
               {customerUiState === "IN_PROGRESS" ||
               addressUiState === "IN_PROGRESS" ? (
-                <>
-                  <Spinner size={"sm"} />
-                </>
+                <Spinner size="sm" />
               ) : (
                 <VStack
                   divider={
@@ -78,7 +76,7 @@ const AddressSelectionSheet = ({
                       thickness={0.8}
                       mt={2}
                       mb={2}
-                      borderStyle={"dashed"}
+                      borderStyle="dashed"
                       bg={AppColors.CCC}
                     />
                   }
@@ -86,9 +84,9 @@ const AddressSelectionSheet = ({
                   {customer?.addresses?.map((addressItem, index) => (
                     <AddressListItem
                       key={index}
-                      showChoose={true}
+                      showChoose
                       onChoose={async (address) => {
-                        let payload: any = {
+                        const payload: any = {
                           ...address,
                           isPrimary: true,
                           serviceAccountId: customer.sAccountId,
@@ -116,6 +114,6 @@ const AddressSelectionSheet = ({
       </Actionsheet.Content>
     </Actionsheet>
   );
-};
+}
 
 export default AddressSelectionSheet;

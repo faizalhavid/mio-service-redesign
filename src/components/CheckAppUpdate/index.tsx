@@ -7,7 +7,7 @@ type CheckAppUpdateProps = {
   mt?: number;
 };
 
-const CheckAppUpdate = ({ mt }: CheckAppUpdateProps): JSX.Element => {
+function CheckAppUpdate({ mt }: CheckAppUpdateProps): JSX.Element {
   const [newUpdateFound, setNewUpdateFound] = React.useState<boolean | null>(
     false
   );
@@ -49,29 +49,29 @@ const CheckAppUpdate = ({ mt }: CheckAppUpdateProps): JSX.Element => {
           }}
         >
           <HStack
-            bg={"blue.100"}
-            borderColor={"blue.300"}
+            bg="blue.100"
+            borderColor="blue.300"
             width="100%"
             zIndex={999}
             py={2}
             px={4}
             mt={mt === undefined ? 0 : mt}
-            justifyContent={"space-between"}
-            alignItems={"center"}
+            justifyContent="space-between"
+            alignItems="center"
           >
-            <Text color={"blue.500"} fontWeight={"semibold"} fontSize={16}>
+            <Text color="blue.500" fontWeight="semibold" fontSize={16}>
               Improved App Experience!
             </Text>
-            <Button variant={"ghost"} onPress={onReload} disabled={isLoading}>
+            <Button variant="ghost" onPress={onReload} disabled={isLoading}>
               {isLoading ? (
                 <HStack space={2}>
-                  <Spinner color={"green.700"} size="sm" />
-                  <Text color={"green.700"} fontWeight="semibold">
+                  <Spinner color="green.700" size="sm" />
+                  <Text color="green.700" fontWeight="semibold">
                     Reloading
                   </Text>
                 </HStack>
               ) : (
-                <Text color={"green.700"} fontWeight="semibold">
+                <Text color="green.700" fontWeight="semibold">
                   Reload
                 </Text>
               )}
@@ -83,6 +83,6 @@ const CheckAppUpdate = ({ mt }: CheckAppUpdateProps): JSX.Element => {
       )}
     </>
   );
-};
+}
 
 export default CheckAppUpdate;

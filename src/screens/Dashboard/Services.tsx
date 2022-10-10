@@ -4,9 +4,8 @@ import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import UpcomingPast from "../../components/UpcomingPast";
 import { useAuth } from "../../contexts/AuthContext";
-import { navigate } from "../../navigations/rootNavigation";
 
-const Services = (): JSX.Element => {
+function Services(): JSX.Element {
   const { isViewer } = useAuth();
   return (
     <AppSafeAreaView bg={AppColors.EEE}>
@@ -14,6 +13,6 @@ const Services = (): JSX.Element => {
       {!isViewer && <FloatingButton />}
     </AppSafeAreaView>
   );
-};
+}
 
 export default Services;

@@ -1,4 +1,5 @@
-import * as uiStates from "../commons/ui-states";
+import * as uiStates from "./ui-states";
+
 export interface HouseInfo {
   bedrooms?: number;
   bathrooms?: number;

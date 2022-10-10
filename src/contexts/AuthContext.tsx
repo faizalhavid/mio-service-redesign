@@ -1,14 +1,13 @@
 import React from "react";
 import auth, { firebase, FirebaseAuthTypes } from "@react-native-firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { HouseInfo, LeadDetails } from "../commons/types";
-import { navigate } from "../navigations/rootNavigation";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import appleAuth from "@invertase/react-native-apple-authentication";
+import { Skeleton, VStack } from "native-base";
+import { HouseInfo, LeadDetails } from "../commons/types";
+import { navigate } from "../navigations/rootNavigation";
 import { FLAG_TYPE, STATUS } from "../commons/status";
 import { StorageHelper } from "../services/storage-helper";
 import { ENV } from "../commons/environment";
-import { Skeleton, VStack } from "native-base";
 
 export type RegisterForm = {
   firstName: string;
@@ -104,7 +103,7 @@ export function useAuth() {
   return React.useContext(AuthContext);
 }
 
-export let dummyProfile: CustomerProfile = {
+export const dummyProfile: CustomerProfile = {
   customerId: "",
   eaCustomerId: "",
   email: "",
@@ -164,7 +163,7 @@ export function AuthProvider({ children }: AuthProviderType) {
         .createUserWithEmailAndPassword(data.email.trim(), data.password)
         .then(async (credential) => {
           setCurrentUser(credential.user);
-          let token = await credential.user.getIdToken();
+          const token = await credential.user.getIdToken();
           await StorageHelper.setValue("TOKEN", token);
           if (!data.sAccountId) {
             await credential.user.sendEmailVerification(
@@ -234,8 +233,7 @@ export function AuthProvider({ children }: AuthProviderType) {
     });
   }
 
-  const logout = async (): Promise<any> => {
-    return new Promise(async (res, rej) => {
+  const logout = async (): Promise<any> => new Promise(async (res, rej) => {
       await StorageHelper.clear();
       if (currentUser.providerId === "google.com") {
         await GoogleSignin.signOut();
@@ -248,7 +246,6 @@ export function AuthProvider({ children }: AuthProviderType) {
       await firebase.auth().signOut();
       res("");
     });
-  };
 
   function resetPassword(email: string): Promise<any> {
     return auth().sendPasswordResetEmail(email);
@@ -288,7 +285,7 @@ export function AuthProvider({ children }: AuthProviderType) {
     if (!currentUser) {
       return null;
     }
-    let displayName =
+    const displayName =
       currentUser && currentUser.displayName
         ? currentUser.displayName
         : currentUser.email;
@@ -298,9 +295,9 @@ export function AuthProvider({ children }: AuthProviderType) {
   function updateScopes(user: FirebaseAuthTypes.User) {
     return new Promise(async (res, rej) => {
       if (user) {
-        let result = await user.getIdTokenResult(true);
-        if (result?.claims?.["scopes"]) {
-          let scopes: any = result?.claims?.["scopes"];
+        const result = await user.getIdTokenResult(true);
+        if (result?.claims?.scopes) {
+          const scopes: any = result?.claims?.scopes;
           if (scopes?.customer && scopes?.customer?.length > 1) {
             // console.log("isViewer", scopes.customer[1] === "viewer");
             setIsViewer(scopes.customer[1] === "viewer");
@@ -362,8 +359,7 @@ export function AuthProvider({ children }: AuthProviderType) {
   return (
     <AuthContext.Provider value={value}>
       {loading ? (
-        <>
-          <VStack space={3} my={3} mx={3}>
+        <VStack space={3} my={3} mx={3}>
             <Skeleton borderRadius={10} height={100} />
             <Skeleton borderRadius={10} height={100} />
             <Skeleton borderRadius={10} height={100} />
@@ -372,7 +368,6 @@ export function AuthProvider({ children }: AuthProviderType) {
             <Skeleton borderRadius={10} height={100} />
             <Skeleton borderRadius={10} height={100} />
           </VStack>
-        </>
       ) : (
         children
       )}

@@ -1,4 +1,4 @@
-import { HStack, VStack, Pressable, Text, Divider } from "native-base";
+import { HStack, VStack, Pressable, Text } from "native-base";
 import React, { useState } from "react";
 import { AppColors } from "../../commons/colors";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -11,7 +11,7 @@ import {
 } from "../../slices/shared-slice";
 
 type CurrentScreenType = "UPCOMING" | "PAST";
-const UpcomingPast = (): JSX.Element => {
+function UpcomingPast(): JSX.Element {
   const dispatch = useAppDispatch();
   const [currentScreen, setCurrentScreen] =
     useState<CurrentScreenType>("UPCOMING");
@@ -19,15 +19,15 @@ const UpcomingPast = (): JSX.Element => {
   const { member: refreshNeeded } = useAppSelector(selectRefreshNeeded);
   React.useEffect(() => {
     if (
-      refreshNeeded["UPCOMING_SERVICES"] &&
-      refreshNeeded["UPCOMING_SERVICES"] === true
+      refreshNeeded.UPCOMING_SERVICES &&
+      refreshNeeded.UPCOMING_SERVICES === true
     ) {
       setReload(`YES_${new Date().getTime()}`);
       dispatch(setRefreshNeeded({ data: { UPCOMING_SERVICES: false } }));
     }
   }, [refreshNeeded]);
 
-  const ChooserCardButton = ({
+  function ChooserCardButton({
     selected,
     text,
     screen,
@@ -35,12 +35,12 @@ const UpcomingPast = (): JSX.Element => {
     selected: boolean;
     text: string;
     screen: CurrentScreenType;
-  }): JSX.Element => {
+  }): JSX.Element {
     return (
       <Pressable
         borderLeftRadius={screen === "UPCOMING" ? 5 : 0}
         borderRightRadius={screen === "PAST" ? 5 : 0}
-        width={"50%"}
+        width="50%"
         py={2}
         borderWidth={1}
         borderColor={AppColors.TEAL}
@@ -50,21 +50,21 @@ const UpcomingPast = (): JSX.Element => {
         }}
       >
         <Text
-          alignSelf={"center"}
+          alignSelf="center"
           fontSize={12}
-          fontWeight={"semibold"}
+          fontWeight="semibold"
           color={selected ? "white" : AppColors.SECONDARY}
         >
           {text}
         </Text>
       </Pressable>
     );
-  };
+  }
 
-  const ChooserCard = (): JSX.Element => {
+  function ChooserCard(): JSX.Element {
     return (
       <HStack
-        justifyContent={"space-evenly"}
+        justifyContent="space-evenly"
         alignItems="center"
         mx={3}
         my={3}
@@ -72,17 +72,17 @@ const UpcomingPast = (): JSX.Element => {
       >
         <ChooserCardButton
           selected={currentScreen === "UPCOMING"}
-          text={"UPCOMING SERVICES"}
+          text="UPCOMING SERVICES"
           screen="UPCOMING"
         />
         <ChooserCardButton
           selected={currentScreen === "PAST"}
-          text={"PAST SERVICES"}
+          text="PAST SERVICES"
           screen="PAST"
         />
       </HStack>
     );
-  };
+  }
   return (
     <VStack pb={100}>
       <ChooserCard />
@@ -91,6 +91,6 @@ const UpcomingPast = (): JSX.Element => {
       {/* <Divider mt={"200px"} thickness={0} /> */}
     </VStack>
   );
-};
+}
 
 export default UpcomingPast;

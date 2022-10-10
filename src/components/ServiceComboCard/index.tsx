@@ -1,20 +1,16 @@
-import { HStack, VStack, Spacer, Text, Pressable } from "native-base";
-import React, { useEffect, useMemo, useState } from "react";
-import { SvgCss } from "react-native-svg";
-import { FILLED_CIRCLE_ICON, STAR_ICON } from "../../commons/assets";
-import { AppColors } from "../../commons/colors";
-import { LeadDetails, SubOrder } from "../../commons/types";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { navigate } from "../../navigations/rootNavigation";
-import {
-  HOUSE_CLEANING_ID,
-  LAWN_CARE_ID,
-  ServicesType,
-} from "../../screens/Home/ChooseService";
-import { getServiceDetails } from "../../services/service-details";
-import { getReadableDateTime } from "../../services/utils";
-import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
+import { HStack, VStack, Spacer, Text, Pressable } from 'native-base';
+import React, { useEffect, useMemo, useState } from 'react';
+import { SvgCss } from 'react-native-svg';
+import { FILLED_CIRCLE_ICON, STAR_ICON } from '../../commons/assets';
+import { AppColors } from '../../commons/colors';
+import { SubOrder } from '../../commons/types';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { navigate } from '../../navigations/rootNavigation';
+import { HOUSE_CLEANING_ID, LAWN_CARE_ID, ServicesType } from '../../screens/Home/ChooseService';
+import { getServiceDetails } from '../../services/service-details';
+import { getReadableDateTime } from '../../services/utils';
+import { selectLead, updateLeadAsync } from '../../slices/lead-slice';
 
 type ServiceComboCardProps = {
   service: ServicesType;
@@ -22,24 +18,19 @@ type ServiceComboCardProps = {
   datetime?: boolean;
 };
 
-const ServiceComboCard = ({
-  service,
-  remove,
-  datetime,
-}: ServiceComboCardProps): JSX.Element => {
+function ServiceComboCard({ service, remove, datetime }: ServiceComboCardProps): JSX.Element {
   const dispatch = useAppDispatch();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
-  const chooseService = async (serviceId: string = "") => {
-    navigate("ChoosePlan", {
+  const chooseService = async (serviceId: string = '') => {
+    navigate('ChoosePlan', {
       serviceId,
-      mode: ~selectedServices.indexOf(service?.id) ? "UPDATE" : "CREATE",
+      mode: ~selectedServices.indexOf(service?.id) ? 'UPDATE' : 'CREATE',
     });
     // // toggleServiceInfoSheet(serviceId);
   };
 
-  const { uiState: leadUiState, member: leadDetails } =
-    useAppSelector(selectLead);
+  const { member: leadDetails } = useAppSelector(selectLead);
 
   const { groupedServiceDetails } = getServiceDetails();
 
@@ -50,20 +41,20 @@ const ServiceComboCard = ({
   }>({});
 
   useEffect(() => {
-    let serviceIds = leadDetails?.subOrders?.map((s) => s.serviceId) || [];
+    const serviceIds = leadDetails?.subOrders?.map((s) => s.serviceId) || [];
     setSelectedServices(serviceIds);
   }, [leadDetails]);
 
   useEffect(() => {
     if (weeklyPrice) return;
-    let price: number = groupedServiceDetails[service?.id]?.priceMap.reduce(
+    const price: number = groupedServiceDetails[service?.id]?.priceMap.reduce(
       (updatedValue, price) => {
         if (
           service?.id === LAWN_CARE_ID &&
           price.rangeMin !== undefined &&
           price.rangeMax !== undefined
         ) {
-          let lotSize = groupedLeadDetails[service?.id]?.area || 0;
+          const lotSize = groupedLeadDetails[service?.id]?.area || 0;
           if (!(lotSize >= price.rangeMin && lotSize <= price.rangeMax)) {
             return updatedValue;
           }
@@ -112,7 +103,7 @@ const ServiceComboCard = ({
     ) {
       return;
     }
-    let details: { [key: string]: SubOrder } = {};
+    const details: { [key: string]: SubOrder } = {};
     leadDetails.subOrders.forEach((subOrder) => {
       details[subOrder.serviceId] = subOrder;
     });
@@ -120,15 +111,15 @@ const ServiceComboCard = ({
     setGroupedLeadDetails(details);
   }, [leadDetails]);
 
-  const Tag = (name: string) => {
+  function Tag(name: string) {
     return (
       <Text
-        alignSelf={"center"}
+        alignSelf="center"
         color={AppColors.AAA}
         borderColor={AppColors.CCC}
         borderWidth={1}
         borderRadius={5}
-        fontWeight={"semibold"}
+        fontWeight="semibold"
         fontSize={11}
         px={2}
         mb={1}
@@ -136,7 +127,7 @@ const ServiceComboCard = ({
         {name}
       </Text>
     );
-  };
+  }
 
   const readableDateTime = useMemo(() => {
     if (
@@ -144,9 +135,9 @@ const ServiceComboCard = ({
       !groupedLeadDetails[service?.id]?.appointmentInfo?.appointmentDateTime
     ) {
       return {
-        date: "",
-        day: "",
-        slot: "",
+        date: '',
+        day: '',
+        slot: '',
       };
     }
     return getReadableDateTime(
@@ -157,38 +148,34 @@ const ServiceComboCard = ({
   return (
     <VStack
       alignSelf="center"
-      width={"95%"}
+      width="95%"
       borderRadius={8}
-      bg={"#fff"}
+      bg="#fff"
       borderColor={AppColors.TEAL}
       borderWidth={selectedServices.indexOf(service?.id) >= 0 ? 1 : 0}
       p={5}
       mx={5}
     >
-      <HStack
-        key={Math.random()}
-        alignContent={"space-between"}
-        justifyContent={"space-between"}
-      >
-        <VStack space={1} justifyContent={"center"} alignItems={"flex-start"}>
-          <Text color={AppColors.DARK_TEAL} fontWeight={"semibold"}>
+      <HStack key={Math.random()} alignContent="space-between" justifyContent="space-between">
+        <VStack space={1} justifyContent="center" alignItems="flex-start">
+          <Text color={AppColors.DARK_TEAL} fontWeight="semibold">
             {service?.text}
           </Text>
-          <HStack justifyContent={"center"} alignItems="center" space={1}>
-            <SvgCss xml={FILLED_CIRCLE_ICON("#ccc")} width={4} height={4} />
-            <Text color={"#aaa"}>120 Mins </Text>
-            <SvgCss xml={FILLED_CIRCLE_ICON("#ccc")} width={4} height={4} />
-            <Text color={"#aaa"}>4.9</Text>
+          <HStack justifyContent="center" alignItems="center" space={1}>
+            <SvgCss xml={FILLED_CIRCLE_ICON('#ccc')} width={4} height={4} />
+            <Text color="#aaa">120 Mins </Text>
+            <SvgCss xml={FILLED_CIRCLE_ICON('#ccc')} width={4} height={4} />
+            <Text color="#aaa">4.9</Text>
 
-            <SvgCss xml={STAR_ICON("#ccc")} width={15} height={15} />
+            <SvgCss xml={STAR_ICON('#ccc')} width={15} height={15} />
           </HStack>
           {selectedServices.indexOf(service?.id) === -1 && (
-            <Text color={AppColors.DARK_PRIMARY} fontWeight={"semibold"}>
+            <Text color={AppColors.DARK_PRIMARY} fontWeight="semibold">
               Starts at ${weeklyPrice}
             </Text>
           )}
         </VStack>
-        <VStack alignItems={"flex-end"}>
+        <VStack alignItems="flex-end">
           <Pressable
             height={7}
             borderRadius={5}
@@ -205,15 +192,8 @@ const ServiceComboCard = ({
               backgroundColor: AppColors.LIGHT_TEAL,
             }}
           >
-            <Text
-              alignSelf={"center"}
-              color={AppColors.TEAL}
-              fontWeight={"semibold"}
-              fontSize={12}
-            >
-              {selectedServices.indexOf(service?.id) >= 0
-                ? "CHANGE PLAN"
-                : "ADD"}
+            <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold" fontSize={12}>
+              {selectedServices.indexOf(service?.id) >= 0 ? 'CHANGE PLAN' : 'ADD'}
             </Text>
           </Pressable>
           {selectedServices.indexOf(service?.id) >= 0 ? (
@@ -235,16 +215,11 @@ const ServiceComboCard = ({
                 );
               }}
               _pressed={{
-                backgroundColor: "red.100",
+                backgroundColor: 'red.100',
               }}
             >
               {remove && (
-                <Text
-                  alignSelf={"center"}
-                  color={"red.300"}
-                  fontWeight={"semibold"}
-                  fontSize={10}
-                >
+                <Text alignSelf="center" color="red.300" fontWeight="semibold" fontSize={10}>
                   REMOVE
                 </Text>
               )}
@@ -258,15 +233,14 @@ const ServiceComboCard = ({
         <>
           <Spacer
             borderWidth={0.5}
-            width={"100%"}
+            width="100%"
             my={1}
             mb={2}
             borderColor="#eee"
             borderRadius={5}
           />
           <HStack space={2} flexWrap="wrap">
-            {service?.id === LAWN_CARE_ID &&
-              Tag(`${groupedLeadDetails[service?.id]?.area} Sq Ft`)}
+            {service?.id === LAWN_CARE_ID && Tag(`${groupedLeadDetails[service?.id]?.area} Sq Ft`)}
             {service?.id === HOUSE_CLEANING_ID &&
               Tag(`${groupedLeadDetails[service?.id]?.bedrooms} Bedroom`)}
             {service?.id === HOUSE_CLEANING_ID &&
@@ -278,8 +252,7 @@ const ServiceComboCard = ({
               }`
             )}
           </HStack>
-          {groupedLeadDetails[service?.id]?.appointmentInfo
-            ?.appointmentDateTime && (
+          {groupedLeadDetails[service?.id]?.appointmentInfo?.appointmentDateTime && (
             <HStack key={Math.random()} space={2} mt={2}>
               {Tag(`${readableDateTime?.day}, ${readableDateTime?.date}`)}
               {Tag(readableDateTime?.slot)}
@@ -290,7 +263,7 @@ const ServiceComboCard = ({
               <Spacer
                 key={Math.random()}
                 borderWidth={0.5}
-                width={"100%"}
+                width="100%"
                 my={2}
                 borderColor="#eee"
                 borderRadius={5}
@@ -301,23 +274,20 @@ const ServiceComboCard = ({
                 borderRadius={5}
                 justifyContent="center"
                 onPress={() => {
-                  if (
-                    groupedLeadDetails[service?.id]?.appointmentInfo
-                      ?.appointmentDateTime
-                  ) {
-                    navigate("ChooseDateTime", {
+                  if (groupedLeadDetails[service?.id]?.appointmentInfo?.appointmentDateTime) {
+                    navigate('ChooseDateTime', {
                       serviceId: service?.id,
-                      mode: "UPDATE",
+                      mode: 'UPDATE',
                     });
                   } else {
-                    navigate("ChooseDateTime", {
+                    navigate('ChooseDateTime', {
                       serviceId: service?.id,
-                      mode: "CREATE",
+                      mode: 'CREATE',
                     });
                   }
                 }}
-                width={"100%"}
-                bg={readableDateTime.date ? "white" : AppColors.TEAL}
+                width="100%"
+                bg={readableDateTime.date ? 'white' : AppColors.TEAL}
                 borderColor={AppColors.TEAL}
                 borderWidth={1}
                 _pressed={{
@@ -327,13 +297,13 @@ const ServiceComboCard = ({
                 }}
               >
                 <Text
-                  alignSelf={"center"}
-                  color={readableDateTime.date ? AppColors.TEAL : "white"}
-                  fontWeight={"semibold"}
+                  alignSelf="center"
+                  color={readableDateTime.date ? AppColors.TEAL : 'white'}
+                  fontWeight="semibold"
                   fontSize={14}
                 >
-                  {" "}
-                  {`${readableDateTime.date ? "Update" : "Choose"} Date & Time`}
+                  {' '}
+                  {`${readableDateTime.date ? 'Update' : 'Choose'} Date & Time`}
                 </Text>
               </Pressable>
             </>
@@ -342,6 +312,6 @@ const ServiceComboCard = ({
       )}
     </VStack>
   );
-};
+}
 
 export default ServiceComboCard;

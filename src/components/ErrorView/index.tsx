@@ -5,25 +5,25 @@ type ErrorViewProps = {
   message: string;
 };
 
-const ErrorView = ({ message }: ErrorViewProps): JSX.Element => {
+function ErrorView({ message }: ErrorViewProps): JSX.Element {
   return (
     <>
       {Boolean(message) && message.length > 0 && (
         <View
           borderLeftWidth={5}
           borderRadius={5}
-          bg={"red.100"}
-          borderColor={"red.300"}
+          bg="red.100"
+          borderColor="red.300"
           padding={3}
           my={5}
         >
-          <Text fontWeight={"semibold"} color={"red.500"}>
+          <Text fontWeight="semibold" color="red.500">
             {message}
           </Text>
         </View>
       )}
     </>
   );
-};
+}
 
 export default ErrorView;

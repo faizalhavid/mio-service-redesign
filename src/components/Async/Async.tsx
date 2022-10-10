@@ -1,7 +1,4 @@
-import { Skeleton, View } from "native-base";
 import React from "react";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import ErrorView from "../ErrorView";
 
 // type AsyncProps = {
 //   mutation: UseMutationResult<any, any, any>;
@@ -9,13 +6,11 @@ import ErrorView from "../ErrorView";
 //   children: React.ReactNode;
 // };
 
-const Async = (
-  {
+function Async({
     // mutation,
     // errorMessage,
     // children,
-  }
-): JSX.Element => {
+  }): JSX.Element {
   return (
     <>
       {/* {mutation.isLoading ? (
@@ -36,6 +31,6 @@ const Async = (
       )} */}
     </>
   );
-};
+}
 
 export default Async;

@@ -1,6 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { getInitialState } from "../commons/initial-state";
-import { Address } from "../contexts/AuthContext";
 import { RootState } from "../reducers";
 import { createAsyncSlice } from "./create-async-slice";
 

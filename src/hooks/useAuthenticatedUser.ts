@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FLAG_TYPE, STATUS } from "../commons/status";
 import { StorageHelper } from "../services/storage-helper";
 

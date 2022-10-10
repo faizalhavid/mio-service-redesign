@@ -12,11 +12,12 @@ import {
   VStack,
 } from "native-base";
 import React, { useEffect, useState } from "react";
+import { Alert } from "react-native";
 import { AppColors } from "../../commons/colors";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
 import FloatingButton from "../../components/FloatingButton";
 import { navigate, popToPop } from "../../navigations/rootNavigation";
-import { Address, useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -31,7 +32,6 @@ import { getSavedCardsAsync, selectCards } from "../../slices/card-slice";
 import { AddCardBottomSheet } from "../../components/AddCardBottomSheet";
 import { StorageHelper } from "../../services/storage-helper";
 import { PersonalDetailsBottomSheet } from "../../components/PersonalDetailsBottomSheet";
-import { Alert } from "react-native";
 import { version } from "../../../package.json";
 import AddressListItem from "../../components/AddressListItem";
 import {
@@ -41,7 +41,7 @@ import {
 import InviteBottomSheet from "../../components/InviteBottomSheet";
 import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
 
-const Profile = (): JSX.Element => {
+function Profile(): JSX.Element {
   const { logout, isViewer } = useAuth();
   const [showPersonalDetails, setShowPersonalDetails] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
@@ -85,36 +85,34 @@ const Profile = (): JSX.Element => {
     }
   }, [customer]);
 
-  const formatNumber = (number: string) => {
-    return number
+  const formatNumber = (number: string) => number
       .split(/(.{4})/)
       .filter((x) => x.length == 4)
       .join("-")
       .toUpperCase();
-  };
 
-  const Title = ({ text }: { text: string }): JSX.Element => {
+  function Title({ text }: { text: string }): JSX.Element {
     return (
       <Text color={AppColors.DARK_PRIMARY} letterSpacing={1} fontSize={12}>
         {text}
       </Text>
     );
-  };
+  }
 
-  const ValueText = ({ text }: { text: string | number }): JSX.Element => {
+  function ValueText({ text }: { text: string | number }): JSX.Element {
     return (
       <Text
         color={AppColors.SECONDARY}
-        textTransform={"uppercase"}
-        fontWeight={"semibold"}
+        textTransform="uppercase"
+        fontWeight="semibold"
         fontSize={13}
       >
         {text}
       </Text>
     );
-  };
+  }
 
-  const EditButton = ({
+  function EditButton({
     text,
     color,
     px,
@@ -124,7 +122,7 @@ const Profile = (): JSX.Element => {
     px?: number;
     color?: string;
     onPress: () => void;
-  }): JSX.Element => {
+  }): JSX.Element {
     return (
       <Pressable
         onPress={onPress}
@@ -141,12 +139,12 @@ const Profile = (): JSX.Element => {
         </Text>
       </Pressable>
     );
-  };
+  }
 
-  const ProfileCard = (): JSX.Element => {
+  function ProfileCard(): JSX.Element {
     return (
-      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
-        <HStack justifyContent={"space-between"}>
+      <VStack bg="white" mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent="space-between">
           <Title text="PERSONAL INFORMATION" />
           <EditButton
             onPress={() => {
@@ -160,7 +158,7 @@ const Profile = (): JSX.Element => {
           mt={2}
           space={5}
           justifyContent="flex-start"
-          alignItems={"center"}
+          alignItems="center"
         >
           <Circle
             size={60}
@@ -176,33 +174,33 @@ const Profile = (): JSX.Element => {
                     cache: "force-cache",
                   }}
                   alt="Profile"
-                  bg={"gray.200"}
+                  bg="gray.200"
                 />
               )
             }
-          ></Circle>
+           />
           <VStack>
             <ValueText
               text={`${customer?.firstName || "-"} ${
                 customer?.lastName || "-"
               }`}
             />
-            <Text color={AppColors.AAA} fontSize={12} fontWeight={"semibold"}>
+            <Text color={AppColors.AAA} fontSize={12} fontWeight="semibold">
               {customer?.email}
             </Text>
-            <Text color={AppColors.AAA} fontSize={12} fontWeight={"semibold"}>
+            <Text color={AppColors.AAA} fontSize={12} fontWeight="semibold">
               {customer?.phones[0]?.number || "-"}
             </Text>
           </VStack>
         </HStack>
       </VStack>
     );
-  };
+  }
 
-  const AddressCard = (): JSX.Element => {
+  function AddressCard(): JSX.Element {
     return (
-      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
-        <HStack justifyContent={"space-between"}>
+      <VStack bg="white" mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent="space-between">
           <Title text="ADDRESS DETAILS" />
           {!isViewer && (
             <EditButton
@@ -220,20 +218,18 @@ const Profile = (): JSX.Element => {
         {customerUiState !== "IN_PROGRESS" &&
           addressesUiState !== "IN_PROGRESS" &&
           customer?.addresses?.length === 0 && (
-            <Text color={"amber.600"} mt={3} fontSize={14}>
+            <Text color="amber.600" mt={3} fontSize={14}>
               No address added yet!
             </Text>
           )}
         {customerUiState === "IN_PROGRESS" ||
         addressesUiState === "IN_PROGRESS" ? (
-          <>
-            <Spinner
-              key={"ADDRESS_SPINNER"}
-              alignSelf={"flex-start"}
+          <Spinner
+              key="ADDRESS_SPINNER"
+              alignSelf="flex-start"
               color={AppColors.PRIMARY}
               size="sm"
             />
-          </>
         ) : (
           <VStack
             key="ADDRESS_LIST"
@@ -242,7 +238,7 @@ const Profile = (): JSX.Element => {
                 thickness={0.8}
                 mt={2}
                 mb={2}
-                borderStyle={"dashed"}
+                borderStyle="dashed"
                 bg={AppColors.CCC}
               />
             }
@@ -289,12 +285,12 @@ const Profile = (): JSX.Element => {
         )}
       </VStack>
     );
-  };
+  }
 
-  const InviteCard = (): JSX.Element => {
+  function InviteCard(): JSX.Element {
     return (
-      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
-        <HStack justifyContent={"space-between"}>
+      <VStack bg="white" mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent="space-between">
           <Title text="MANAGER USERS" />
           {!isViewer && (
             <EditButton
@@ -309,13 +305,13 @@ const Profile = (): JSX.Element => {
         <VStack space={3}>
           {invitedUsersUiState === "IN_PROGRESS" && (
             <Spinner
-              alignSelf={"flex-start"}
+              alignSelf="flex-start"
               color={AppColors.PRIMARY}
               size="sm"
             />
           )}
           {invitedUsersUiState !== "IN_PROGRESS" && invitedUsers.length === 0 && (
-            <Text color={"amber.600"} fontSize={14}>
+            <Text color="amber.600" fontSize={14}>
               No user invited yet!
             </Text>
           )}
@@ -323,7 +319,7 @@ const Profile = (): JSX.Element => {
             invitedUsers.map((user, index) => (
               <VStack key={index}>
                 <HStack
-                  justifyContent={"space-between"}
+                  justifyContent="space-between"
                   alignItems="center"
                   key={index}
                 >
@@ -344,7 +340,7 @@ const Profile = (): JSX.Element => {
                 <VStack>
                   <Text
                     color={AppColors.SECONDARY}
-                    fontWeight={"semibold"}
+                    fontWeight="semibold"
                     fontSize={13}
                   >
                     {user.email}
@@ -355,12 +351,12 @@ const Profile = (): JSX.Element => {
         </VStack>
       </VStack>
     );
-  };
+  }
 
-  const PaymentCard = (): JSX.Element => {
+  function PaymentCard(): JSX.Element {
     return (
-      <VStack bg={"white"} mx={3} p={5} borderRadius={10}>
-        <HStack justifyContent={"space-between"}>
+      <VStack bg="white" mx={3} p={5} borderRadius={10}>
+        <HStack justifyContent="space-between">
           <Title text="PAYMENT METHOD" />
           {!isViewer && (
             <EditButton
@@ -375,19 +371,19 @@ const Profile = (): JSX.Element => {
         <VStack space={3}>
           {cardsUiState === "IN_PROGRESS" && (
             <Spinner
-              alignSelf={"flex-start"}
+              alignSelf="flex-start"
               color={AppColors.PRIMARY}
               size="sm"
             />
           )}
           {cardsUiState !== "IN_PROGRESS" && cards.length === 0 && (
-            <Text color={"amber.600"} fontSize={14}>
+            <Text color="amber.600" fontSize={14}>
               No cards added yet!
             </Text>
           )}
           {cardsUiState === "SUCCESS" &&
             cards.map((card, index) => (
-              <HStack justifyContent={"space-between"} key={index}>
+              <HStack justifyContent="space-between" key={index}>
                 <VStack>
                   <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                     {card.cardType}
@@ -399,9 +395,9 @@ const Profile = (): JSX.Element => {
         </VStack>
       </VStack>
     );
-  };
+  }
 
-  const DeleteCard = (): JSX.Element => {
+  function DeleteCard(): JSX.Element {
     return (
       <Pressable
         onPress={async () => {
@@ -441,7 +437,7 @@ const Profile = (): JSX.Element => {
             ]
           );
         }}
-        bg={"white"}
+        bg="white"
         mx={3}
         p={5}
         borderRadius={10}
@@ -458,9 +454,9 @@ const Profile = (): JSX.Element => {
         </VStack>
       </Pressable>
     );
-  };
+  }
 
-  const LogoutCard = (): JSX.Element => {
+  function LogoutCard(): JSX.Element {
     return (
       <Pressable
         onPress={async () => {
@@ -480,14 +476,14 @@ const Profile = (): JSX.Element => {
             },
           ]);
         }}
-        bg={"white"}
+        bg="white"
         mx={3}
         p={5}
         borderRadius={10}
       >
         <VStack>
           <Text
-            color={"red.500"}
+            color="red.500"
             fontWeight="semibold"
             letterSpacing={1}
             fontSize={12}
@@ -497,13 +493,13 @@ const Profile = (): JSX.Element => {
         </VStack>
       </Pressable>
     );
-  };
+  }
 
-  const NewUserCard = (): JSX.Element => {
+  function NewUserCard(): JSX.Element {
     return (
       <Pressable
         onPress={async () => {}}
-        bg={"white"}
+        bg="white"
         mx={3}
         p={5}
         borderRadius={10}
@@ -535,7 +531,7 @@ const Profile = (): JSX.Element => {
         </VStack>
       </Pressable>
     );
-  };
+  }
 
   return (
     <AppSafeAreaView
@@ -546,20 +542,18 @@ const Profile = (): JSX.Element => {
         <VStack pb={150} pt={3} space={3}>
           {isAuthenticated ? (
             <>
-              <ProfileCard key={"ProfileCard"} />
-              <AddressCard key={"AddressCard"} />
-              <InviteCard key={"InviteCard"} />
-              <PaymentCard key={"PaymentCard"} />
-              <DeleteCard key={"DeleteCard"} />
-              <LogoutCard key={"LogoutCard"} />
+              <ProfileCard key="ProfileCard" />
+              <AddressCard key="AddressCard" />
+              <InviteCard key="InviteCard" />
+              <PaymentCard key="PaymentCard" />
+              <DeleteCard key="DeleteCard" />
+              <LogoutCard key="LogoutCard" />
             </>
           ) : (
-            <>
-              <NewUserCard />
-            </>
+            <NewUserCard />
           )}
           <Center my={3}>
-            <Text color={"#ccc"}>v{version}</Text>
+            <Text color="#ccc">v{version}</Text>
           </Center>
         </VStack>
       </ScrollView>
@@ -584,6 +578,6 @@ const Profile = (): JSX.Element => {
       )}
     </AppSafeAreaView>
   );
-};
+}
 
 export default Profile;

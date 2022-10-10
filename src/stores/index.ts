@@ -3,7 +3,7 @@ import rootReducer from "../reducers";
 
 export const store = configureStore({
   reducer: rootReducer,
-  devTools: __DEV__ ? true : false,
+  devTools: !!__DEV__,
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

@@ -1,15 +1,17 @@
 import { Center, Divider, Flex, Text } from "native-base";
 import React, { useEffect, useRef } from "react";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import Spacer from "../../components/Spacer";
 import auth from "@react-native-firebase/auth";
 import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import AppInput from "../../components/AppInput";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import { Controller, useForm } from "react-hook-form";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useIsFocused } from "@react-navigation/native";
+import AppSafeAreaView from "../../components/AppSafeAreaView";
+import Spacer from "../../components/Spacer";
+import AppInput from "../../components/AppInput";
 import { popToPop } from "../../navigations/rootNavigation";
 import {
   CustomerProfile,
@@ -19,7 +21,6 @@ import {
   useAuth,
 } from "../../contexts/AuthContext";
 import SocialLogin from "../../components/SocialLogin";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { AppColors } from "../../commons/colors";
 import ErrorView from "../../components/ErrorView";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
@@ -35,9 +36,8 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { FAILED, INIT, IN_PROGRESS, SUCCESS } from "../../commons/ui-states";
 import { SAMPLE } from "../../commons/sample";
 import GradientButton from "../../components/GradientButton";
-import { useIsFocused } from "@react-navigation/native";
 
-const Register = (): JSX.Element => {
+function Register(): JSX.Element {
   const socialLoginCompleted = React.useRef<boolean>(false);
   const password = useRef({});
   const [inviteBasedLogin, setInviteBasedLogin] =
@@ -73,7 +73,7 @@ const Register = (): JSX.Element => {
   const isFocussed = useIsFocused();
 
   const checkForInviteBasedLogin = React.useCallback(async () => {
-    let email = await StorageHelper.getValue("INVITE_EMAIL");
+    const email = await StorageHelper.getValue("INVITE_EMAIL");
     if (email) {
       setValue("email", email);
       setInviteBasedLogin(true);
@@ -107,7 +107,7 @@ const Register = (): JSX.Element => {
         userCredential.user &&
         userCredential.user.displayName
       ) {
-        let names = userCredential.user.displayName.split(" ");
+        const names = userCredential.user.displayName.split(" ");
         onSubmit({
           firstName: names[0],
           lastName: names[1],
@@ -117,14 +117,14 @@ const Register = (): JSX.Element => {
           confirmPassword: "",
         });
         return;
-      } else {
+      } 
         dispatch(
           setCustomerState({
             uiState: FAILED,
             error: "Something went wrong!",
           })
         );
-      }
+      
     } catch (error: any) {
       console.log("error", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -199,14 +199,14 @@ const Register = (): JSX.Element => {
           confirmPassword: "",
         });
         return;
-      } else {
+      } 
         dispatch(
           setCustomerState({
             uiState: FAILED,
             error: "Something went wrong!",
           })
         );
-      }
+      
       setValue("email", userCredential.user.email || "");
       setValue("phone", "");
 
@@ -259,15 +259,15 @@ const Register = (): JSX.Element => {
         uiState: IN_PROGRESS,
       })
     );
-    let rid = null,
-      role = null,
-      sAccountId = null;
+    let rid = null;
+      let role = null;
+      let sAccountId = null;
     if (inviteBasedLogin) {
       rid = await StorageHelper.getValue("INVITE_RID");
       sAccountId = await StorageHelper.getValue("INVITE_SACCOUNTID");
       role = await StorageHelper.getValue("INVITE_ROLE");
     }
-    let fcmToken = await StorageHelper.getValue("FCM_DEVICE_TOKEN");
+    const fcmToken = await StorageHelper.getValue("FCM_DEVICE_TOKEN");
     let payload: CustomerProfile = {
       ...dummyProfile,
       ...data,
@@ -314,15 +314,15 @@ const Register = (): JSX.Element => {
 
   return (
     <AppSafeAreaView mt={60} loading={uiState === IN_PROGRESS}>
-      <KeyboardAwareScrollView enableOnAndroid={true}>
-        <Center mt={"1/4"} width={"100%"}>
+      <KeyboardAwareScrollView enableOnAndroid>
+        <Center mt="1/4" width="100%">
           <Text color={AppColors.SECONDARY} fontSize={20} textAlign="center">
             Create an account {"\n"}to manage your service
           </Text>
         </Center>
         {/* <ScrollView> */}
 
-        <Flex flexDirection={"column"} flex={1} paddingX={5} mt={10}>
+        <Flex flexDirection="column" flex={1} paddingX={5} mt={10}>
           {uiState === FAILED && <ErrorView message={error} />}
           <Controller
             control={control}
@@ -418,7 +418,7 @@ const Register = (): JSX.Element => {
             name="confirmPassword"
           />
           {errors.confirmPassword && (
-            <Text fontSize={12} fontWeight={"semibold"} color={"red.500"}>
+            <Text fontSize={12} fontWeight="semibold" color="red.500">
               Password do not match
             </Text>
           )}
@@ -443,6 +443,6 @@ const Register = (): JSX.Element => {
       </KeyboardAwareScrollView>
     </AppSafeAreaView>
   );
-};
+}
 
 export default Register;

@@ -1,10 +1,8 @@
 import {
   Actionsheet,
-  Button,
   Center,
   HStack,
   Image,
-  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Spacer,
@@ -12,9 +10,12 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import * as ImagePicker from "react-native-image-picker";
+import { firebase } from "@react-native-firebase/storage";
+import { Keyboard, Platform } from "react-native";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 import { AppColors } from "../../commons/colors";
 import { Phone, useAuth } from "../../contexts/AuthContext";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -23,10 +24,6 @@ import { selectCustomer, putCustomerAsync } from "../../slices/customer-slice";
 import AppInput from "../AppInput";
 import ErrorView from "../ErrorView";
 import FooterButton from "../FooterButton";
-import * as ImagePicker from "react-native-image-picker";
-import { firebase } from "@react-native-firebase/storage";
-import { Animated, Keyboard, Platform } from "react-native";
-import KeyboardSpacer from "react-native-keyboard-spacer";
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -40,10 +37,10 @@ type PersonalDetailsBottomSheetProps = {
   setShowPersonalDetails: Function;
 };
 
-export const PersonalDetailsBottomSheet = ({
+export function PersonalDetailsBottomSheet({
   showPersonalDetails,
   setShowPersonalDetails,
-}: PersonalDetailsBottomSheetProps): JSX.Element => {
+}: PersonalDetailsBottomSheetProps): JSX.Element {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [profileUrl, setProfileUrl] = useState<string>("");
@@ -78,7 +75,7 @@ export const PersonalDetailsBottomSheet = ({
 
   const onSubmit = async (data: PersonalDetailsForm) => {
     Keyboard.dismiss();
-    let formValues = getValues();
+    const formValues = getValues();
     dispatch(
       putCustomerAsync({
         ...customer,
@@ -104,7 +101,7 @@ export const PersonalDetailsBottomSheet = ({
     <Actionsheet
       isOpen={showPersonalDetails}
       onClose={() => setShowPersonalDetails(false)}
-      hideDragIndicator={true}
+      hideDragIndicator
     >
       <Actionsheet.Content
         style={{
@@ -117,8 +114,8 @@ export const PersonalDetailsBottomSheet = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <ScrollView width={"100%"}>
-          <VStack pt={15} bg={"white"} width="100%">
+        <ScrollView width="100%">
+          <VStack pt={15} bg="white" width="100%">
             <Center>
               <Text fontSize={18} fontWeight="semibold">
                 Personal Details
@@ -177,7 +174,7 @@ export const PersonalDetailsBottomSheet = ({
                   <AppInput
                     type="email"
                     label="Email"
-                    disabled={true}
+                    disabled
                     onChange={onChange}
                     value={value}
                   />
@@ -200,9 +197,9 @@ export const PersonalDetailsBottomSheet = ({
                 name="phone"
               />
 
-              <Text color={"gray.400"}>Profile Photo</Text>
+              <Text color="gray.400">Profile Photo</Text>
               <HStack mt={2} alignItems="center" space={2}>
-                {loading && <Spinner size={"sm"} />}
+                {loading && <Spinner size="sm" />}
                 {!loading && Boolean(profileUrl) && profileUrl.length > 0 && (
                   <Image
                     source={{
@@ -212,7 +209,7 @@ export const PersonalDetailsBottomSheet = ({
                       cache: "force-cache",
                     }}
                     alt="Profile"
-                    bg={"gray.200"}
+                    bg="gray.200"
                   />
                 )}
                 <Pressable
@@ -238,7 +235,7 @@ export const PersonalDetailsBottomSheet = ({
                         } else {
                           setLoading(true);
                           const { fileName, uri } = response.assets[0];
-                          let imageRef = `users/${currentUser.uid}/profile.${
+                          const imageRef = `users/${currentUser.uid}/profile.${
                             fileName.split(".")[1]
                           }`;
                           firebase
@@ -246,10 +243,10 @@ export const PersonalDetailsBottomSheet = ({
                             .ref(imageRef)
                             .putFile(uri)
                             .then(async (snapshot) => {
-                              let imageDownload = firebase
+                              const imageDownload = firebase
                                 .storage()
                                 .ref(imageRef);
-                              let url = await imageDownload.getDownloadURL();
+                              const url = await imageDownload.getDownloadURL();
                               setProfileUrl(url);
                               setLoading(false);
                             })
@@ -262,7 +259,7 @@ export const PersonalDetailsBottomSheet = ({
                   }}
                 >
                   <Text color={AppColors.DARK_TEAL}>
-                    {Boolean(profileUrl)
+                    {profileUrl
                       ? "Change Profile Picture"
                       : "Choose Profile Picture"}
                   </Text>
@@ -278,11 +275,11 @@ export const PersonalDetailsBottomSheet = ({
           disabled={!isValid || loading}
           loading={customerUiState === "IN_PROGRESS"}
           minLabel="SAVE"
-          maxLabel={"PERSONAL DETAILS"}
+          maxLabel="PERSONAL DETAILS"
           type="DEFAULT"
           onPress={handleSubmit(onSubmit)}
         />
       </Actionsheet.Content>
     </Actionsheet>
   );
-};
+}

@@ -9,15 +9,13 @@ type AppStatusBarProps = {
 export function AppStatusBar({ color }: AppStatusBarProps) {
   const isDarkMode = useColorScheme() === "dark";
   return (
-    <>
-      <StatusBar
-        animated={true}
+    <StatusBar
+        animated
         backgroundColor={AppColors.TEAL}
-        barStyle={"dark-content"}
-        showHideTransition={"slide"}
+        barStyle="dark-content"
+        showHideTransition="slide"
         hidden={false}
       />
-    </>
   );
 }
 

@@ -7,8 +7,8 @@ export function getServiceDetails() {
   const { collection: services } = useAppSelector(selectServices);
   const groupedServiceDetails: { [key: string]: Service } =
     React.useMemo(() => {
-      let map: { [key: string]: Service } = {};
-      for (let _service of services) {
+      const map: { [key: string]: Service } = {};
+      for (const _service of services) {
         map[_service.serviceId] = _service;
       }
       return map;

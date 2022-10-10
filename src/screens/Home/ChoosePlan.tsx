@@ -3,7 +3,6 @@ import {
   Divider,
   FlatList,
   HStack,
-  MinusIcon,
   Pressable,
   Spacer,
   Text,
@@ -29,7 +28,6 @@ import { useAppSelector } from "../../hooks/useAppSelector";
 import { SuperRootStackParamList } from "../../navigations";
 import { goBack } from "../../navigations/rootNavigation";
 import { getServiceDetails } from "../../services/service-details";
-import { StorageHelper } from "../../services/storage-helper";
 import { selectCustomer } from "../../slices/customer-slice";
 import {
   selectLead,
@@ -52,7 +50,7 @@ type ChoosePlanProps = NativeStackScreenProps<
   "ChoosePlan"
 >;
 
-const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
+function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
   const dispatch = useAppDispatch();
 
   const { mode, serviceId } = route.params;
@@ -79,11 +77,11 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   const [benefitExpand, setBenefitExpand] = React.useState<any>({});
 
   const createLead = async () => {
-    let subOrders = [];
+    const subOrders = [];
     if (serviceId === LAWN_CARE_ID) {
       subOrders.push({
         area: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.lotSize,
-        serviceId: serviceId,
+        serviceId,
       });
     } else if (serviceId === HOUSE_CLEANING_ID) {
       subOrders.push({
@@ -91,30 +89,30 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bedrooms,
         bathrooms:
           leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bathrooms,
-        serviceId: serviceId,
+        serviceId,
       });
     } else {
-      subOrders.push({ serviceId: serviceId });
+      subOrders.push({ serviceId });
     }
     return dispatch(createLeadAsync({ subOrders }));
   };
 
   const updateLead = async (_leadDetails: LeadDetails) => {
-    let existingServiceIds = _leadDetails?.subOrders?.map(
+    const existingServiceIds = _leadDetails?.subOrders?.map(
       (subOrder) => subOrder.serviceId
     );
-    let isNewlyAdded = existingServiceIds.indexOf(serviceId) < 0;
-    let payload = {
+    const isNewlyAdded = existingServiceIds.indexOf(serviceId) < 0;
+    const payload = {
       ..._leadDetails,
       subOrders: [..._leadDetails.subOrders],
     };
     if (isNewlyAdded) {
       payload.subOrders.push({
         ...({} as SubOrder),
-        serviceId: serviceId,
+        serviceId,
       });
     }
-    let updatedSuborders = payload.subOrders.map((subOrder) => {
+    const updatedSuborders = payload.subOrders.map((subOrder) => {
       if (serviceId === LAWN_CARE_ID) {
         subOrder.area =
           payload.customerProfile.addresses[0].houseInfo?.lotSize || 0;
@@ -200,12 +198,12 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   useEffect(() => {
     if (serviceId) {
       if (serviceId === LAWN_CARE_ID) {
-        let lotsize: number =
+        const lotsize: number =
           leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.lotSize || 0;
         dispatch(
           getServiceCostAsync([
             {
-              serviceId: serviceId,
+              serviceId,
               serviceParameters: {
                 area: lotsize,
               },
@@ -216,7 +214,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         dispatch(
           getServiceCostAsync([
             {
-              serviceId: serviceId,
+              serviceId,
               serviceParameters: {
                 bedrooms:
                   leadDetails?.customerProfile?.addresses?.[0]?.houseInfo
@@ -232,7 +230,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
         dispatch(
           getServiceCostAsync([
             {
-              serviceId: serviceId,
+              serviceId,
               serviceParameters: {},
             },
           ])
@@ -243,25 +241,25 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
 
   useEffect(() => {
     if (serviceCost.length > 0) {
-      let isUpdate = mode === "UPDATE";
+      const isUpdate = mode === "UPDATE";
       let subOrder = {} as SubOrder;
       if (isUpdate) {
         subOrder = leadDetails.subOrders.filter(
           (so) => so.serviceId === serviceId
         )[0];
       }
-      let subscriptionOptions: any[] = [];
-      let priceMap: PriceMap[] = serviceCost;
+      const subscriptionOptions: any[] = [];
+      const priceMap: PriceMap[] = serviceCost;
       if (priceMap && priceMap[0]) {
-        let pricePerWeekExists =
+        const pricePerWeekExists =
           priceMap[0].pricePerWeek && parseInt(priceMap[0].pricePerWeek) !== 0;
-        let pricePer2WeeksExists =
+        const pricePer2WeeksExists =
           priceMap[0].pricePer2Weeks &&
           parseInt(priceMap[0].pricePer2Weeks) !== 0;
-        let pricePerMonthExists =
+        const pricePerMonthExists =
           priceMap[0].pricePerMonth &&
           parseInt(priceMap[0].pricePerMonth) !== 0;
-        let pricePerQuarterlyExists =
+        const pricePerQuarterlyExists =
           priceMap[0].pricePerQuarterly &&
           parseInt(priceMap[0].pricePerQuarterly) !== 0;
 
@@ -336,9 +334,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
             type: "ONCE",
             label: "One-Time",
             selected: isUpdate
-              ? subOrder?.flags.isRecurring
-                ? false
-                : true
+              ? !subOrder?.flags.isRecurring
               : false,
           });
         }
@@ -352,9 +348,9 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
   useEffect(() => {
     if (Object.keys(selectedSubscriptionMethod).length > 0) {
       let preSelectedPlan = "STANDARD";
-      let isUpdate = mode === "UPDATE";
+      const isUpdate = mode === "UPDATE";
       if (isUpdate) {
-        let subOrder = leadDetails.subOrders.filter(
+        const subOrder = leadDetails.subOrders.filter(
           (so) => so.serviceId === serviceId
         )[0];
         preSelectedPlan = subOrder.flags.plan;
@@ -364,10 +360,10 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           cost.serviceId === serviceId &&
           ["STANDARD", "PREMIUM", "FULL CARE"].indexOf(cost.plan) >= 0
       );
-      let options: PlanOption[] = [];
+      const options: PlanOption[] = [];
       if (selectedSubscriptionMethod.type === "WEEKLY") {
-        for (let cost of serviceCosts) {
-          let option: PlanOption = {
+        for (const cost of serviceCosts) {
+          const option: PlanOption = {
             label: cost.plan,
             benefits:
               groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
@@ -381,8 +377,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === "BIWEEKLY") {
-        for (let cost of serviceCosts) {
-          let option = {
+        for (const cost of serviceCosts) {
+          const option = {
             label: cost.plan,
             benefits:
               groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
@@ -396,8 +392,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === "MONTHLY") {
-        for (let cost of serviceCosts) {
-          let option = {
+        for (const cost of serviceCosts) {
+          const option = {
             label: cost.plan,
             benefits:
               groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
@@ -411,8 +407,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === "QUARTERLY") {
-        for (let cost of serviceCosts) {
-          let option = {
+        for (const cost of serviceCosts) {
+          const option = {
             label: cost.plan,
             benefits:
               groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
@@ -426,8 +422,8 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === "ONCE") {
-        for (let cost of serviceCosts) {
-          let option = {
+        for (const cost of serviceCosts) {
+          const option = {
             label: cost.plan,
             benefits:
               groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
@@ -453,15 +449,15 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       }
     >
       {/* <ScrollView> */}
-      <VStack mt={"1/5"} space={5}>
-        <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+      <VStack mt="1/5" space={5}>
+        <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Frequency
         </Text>
         <HStack
-          justifyContent={"center"}
-          alignItems={"center"}
+          justifyContent="center"
+          alignItems="center"
           space={0}
-          bg={"#eee"}
+          bg="#eee"
           p={3}
         >
           <FlatList
@@ -478,7 +474,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                 key={index}
                 height={10}
                 borderRadius={5}
-                width={"48%"}
+                width="48%"
                 m={1}
                 p={2}
                 borderWidth={item.selected ? 1 : 0}
@@ -490,7 +486,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                   backgroundColor: AppColors.LIGHT_TEAL,
                 }}
                 onPress={() => {
-                  let updatedOptions = subscriptionMethodOptions.map(
+                  const updatedOptions = subscriptionMethodOptions.map(
                     (opt, i) => {
                       if (i === index) {
                         setSelectedSubscriptionMethod(opt);
@@ -509,9 +505,9 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                 }}
               >
                 <Text
-                  alignSelf={"center"}
+                  alignSelf="center"
                   color={AppColors.TEAL}
-                  fontWeight={"semibold"}
+                  fontWeight="semibold"
                 >
                   {item.label}
                 </Text>
@@ -519,14 +515,14 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
             )}
           />
         </HStack>
-        <Text textAlign={"center"} fontWeight={"semibold"} fontSize={18}>
+        <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Plan
         </Text>
         <HStack
-          justifyContent={"center"}
-          alignItems={"center"}
+          justifyContent="center"
+          alignItems="center"
           space={0}
-          bg={"#eee"}
+          bg="#eee"
           p={3}
           pb={200}
         >
@@ -539,14 +535,14 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
             showsVerticalScrollIndicator={false}
             renderItem={({ index, item }) => (
               <Pressable
-                alignSelf={"center"}
+                alignSelf="center"
                 key={index}
                 borderColor={AppColors.TEAL}
                 bg={item.selected ? AppColors.LIGHT_TEAL : "#fff"}
                 borderWidth={item.selected ? 1 : 0}
                 minHeight={100}
                 borderRadius={6}
-                width={"100%"}
+                width="100%"
                 m={1}
                 p={3}
                 _pressed={{
@@ -555,7 +551,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                   backgroundColor: AppColors.LIGHT_TEAL,
                 }}
                 onPress={() => {
-                  let updatedOptions = planOptions.map((opt, i) => {
+                  const updatedOptions = planOptions.map((opt, i) => {
                     if (i === index) {
                       setSelectedPlan(opt);
                       return {
@@ -571,12 +567,12 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                   setPlanOptions(updatedOptions);
                 }}
               >
-                <HStack justifyContent={"space-between"}>
-                  <VStack width={"80%"}>
+                <HStack justifyContent="space-between">
+                  <VStack width="80%">
                     <Text
                       color={AppColors.TEAL}
                       fontSize={18}
-                      fontWeight={"semibold"}
+                      fontWeight="semibold"
                     >
                       {item.label}
                     </Text>
@@ -599,24 +595,20 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                     >
                       {item.benefits.map((b, i) => {
                         const hasDescription =
-                          (typeof b.description === "string" ||
+                          !!((typeof b.description === "string" ||
                             typeof b.description === "object") &&
-                          b.description.length > 0
-                            ? true
-                            : false;
+                          b.description.length > 0);
                         return (
                           <VStack key={i}>
                             <Pressable
                               onPress={() => {
-                                let payload = {
+                                const payload = {
                                   ...benefitExpand,
                                   [serviceId]: {
                                     [b.title]: hasDescription
                                       ? benefitExpand?.[serviceId]?.[
                                           b.title
-                                        ] === true
-                                        ? false
-                                        : true
+                                        ] !== true
                                       : false,
                                   },
                                 };
@@ -624,10 +616,10 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                               }}
                             >
                               <HStack
-                                justifyContent={"space-between"}
+                                justifyContent="space-between"
                                 alignItems="center"
                               >
-                                <HStack alignItems={"center"} space={1}>
+                                <HStack alignItems="center" space={1}>
                                   <SvgCss
                                     xml={CHECKBOX_TICK_ICON}
                                     // width={30}
@@ -636,7 +628,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                                   <Text
                                     color={AppColors.DARK_PRIMARY}
                                     fontSize={14}
-                                    fontWeight={"semibold"}
+                                    fontWeight="semibold"
                                   >
                                     {b.title}
                                   </Text>
@@ -653,7 +645,7 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                                         color={AppColors.TEAL}
                                         fontSize={14}
                                         pr={2.5}
-                                        fontWeight={"semibold"}
+                                        fontWeight="semibold"
                                       >
                                         -
                                       </Text>
@@ -680,19 +672,19 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
                     </VStack>
                   </VStack>
                   <VStack
-                    alignItems={"center"}
+                    alignItems="center"
                     alignContent="center"
-                    justifyContent={"flex-start"}
+                    justifyContent="flex-start"
                     pr={5}
                   >
                     <Text
                       color={AppColors.DARK_PRIMARY}
                       fontSize={24}
-                      fontWeight={"semibold"}
+                      fontWeight="semibold"
                     >
                       ${item.cost}
                     </Text>
-                    <Text color={"#bbb"} fontSize={12} fontWeight={"semibold"}>
+                    <Text color="#bbb" fontSize={12} fontWeight="semibold">
                       {selectedSubscriptionMethod?.label?.toUpperCase()}
                     </Text>
                   </VStack>
@@ -720,6 +712,6 @@ const ChoosePlan = ({ route }: ChoosePlanProps): JSX.Element => {
       {/* </ScrollView> */}
     </AppSafeAreaView>
   );
-};
+}
 
 export default ChoosePlan;

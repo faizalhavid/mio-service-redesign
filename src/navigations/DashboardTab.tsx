@@ -22,7 +22,7 @@ export type DashboardTabParamList = {
 
 const Stack = createNativeStackNavigator();
 
-const HomeStack = () => {
+function HomeStack() {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -34,8 +34,8 @@ const HomeStack = () => {
       <Stack.Screen name="HomeScreen" component={Home} />
     </Stack.Navigator>
   );
-};
-const ProfileStack = () => {
+}
+function ProfileStack() {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -47,9 +47,9 @@ const ProfileStack = () => {
       <Stack.Screen name="ProfileScreen" component={Profile} />
     </Stack.Navigator>
   );
-};
+}
 
-const ServicesStack = () => {
+function ServicesStack() {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -61,10 +61,10 @@ const ServicesStack = () => {
       <Stack.Screen name="ServicesScreen" component={Services} />
     </Stack.Navigator>
   );
-};
+}
 
 const Tab = createBottomTabNavigator<DashboardTabParamList>();
-const DashboardTab = () => {
+function DashboardTab() {
   const tabBarOptions: BottomTabNavigationOptions = {
     tabBarShowLabel: true,
   };
@@ -160,6 +160,6 @@ const DashboardTab = () => {
       />
     </Tab.Navigator>
   );
-};
+}
 
 export default DashboardTab;

@@ -1,8 +1,6 @@
 import React from "react";
 import { BottomTabBar, BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Center, Fab, Icon, View } from "native-base";
-import { SvgCss } from "react-native-svg";
-import { HOME_ICON } from "../../commons/assets";
+import { View } from "native-base";
 
 // layout is stored as module variable
 let tabBarLayout = {
@@ -21,7 +19,7 @@ export function getTabBarHeight() {
 export function TabBarComponent(props: BottomTabBarProps) {
   return (
     <View
-      collapsable={true}
+      collapsable
       onLayout={(event) => {
         tabBarLayout = event.nativeEvent.layout;
       }}

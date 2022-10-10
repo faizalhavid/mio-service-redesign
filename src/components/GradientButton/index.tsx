@@ -9,14 +9,13 @@ type GradientButtonProps = {
   disabled?: boolean;
 };
 
-const GradientButton = ({
+function GradientButton({
   text,
   onPress,
   disabled,
-}: GradientButtonProps): JSX.Element => {
+}: GradientButtonProps): JSX.Element {
   return (
-    <>
-      <Pressable disabled={disabled} width={"100%"} onPress={onPress}>
+    <Pressable disabled={disabled} width="100%" onPress={onPress}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -30,16 +29,15 @@ const GradientButton = ({
         >
           <Text
             fontSize={16}
-            color={"white"}
-            fontWeight={"semibold"}
-            alignSelf={"center"}
+            color="white"
+            fontWeight="semibold"
+            alignSelf="center"
           >
             {text}
           </Text>
         </LinearGradient>
       </Pressable>
-    </>
   );
-};
+}
 
 export default GradientButton;

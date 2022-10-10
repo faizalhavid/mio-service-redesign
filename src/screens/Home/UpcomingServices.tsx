@@ -1,30 +1,26 @@
-import { Center, Divider, Spinner, Text, VStack } from "native-base";
-import React, { useEffect } from "react";
-import { SectionList } from "react-native";
-import { FLAG_TYPE, STATUS } from "../../commons/status";
-import { GroupedOrder, Order } from "../../commons/types";
-import ServiceCard from "../../components/ServiceCard";
-import { useAuth } from "../../contexts/AuthContext";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
-import { StorageHelper } from "../../services/storage-helper";
-import { getReadableDateTime } from "../../services/utils";
+import { Center, Divider, Spinner, Text, VStack } from 'native-base';
+import React, { useEffect } from 'react';
+import { SectionList } from 'react-native';
+import { GroupedOrder, Order } from '../../commons/types';
+import ServiceCard from '../../components/ServiceCard';
+import { useAuth } from '../../contexts/AuthContext';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useAuthenticatedUser } from '../../hooks/useAuthenticatedUser';
+import { getReadableDateTime } from '../../services/utils';
 import {
   getUpcomingOrdersAsync,
   selectUpcomingOrders,
   setFirstOrder,
-} from "../../slices/order-slice";
-import { SERVICES } from "./ChooseService";
+} from '../../slices/order-slice';
+import { SERVICES } from './ChooseService';
 
-const UpcomingServices = (): JSX.Element => {
+function UpcomingServices(): JSX.Element {
   const [page, setPage] = React.useState<number>(1);
   const [fetchAgain, setFetchAgain] = React.useState<boolean>(true);
-  const [orderId, setOrderId] = React.useState<string>("");
-  const [subOrderId, setSubOrderId] = React.useState<string>("");
-  const [upcomingOrders, setUpcomingOrders] = React.useState<GroupedOrder[]>(
-    []
-  );
+  const [orderId, setOrderId] = React.useState<string>('');
+  const [subOrderId, setSubOrderId] = React.useState<string>('');
+  const [upcomingOrders, setUpcomingOrders] = React.useState<GroupedOrder[]>([]);
   const limit = 10;
   const { isViewer } = useAuth();
 
@@ -48,41 +44,35 @@ const UpcomingServices = (): JSX.Element => {
     ).then((response) => {
       // console.log("get upcoming services", response.payload);
       // console.log("get upcoming services", response.meta.requestStatus);
-      let orders = response.payload.data;
+      const orders = response.payload.data;
       if (orders.length > 0) {
-        let lastOrder = orders[orders.length - 1];
+        const lastOrder = orders[orders.length - 1];
         setOrderId(lastOrder.orderId);
         setSubOrderId(lastOrder.subOrderId);
-        let groupedOrders: { [key: string]: any[] } = {};
+        const groupedOrders: { [key: string]: any[] } = {};
 
         // Build Old Data
-        for (let order of upcomingOrders) {
+        for (const order of upcomingOrders) {
           groupedOrders[order.month] = order.data;
         }
 
         // Build New Data
-        for (let order of orders) {
-          let { month, year } = getReadableDateTime(order.appointmentDateTime);
-          let title = `${month} ${year}`;
-          groupedOrders[title] = groupedOrders[title]
-            ? groupedOrders[title]
-            : [];
+        for (const order of orders) {
+          const { month, year } = getReadableDateTime(order.appointmentDateTime);
+          const title = `${month} ${year}`;
+          groupedOrders[title] = groupedOrders[title] ? groupedOrders[title] : [];
           groupedOrders[title].push(order);
         }
-        let currentOrders: GroupedOrder[] = Object.entries(groupedOrders).map(
-          ([key, value]) => {
-            return {
-              month: key,
-              data: value,
-            };
-          }
-        );
+        const currentOrders: GroupedOrder[] = Object.entries(groupedOrders).map(([key, value]) => ({
+          month: key,
+          data: value,
+        }));
 
         if (page === 1 && orders.length > 0) {
           dispatch(setFirstOrder({ order: {} as Order }));
-          for (let order of orders) {
-            if (order.status !== "CANCELED") {
-              dispatch(setFirstOrder({ order: order }));
+          for (const order of orders) {
+            if (order.status !== 'CANCELED') {
+              dispatch(setFirstOrder({ order }));
               break;
             }
           }
@@ -102,7 +92,7 @@ const UpcomingServices = (): JSX.Element => {
         showsVerticalScrollIndicator={false}
         ListFooterComponent={
           <>
-            {upcomingOrdersUiState === "IN_PROGRESS" && (
+            {upcomingOrdersUiState === 'IN_PROGRESS' && (
               <Center mt={3}>
                 <Spinner size="sm" />
               </Center>
@@ -111,8 +101,8 @@ const UpcomingServices = (): JSX.Element => {
           </>
         }
         ListEmptyComponent={
-          !["INIT", "IN_PROGRESS"].includes(upcomingOrdersUiState) ? (
-            <Center mt={2} fontStyle={"italic"}>
+          !['INIT', 'IN_PROGRESS'].includes(upcomingOrdersUiState) ? (
+            <Center mt={2} fontStyle="italic">
               No upcoming services are there!
             </Center>
           ) : (
@@ -128,11 +118,11 @@ const UpcomingServices = (): JSX.Element => {
         renderItem={({ item, index }: { item: Order; index: number }) => (
           <ServiceCard
             key={index}
-            variant={"outline"}
-            w={"100%"}
+            variant="outline"
+            w="100%"
             dateTime={item.appointmentDateTime}
             status={item.status}
-            showAddToCalendar={item.status !== "CANCELED"}
+            showAddToCalendar={item.status !== 'CANCELED'}
             showReschedule={!isViewer}
             showChat={!isViewer}
             serviceName={SERVICES[item.serviceId]?.text}
@@ -145,16 +135,16 @@ const UpcomingServices = (): JSX.Element => {
           />
         )}
         sections={upcomingOrders}
-        stickyHeaderHiddenOnScroll={true}
+        stickyHeaderHiddenOnScroll
         stickySectionHeadersEnabled={false}
         renderSectionHeader={({ section }) => (
-          <Text px={3} fontSize={16} my={2} fontWeight={"semibold"}>
+          <Text px={3} fontSize={16} my={2} fontWeight="semibold">
             {section.month}
           </Text>
         )}
       />
     </VStack>
   );
-};
+}
 
 export default UpcomingServices;

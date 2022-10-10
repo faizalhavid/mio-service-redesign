@@ -1,25 +1,24 @@
 import React, { useEffect } from "react";
-import { Platform, useColorScheme } from "react-native";
-import RootStackNavigation from "./src/navigations";
+import { Platform, useColorScheme , LogBox } from "react-native";
 import { extendTheme, NativeBaseProvider } from "native-base";
-import { LogBox } from "react-native";
 import "@react-native-firebase/app";
-import { AuthProvider } from "./src/contexts/AuthContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { firebase } from "@react-native-firebase/app-check";
 import messaging from "@react-native-firebase/messaging";
-import { ENV } from "./src/commons/environment";
 import codePush, { CodePushOptions } from "react-native-code-push";
-import { StorageHelper } from "./src/services/storage-helper";
 import { Provider } from "react-redux";
-import { store } from "./src/stores";
 import { setJSExceptionHandler } from "react-native-exception-handler";
-import { navigate, popToPop } from "./src/navigations/rootNavigation";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
+import { ENV } from "./src/commons/environment";
+import { StorageHelper } from "./src/services/storage-helper";
+import { store } from "./src/stores";
+import { navigate, popToPop } from "./src/navigations/rootNavigation";
+import RootStackNavigation from "./src/navigations";
+import { AuthProvider } from "./src/contexts/AuthContext";
 
 LogBox.ignoreLogs(["contrast ratio"]);
 
-const App = () => {
+function App() {
   GoogleSignin.configure({
     webClientId: ENV.WEB_CLIENT_ID,
   });
@@ -42,25 +41,25 @@ const App = () => {
   };
 
   const updateInviteUser = async (url: string) => {
-    var regex = /[?&]([^=#]+)=([^&#]*)/g,
-      params: any = {},
-      match;
+    const regex = /[?&]([^=#]+)=([^&#]*)/g;
+      const params: any = {};
+      let match;
     while ((match = regex.exec(url))) {
       params[match[1]] = match[2];
     }
     // const params = new URLSearchParams(_url.searchParams);
     console.log("params", params);
-    if (params["email"]) {
+    if (params.email) {
       await StorageHelper.setValue(
         "INVITE_EMAIL",
-        decodeURIComponent(params["email"]) || ""
+        decodeURIComponent(params.email) || ""
       );
-      await StorageHelper.setValue("INVITE_RID", params["rid"] || "");
+      await StorageHelper.setValue("INVITE_RID", params.rid || "");
       await StorageHelper.setValue(
         "INVITE_SACCOUNTID",
-        params["sAccountId"] || ""
+        params.sAccountId || ""
       );
-      await StorageHelper.setValue("INVITE_ROLE", params["role"] || "");
+      await StorageHelper.setValue("INVITE_ROLE", params.role || "");
     }
   };
 
@@ -141,7 +140,7 @@ const App = () => {
       </NativeBaseProvider>
     </Provider>
   );
-};
+}
 
 const codePushOptions: CodePushOptions = {
   installMode: codePush.InstallMode.IMMEDIATE,

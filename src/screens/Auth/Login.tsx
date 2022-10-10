@@ -10,6 +10,9 @@ import {
 } from "native-base";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import appleAuth from "@invertase/react-native-apple-authentication";
+import { useIsFocused } from "@react-navigation/native";
 import { AppColors } from "../../commons/colors";
 import AppInput from "../../components/AppInput";
 import AppSafeAreaView from "../../components/AppSafeAreaView";
@@ -22,17 +25,13 @@ import {
   useAuth,
 } from "../../contexts/AuthContext";
 import { popToPop } from "../../navigations/rootNavigation";
-import auth from "@react-native-firebase/auth";
-import appleAuth from "@invertase/react-native-apple-authentication";
 import ErrorView from "../../components/ErrorView";
-import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { StorageHelper } from "../../services/storage-helper";
 import { FLAG_TYPE, STATUS } from "../../commons/status";
 import ForgetPassword from "../../components/ForgetPassword";
 import { useAnalytics } from "../../services/analytics";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import {
-  getCustomerByIdAsync,
   getCustomerExistsAsync,
   registerCustomerAsync,
   selectCustomer,
@@ -42,14 +41,13 @@ import { FAILED, INIT, IN_PROGRESS } from "../../commons/ui-states";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { SAMPLE } from "../../commons/sample";
 import GradientButton from "../../components/GradientButton";
-import { useIsFocused } from "@react-navigation/native";
 
 type LoginFormType = {
   email: string;
   password: string;
 };
 
-const Login = (): JSX.Element => {
+function Login(): JSX.Element {
   const dispatch = useAppDispatch();
   const [showForgetPasswordForm, setShowForgetPasswordForm] =
     React.useState<boolean>(false);
@@ -78,11 +76,11 @@ const Login = (): JSX.Element => {
 
   const doLogin = async (userCredential: FirebaseAuthTypes.UserCredential) => {
     dispatch(setCustomerState({ uiState: IN_PROGRESS }));
-    let token = await userCredential.user.getIdToken();
-    let email = userCredential.user.email;
+    const token = await userCredential.user.getIdToken();
+    const {email} = userCredential.user;
     await StorageHelper.setValue("TOKEN", token);
     console.log("userCredential.user.email", email);
-    let result = await dispatch(getCustomerExistsAsync(email));
+    const result = await dispatch(getCustomerExistsAsync(email));
     // console.log("result", result);
     // console.log("result.meta.requestStatus", result.meta.requestStatus);
     // console.log("value", result.payload);
@@ -93,7 +91,7 @@ const Login = (): JSX.Element => {
     if (!result.payload.isExist) {
       // console.log("User not exist");
       if (socialLoginCompleted.current) {
-        let payload: CustomerProfile = {
+        const payload: CustomerProfile = {
           ...dummyProfile,
           ...{
             email: userCredential.user.email || "",
@@ -108,7 +106,7 @@ const Login = (): JSX.Element => {
           customerId: userCredential.user.email || "",
         };
         // console.log("payload", payload);
-        let registeredResult = await dispatch(
+        const registeredResult = await dispatch(
           registerCustomerAsync({ ...payload })
         );
         // console.log("meta", registeredResult.meta);
@@ -156,7 +154,7 @@ const Login = (): JSX.Element => {
         dispatch(
           setCustomerState({
             uiState: FAILED,
-            error: error,
+            error,
           })
         );
       });
@@ -168,8 +166,8 @@ const Login = (): JSX.Element => {
       loading={uiState === IN_PROGRESS}
     >
       <ScrollView>
-        <VStack mt={"1/3"} paddingX={5}>
-          <Center width={"100%"}>
+        <VStack mt="1/3" paddingX={5}>
+          <Center width="100%">
             <Text color={AppColors.SECONDARY} fontSize={30}>
               Login
             </Text>
@@ -207,7 +205,7 @@ const Login = (): JSX.Element => {
               name="password"
             />
             <Button
-              variant={"ghost"}
+              variant="ghost"
               _pressed={{ bg: "transparent" }}
               textAlign="right"
               p={0}
@@ -243,7 +241,7 @@ const Login = (): JSX.Element => {
                       dispatch(
                         setCustomerState({
                           uiState: FAILED,
-                          error: error,
+                          error,
                         })
                       );
                     });
@@ -253,7 +251,7 @@ const Login = (): JSX.Element => {
           </VStack>
           <Spacer top={20} />
           <SocialLogin
-            label={"Sign in"}
+            label="Sign in"
             loginWithGoogle={async () => {
               try {
                 dispatch(
@@ -375,6 +373,6 @@ const Login = (): JSX.Element => {
       />
     </AppSafeAreaView>
   );
-};
+}
 
 export default Login;

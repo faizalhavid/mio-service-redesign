@@ -1,11 +1,9 @@
 import {
   AppleButton,
-  AppleButtonStyle,
 } from "@invertase/react-native-apple-authentication";
-import { Button, HStack, Text, useContrastText } from "native-base";
+import { Button, HStack, Text } from "native-base";
 import React from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { AppColors } from "../../commons/colors";
 
 type SocialLoginButtonProps = {
   label: "Sign up" | "Sign in";
@@ -13,12 +11,12 @@ type SocialLoginButtonProps = {
   onPress: () => void;
 };
 
-const SocialLoginButton = ({
+function SocialLoginButton({
   type,
   label,
   onPress,
-}: SocialLoginButtonProps): JSX.Element => {
-  const LOGO = () => {
+}: SocialLoginButtonProps): JSX.Element {
+  function LOGO() {
     switch (type) {
       case "Google":
         return (
@@ -49,7 +47,7 @@ const SocialLoginButton = ({
         );
     }
     return <></>;
-  };
+  }
 
   return (
     <>
@@ -72,11 +70,11 @@ const SocialLoginButton = ({
           <Button
             borderRadius={5}
             // p={5}
-            width={"100%"}
-            height={"12"}
+            width="100%"
+            height="12"
             onPress={onPress}
-            bg={"transparent"}
-            borderColor={"#0a0a0a"}
+            bg="transparent"
+            borderColor="#0a0a0a"
             // bgColor={"gray.100"}
             // alignContent={"flex-start"}
             // justifyContent={"flex-start"}
@@ -85,7 +83,7 @@ const SocialLoginButton = ({
               backgroundColor: `#EEEEEEE6`,
             }}
           >
-            <HStack space={2} justifyContent="center" alignItems={"center"}>
+            <HStack space={2} justifyContent="center" alignItems="center">
               <View>{LOGO()}</View>
               <Text fontSize={16} fontWeight="semibold">
                 {label} with {type}
@@ -96,7 +94,7 @@ const SocialLoginButton = ({
       )}
     </>
   );
-};
+}
 
 export default SocialLoginButton;
 

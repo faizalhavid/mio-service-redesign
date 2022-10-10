@@ -9,14 +9,12 @@ const DAY = [
   "Friday",
   "Saturday",
 ];
-const timeHelper = (number: number) => {
-  return {
+const timeHelper = (number: number) => ({
     rangeMin: `${number > 12 ? number - 12 : number}`,
     rangeMax: `${number + 4 > 12 ? number + 4 - 12 : number + 4}`,
     minMeridian: `${number >= 12 ? "PM" : "AM"}`,
     maxMaxidian: `${number + 4 >= 12 ? "PM" : "AM"}`,
-  };
-};
+  });
 
 export const getReadableDateTime = (dt: string) => {
   if (!dt) {
@@ -28,15 +26,15 @@ export const getReadableDateTime = (dt: string) => {
       slot: `-`,
     };
   }
-  let _startDate = new Date(dt);
-  let _slot = timeHelper(_startDate.getHours());
-  let result = {
+  const _startDate = new Date(dt);
+  const _slot = timeHelper(_startDate.getHours());
+  const result = {
     year: `${_startDate.getFullYear()}`,
     date: `${_startDate.getDate()}`,
     month: `${FULL_MONTH[_startDate.getMonth()]}`,
     day: DAY[_startDate.getDay()],
-    slot: `${_slot.rangeMin + " " + _slot.minMeridian} - ${
-      _slot.rangeMax + " " + _slot.maxMaxidian
+    slot: `${`${_slot.rangeMin  } ${  _slot.minMeridian}`} - ${
+      `${_slot.rangeMax  } ${  _slot.maxMaxidian}`
     } `,
   };
   return {

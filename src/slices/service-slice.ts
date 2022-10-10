@@ -1,6 +1,6 @@
-import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import { getInitialState } from "../commons/initial-state";
-import { CommonState, PriceMap, Service } from "../commons/types";
+import { PriceMap, Service } from "../commons/types";
 import { API } from "../commons/urls";
 import { RootState } from "../reducers";
 import AxiosClient from "../services/axios-client";

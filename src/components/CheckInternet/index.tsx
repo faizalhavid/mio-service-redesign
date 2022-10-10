@@ -6,7 +6,7 @@ type CheckInternetProps = {
   mt?: number;
 };
 
-const CheckInternet = ({ mt }: CheckInternetProps): JSX.Element => {
+function CheckInternet({ mt }: CheckInternetProps): JSX.Element {
   const [connected, setConnected] = React.useState<boolean | null>(true);
 
   NetInfo.fetch().then((state) => {
@@ -31,17 +31,17 @@ const CheckInternet = ({ mt }: CheckInternetProps): JSX.Element => {
           }}
         >
           <View
-            bg={"red.100"}
-            borderColor={"red.300"}
+            bg="red.100"
+            borderColor="red.300"
             width="100%"
             zIndex={999}
             py={3}
             mt={mt === undefined ? 0 : mt}
           >
             <Text
-              textAlign={"center"}
-              color={"red.500"}
-              fontWeight={"semibold"}
+              textAlign="center"
+              color="red.500"
+              fontWeight="semibold"
               fontSize={16}
             >
               Please check your internet connection!
@@ -53,6 +53,6 @@ const CheckInternet = ({ mt }: CheckInternetProps): JSX.Element => {
       )}
     </>
   );
-};
+}
 
 export default CheckInternet;

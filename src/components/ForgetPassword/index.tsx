@@ -1,6 +1,5 @@
 import {
   Actionsheet,
-  Button,
   Center,
   Divider,
   ScrollView,
@@ -21,11 +20,11 @@ type ForgetPasswordProps = {
   onSumbit: (email: string) => void;
 };
 
-const ForgetPassword = ({
+function ForgetPassword({
   showForgetPasswordForm,
   setShowForgetPasswordForm,
   onSumbit,
-}: ForgetPasswordProps): JSX.Element => {
+}: ForgetPasswordProps): JSX.Element {
   const { control, formState, getValues } = useForm<{
     email: string;
   }>({
@@ -39,7 +38,7 @@ const ForgetPassword = ({
     <Actionsheet
       isOpen={showForgetPasswordForm}
       onClose={() => setShowForgetPasswordForm(false)}
-      hideDragIndicator={true}
+      hideDragIndicator
     >
       <Actionsheet.Content
         style={{
@@ -52,14 +51,14 @@ const ForgetPassword = ({
           backgroundColor: AppColors.EEE,
         }}
       >
-        <ScrollView pt={5} pb={10} width={"90%"}>
+        <ScrollView pt={5} pb={10} width="90%">
           <Center mb={10}>
             <Text fontSize={20} color={AppColors.SECONDARY}>
               Reset Password
             </Text>
           </Center>
           <Controller
-            key={"email"}
+            key="email"
             control={control}
             rules={{
               required: true,
@@ -84,7 +83,7 @@ const ForgetPassword = ({
             <AppButton
               disabled={!formState.isValid}
               color={AppColors.SECONDARY}
-              label={`RESET PASSWORD`}
+              label="RESET PASSWORD"
               onPress={async () => {
                 if (!formState.isValid) {
                   console.log("Reset Form Not Valid");
@@ -99,6 +98,6 @@ const ForgetPassword = ({
       </Actionsheet.Content>
     </Actionsheet>
   );
-};
+}
 
 export default ForgetPassword;

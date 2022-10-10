@@ -1,7 +1,4 @@
 import {
-  Box,
-  Button,
-  Divider,
   HStack,
   Pressable,
   Text,
@@ -10,14 +7,12 @@ import {
 } from "native-base";
 import React, { memo } from "react";
 import { Linking } from "react-native";
-import { LinearGradient, SvgCss } from "react-native-svg";
+import { SvgCss } from "react-native-svg";
 import {
   ADD_CALENDAR_ICON,
   ADD_RESCHEDULE_ICON,
-  BOX_ARROW_RIGHT_ICON,
   CHAT_ICON,
   CHEVRON_RIGHT_ICON,
-  RESCHEDULE_ICON,
 } from "../../commons/assets";
 import { AppColors } from "../../commons/colors";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -46,7 +41,7 @@ type ServiceCardProps = {
   subOrderId: string;
 };
 
-const ServiceCard = ({
+function ServiceCard({
   variant,
   dateTime,
   showWelcomeMessage,
@@ -64,7 +59,7 @@ const ServiceCard = ({
   year,
   orderId,
   subOrderId,
-}: ServiceCardProps): JSX.Element => {
+}: ServiceCardProps): JSX.Element {
   const dispatch = useAppDispatch();
   const outlineColor = AppColors.TEAL;
   const isOutline = variant === "outline";
@@ -75,7 +70,7 @@ const ServiceCard = ({
   const [showRescheduleSheet, setShowRescheduleSheet] =
     React.useState<boolean>(false);
 
-  const CardActions = () => {
+  function CardActions() {
     return (
       <>
         {showAddToCalendar && (
@@ -91,13 +86,13 @@ const ServiceCard = ({
             borderRightWidth={isOutline ? 0 : 1}
             borderBottomWidth={isOutline ? 0 : 1}
             justifyContent="space-between"
-            bg={"white"}
+            bg="white"
           >
             {showAddToCalendar && (
               <Pressable
                 fontSize={14}
                 color={AppColors.TEAL}
-                fontWeight={"semibold"}
+                fontWeight="semibold"
                 // justifyContent={"center"}
                 // alignItems="center"
                 onPress={() => {
@@ -107,8 +102,8 @@ const ServiceCard = ({
                 <HStack space={2}>
                   <SvgCss width={15} xml={ADD_CALENDAR_ICON(AppColors.TEAL)} />
                   <Text
-                    alignSelf={"center"}
-                    fontWeight={"bold"}
+                    alignSelf="center"
+                    fontWeight="bold"
                     fontSize={14}
                     color={AppColors.TEAL}
                   >
@@ -121,18 +116,18 @@ const ServiceCard = ({
               <Pressable
                 fontSize={14}
                 color={AppColors.TEAL}
-                fontWeight={"semibold"}
+                fontWeight="semibold"
                 onPress={() => {
                   setShowRescheduleSheet(true);
                 }}
               >
-                <HStack space={2} alignItems={"center"}>
+                <HStack space={2} alignItems="center">
                   <SvgCss
                     width={15}
                     xml={ADD_RESCHEDULE_ICON(AppColors.TEAL)}
                   />
                   <Text
-                    fontWeight={"bold"}
+                    fontWeight="bold"
                     fontSize={14}
                     color={AppColors.TEAL}
                   >
@@ -145,17 +140,17 @@ const ServiceCard = ({
               <Pressable
                 fontSize={14}
                 color={AppColors.TEAL}
-                fontWeight={"semibold"}
+                fontWeight="semibold"
                 onPress={() => {
                   Linking.openURL(
                     `mailto:support@miohomeservices.com?subject=[${orderId}] Service Notes&body=Hi, \n\n Order ID: ${orderId} \n Service Name: ${serviceName} \n\n Service Note: \n`
                   );
                 }}
               >
-                <HStack space={2} alignItems={"center"}>
+                <HStack space={2} alignItems="center">
                   <SvgCss width={15} xml={CHAT_ICON(AppColors.TEAL)} />
                   <Text
-                    fontWeight={"bold"}
+                    fontWeight="bold"
                     fontSize={14}
                     color={AppColors.TEAL}
                   >
@@ -168,7 +163,7 @@ const ServiceCard = ({
         )}
       </>
     );
-  };
+  }
 
   return (
     <Pressable
@@ -182,17 +177,17 @@ const ServiceCard = ({
           <>
             <HStack
               key={Math.random()}
-              bg={"white"}
+              bg="white"
               borderWidth={1}
               borderColor="white"
-              justifyContent={"space-between"}
+              justifyContent="space-between"
               p={3}
               borderTopRadius={10}
               borderBottomRadius={showAddToCalendar ? 0 : 10}
             >
               <HStack>
                 <VStack
-                  alignItems={"center"}
+                  alignItems="center"
                   borderRadius={10}
                   bg={
                     status === "CANCELED"
@@ -208,14 +203,14 @@ const ServiceCard = ({
                     fontSize={12}
                     color={AppColors.SECONDARY}
                     textTransform="uppercase"
-                    fontWeight={"semibold"}
+                    fontWeight="semibold"
                   >
                     {day?.substring(0, 3)}
                   </Text>
                   <Text
                     fontSize={16}
                     color={AppColors.SECONDARY}
-                    fontWeight={"semibold"}
+                    fontWeight="semibold"
                   >
                     {date}
                   </Text>
@@ -224,11 +219,11 @@ const ServiceCard = ({
                   <Text
                     fontSize={16}
                     color={AppColors.SECONDARY}
-                    fontWeight={"semibold"}
+                    fontWeight="semibold"
                   >
                     {serviceName} Service{" "}
                     {status === "CANCELED" ? (
-                      <Text fontSize={12} color={"red.700"}>
+                      <Text fontSize={12} color="red.700">
                         CANCELED
                       </Text>
                     ) : (
@@ -264,14 +259,14 @@ const ServiceCard = ({
               bg={AppColors.LIGHT_TEAL}
             >
               <View px={3} py={2} bg={AppColors.TEAL} borderTopRadius={10}>
-                <Text fontSize={14} fontWeight="semibold" color={"white"}>
+                <Text fontSize={14} fontWeight="semibold" color="white">
                   Your next service on {month} {date}
                 </Text>
               </View>
               <HStack
                 // borderWidth={1}
                 borderColor="white"
-                justifyContent={"space-between"}
+                justifyContent="space-between"
                 p={3}
               >
                 <HStack>
@@ -279,7 +274,7 @@ const ServiceCard = ({
                     <Text
                       fontSize={16}
                       color={AppColors.SECONDARY}
-                      fontWeight={"semibold"}
+                      fontWeight="semibold"
                     >
                       {serviceName} Service
                     </Text>
@@ -313,6 +308,6 @@ const ServiceCard = ({
       )}
     </Pressable>
   );
-};
+}
 
 export default memo(ServiceCard);

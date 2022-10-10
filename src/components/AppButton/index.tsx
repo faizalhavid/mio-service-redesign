@@ -1,4 +1,4 @@
-import { Button, useContrastText } from "native-base";
+import { Button } from "native-base";
 import React from "react";
 import { AppColors } from "../../commons/colors";
 
@@ -10,13 +10,13 @@ type AppButtonProps = {
   disabled?: boolean;
 };
 
-const AppButton = ({
+function AppButton({
   label,
   color,
   onPress,
   disabled,
   type,
-}: AppButtonProps): JSX.Element => {
+}: AppButtonProps): JSX.Element {
   const btnColor = color || AppColors.PRIMARY;
   return (
     <Button
@@ -26,7 +26,7 @@ const AppButton = ({
       borderColor={type === "outline" ? AppColors.TEAL : "white"}
       borderWidth={1}
       borderRadius={10}
-      width={"100%"}
+      width="100%"
       height={50}
       onPress={onPress}
       _text={{
@@ -41,6 +41,6 @@ const AppButton = ({
       {label}
     </Button>
   );
-};
+}
 
 export default AppButton;

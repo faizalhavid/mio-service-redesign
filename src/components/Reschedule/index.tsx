@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { AppColors } from "../../commons/colors";
-import { OrderStatus, SubOrder } from "../../commons/types";
+import { OrderStatus } from "../../commons/types";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -39,13 +39,13 @@ type RescheduleProps = {
   dt: string;
 };
 
-export const Reschedule = ({
+export function Reschedule({
   isOpen,
   setOpen,
   orderId,
   subOrderId,
   dt,
-}: RescheduleProps): JSX.Element => {
+}: RescheduleProps): JSX.Element {
   const dispatch = useAppDispatch();
   const [rescheduleType, setRescheduleType] = useState<"ALL" | "ONCE">("ONCE");
   const [selectedDate, setSelectedDate] = React.useState("");
@@ -69,7 +69,7 @@ export const Reschedule = ({
     if (orderId && subOrderId) {
       dispatch(getOrderDetailsAsync({ orderId, subOrderId }));
     } else {
-      return;
+      
     }
   }, [orderId, subOrderId]);
 
@@ -77,16 +77,16 @@ export const Reschedule = ({
     if (!orderDetail?.appointmentInfo?.appointmentDateTime) {
       return;
     }
-    let dates: AppointmentDateOptionType[] = [];
+    const dates: AppointmentDateOptionType[] = [];
     [1, 2, 3, 4].forEach((number) => {
-      let date = new Date(orderDetail.appointmentInfo.appointmentDateTime);
+      const date = new Date(orderDetail.appointmentInfo.appointmentDateTime);
       date.setDate(date.getDate() + number);
-      let month = date.getMonth() + 1;
-      let numberDate = date.getDate();
-      let fullDate = `${date.getFullYear()}-${
-        month > 9 ? month : "0" + month
-      }-${numberDate > 9 ? numberDate : "0" + numberDate}`;
-      let isSelected = false;
+      const month = date.getMonth() + 1;
+      const numberDate = date.getDate();
+      const fullDate = `${date.getFullYear()}-${
+        month > 9 ? month : `0${  month}`
+      }-${numberDate > 9 ? numberDate : `0${  numberDate}`}`;
+      const isSelected = false;
 
       dates.push({
         fullDate,
@@ -97,11 +97,11 @@ export const Reschedule = ({
       });
     });
     setAppointmentDateOptions(dates);
-    let times: AppointmentTimeOptionType[] = [];
+    const times: AppointmentTimeOptionType[] = [];
     [8, 10, 12, 14].forEach((number) => {
-      let rangeMin = `${number > 12 ? number - 12 : number}`;
-      let actualMin = `${number}`;
-      let isSelected = false;
+      const rangeMin = `${number > 12 ? number - 12 : number}`;
+      const actualMin = `${number}`;
+      const isSelected = false;
       times.push({
         actualMin,
         rangeMin,
@@ -116,7 +116,7 @@ export const Reschedule = ({
 
   useEffect(() => {
     if (dt) {
-      let dateTime = getReadableDateTime(dt);
+      const dateTime = getReadableDateTime(dt);
       setReadableDateTime(
         `${dateTime.month} ${dateTime.date}, ${dateTime.slot}`
       );
@@ -124,11 +124,10 @@ export const Reschedule = ({
   }, [dt]);
 
   return (
-    <>
-      <Actionsheet
+    <Actionsheet
         isOpen={isOpen}
         onClose={() => setOpen(false)}
-        hideDragIndicator={true}
+        hideDragIndicator
       >
         <Actionsheet.Content
           style={{
@@ -141,7 +140,7 @@ export const Reschedule = ({
             backgroundColor: AppColors.EEE,
           }}
         >
-          <VStack pt={15} bg={"white"} width="100%">
+          <VStack pt={15} bg="white" width="100%">
             <Center>
               <Text fontSize={18} fontWeight="semibold">
                 Reschedule
@@ -162,21 +161,21 @@ export const Reschedule = ({
               <VStack my={3} space={2}>
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
-                  width={"100%"}
+                  fontWeight="semibold"
+                  width="100%"
                   color={AppColors.SECONDARY}
                 >
                   Choose Date
                 </Text>
                 <HStack
-                  justifyContent={"center"}
-                  alignContent={"center"}
+                  justifyContent="center"
+                  alignContent="center"
                   space={0}
-                  bg={"#eee"}
+                  bg="#eee"
                 >
                   <FlatList
                     data={appointmentDateOptions}
-                    horizontal={true}
+                    horizontal
                     contentContainerStyle={{
                       width: "100%",
                     }}
@@ -189,7 +188,7 @@ export const Reschedule = ({
                         mr={2}
                         p={2}
                         justifyContent="center"
-                        alignItems={"center"}
+                        alignItems="center"
                         borderWidth={item.selected ? 1 : 0}
                         borderColor={AppColors.TEAL}
                         bg={item.selected ? AppColors.LIGHT_TEAL : "#fff"}
@@ -199,7 +198,7 @@ export const Reschedule = ({
                           backgroundColor: AppColors.LIGHT_TEAL,
                         }}
                         onPress={() => {
-                          let updatedAppointmentDateOptions =
+                          const updatedAppointmentDateOptions =
                             appointmentDateOptions.map(
                               (option, optionIndex) => {
                                 if (optionIndex === index) {
@@ -218,9 +217,9 @@ export const Reschedule = ({
                         }}
                       >
                         <Text
-                          alignSelf={"center"}
+                          alignSelf="center"
                           color={AppColors.TEAL}
-                          fontWeight={"semibold"}
+                          fontWeight="semibold"
                           textAlign="center"
                         >
                           {item.day} {"\n"} {item.month} {item.date}
@@ -231,17 +230,17 @@ export const Reschedule = ({
                 </HStack>
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
-                  width={"100%"}
+                  fontWeight="semibold"
+                  width="100%"
                   color={AppColors.SECONDARY}
                 >
                   Choose Slot
                 </Text>
                 <HStack
-                  justifyContent={"center"}
-                  alignItems={"center"}
+                  justifyContent="center"
+                  alignItems="center"
                   space={0}
-                  bg={"#eee"}
+                  bg="#eee"
                 >
                   <FlatList
                     data={appointmentTimeOptions}
@@ -257,7 +256,7 @@ export const Reschedule = ({
                         key={index}
                         height={10}
                         borderRadius={5}
-                        width={"48%"}
+                        width="48%"
                         m={1}
                         justifyContent="center"
                         p={2}
@@ -270,7 +269,7 @@ export const Reschedule = ({
                           backgroundColor: AppColors.LIGHT_TEAL,
                         }}
                         onPress={() => {
-                          let updatedAppointmentTimeOptions =
+                          const updatedAppointmentTimeOptions =
                             appointmentTimeOptions.map(
                               (option, optionIndex) => {
                                 if (optionIndex === index) {
@@ -289,9 +288,9 @@ export const Reschedule = ({
                         }}
                       >
                         <Text
-                          alignSelf={"center"}
+                          alignSelf="center"
                           color={AppColors.TEAL}
-                          fontWeight={"semibold"}
+                          fontWeight="semibold"
                         >
                           {`${item.rangeMin} ${item.minMeridian} - ${item.rangeMax} ${item.maxMaxidian}`}
                         </Text>
@@ -301,17 +300,17 @@ export const Reschedule = ({
                 </HStack>
                 <Text
                   fontSize={14}
-                  fontWeight={"semibold"}
-                  width={"100%"}
+                  fontWeight="semibold"
+                  width="100%"
                   color={AppColors.SECONDARY}
                 >
                   Reschedule Type
                 </Text>
                 {orderDetail?.flags?.recurringDuration === "ONCE" ? (
                   <Pressable
-                    key={"TYPE_1"}
+                    key="TYPE_1"
                     borderRadius={5}
-                    width={"100%"}
+                    width="100%"
                     px={3}
                     py={3}
                     justifyContent="center"
@@ -328,13 +327,13 @@ export const Reschedule = ({
                     onPress={() => {}}
                   >
                     <VStack>
-                      <Text color={AppColors.TEAL} fontWeight={"semibold"}>
+                      <Text color={AppColors.TEAL} fontWeight="semibold">
                         Reschedule Current Order
                       </Text>
                       <Text
                         fontSize={12}
-                        color={"amber.600"}
-                        fontWeight={"semibold"}
+                        color="amber.600"
+                        fontWeight="semibold"
                       >
                         This action will reschedule the current scheduled order.
                       </Text>
@@ -343,9 +342,9 @@ export const Reschedule = ({
                 ) : (
                   <>
                     <Pressable
-                      key={"TYPE_1"}
+                      key="TYPE_1"
                       borderRadius={5}
-                      width={"100%"}
+                      width="100%"
                       px={3}
                       py={3}
                       justifyContent="center"
@@ -366,13 +365,13 @@ export const Reschedule = ({
                       }}
                     >
                       <VStack>
-                        <Text color={AppColors.TEAL} fontWeight={"semibold"}>
+                        <Text color={AppColors.TEAL} fontWeight="semibold">
                           Reschedule Current Order
                         </Text>
                         <Text
                           fontSize={12}
-                          color={"amber.600"}
-                          fontWeight={"semibold"}
+                          color="amber.600"
+                          fontWeight="semibold"
                         >
                           This action will reschedule the current scheduled
                           order.
@@ -380,9 +379,9 @@ export const Reschedule = ({
                       </VStack>
                     </Pressable>
                     <Pressable
-                      key={"TYPE_2"}
+                      key="TYPE_2"
                       borderRadius={5}
-                      width={"100%"}
+                      width="100%"
                       px={3}
                       py={3}
                       justifyContent="center"
@@ -401,13 +400,13 @@ export const Reschedule = ({
                       }}
                     >
                       <VStack>
-                        <Text color={AppColors.TEAL} fontWeight={"semibold"}>
+                        <Text color={AppColors.TEAL} fontWeight="semibold">
                           Reschedule All Upcoming Orders
                         </Text>
                         <Text
                           fontSize={12}
-                          color={"amber.600"}
-                          fontWeight={"semibold"}
+                          color="amber.600"
+                          fontWeight="semibold"
                         >
                           This action will reschedule all the upcoming orders.
                         </Text>
@@ -433,18 +432,18 @@ export const Reschedule = ({
                 dispatch(
                   rescheduleOrderAsync({
                     type: rescheduleType,
-                    orderId: orderId,
+                    orderId,
                     subOrderId: orderDetail.subOrderId,
                     dateTime: new Date(
                       `${selecDate} ${
                         parseInt(selectedTime) > 9
                           ? selectedTime
-                          : "0" + selectedTime
+                          : `0${  selectedTime}`
                       }:00:00`
                     ).toISOString(),
                   })
                 ).then((response) => {
-                  let result: OrderStatus = response.payload;
+                  const result: OrderStatus = response.payload;
                   if (result.status === "SUCCESS") {
                     setOpen(false);
                     dispatch(
@@ -459,6 +458,5 @@ export const Reschedule = ({
           </VStack>
         </Actionsheet.Content>
       </Actionsheet>
-    </>
   );
-};
+}

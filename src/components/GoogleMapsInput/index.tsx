@@ -2,34 +2,33 @@ import React from "react";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { AppColors } from "../../commons/colors";
 import { ENV } from "../../commons/environment";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
 
 type GoogleMapsInputProps = {
   onSuccess: (value: any) => void;
   onFailure: (value: string) => void;
 };
 
-const GoogleMapsInput = ({
+function GoogleMapsInput({
   onSuccess,
   onFailure,
-}: GoogleMapsInputProps): JSX.Element => {
+}: GoogleMapsInputProps): JSX.Element {
   return (
     <GooglePlacesAutocomplete
       placeholder="Ex.: Street, City, State, Zip"
-      fetchDetails={true}
+      fetchDetails
       onPress={(data, details: any = null) => {
         // console.log(JSON.stringify(details));
-        let addressDetails: any[] = details.address_components;
-        let _addressInfo: any = {};
+        const addressDetails: any[] = details.address_components;
+        const _addressInfo: any = {};
         _addressInfo.formattedAddress = details.formatted_address;
         _addressInfo.googlePlaceId = details.place_id;
         try {
           _addressInfo.street =
-            addressDetails.find((c) => c.types.indexOf("street_number") >= 0)
-              .short_name +
-            " " +
+            `${addressDetails.find((c) => c.types.indexOf("street_number") >= 0)
+              .short_name 
+            } ${ 
             addressDetails.find((c) => c.types.indexOf("route") >= 0)
-              .short_name;
+              .short_name}`;
           _addressInfo.city = addressDetails.find(
             (c) => c.types.indexOf("locality") >= 0
           ).short_name;
@@ -79,6 +78,6 @@ const GoogleMapsInput = ({
       listUnderlayColor={AppColors.SECONDARY}
     />
   );
-};
+}
 
 export default GoogleMapsInput;

@@ -8,18 +8,17 @@ type TermsAndConditionsProps = {
   setShow: Function;
 };
 
-const TermsAndConditions = ({
+function TermsAndConditions({
   show,
   setShow,
-}: TermsAndConditionsProps): JSX.Element => {
+}: TermsAndConditionsProps): JSX.Element {
   const source = {
     uri: "https://storage.googleapis.com/homeservices-dev-ab7f9.appspot.com/Terms%26Conditions/TNC.pdf",
     cache: true,
   };
 
   return (
-    <>
-      <Actionsheet
+    <Actionsheet
         isOpen={show}
         onClose={() => {
           setShow(false);
@@ -27,7 +26,7 @@ const TermsAndConditions = ({
       >
         <Actionsheet.Content pl={10} pr={10} height={600} maxH={600}>
           <Divider thickness={0} mt={5} />
-          <Text fontWeight={"semibold"} fontSize={20}>
+          <Text fontWeight="semibold" fontSize={20}>
             Terms & Conditions
           </Text>
           <View style={styles.container}>
@@ -35,9 +34,8 @@ const TermsAndConditions = ({
           </View>
         </Actionsheet.Content>
       </Actionsheet>
-    </>
   );
-};
+}
 
 export default TermsAndConditions;
 

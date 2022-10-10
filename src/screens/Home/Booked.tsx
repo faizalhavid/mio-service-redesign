@@ -1,4 +1,4 @@
-import { Button, Center, Flex, ScrollView, Text, VStack } from "native-base";
+import { Center, ScrollView, Text, VStack } from "native-base";
 import React, { useEffect } from "react";
 import { SvgCss } from "react-native-svg";
 import { BOOKING_SUCCESS } from "../../commons/assets";
@@ -10,7 +10,7 @@ import { popToPop } from "../../navigations/rootNavigation";
 import { resetValidateCoupon } from "../../slices/coupon-slice";
 import { resetLeadState } from "../../slices/lead-slice";
 
-const Booked = (): JSX.Element => {
+function Booked(): JSX.Element {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(resetLeadState());
@@ -22,10 +22,10 @@ const Booked = (): JSX.Element => {
       <ScrollView mt={10}>
         <VStack space={10} mt={20}>
           <Text
-            textAlign={"center"}
+            textAlign="center"
             color={AppColors.SECONDARY}
             fontSize={22}
-            fontWeight={"semibold"}
+            fontWeight="semibold"
           >
             Your Service has{"\n"}been Booked!
           </Text>
@@ -41,6 +41,6 @@ const Booked = (): JSX.Element => {
       />
     </AppSafeAreaView>
   );
-};
+}
 
 export default Booked;

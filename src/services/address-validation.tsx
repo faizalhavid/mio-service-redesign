@@ -13,8 +13,8 @@ export function isAddressExists() {
       (customer && !customer?.addresses) ||
       customer?.addresses?.length === 0 ||
       (customer?.addresses?.length > 0 &&
-        (!Boolean(customer?.addresses[0].street) ||
-          !Boolean(customer?.addresses[0].zip)))
+        (!customer?.addresses[0].street ||
+          !customer?.addresses[0].zip))
     ) {
       setAddressExists(false);
     } else if (
@@ -22,9 +22,9 @@ export function isAddressExists() {
       !customer?.addresses ||
       customer?.addresses?.length === 0 ||
       (customer?.addresses?.length > 0 &&
-        (!Boolean(customer?.addresses?.[0]?.houseInfo?.lotSize) ||
-          !Boolean(customer?.addresses?.[0]?.houseInfo?.bedrooms) ||
-          !Boolean(customer?.addresses?.[0]?.houseInfo?.bathrooms)))
+        (!customer?.addresses?.[0]?.houseInfo?.lotSize ||
+          !customer?.addresses?.[0]?.houseInfo?.bedrooms ||
+          !customer?.addresses?.[0]?.houseInfo?.bathrooms))
     ) {
       setAddressExists(false);
     } else {

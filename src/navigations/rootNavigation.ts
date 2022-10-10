@@ -26,7 +26,7 @@ export function popToPop(name: string, params?: object): void {
     CommonActions.reset({
       index: 1,
       routes: [
-        { name: name }, //to go to initial stack screen
+        { name }, // to go to initial stack screen
       ],
     })
   );

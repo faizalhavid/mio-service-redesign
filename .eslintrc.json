@@ -1,9 +1,84 @@
 {
-  "plugins": ["prettier"],
-  "rules": {
-    "prettier/prettier": "error",
-    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
-    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "react-native/react-native": true
   },
-  "extends": ["plugin:prettier/recommended"]
+  "extends": [
+    "plugin:react/recommended",
+    "airbnb",
+    "airbnb/hooks",
+    "airbnb-typescript",
+    "prettier",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "overrides": [],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "project": ["./tsconfig.json"],
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true
+    }
+  },
+  "plugins": ["react", "react-native", "unused-imports"],
+  "ignorePatterns": ["*.config.js"],
+  "rules": {
+    "import/no-cycle": "off",
+    "prefer-promise-reject-errors": "off",
+    "radix": "off",
+    "no-useless-escape": "off",
+    "react/destructuring-assignment": "off",
+    "no-empty": "off",
+    "no-cond-assign": "off",
+    "no-return-assign": "off",
+    "default-case": "off",
+    "react/jsx-no-constructed-context-values": "off",
+    "no-async-promise-executor": "off",
+    "react-native/no-color-literals": "off",
+    "react-native/no-unused-styles": "off",
+    "no-plusplus": "off",
+    "no-unsafe-optional-chaining": "off",
+    "react/no-unescaped-entities": "off",
+    "eqeqeq": "off",
+    "react/jsx-props-no-spreading": "off",
+    "no-nested-ternary": "off",
+    "no-empty-pattern": "off",
+    "no-bitwise": "off",
+    "react/no-children-prop": "off",
+    "@typescript-eslint/no-shadow": "off",
+    "prefer-destructuring": "off",
+    "global-require": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "react/no-array-index-key": "off",
+    "react/require-default-props": "off",
+    "react/jsx-no-useless-fragment": "off",
+    "no-param-reassign": "off",
+    "react/no-unstable-nested-components": "off",
+    "no-underscore-dangle": "off",
+    "react/no-unused-prop-types": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "no-restricted-syntax": "off",
+    "react-hooks/rules-of-hooks": "off",
+    "import/prefer-default-export": "off",
+    "@typescript-eslint/naming-convention": "off",
+    "react-native/split-platform-components": 2,
+    "@typescript-eslint/no-unused-vars": "off",
+    "unused-imports/no-unused-imports-ts": 2,
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }]
+  },
+  "settings": {
+    "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  }
 }

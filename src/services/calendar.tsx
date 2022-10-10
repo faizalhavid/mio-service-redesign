@@ -6,7 +6,7 @@ const eventConfig = {
 };
 
 export const addToCalendar = (title: any, startDate: string) => {
-  let endDate = new Date(
+  const endDate = new Date(
     new Date(startDate).setHours(new Date(startDate).getHours() + 4)
   ).toISOString();
   AddCalendarEvent.presentEventCreatingDialog({

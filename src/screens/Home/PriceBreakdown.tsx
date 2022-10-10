@@ -6,7 +6,7 @@ import { selectValidateCoupon } from "../../slices/coupon-slice";
 import { selectLead } from "../../slices/lead-slice";
 import { SERVICES } from "./ChooseService";
 
-const PriceBreakdown = (): JSX.Element => {
+function PriceBreakdown(): JSX.Element {
   const { member: leadDetails } = useAppSelector(selectLead);
   const {
     uiState: validateCouponUiState,
@@ -17,9 +17,9 @@ const PriceBreakdown = (): JSX.Element => {
     let total: any = 0;
     let discountedTotal: any = 0;
     let discountedServiceId = "";
-    let discountedService = validateCoupon?.applicableServices?.[0];
+    const discountedService = validateCoupon?.applicableServices?.[0];
     if (leadDetails?.subOrders?.length > 0) {
-      let packageDiscountedCost = leadDetails.subOrders.reduce(
+      const packageDiscountedCost = leadDetails.subOrders.reduce(
         (prev, current) => {
           if (discountedService) {
             if (current.serviceId === discountedService.serviceId) {
@@ -35,11 +35,11 @@ const PriceBreakdown = (): JSX.Element => {
         },
         0
       );
-      let packageCost = leadDetails.subOrders.reduce(
+      const packageCost = leadDetails.subOrders.reduce(
         (prev, current) => prev + (current?.servicePrice?.cost || 0),
         0
       );
-      let trustFee = leadDetails.subOrders.reduce(
+      const trustFee = leadDetails.subOrders.reduce(
         (prev, current) => prev + (current?.servicePrice?.trustFee || 0),
         0
       );
@@ -53,12 +53,12 @@ const PriceBreakdown = (): JSX.Element => {
   }, [leadDetails, validateCoupon]);
   return (
     <VStack space={3}>
-      <Divider bgColor={"gray.200"} thickness={1} />
-      <HStack justifyContent={"space-between"} px={5}>
-        <Text fontSize={16} fontWeight={"semibold"}>
+      <Divider bgColor="gray.200" thickness={1} />
+      <HStack justifyContent="space-between" px={5}>
+        <Text fontSize={16} fontWeight="semibold">
           Summary
         </Text>
-        <HStack alignItems={"center"} space={1}>
+        <HStack alignItems="center" space={1}>
           <Text
             pr={0.5}
             fontSize={12}
@@ -67,7 +67,7 @@ const PriceBreakdown = (): JSX.Element => {
           >
             TOTAL
           </Text>
-          <Text fontSize={16} fontWeight={"semibold"}>
+          <Text fontSize={16} fontWeight="semibold">
             ${cost.discountedTotal || cost.total}
           </Text>
           {cost.discountedTotal !== 0 && (
@@ -82,20 +82,20 @@ const PriceBreakdown = (): JSX.Element => {
           )}
         </HStack>
       </HStack>
-      <Divider bgColor={"gray.200"} thickness={1} />
+      <Divider bgColor="gray.200" thickness={1} />
       {leadDetails?.subOrders?.map((subOrder, index) => (
         <VStack
           key={index}
           borderWidth={1}
           borderTopWidth={3}
           borderRadius={10}
-          borderColor={"gray.200"}
+          borderColor="gray.200"
           mx={3}
           borderTopColor={AppColors.LIGHT_TEAL}
           py={2}
           space={1}
         >
-          <HStack px={3} justifyContent={"space-between"}>
+          <HStack px={3} justifyContent="space-between">
             <Text fontSize={14} fontWeight="semibold">
               {SERVICES[subOrder.serviceId].text}{" "}
               {cost.discountedServiceId === subOrder.serviceId && (
@@ -116,14 +116,14 @@ const PriceBreakdown = (): JSX.Element => {
               ${subOrder.servicePrice.cost}
             </Text>
           </HStack>
-          <HStack px={3} justifyContent={"space-between"}>
+          <HStack px={3} justifyContent="space-between">
             <Text fontSize={12}>Trust & Support Fee</Text>
             <Text fontSize={12} color={AppColors.SECONDARY}>
               ${leadDetails.subOrders[0].servicePrice.trustFee}
             </Text>
           </HStack>
-          <Divider bgColor={"gray.200"} thickness={1} />
-          <HStack px={3} justifyContent={"space-between"}>
+          <Divider bgColor="gray.200" thickness={1} />
+          <HStack px={3} justifyContent="space-between">
             <Text fontSize={14} fontWeight="semibold">
               {subOrder.flags.recurringDuration === "ONCE"
                 ? "ONE-TIME"
@@ -139,7 +139,7 @@ const PriceBreakdown = (): JSX.Element => {
                 subOrder.servicePrice.cost}
             </Text>
           </HStack>
-          <HStack px={3} justifyContent={"space-between"}>
+          <HStack px={3} justifyContent="space-between">
             <Text fontSize={10} mt={-1}>
               TOTAL
             </Text>
@@ -149,12 +149,12 @@ const PriceBreakdown = (): JSX.Element => {
           </HStack>
         </VStack>
       ))}
-      <Divider bgColor={"gray.200"} thickness={1} />
+      <Divider bgColor="gray.200" thickness={1} />
       <Text px={5} pb={3} fontSize={12} color={AppColors.SECONDARY}>
         **Amount will be deducted on the day of service
       </Text>
     </VStack>
   );
-};
+}
 
 export default PriceBreakdown;

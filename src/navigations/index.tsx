@@ -5,12 +5,12 @@ import {
 } from "@react-navigation/native-stack";
 import React from "react";
 import auth from "@react-native-firebase/auth";
+import RNBootSplash from "react-native-bootsplash";
 import { TitleBar } from "../components/TitleBar/TitleBar";
 import Login from "../screens/Auth/Login";
 import Register from "../screens/Auth/Register";
 import Welcome from "../screens/Auth/Welcome";
 import { navigationRef } from "./rootNavigation";
-import RNBootSplash from "react-native-bootsplash";
 import ChooseService from "../screens/Home/ChooseService";
 import Payment from "../screens/Home/Payment";
 import Booked from "../screens/Home/Booked";
@@ -62,10 +62,10 @@ const index = (): JSX.Element => {
 
   const setupInitialScreen = React.useCallback(async () => {
     try {
-      let authenticationStatus = await StorageHelper.getValue(
+      const authenticationStatus = await StorageHelper.getValue(
         FLAG_TYPE.AUTHENTICATED_USER
       );
-      let inviteEmail = await StorageHelper.getValue("INVITE_EMAIL");
+      const inviteEmail = await StorageHelper.getValue("INVITE_EMAIL");
 
       if (inviteEmail) {
         setInitialScreen("Register");

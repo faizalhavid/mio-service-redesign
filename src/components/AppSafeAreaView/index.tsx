@@ -1,18 +1,15 @@
 import {
   Center,
-  Divider,
-  ScrollView,
   Spinner,
-  Text,
   useColorModeValue,
   View,
   VStack,
 } from "native-base";
 import React from "react";
-import { Dimensions, Platform } from "react-native";
+import { Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppColors } from "../../commons/colors";
-import { AppStatusBar } from "../../components/AppStatusBar";
+import { AppStatusBar } from "../AppStatusBar";
 import CheckAppUpdate from "../CheckAppUpdate";
 import CheckInternet from "../CheckInternet";
 
@@ -24,13 +21,13 @@ type AppSafeAreaViewProps = {
   loading?: boolean;
 };
 
-const AppSafeAreaView = ({
+function AppSafeAreaView({
   bg,
   mt,
   statusBarColor,
   children,
   loading,
-}: AppSafeAreaViewProps): JSX.Element => {
+}: AppSafeAreaViewProps): JSX.Element {
   return (
     <SafeAreaView
       edges={["top"]}
@@ -50,12 +47,12 @@ const AppSafeAreaView = ({
       <CheckAppUpdate mt={mt === undefined ? 0 : mt} />
       {loading && (
         <View
-          position={"absolute"}
-          width={"100%"}
+          position="absolute"
+          width="100%"
           height={Dimensions.get("screen").height}
-          bg={"rgba(0,0,0,0.5)"}
+          bg="rgba(0,0,0,0.5)"
           zIndex={999}
-          justifyContent={"center"}
+          justifyContent="center"
         >
           <Center>
             <VStack>
@@ -68,6 +65,6 @@ const AppSafeAreaView = ({
       {children}
     </SafeAreaView>
   );
-};
+}
 
 export default AppSafeAreaView;

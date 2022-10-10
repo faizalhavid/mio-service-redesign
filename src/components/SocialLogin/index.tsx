@@ -1,6 +1,6 @@
 import { HStack, Divider, Center, VStack } from "native-base";
 import React from "react";
-import { Platform, StyleSheet } from "react-native";
+import { Platform } from "react-native";
 import SocialLoginButton from "../SocialLoginButton";
 import Spacer from "../Spacer";
 
@@ -10,20 +10,20 @@ type SocialLoginProps = {
   loginWithApple?: () => void;
 };
 
-const SocialLogin = ({
+function SocialLogin({
   label,
   loginWithGoogle,
   loginWithApple,
-}: SocialLoginProps): JSX.Element => {
+}: SocialLoginProps): JSX.Element {
   return (
     <>
       {/* {Platform.OS === "android" && ( */}
-      <HStack justifyContent={"center"}>
+      <HStack justifyContent="center">
         <Divider my="5" />
         <Center
-          position={"absolute"}
+          position="absolute"
           top={2}
-          background={"white"}
+          background="white"
           _text={{
             color: "gray.400",
           }}
@@ -33,7 +33,7 @@ const SocialLogin = ({
       </HStack>
       {/* )} */}
       <Spacer top={20} />
-      <VStack justifyContent={"center"} space={2} width={"100%"}>
+      <VStack justifyContent="center" space={2} width="100%">
         {loginWithGoogle && (
           <SocialLoginButton
             label={label}
@@ -52,6 +52,6 @@ const SocialLogin = ({
       </VStack>
     </>
   );
-};
+}
 
 export default SocialLogin;
