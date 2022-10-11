@@ -1,25 +1,26 @@
-import { combineReducers } from "@reduxjs/toolkit";
-import { saveCardSlice, savedCardsSlice } from "../slices/card-slice";
-import { validateCouponSlice } from "../slices/coupon-slice";
+import { combineReducers } from '@reduxjs/toolkit';
+import { saveCardSlice, savedCardsSlice } from '../slices/card-slice';
+import { validateCouponSlice } from '../slices/coupon-slice';
 import {
   addressSlice,
   customerSlice,
   deleteCustomerSlice,
   houseInfoSlice,
-} from "../slices/customer-slice";
-import { leadSlice } from "../slices/lead-slice";
+} from '../slices/customer-slice';
+import { invitedUsersSlice, inviteNewUserSlice } from '../slices/invite-slice';
+import { leadSlice } from '../slices/lead-slice';
 import {
   cancelOrderSlice,
   createOrderSlice,
   firstOrderSlice,
+  jobStatusSlice,
   orderDetailsSlice,
   pastOrdersSlice,
   rescheduleOrderSlice,
   upcomingOrdersSlice,
-} from "../slices/order-slice";
-import { allServicesSlice, serviceCostSlice } from "../slices/service-slice";
-import { refreshNeededSlice } from "../slices/shared-slice";
-import { invitedUsersSlice, inviteNewUserSlice } from "../slices/invite-slice";
+} from '../slices/order-slice';
+import { allServicesSlice, serviceCostSlice } from '../slices/service-slice';
+import { refreshNeededSlice } from '../slices/shared-slice';
 
 const rootReducer = combineReducers({
   customer: customerSlice.reducer,
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   pastOrders: pastOrdersSlice.reducer,
   createOrder: createOrderSlice.reducer,
   orderDetails: orderDetailsSlice.reducer,
+  jobStatus: jobStatusSlice.reducer,
   cancelOrder: cancelOrderSlice.reducer,
   rescheduleOrder: rescheduleOrderSlice.reducer,
   services: allServicesSlice.reducer,

@@ -1,13 +1,19 @@
-import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { getInitialState } from "../commons/initial-state";
-import { Order, OrderStatus, PaginatedOrder, SubOrder } from "../commons/types";
-import { API } from "../commons/urls";
-import { RootState } from "../reducers";
-import AxiosClient from "../services/axios-client";
-import { createAsyncSlice } from "./create-async-slice";
+import { createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { getInitialState } from '../commons/initial-state';
+import {
+  Order,
+  OrderStatus,
+  PaginatedOrder,
+  SubOrder,
+  UpdateOrderStatusRequest,
+} from '../commons/types';
+import { API } from '../commons/urls';
+import { RootState } from '../reducers';
+import AxiosClient from '../services/axios-client';
+import { createAsyncSlice } from './create-async-slice';
 
 export const getUpcomingOrdersAsync = createAsyncThunk(
-  "order/upcoming",
+  'order/upcoming',
   async (data?: { orderId: string; subOrderId: string; limit: number }) => {
     const res = await AxiosClient.get(`${API.GET_ALL_ORDERS}/upcoming`, {
       params: data,
@@ -17,7 +23,7 @@ export const getUpcomingOrdersAsync = createAsyncThunk(
 );
 
 export const getPastOrdersAsync = createAsyncThunk(
-  "order/past",
+  'order/past',
   async (data?: { orderId: string; subOrderId: string; limit: number }) => {
     const res = await AxiosClient.get(`${API.GET_ALL_ORDERS}/past`, {
       params: data,
@@ -27,7 +33,7 @@ export const getPastOrdersAsync = createAsyncThunk(
 );
 
 export const getOrderDetailsAsync = createAsyncThunk(
-  "order/getOrderDetails",
+  'order/getOrderDetails',
   async (data: { orderId: string; subOrderId: string }) => {
     const res = await AxiosClient.get(
       `${API.GET_ORDER_DETAILS}/${data.orderId}/detail/${data.subOrderId}`
@@ -37,7 +43,7 @@ export const getOrderDetailsAsync = createAsyncThunk(
 );
 
 export const createOrderFromLeadAsync = createAsyncThunk(
-  "order/create",
+  'order/create',
   async (data: { leadId: string }) => {
     const res = await AxiosClient.post(`${API.CREATE_ORDER_FROM_LEAD}`, {
       leadId: data.leadId,
@@ -47,39 +53,35 @@ export const createOrderFromLeadAsync = createAsyncThunk(
 );
 
 export const cancelOrderAsync = createAsyncThunk(
-  "order/cancel",
-  async (data: {
-    orderId: string;
-    type: string;
-    subOrderId: string;
-    dateTime: string;
-  }) => {
-    const res = await AxiosClient.post(
-      `${API.CANCEL_ORDER}/${data.orderId}/cancel`,
-      {
-        type: data.type,
-        subOrderId: data.subOrderId,
-        dateTime: data.dateTime,
-      }
-    );
+  'order/cancel',
+  async (data: { orderId: string; type: string; subOrderId: string; dateTime: string }) => {
+    const res = await AxiosClient.post(`${API.CANCEL_ORDER}/${data.orderId}/cancel`, {
+      type: data.type,
+      subOrderId: data.subOrderId,
+      dateTime: data.dateTime,
+    });
     return res.data;
   }
 );
 export const rescheduleOrderAsync = createAsyncThunk(
-  "order/reschedule",
-  async (data: {
-    orderId: string;
-    type: string;
-    subOrderId: string;
-    dateTime: string;
-  }) => {
-    const res = await AxiosClient.post(
-      `${API.CANCEL_ORDER}/${data.orderId}/reschedule`,
-      {
-        type: data.type,
-        subOrderId: data.subOrderId,
-        dateTime: data.dateTime,
-      }
+  'order/reschedule',
+  async (data: { orderId: string; type: string; subOrderId: string; dateTime: string }) => {
+    const res = await AxiosClient.post(`${API.CANCEL_ORDER}/${data.orderId}/reschedule`, {
+      type: data.type,
+      subOrderId: data.subOrderId,
+      dateTime: data.dateTime,
+    });
+    return res.data;
+  }
+);
+
+export const udpateJobStatusAsync = createAsyncThunk(
+  'order/status',
+  async (data: UpdateOrderStatusRequest) => {
+    console.log(data);
+    const res = await AxiosClient.put(
+      `${API.UPDATE_ORDER_STATUS}/${data.orderId}/suborder/${data.subOrderId}/update`,
+      data
     );
     return res.data;
   }
@@ -88,20 +90,17 @@ export const rescheduleOrderAsync = createAsyncThunk(
 // Slice
 
 export const upcomingOrdersSlice = createAsyncSlice({
-  name: "order/upcoming",
+  name: 'order/upcoming',
   initialState: getInitialState<PaginatedOrder>(),
   reducers: {},
   thunks: [getUpcomingOrdersAsync],
 });
 
 export const pastOrdersSlice = createAsyncSlice({
-  name: "order/past",
+  name: 'order/past',
   initialState: getInitialState<PaginatedOrder>(),
   reducers: {
-    updatePastOrders: (
-      state,
-      { payload }: PayloadAction<{ orders: Order[] }>
-    ) => {
+    updatePastOrders: (state, { payload }: PayloadAction<{ orders: Order[] }>) => {
       state.member.data = [...state.member.data, ...payload.orders];
     },
   },
@@ -109,7 +108,7 @@ export const pastOrdersSlice = createAsyncSlice({
 });
 
 export const orderDetailsSlice = createAsyncSlice({
-  name: "order/details",
+  name: 'order/details',
   initialState: getInitialState<SubOrder>(),
   reducers: {
     resetOrderDetails: (state) => {
@@ -120,28 +119,35 @@ export const orderDetailsSlice = createAsyncSlice({
 });
 
 export const createOrderSlice = createAsyncSlice({
-  name: "order/create",
+  name: 'order/create',
   initialState: getInitialState<Order>(),
   reducers: {},
   thunks: [createOrderFromLeadAsync],
 });
 
 export const cancelOrderSlice = createAsyncSlice({
-  name: "order/cancel",
+  name: 'order/cancel',
   initialState: getInitialState<OrderStatus>(),
   reducers: {},
   thunks: [cancelOrderAsync],
 });
 
 export const rescheduleOrderSlice = createAsyncSlice({
-  name: "order/reschedule",
+  name: 'order/reschedule',
   initialState: getInitialState<OrderStatus>(),
   reducers: {},
   thunks: [rescheduleOrderAsync],
 });
 
+export const jobStatusSlice = createAsyncSlice({
+  name: 'order/status',
+  initialState: getInitialState(),
+  reducers: {},
+  thunks: [udpateJobStatusAsync],
+});
+
 export const firstOrderSlice = createAsyncSlice({
-  name: "order/firstorder",
+  name: 'order/firstorder',
   initialState: getInitialState<Order>(),
   reducers: {
     setFirstOrder: (state, { payload }: PayloadAction<{ order: Order }>) => {
@@ -164,5 +170,5 @@ export const selectPastOrders = (state: RootState) => state.pastOrders;
 export const selectOrderDetails = (state: RootState) => state.orderDetails;
 export const selectCreateOrder = (state: RootState) => state.createOrder;
 export const selectCancelOrder = (state: RootState) => state.cancelOrder;
-export const selectRescheduleOrder = (state: RootState) =>
-  state.rescheduleOrder;
+export const selectRescheduleOrder = (state: RootState) => state.rescheduleOrder;
+export const selectJobStatus = (state: RootState) => state.jobStatus;

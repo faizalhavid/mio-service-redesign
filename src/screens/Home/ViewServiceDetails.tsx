@@ -1,6 +1,7 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   Button,
+  Center,
   Divider,
   HStack,
   Image,
@@ -8,37 +9,30 @@ import {
   Text,
   View,
   VStack,
-} from "native-base";
-import React, { useEffect, useState } from "react";
-import { AppColors } from "../../commons/colors";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import { SuperRootStackParamList } from "../../navigations";
-import { getReadableDateTime } from "../../services/utils";
-import {
-  HOUSE_CLEANING_ID,
-  LAWN_CARE_ID,
-  SERVICES,
-} from "./ChooseService";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { selectCustomer } from "../../slices/customer-slice";
-import {
-  getOrderDetailsAsync,
-  selectOrderDetails,
-} from "../../slices/order-slice";
-import { IN_PROGRESS } from "../../commons/ui-states";
-import CancelOrderBottomSheet from "../../components/CancelOrderBottomSheet";
-import { useAuth } from "../../contexts/AuthContext";
+} from 'native-base';
+import React, { useEffect, useState } from 'react';
+import { AppColors } from '../../commons/colors';
+import { IN_PROGRESS } from '../../commons/ui-states';
+import AppSafeAreaView from '../../components/AppSafeAreaView';
+import CancelOrderBottomSheet from '../../components/CancelOrderBottomSheet';
+import JobCompletedBottomSheet from '../../components/JobCompletedBottomSheet';
+import { useAuth } from '../../contexts/AuthContext';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { SuperRootStackParamList } from '../../navigations';
+import { getReadableDateTime } from '../../services/utils';
+import { selectCustomer } from '../../slices/customer-slice';
+import { getOrderDetailsAsync, selectOrderDetails } from '../../slices/order-slice';
+import { HOUSE_CLEANING_ID, LAWN_CARE_ID, SERVICES } from './ChooseService';
 
 type ViewServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
-  "ViewServiceDetails"
+  'ViewServiceDetails'
 >;
-function ViewServiceDetails({
-  route,
-}: ViewServiceDetailsProps): JSX.Element {
+function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
   const { orderId, subOrderId } = route.params;
   const [showCancelOrder, setShowCancelOrder] = useState<boolean>(false);
+  const [showJobCompleted, setShowJobCompleted] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
 
@@ -60,7 +54,6 @@ function ViewServiceDetails({
     if (orderId && subOrderId) {
       dispatch(getOrderDetailsAsync({ orderId, subOrderId }));
     } else {
-      
     }
   }, [orderId, subOrderId]);
 
@@ -74,12 +67,8 @@ function ViewServiceDetails({
 
   function ValueText({ text }: { text: string | number }): JSX.Element {
     return (
-      <Text
-        color={AppColors.SECONDARY}
-        textTransform="uppercase"
-        fontWeight="semibold"
-      >
-        {text || "-"}
+      <Text color={AppColors.SECONDARY} textTransform="uppercase" fontWeight="semibold">
+        {text || '-'}
       </Text>
     );
   }
@@ -91,12 +80,20 @@ function ViewServiceDetails({
         <Divider my={1} mb={3} borderWidth={1} borderColor={AppColors.EEE} />
 
         <VStack space={3}>
-          <View>
-            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-              SERVICE PROVIDER
-            </Text>
-            <ValueText text="Mio Home Services" />
-          </View>
+          <HStack justifyContent="space-between">
+            <VStack width="50%">
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                SERVICE PROVIDER
+              </Text>
+              <ValueText text="Mio Home Services" />
+            </VStack>
+            <VStack width="50%">
+              <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
+                ORDER #
+              </Text>
+              <ValueText text={orderDetail?.subOrderId} />
+            </VStack>
+          </HStack>
           <HStack justifyContent="space-between">
             <VStack width="50%">
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
@@ -118,17 +115,9 @@ function ViewServiceDetails({
               </Text>
               <ValueText
                 text={`${
-                  getReadableDateTime(
-                    orderDetail?.appointmentInfo?.appointmentDateTime
-                  ).month
-                } ${
-                  getReadableDateTime(
-                    orderDetail?.appointmentInfo?.appointmentDateTime
-                  ).date
-                }, ${
-                  getReadableDateTime(
-                    orderDetail?.appointmentInfo?.appointmentDateTime
-                  ).year
+                  getReadableDateTime(orderDetail?.appointmentInfo?.appointmentDateTime).month
+                } ${getReadableDateTime(orderDetail?.appointmentInfo?.appointmentDateTime).date}, ${
+                  getReadableDateTime(orderDetail?.appointmentInfo?.appointmentDateTime).year
                 }`}
               />
             </VStack>
@@ -137,14 +126,30 @@ function ViewServiceDetails({
                 TIME SLOT
               </Text>
               <ValueText
-                text={
-                  getReadableDateTime(
-                    orderDetail?.appointmentInfo?.appointmentDateTime
-                  ).slot
-                }
+                text={getReadableDateTime(orderDetail?.appointmentInfo?.appointmentDateTime).slot}
               />
             </VStack>
           </HStack>
+          {['NEW', 'ACTIVE', 'RESCHEDULED', 'CANCELLATION-FAILED'].indexOf(
+            orderDetail?.flags?.status
+          ) >= 0 &&
+            !isViewer &&
+            getReadableDateTime(orderDetail?.appointmentInfo?.appointmentDateTime).date !==
+              `${new Date().getDate()}` && (
+              <Button
+                variant="outline"
+                _pressed={{
+                  bgColor: AppColors.LIGHT_TEAL,
+                }}
+                borderColor={AppColors.TEAL}
+                borderWidth={0.8}
+                onPress={() => setShowJobCompleted(true)}
+              >
+                <Center>
+                  <Text color={AppColors.TEAL}>Mark as Job Completed</Text>
+                </Center>
+              </Button>
+            )}
         </VStack>
       </VStack>
     );
@@ -189,11 +194,7 @@ function ViewServiceDetails({
               SERVICE NOTES
             </Text>
             <ValueText
-              text={
-                orderDetail?.serviceNotes?.length > 0
-                  ? orderDetail?.serviceNotes[0]
-                  : "-"
-              }
+              text={orderDetail?.serviceNotes?.length > 0 ? orderDetail?.serviceNotes[0] : '-'}
             />
           </View>
           <View>
@@ -210,7 +211,7 @@ function ViewServiceDetails({
                     width: 80,
                     height: 80,
                     uri: image,
-                    cache: "force-cache",
+                    cache: 'force-cache',
                   }}
                   alt="photo"
                   bg="gray.200"
@@ -235,17 +236,13 @@ function ViewServiceDetails({
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 STREET
               </Text>
-              <ValueText
-                text={orderDetail?.customerProfile?.addresses[0]?.street}
-              />
+              <ValueText text={orderDetail?.customerProfile?.addresses[0]?.street} />
             </VStack>
             <VStack width="50%">
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 CITY
               </Text>
-              <ValueText
-                text={orderDetail?.customerProfile?.addresses[0]?.city}
-              />
+              <ValueText text={orderDetail?.customerProfile?.addresses[0]?.city} />
             </VStack>
           </HStack>
           <HStack justifyContent="space-between">
@@ -253,17 +250,13 @@ function ViewServiceDetails({
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 STATE
               </Text>
-              <ValueText
-                text={orderDetail?.customerProfile?.addresses[0]?.state}
-              />
+              <ValueText text={orderDetail?.customerProfile?.addresses[0]?.state} />
             </VStack>
             <VStack width="50%">
               <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
                 ZIP
               </Text>
-              <ValueText
-                text={orderDetail?.customerProfile?.addresses[0]?.zip}
-              />
+              <ValueText text={orderDetail?.customerProfile?.addresses[0]?.zip} />
             </VStack>
           </HStack>
         </VStack>
@@ -282,7 +275,7 @@ function ViewServiceDetails({
           <OverviewCard />
           <ServiceDetailsCard />
           <AddressCard />
-          {["NEW", "ACTIVE", "RESCHEDULED", "CANCELLATION-FAILED"].indexOf(
+          {['NEW', 'ACTIVE', 'RESCHEDULED', 'CANCELLATION-FAILED'].indexOf(
             orderDetail?.flags?.status
           ) >= 0 &&
             !isViewer && (
@@ -290,7 +283,7 @@ function ViewServiceDetails({
                 variant="outline"
                 mx={3}
                 _pressed={{
-                  bgColor: "red.100",
+                  bgColor: 'red.100',
                 }}
                 borderColor="red.600"
                 borderWidth={0.8}
@@ -307,6 +300,14 @@ function ViewServiceDetails({
           orderId={orderId}
           showCancelOrder={showCancelOrder}
           setShowCancelOrder={setShowCancelOrder}
+        />
+      )}
+      {showJobCompleted && (
+        <JobCompletedBottomSheet
+          orderId={orderId}
+          subOrderId={subOrderId}
+          showJobCompleted={showJobCompleted}
+          setShowJobCompleted={setShowJobCompleted}
         />
       )}
     </AppSafeAreaView>

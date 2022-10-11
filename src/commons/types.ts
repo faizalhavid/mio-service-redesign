@@ -1,4 +1,4 @@
-import * as uiStates from "./ui-states";
+import * as uiStates from './ui-states';
 
 export interface HouseInfo {
   bedrooms?: number;
@@ -318,4 +318,12 @@ export type InviteUserResponse = {
   message: string;
   status: string;
   email: string;
+};
+
+export type UpdateOrderStatusRequest = {
+  orderId: string;
+  subOrderId: string;
+  notes: any[];
+  images: string[];
+  status: string;
 };
