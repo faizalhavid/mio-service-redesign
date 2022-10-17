@@ -78,7 +78,6 @@ export const rescheduleOrderAsync = createAsyncThunk(
 export const udpateJobStatusAsync = createAsyncThunk(
   'order/status',
   async (data: UpdateOrderStatusRequest) => {
-    console.log(data);
     const res = await AxiosClient.put(
       `${API.UPDATE_ORDER_STATUS}/${data.orderId}/suborder/${data.subOrderId}/update`,
       data

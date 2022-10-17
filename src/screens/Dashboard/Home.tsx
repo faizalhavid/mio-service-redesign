@@ -66,12 +66,12 @@ function Home(): JSX.Element {
     init();
   }, []);
 
-  useEffect(() => {
-    if (!currentUser?.email) {
-      logout();
-      popToPop('Welcome');
-    }
-  }, [currentUser]);
+  // useEffect(() => {
+  //   if (!currentUser?.email) {
+  //     logout();
+  //     popToPop('Welcome');
+  //   }
+  // }, [currentUser]);
 
   useEffect(() => {
     if (

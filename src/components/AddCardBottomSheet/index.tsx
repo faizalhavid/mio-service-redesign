@@ -1,28 +1,17 @@
-import {
-  Actionsheet,
-  Center,
-  ScrollView,
-  Spacer,
-  Text,
-  VStack,
-} from "native-base";
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Keyboard, Platform } from "react-native";
-import KeyboardSpacer from "react-native-keyboard-spacer";
-import { AppColors } from "../../commons/colors";
-import { SaveCardType } from "../../commons/types";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import {
-  saveCardAsync,
-  getSavedCardsAsync,
-  selectSaveCard,
-} from "../../slices/card-slice";
-import { selectCustomer } from "../../slices/customer-slice";
-import AppInput from "../AppInput";
-import ErrorView from "../ErrorView";
-import FooterButton from "../FooterButton";
+import { Actionsheet, Center, ScrollView, Spacer, Text, VStack } from 'native-base';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Keyboard, Platform } from 'react-native';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
+import { AppColors } from '../../commons/colors';
+import { SaveCardType } from '../../commons/types';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { getSavedCardsAsync, saveCardAsync, selectSaveCard } from '../../slices/card-slice';
+import { selectCustomer } from '../../slices/customer-slice';
+import AppInput from '../AppInput';
+import ErrorView from '../ErrorView';
+import FooterButton from '../FooterButton';
 
 type AddCardBottomSheetProps = {
   showAddCard: boolean;
@@ -34,7 +23,7 @@ export function AddCardBottomSheet({
   setShowAddCard,
 }: AddCardBottomSheetProps): JSX.Element {
   const dispatch = useAppDispatch();
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState('');
 
   const {
     uiState: customerUiState,
@@ -54,14 +43,14 @@ export function AddCardBottomSheet({
     formState: { errors, isDirty, isValid },
   } = useForm<SaveCardType>({
     defaultValues: {},
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const onSubmit = async (data: SaveCardType) => {
     Keyboard.dismiss();
-    setErrorMsg("");
-    data.expMonth = data.expiry.split("/")[0];
-    data.expYear = data.expiry.split("/")[1];
+    setErrorMsg('');
+    data.expMonth = data.expiry.split('/')[0];
+    data.expYear = data.expiry.split('/')[1];
     dispatch(
       saveCardAsync({
         customerId: customer.customerId,
@@ -70,7 +59,7 @@ export function AddCardBottomSheet({
     ).then((response) => {
       const savedCard = response.payload;
       if (![200, 201].includes(savedCard?.qbStatus)) {
-        setErrorMsg("Invalid Card Credentials!");
+        setErrorMsg('Invalid Card Credentials!');
       } else {
         dispatch(getSavedCardsAsync({ customerId: customer.customerId }));
         setShowAddCard(false);
@@ -79,11 +68,7 @@ export function AddCardBottomSheet({
   };
 
   return (
-    <Actionsheet
-      isOpen={showAddCard}
-      onClose={() => setShowAddCard(false)}
-      hideDragIndicator
-    >
+    <Actionsheet isOpen={showAddCard} onClose={() => setShowAddCard(false)} hideDragIndicator>
       <Actionsheet.Content
         style={{
           borderTopLeftRadius: 3,
@@ -122,12 +107,7 @@ export function AddCardBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Name"
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="text" label="Name" onChange={onChange} value={value} />
                 )}
                 name="name"
               />
@@ -137,12 +117,7 @@ export function AddCardBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="number"
-                    label="Card Number"
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="number" label="Card Number" onChange={onChange} value={value} />
                 )}
                 name="number"
               />
@@ -157,27 +132,22 @@ export function AddCardBottomSheet({
                       const year = value.substring(3, 7);
                       if (!Number(month) || Number(month) > 12) {
                         return false;
-                      } if (
-                        !Number(year) ||
-                        Number(year) < new Date().getFullYear()
-                      ) {
+                      }
+                      if (!Number(year) || Number(year) < new Date().getFullYear()) {
                         return false;
-                      } if (
+                      }
+                      if (
                         Number(year) === new Date().getFullYear() &&
                         Number(month) < new Date().getMonth() + 1
                       ) {
                         return false;
-                      } 
-                        return true;
-                      
+                      }
+                      return true;
                     }
                     return false;
                   },
                 }}
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { invalid },
-                }) => (
+                render={({ field: { onChange, onBlur, value }, fieldState: { invalid } }) => (
                   <>
                     <AppInput
                       type="text"
@@ -201,12 +171,7 @@ export function AddCardBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="password"
-                    label="CVV"
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="password" label="CVV" onChange={onChange} value={value} />
                 )}
                 name="cvc"
               />
@@ -214,15 +179,16 @@ export function AddCardBottomSheet({
             {/* </KeyboardAvoidingView> */}
             {/* </KeyboardAwareScrollView> */}
           </VStack>
-          {Platform.OS === "ios" && <KeyboardSpacer />}
+          {Platform.OS === 'ios' && <KeyboardSpacer />}
         </ScrollView>
         <FooterButton
           disabled={!isValid}
-          loading={saveCardUiState === "IN_PROGRESS"}
+          loading={saveCardUiState === 'IN_PROGRESS'}
           minLabel="SAVE"
           maxLabel="CREDIT CARD"
           type="DEFAULT"
           onPress={handleSubmit(onSubmit)}
+          onCancel={() => setShowAddCard(false)}
         />
       </Actionsheet.Content>
     </Actionsheet>

@@ -1,16 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {
-  Button,
-  Center,
-  Divider,
-  HStack,
-  Image,
-  ScrollView,
-  Text,
-  View,
-  VStack,
-} from 'native-base';
+import { Button, Center, Divider, HStack, ScrollView, Text, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 import { AppColors } from '../../commons/colors';
 import { IN_PROGRESS } from '../../commons/ui-states';
 import AppSafeAreaView from '../../components/AppSafeAreaView';
@@ -24,6 +16,7 @@ import { getReadableDateTime } from '../../services/utils';
 import { selectCustomer } from '../../slices/customer-slice';
 import { getOrderDetailsAsync, selectOrderDetails } from '../../slices/order-slice';
 import { HOUSE_CLEANING_ID, LAWN_CARE_ID, SERVICES } from './ChooseService';
+import Notes from './Notes';
 
 type ViewServiceDetailsProps = NativeStackScreenProps<
   SuperRootStackParamList,
@@ -133,9 +126,7 @@ function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
           {['NEW', 'ACTIVE', 'RESCHEDULED', 'CANCELLATION-FAILED'].indexOf(
             orderDetail?.flags?.status
           ) >= 0 &&
-            !isViewer &&
-            getReadableDateTime(orderDetail?.appointmentInfo?.appointmentDateTime).date !==
-              `${new Date().getDate()}` && (
+            !isViewer && (
               <Button
                 variant="outline"
                 _pressed={{
@@ -189,36 +180,6 @@ function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
               />
             )}
           </VStack>
-          <View>
-            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-              SERVICE NOTES
-            </Text>
-            <ValueText
-              text={orderDetail?.serviceNotes?.length > 0 ? orderDetail?.serviceNotes[0] : '-'}
-            />
-          </View>
-          <View>
-            <Text color={AppColors.AAA} letterSpacing={1} fontSize={12}>
-              SERVICE IMAGES
-            </Text>
-            <HStack space={2} mt={2}>
-              {!orderDetail?.serviceImages ||
-                (orderDetail?.serviceImages?.length === 0 && <Text>-</Text>)}
-              {orderDetail?.serviceImages?.map((image, index) => (
-                <Image
-                  key={index}
-                  source={{
-                    width: 80,
-                    height: 80,
-                    uri: image,
-                    cache: 'force-cache',
-                  }}
-                  alt="photo"
-                  bg="gray.200"
-                />
-              ))}
-            </HStack>
-          </View>
         </VStack>
       </VStack>
     );
@@ -264,52 +225,102 @@ function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
     );
   }
 
+  function CancelOrderAction(): JSX.Element {
+    return ['NEW', 'ACTIVE', 'SCHEDULED', 'RESCHEDULED', 'CANCELLATION-FAILED'].indexOf(
+      orderDetail?.flags?.status
+    ) >= 0 && !isViewer ? (
+      <Button
+        variant="outline"
+        mx={3}
+        _pressed={{
+          bgColor: 'red.100',
+        }}
+        borderColor="red.600"
+        borderWidth={0.8}
+        onPress={() => setShowCancelOrder(true)}
+      >
+        <Text color="red.600">Cancel Order</Text>
+      </Button>
+    ) : (
+      <></>
+    );
+  }
+
+  function ServiceInfoRoute() {
+    return (
+      <>
+        <ScrollView pt={3}>
+          <VStack space={3} pb={20}>
+            <OverviewCard />
+            <ServiceDetailsCard />
+            <AddressCard />
+            <CancelOrderAction />
+            <Divider mt={100} thickness={0} />
+          </VStack>
+        </ScrollView>
+        {showCancelOrder && (
+          <CancelOrderBottomSheet
+            orderId={orderId}
+            showCancelOrder={showCancelOrder}
+            setShowCancelOrder={setShowCancelOrder}
+          />
+        )}
+        {showJobCompleted && (
+          <JobCompletedBottomSheet
+            orderId={orderId}
+            subOrderId={subOrderId}
+            showJobCompleted={showJobCompleted}
+            setShowJobCompleted={setShowJobCompleted}
+          />
+        )}
+      </>
+    );
+  }
+
+  function NotesRoute() {
+    return <Notes />;
+  }
+
+  const renderTabBar = (props: any) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{ backgroundColor: AppColors.SECONDARY }}
+      style={{ backgroundColor: AppColors.WHITE }}
+      renderLabel={({ route, focused, color }) => (
+        <Text style={{ color: AppColors.SECONDARY, fontSize: 12, fontWeight: '500' }}>
+          {route.title}
+        </Text>
+      )}
+    />
+  );
+
+  const renderScene = SceneMap({
+    serviceInfo: ServiceInfoRoute,
+    notes: NotesRoute,
+  });
+
+  const layout = useWindowDimensions();
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: 'serviceInfo', title: 'SERVICE INFO' },
+    { key: 'notes', title: 'NOTES' },
+  ]);
+
   return (
     <AppSafeAreaView
       mt={42}
       bg={AppColors.EEE}
       loading={[customerUiState, orderDetailUiState].indexOf(IN_PROGRESS) > 0}
     >
-      <ScrollView pt={70}>
-        <VStack space={3} pb={20}>
-          <OverviewCard />
-          <ServiceDetailsCard />
-          <AddressCard />
-          {['NEW', 'ACTIVE', 'RESCHEDULED', 'CANCELLATION-FAILED'].indexOf(
-            orderDetail?.flags?.status
-          ) >= 0 &&
-            !isViewer && (
-              <Button
-                variant="outline"
-                mx={3}
-                _pressed={{
-                  bgColor: 'red.100',
-                }}
-                borderColor="red.600"
-                borderWidth={0.8}
-                onPress={() => setShowCancelOrder(true)}
-              >
-                <Text color="red.600">Cancel Order</Text>
-              </Button>
-            )}
-          <Divider mt={100} thickness={0} />
-        </VStack>
-      </ScrollView>
-      {showCancelOrder && (
-        <CancelOrderBottomSheet
-          orderId={orderId}
-          showCancelOrder={showCancelOrder}
-          setShowCancelOrder={setShowCancelOrder}
-        />
-      )}
-      {showJobCompleted && (
-        <JobCompletedBottomSheet
-          orderId={orderId}
-          subOrderId={subOrderId}
-          showJobCompleted={showJobCompleted}
-          setShowJobCompleted={setShowJobCompleted}
-        />
-      )}
+      <TabView
+        navigationState={{ index, routes }}
+        renderTabBar={renderTabBar}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        style={{ marginTop: 35 }}
+      />
     </AppSafeAreaView>
   );
 }

@@ -1,3 +1,4 @@
+import { firebase } from '@react-native-firebase/storage';
 import {
   Actionsheet,
   Center,
@@ -9,21 +10,20 @@ import {
   Spinner,
   Text,
   VStack,
-} from "native-base";
-import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import * as ImagePicker from "react-native-image-picker";
-import { firebase } from "@react-native-firebase/storage";
-import { Keyboard, Platform } from "react-native";
-import KeyboardSpacer from "react-native-keyboard-spacer";
-import { AppColors } from "../../commons/colors";
-import { Phone, useAuth } from "../../contexts/AuthContext";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { selectCustomer, putCustomerAsync } from "../../slices/customer-slice";
-import AppInput from "../AppInput";
-import ErrorView from "../ErrorView";
-import FooterButton from "../FooterButton";
+} from 'native-base';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Keyboard, Platform } from 'react-native';
+import * as ImagePicker from 'react-native-image-picker';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
+import { AppColors } from '../../commons/colors';
+import { Phone, useAuth } from '../../contexts/AuthContext';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { putCustomerAsync, selectCustomer } from '../../slices/customer-slice';
+import AppInput from '../AppInput';
+import ErrorView from '../ErrorView';
+import FooterButton from '../FooterButton';
 
 type PersonalDetailsForm = {
   firstName: string;
@@ -43,8 +43,8 @@ export function PersonalDetailsBottomSheet({
 }: PersonalDetailsBottomSheetProps): JSX.Element {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState<boolean>(false);
-  const [profileUrl, setProfileUrl] = useState<string>("");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [profileUrl, setProfileUrl] = useState<string>('');
+  const [errorMsg, setErrorMsg] = useState('');
   const { currentUser } = useAuth();
 
   const {
@@ -55,10 +55,10 @@ export function PersonalDetailsBottomSheet({
 
   useEffect(() => {
     if (customer) {
-      setValue("firstName", customer.firstName);
-      setValue("lastName", customer.lastName);
-      setValue("phone", customer.phones?.[0]?.number || "");
-      setValue("email", customer.email);
+      setValue('firstName', customer.firstName);
+      setValue('lastName', customer.lastName);
+      setValue('phone', customer.phones?.[0]?.number || '');
+      setValue('email', customer.email);
       setProfileUrl(customer.pictureURL);
     }
   }, [customer]);
@@ -70,7 +70,7 @@ export function PersonalDetailsBottomSheet({
     getValues,
     formState: { errors, isValid },
   } = useForm<PersonalDetailsForm>({
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const onSubmit = async (data: PersonalDetailsForm) => {
@@ -140,12 +140,7 @@ export function PersonalDetailsBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="First Name"
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="text" label="First Name" onChange={onChange} value={value} />
                 )}
                 name="firstName"
               />
@@ -156,12 +151,7 @@ export function PersonalDetailsBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Last Name"
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="text" label="Last Name" onChange={onChange} value={value} />
                 )}
                 name="lastName"
               />
@@ -171,13 +161,7 @@ export function PersonalDetailsBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="email"
-                    label="Email"
-                    disabled
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="email" label="Email" disabled onChange={onChange} value={value} />
                 )}
                 name="email"
               />
@@ -187,12 +171,7 @@ export function PersonalDetailsBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="number"
-                    label="Phone"
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="number" label="Phone" onChange={onChange} value={value} />
                 )}
                 name="phone"
               />
@@ -206,7 +185,7 @@ export function PersonalDetailsBottomSheet({
                       width: 100,
                       height: 100,
                       uri: profileUrl,
-                      cache: "force-cache",
+                      cache: 'force-cache',
                     }}
                     alt="Profile"
                     bg="gray.200"
@@ -220,7 +199,7 @@ export function PersonalDetailsBottomSheet({
                   onPress={() => {
                     ImagePicker.launchImageLibrary(
                       {
-                        mediaType: "photo",
+                        mediaType: 'photo',
                         includeBase64: false,
                         maxHeight: 200,
                         maxWidth: 200,
@@ -229,23 +208,21 @@ export function PersonalDetailsBottomSheet({
                         // console.log("Response = ", response);
 
                         if (response.didCancel) {
-                          console.log("User cancelled image picker");
+                          console.log('User cancelled image picker');
                         } else if (response.error) {
-                          console.log("ImagePicker Error: ", response.error);
+                          console.log('ImagePicker Error: ', response.error);
                         } else {
                           setLoading(true);
                           const { fileName, uri } = response.assets[0];
                           const imageRef = `users/${currentUser.uid}/profile.${
-                            fileName.split(".")[1]
+                            fileName.split('.')[1]
                           }`;
                           firebase
                             .storage()
                             .ref(imageRef)
                             .putFile(uri)
                             .then(async (snapshot) => {
-                              const imageDownload = firebase
-                                .storage()
-                                .ref(imageRef);
+                              const imageDownload = firebase.storage().ref(imageRef);
                               const url = await imageDownload.getDownloadURL();
                               setProfileUrl(url);
                               setLoading(false);
@@ -259,9 +236,7 @@ export function PersonalDetailsBottomSheet({
                   }}
                 >
                   <Text color={AppColors.DARK_TEAL}>
-                    {profileUrl
-                      ? "Change Profile Picture"
-                      : "Choose Profile Picture"}
+                    {profileUrl ? 'Change Profile Picture' : 'Choose Profile Picture'}
                   </Text>
                 </Pressable>
               </HStack>
@@ -269,15 +244,16 @@ export function PersonalDetailsBottomSheet({
             {/* </KeyboardAwareScrollView>
             </KeyboardAvoidingView> */}
           </VStack>
-          {Platform.OS === "ios" && <KeyboardSpacer />}
+          {Platform.OS === 'ios' && <KeyboardSpacer />}
         </ScrollView>
         <FooterButton
           disabled={!isValid || loading}
-          loading={customerUiState === "IN_PROGRESS"}
+          loading={customerUiState === 'IN_PROGRESS'}
           minLabel="SAVE"
           maxLabel="PERSONAL DETAILS"
           type="DEFAULT"
           onPress={handleSubmit(onSubmit)}
+          onCancel={() => setShowPersonalDetails(false)}
         />
       </Actionsheet.Content>
     </Actionsheet>

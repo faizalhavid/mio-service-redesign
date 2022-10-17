@@ -196,6 +196,7 @@ export interface AppointmentInfo {
 }
 
 export interface SubOrder {
+  orderId: string;
   subOrderId: string;
   serviceId: string;
   selectedAddons: any[];
@@ -206,7 +207,7 @@ export interface SubOrder {
   bathrooms?: number;
   servicePrice: ServicePrice;
   chargeResponse: ChargeResponse;
-  serviceNotes: string[];
+  serviceNotes: Note[];
   serviceImages: string[];
   appointmentInfo: AppointmentInfo;
 }
@@ -323,7 +324,16 @@ export type InviteUserResponse = {
 export type UpdateOrderStatusRequest = {
   orderId: string;
   subOrderId: string;
-  notes: any[];
-  images: string[];
+  notes: string;
+  serviceImages: string[];
   status: string;
 };
+
+export interface Note {
+  notes: string;
+  email: string;
+  status: string;
+  timestamp: string;
+  userType: string;
+  serviceImages: string[];
+}

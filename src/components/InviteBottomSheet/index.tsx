@@ -1,28 +1,20 @@
-import {
-  Actionsheet,
-  VStack,
-  Center,
-  Spacer,
-  ScrollView,
-  Text,
-  Select,
-} from "native-base";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { Keyboard } from "react-native";
-import { AppColors } from "../../commons/colors";
-import { ROLES } from "../../commons/options";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { selectCustomer } from "../../slices/customer-slice";
+import { Actionsheet, Center, ScrollView, Select, Spacer, Text, VStack } from 'native-base';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Keyboard } from 'react-native';
+import { AppColors } from '../../commons/colors';
+import { ROLES } from '../../commons/options';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { selectCustomer } from '../../slices/customer-slice';
 import {
   getInvitedUsersAsync,
   inviteUserAsync,
   selectInviteNewUser,
-} from "../../slices/invite-slice";
-import AppInput from "../AppInput";
-import ErrorView from "../ErrorView";
-import FooterButton from "../FooterButton";
+} from '../../slices/invite-slice';
+import AppInput from '../AppInput';
+import ErrorView from '../ErrorView';
+import FooterButton from '../FooterButton';
 
 type InviteBottomSheetProps = {
   showInviteUser: boolean;
@@ -39,7 +31,7 @@ function InviteBottomSheet({
   setShowInviteUser,
 }: InviteBottomSheetProps): JSX.Element {
   const dispatch = useAppDispatch();
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState('');
 
   const { member: customer } = useAppSelector(selectCustomer);
   const {
@@ -55,10 +47,10 @@ function InviteBottomSheet({
     reset,
     formState: { errors, isValid },
   } = useForm<InviteUserForm>({
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
-      email: "",
-      role: "Viewer",
+      email: '',
+      role: 'Viewer',
     },
   });
 
@@ -74,21 +66,15 @@ function InviteBottomSheet({
         email: customer.customerId,
       })
     ).then((result) => {
-      if (result.meta.requestStatus === "fulfilled") {
+      if (result.meta.requestStatus === 'fulfilled') {
         setShowInviteUser(false);
-        dispatch(
-          getInvitedUsersAsync({ serviceAccountId: customer.sAccountId })
-        );
+        dispatch(getInvitedUsersAsync({ serviceAccountId: customer.sAccountId }));
         reset();
       }
     });
   };
   return (
-    <Actionsheet
-      isOpen={showInviteUser}
-      onClose={() => setShowInviteUser(false)}
-      hideDragIndicator
-    >
+    <Actionsheet isOpen={showInviteUser} onClose={() => setShowInviteUser(false)} hideDragIndicator>
       <Actionsheet.Content
         style={{
           borderTopLeftRadius: 3,
@@ -117,12 +103,7 @@ function InviteBottomSheet({
                   required: true,
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <AppInput
-                    type="text"
-                    label="Email"
-                    onChange={onChange}
-                    value={value}
-                  />
+                  <AppInput type="text" label="Email" onChange={onChange} value={value} />
                 )}
                 name="email"
               />
@@ -165,13 +146,8 @@ function InviteBottomSheet({
                       selectedValue={value}
                     >
                       {ROLES.map((role) => (
-                          <Select.Item
-                            pl={3}
-                            key={role.code}
-                            label={role.label}
-                            value={role.code}
-                          />
-                        ))}
+                        <Select.Item pl={3} key={role.code} label={role.label} value={role.code} />
+                      ))}
                     </Select>
                   </>
                 )}
@@ -182,11 +158,12 @@ function InviteBottomSheet({
         </ScrollView>
         <FooterButton
           disabled={!isValid}
-          loading={inviteNewUserUiState === "IN_PROGRESS"}
+          loading={inviteNewUserUiState === 'IN_PROGRESS'}
           minLabel="INVITE"
           maxLabel="NEW USER"
           type="DEFAULT"
           onPress={handleSubmit(onSubmit)}
+          onCancel={() => setShowInviteUser(false)}
         />
       </Actionsheet.Content>
     </Actionsheet>

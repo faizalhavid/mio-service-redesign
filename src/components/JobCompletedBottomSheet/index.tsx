@@ -37,6 +37,9 @@ type JobCompletedBottomSheetProps = {
   subOrderId: string;
   showJobCompleted: boolean;
   setShowJobCompleted: Function;
+  title?: string;
+  btnLabel?: string;
+  status?: string;
 };
 
 function JobCompletedBottomSheet({
@@ -44,12 +47,15 @@ function JobCompletedBottomSheet({
   subOrderId,
   showJobCompleted,
   setShowJobCompleted,
+  title = 'Update Job Status',
+  btnLabel = 'MARK COMPLETED',
+  status = 'COMPLETED',
 }: JobCompletedBottomSheetProps): JSX.Element {
   const { member: orderDetail } = useAppSelector(selectOrderDetails);
   const dispatch = useAppDispatch();
   const { member: jobStatus, uiState: jobStatusUiState } = useAppSelector(selectJobStatus);
   const [errorMsg, setErrorMsg] = useState('');
-  const [serviceNotes, setServiceNotes] = useState<any>({});
+  const [serviceNotes, setServiceNotes] = useState<string>('');
   const [serviceImages, setServiceImages] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { currentUser } = useAuth();
@@ -73,15 +79,27 @@ function JobCompletedBottomSheet({
         <VStack pt={15} bg="white" width="100%">
           <Center>
             <Text fontSize={18} fontWeight="semibold">
-              Update Job Status
+              {title}
             </Text>
           </Center>
           <VStack mt={3} pt={3} px={4} pb={5} bg={AppColors.EEE} space={1}>
             <ErrorView message={errorMsg} />
             <Text fontWeight="semibold" fontSize={14}>
+              Service Notes
+            </Text>
+            <TextArea
+              onChangeText={(text): void => {
+                setServiceNotes(text);
+              }}
+              fontSize={14}
+              value={serviceNotes}
+              numberOfLines={5}
+              autoCompleteType={undefined}
+            />
+            <Text fontWeight="semibold" fontSize={14}>
               Service Images
             </Text>
-            <HStack space={2} bg="#eee" pt={1}>
+            <HStack space={2} bg="#eee" pt={1} mb={100}>
               {!loading &&
                 serviceImages.map((image, index) => (
                   <Pressable
@@ -175,39 +193,25 @@ function JobCompletedBottomSheet({
                 )}
               </Pressable>
             </HStack>
-            <Text fontWeight="semibold" fontSize={14}>
-              Service Notes
-            </Text>
-            <TextArea
-              onChangeText={(text): void => {
-                setServiceNotes({
-                  notes: text,
-                });
-              }}
-              fontSize={14}
-              value={serviceNotes?.text}
-              numberOfLines={5}
-              mb={100}
-              autoCompleteType={undefined}
-            />
           </VStack>
 
           <FooterButton
             loading={jobStatusUiState === 'IN_PROGRESS'}
-            label="MARK COMPLETED"
+            disabled={loading}
+            label={btnLabel}
             type="DEFAULT"
             onPress={() => {
               dispatch(
                 udpateJobStatusAsync({
-                  images: serviceImages,
+                  serviceImages,
                   notes: serviceNotes,
-                  status: 'COMPLETED',
+                  status,
                   orderId,
                   subOrderId,
                 })
               ).then((response) => {
                 const result: OrderStatus = response.payload;
-                if (result.status === 'SUCCESS') {
+                if (response.meta.requestStatus === 'fulfilled') {
                   setShowJobCompleted(false);
                   dispatch(
                     getOrderDetailsAsync({
@@ -221,6 +225,7 @@ function JobCompletedBottomSheet({
                 }
               });
             }}
+            onCancel={() => setShowJobCompleted(false)}
           />
         </VStack>
         {Platform.OS === 'ios' && <KeyboardSpacer />}
