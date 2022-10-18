@@ -1,46 +1,33 @@
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import {
-  Button,
-  Center,
-  Divider,
-  ScrollView,
-  Text,
-  useToast,
-  VStack,
-} from "native-base";
-import React, { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import appleAuth from "@invertase/react-native-apple-authentication";
-import { useIsFocused } from "@react-navigation/native";
-import { AppColors } from "../../commons/colors";
-import AppInput from "../../components/AppInput";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import SocialLogin from "../../components/SocialLogin";
-import Spacer from "../../components/Spacer";
-import {
-  CustomerProfile,
-  dummyProfile,
-  Phone,
-  useAuth,
-} from "../../contexts/AuthContext";
-import { popToPop } from "../../navigations/rootNavigation";
-import ErrorView from "../../components/ErrorView";
-import { StorageHelper } from "../../services/storage-helper";
-import { FLAG_TYPE, STATUS } from "../../commons/status";
-import ForgetPassword from "../../components/ForgetPassword";
-import { useAnalytics } from "../../services/analytics";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
+import appleAuth from '@invertase/react-native-apple-authentication';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useIsFocused } from '@react-navigation/native';
+import { Button, Center, Divider, ScrollView, Text, useToast, VStack } from 'native-base';
+import React, { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { AppColors } from '../../commons/colors';
+import { SAMPLE } from '../../commons/sample';
+import { FLAG_TYPE, STATUS } from '../../commons/status';
+import { FAILED, INIT, IN_PROGRESS } from '../../commons/ui-states';
+import AppInput from '../../components/AppInput';
+import AppSafeAreaView from '../../components/AppSafeAreaView';
+import ErrorView from '../../components/ErrorView';
+import ForgetPassword from '../../components/ForgetPassword';
+import GradientButton from '../../components/GradientButton';
+import SocialLogin from '../../components/SocialLogin';
+import Spacer from '../../components/Spacer';
+import { CustomerProfile, dummyProfile, Phone, useAuth } from '../../contexts/AuthContext';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { popToPop } from '../../navigations/rootNavigation';
+import { useAnalytics } from '../../services/analytics';
+import { StorageHelper } from '../../services/storage-helper';
 import {
   getCustomerExistsAsync,
   registerCustomerAsync,
   selectCustomer,
   setCustomerState,
-} from "../../slices/customer-slice";
-import { FAILED, INIT, IN_PROGRESS } from "../../commons/ui-states";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { SAMPLE } from "../../commons/sample";
-import GradientButton from "../../components/GradientButton";
+} from '../../slices/customer-slice';
 
 type LoginFormType = {
   email: string;
@@ -49,8 +36,7 @@ type LoginFormType = {
 
 function Login(): JSX.Element {
   const dispatch = useAppDispatch();
-  const [showForgetPasswordForm, setShowForgetPasswordForm] =
-    React.useState<boolean>(false);
+  const [showForgetPasswordForm, setShowForgetPasswordForm] = React.useState<boolean>(false);
   const toast = useToast();
   const { login, resetPassword } = useAuth();
   const loginForm = useForm<LoginFormType>({
@@ -58,7 +44,7 @@ function Login(): JSX.Element {
       email: SAMPLE.EMAIL,
       password: SAMPLE.PASSWORD,
     },
-    mode: "all",
+    mode: 'all',
   });
   const socialLoginCompleted = React.useRef<boolean>(false);
 
@@ -77,9 +63,9 @@ function Login(): JSX.Element {
   const doLogin = async (userCredential: FirebaseAuthTypes.UserCredential) => {
     dispatch(setCustomerState({ uiState: IN_PROGRESS }));
     const token = await userCredential.user.getIdToken();
-    const {email} = userCredential.user;
-    await StorageHelper.setValue("TOKEN", token);
-    console.log("userCredential.user.email", email);
+    const { email } = userCredential.user;
+    await StorageHelper.setValue('TOKEN', token);
+    // console.log("userCredential.user.email", email);
     const result = await dispatch(getCustomerExistsAsync(email));
     // console.log("result", result);
     // console.log("result.meta.requestStatus", result.meta.requestStatus);
@@ -94,28 +80,26 @@ function Login(): JSX.Element {
         const payload: CustomerProfile = {
           ...dummyProfile,
           ...{
-            email: userCredential.user.email || "",
+            email: userCredential.user.email || '',
           },
           uid: userCredential.user.uid,
           phones: [
             {
               ...({} as Phone),
-              number: "",
+              number: '',
             },
           ],
-          customerId: userCredential.user.email || "",
+          customerId: userCredential.user.email || '',
         };
         // console.log("payload", payload);
-        const registeredResult = await dispatch(
-          registerCustomerAsync({ ...payload })
-        );
+        const registeredResult = await dispatch(registerCustomerAsync({ ...payload }));
         // console.log("meta", registeredResult.meta);
         // console.log("registeredResult", registeredResult.payload);
-        if (registeredResult.meta.requestStatus === "rejected") {
+        if (registeredResult.meta.requestStatus === 'rejected') {
           dispatch(
             setCustomerState({
               uiState: FAILED,
-              error: "Something went wrong! Please try again!",
+              error: 'Something went wrong! Please try again!',
             })
           );
           return;
@@ -124,28 +108,25 @@ function Login(): JSX.Element {
     }
     // }
     // console.log("outside");
-    let navigateTo = "";
+    let navigateTo = '';
     if (!userCredential.user.emailVerified) {
-      await StorageHelper.setValue(
-        FLAG_TYPE.EMAIL_VERIFICATION_STATUS,
-        STATUS.PENDING
-      );
-      navigateTo = "VERIFY_EMAIL";
+      await StorageHelper.setValue(FLAG_TYPE.EMAIL_VERIFICATION_STATUS, STATUS.PENDING);
+      navigateTo = 'VERIFY_EMAIL';
     } else {
       await StorageHelper.setValue(FLAG_TYPE.AUTHENTICATED_USER, STATUS.TRUE);
-      navigateTo = "HOME";
+      navigateTo = 'HOME';
     }
     switch (navigateTo) {
-      case "VERIFY_EMAIL":
-        popToPop("VerifyEmail");
+      case 'VERIFY_EMAIL':
+        popToPop('VerifyEmail');
         break;
-      case "HOME":
-        popToPop("Dashboard");
+      case 'HOME':
+        popToPop('Dashboard');
     }
   };
 
   const onSubmit = async (data: LoginFormType) => {
-    logEvent("login_email_event");
+    logEvent('login_email_event');
     login(data.email.trim(), data.password)
       .then((userCredential) => {
         doLogin(userCredential);
@@ -160,11 +141,7 @@ function Login(): JSX.Element {
       });
   };
   return (
-    <AppSafeAreaView
-      mt={60}
-      statusBarColor="#fff"
-      loading={uiState === IN_PROGRESS}
-    >
+    <AppSafeAreaView mt={60} statusBarColor="#fff" loading={uiState === IN_PROGRESS}>
       <ScrollView>
         <VStack mt="1/3" paddingX={5}>
           <Center width="100%">
@@ -180,12 +157,7 @@ function Login(): JSX.Element {
                 required: true,
               }}
               render={({ field: { onChange, value } }) => (
-                <AppInput
-                  type="email"
-                  label="Email"
-                  onChange={onChange}
-                  value={value}
-                />
+                <AppInput type="email" label="Email" onChange={onChange} value={value} />
               )}
               name="email"
             />
@@ -195,18 +167,13 @@ function Login(): JSX.Element {
                 required: true,
               }}
               render={({ field: { onChange, value } }) => (
-                <AppInput
-                  type="password"
-                  label="Password"
-                  onChange={onChange}
-                  value={value}
-                />
+                <AppInput type="password" label="Password" onChange={onChange} value={value} />
               )}
               name="password"
             />
             <Button
               variant="ghost"
-              _pressed={{ bg: "transparent" }}
+              _pressed={{ bg: 'transparent' }}
               textAlign="right"
               p={0}
               justifyContent="flex-end"
@@ -222,14 +189,13 @@ function Login(): JSX.Element {
                 onPress={async (event) => {
                   await loginForm.trigger();
                   if (
-                    (loginForm.formState.isDirty &&
-                      !loginForm.formState.isValid) ||
+                    (loginForm.formState.isDirty && !loginForm.formState.isValid) ||
                     Object.keys(loginForm.formState.errors).length > 0
                   ) {
                     dispatch(
                       setCustomerState({
                         uiState: FAILED,
-                        error: "Please provide valid email/password",
+                        error: 'Please provide valid email/password',
                       })
                     );
                     return;
@@ -259,68 +225,52 @@ function Login(): JSX.Element {
                     uiState: IN_PROGRESS,
                   })
                 );
-                logEvent("login_google_event");
-                console.log("GoogleLogin");
+                logEvent('login_google_event');
+                console.log('GoogleLogin');
                 const userInfo = await GoogleSignin.signIn();
-                const googleCredential = auth.GoogleAuthProvider.credential(
-                  userInfo.idToken
-                );
-                const userCredential = await auth().signInWithCredential(
-                  googleCredential
-                );
+                const googleCredential = auth.GoogleAuthProvider.credential(userInfo.idToken);
+                const userCredential = await auth().signInWithCredential(googleCredential);
                 socialLoginCompleted.current = true;
                 doLogin(userCredential);
               } catch (error) {
-                console.log("GoogleLoginError");
+                console.log('GoogleLoginError');
                 console.log(error);
               }
             }}
             loginWithApple={async () => {
               try {
-                logEvent("login_apple_event");
-                const appleAuthRequestResponse = await appleAuth.performRequest(
-                  {
-                    requestedOperation: appleAuth.Operation.LOGIN,
-                    requestedScopes: [
-                      appleAuth.Scope.EMAIL,
-                      appleAuth.Scope.FULL_NAME,
-                    ],
-                  }
-                );
+                logEvent('login_apple_event');
+                const appleAuthRequestResponse = await appleAuth.performRequest({
+                  requestedOperation: appleAuth.Operation.LOGIN,
+                  requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+                });
 
                 // Ensure Apple returned a user identityToken
                 if (!appleAuthRequestResponse.identityToken) {
-                  console.log(
-                    "Apple Sign-In failed - no identify token returned"
-                  );
+                  console.log('Apple Sign-In failed - no identify token returned');
                 }
 
                 // Create a Firebase credential from the response
                 const { identityToken, nonce } = appleAuthRequestResponse;
-                const appleCredential = auth.AppleAuthProvider.credential(
-                  identityToken,
-                  nonce
-                );
+                const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
 
                 // Sign the user in with the credential
-                const userCredential = await auth().signInWithCredential(
-                  appleCredential
-                );
+                const userCredential = await auth().signInWithCredential(appleCredential);
 
                 if (!userCredential.user.email) {
                   dispatch(
                     setCustomerState({
                       uiState: FAILED,
-                      error: "Please choose emailId in apple login",
+                      error: 'Please choose emailId in apple login',
                     })
                   );
                   return;
                 }
                 socialLoginCompleted.current = true;
-                console.log("AppleLogin");
+                console.log('AppleLogin');
                 doLogin(userCredential);
               } catch (error) {
-                console.log("AppleLoginError");
+                console.log('AppleLoginError');
                 console.log(error);
               } finally {
                 setCustomerState({
@@ -351,20 +301,16 @@ function Login(): JSX.Element {
           resetPassword(email)
             .then(() => {
               toast.show({
-                title: "Please check your email for the password reset link.",
-                placement: "top",
+                title: 'Please check your email for the password reset link.',
+                placement: 'top',
                 mt: 20,
               });
             })
             .catch((err) => {
-              if (
-                err &&
-                err.message &&
-                err.message.indexOf("auth/user-not-found")
-              ) {
+              if (err && err.message && err.message.indexOf('auth/user-not-found')) {
                 toast.show({
-                  title: "User not found. Please Register.",
-                  placement: "top",
+                  title: 'User not found. Please Register.',
+                  placement: 'top',
                   mt: 20,
                 });
               }

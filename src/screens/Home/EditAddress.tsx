@@ -263,7 +263,7 @@ function EditAddress({ route }: EditAddressProps): JSX.Element {
             </Text>
             <GoogleMapsInput
               onSuccess={(address) => {
-                console.log('selected-address', address);
+                // console.log('selected-address', address);
                 setAddressSelectedFromPopup(address);
                 dispatch(getHouseInfoAsync({ nva: address.formattedAddress }))
                   .unwrap()

@@ -394,9 +394,11 @@ function ChooseDateTime({ route }: ChooseDateTimeProps): JSX.Element {
                       } else {
                         setLoading(true);
                         const { fileName, uri } = response.assets[0];
-                        const imageRef = `users/${currentUser.uid}/${
+                        const uploadFilename = `${leadDetails.leadId}/${
                           leadDetails.leadId
-                        }-${serviceId}-${new Date().getTime()}.${fileName.split('.')[1]}`;
+                        }-${serviceId}-${new Date().getTime()}`;
+                        const imageRef = `leads/${uploadFilename}.${fileName.split('.')[1]}`;
+
                         firebase
                           .storage()
                           .ref(imageRef)
