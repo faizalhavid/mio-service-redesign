@@ -1,28 +1,20 @@
-import {
-  Box,
-  Center,
-  Divider,
-  PresenceTransition,
-  ScrollView,
-  Text,
-  VStack,
-} from "native-base";
-import React, { useEffect } from "react";
-import { Pressable, StyleSheet } from "react-native";
-import { SvgCss } from "react-native-svg";
-import LottieView from "lottie-react-native";
-import { COLOR_LOGO } from "../../commons/assets";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import GradientButton from "../../components/GradientButton";
-import { navigate } from "../../navigations/rootNavigation";
-import { AppColors } from "../../commons/colors";
-import AppButton from "../../components/AppButton";
-import { FLAG_TYPE, STATUS } from "../../commons/status";
-import { StorageHelper } from "../../services/storage-helper";
-import { resetLeadState } from "../../slices/lead-slice";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAuth } from "../../contexts/AuthContext";
-import { resetCustomerState } from "../../slices/customer-slice";
+import LottieView from 'lottie-react-native';
+import { Box, Center, Divider, PresenceTransition, ScrollView, Text, VStack } from 'native-base';
+import React, { useEffect } from 'react';
+import { Pressable, StyleSheet } from 'react-native';
+import { SvgCss } from 'react-native-svg';
+import { COLOR_LOGO } from '../../commons/assets';
+import { AppColors } from '../../commons/colors';
+import { FLAG_TYPE, STATUS } from '../../commons/status';
+import AppButton from '../../components/AppButton';
+import AppSafeAreaView from '../../components/AppSafeAreaView';
+import GradientButton from '../../components/GradientButton';
+import { useAuth } from '../../contexts/AuthContext';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { navigate } from '../../navigations/rootNavigation';
+import { StorageHelper } from '../../services/storage-helper';
+import { resetCustomerState } from '../../slices/customer-slice';
+import { resetLeadState } from '../../slices/lead-slice';
 
 function Welcome(): JSX.Element {
   const dispatch = useAppDispatch();
@@ -57,9 +49,9 @@ function Welcome(): JSX.Element {
                 onPress={async () => {
                   try {
                     await StorageHelper.clear();
-                    console.log("STORAGE CLEARED");
+                    console.log('STORAGE CLEARED');
                   } catch (error) {
-                    console.log("ERROR CLEARING STORAGE");
+                    console.log('ERROR CLEARING STORAGE');
                   }
                 }}
               >
@@ -80,7 +72,7 @@ function Welcome(): JSX.Element {
             </Center>
             <Divider thickness={0} mt={31} />
             <LottieView
-              source={require("../../assets/images/welcome.json")}
+              source={require('../../assets/images/welcome.json')}
               autoPlay
               loop
               style={{
@@ -94,7 +86,7 @@ function Welcome(): JSX.Element {
               <GradientButton
                 text="Create Account"
                 onPress={() => {
-                  navigate("Register");
+                  navigate('Register');
                 }}
               />
               <Divider thickness={0} mt={21} />
@@ -102,17 +94,14 @@ function Welcome(): JSX.Element {
                 label="Existing user? Login"
                 type="outline"
                 onPress={async (event) => {
-                  navigate("Login");
+                  navigate('Login');
                 }}
               />
               <Divider thickness={0} mt={21} />
               <Pressable
                 onPress={async () => {
-                  await StorageHelper.setValue(
-                    FLAG_TYPE.AUTHENTICATED_USER,
-                    STATUS.FALSE
-                  );
-                  navigate("Dashboard");
+                  await StorageHelper.setValue(FLAG_TYPE.AUTHENTICATED_USER, STATUS.FALSE);
+                  navigate('Dashboard');
                 }}
               >
                 <Text textAlign="center" color={AppColors.AAA}>
@@ -136,14 +125,14 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   text: {
-    color: "white",
+    color: 'white',
     fontSize: 42,
     lineHeight: 84,
-    fontWeight: "bold",
-    textAlign: "center",
-    backgroundColor: "#000000c0",
+    fontWeight: 'bold',
+    textAlign: 'center',
+    backgroundColor: '#000000c0',
   },
 });

@@ -1,18 +1,18 @@
 import {
   BottomTabNavigationOptions,
   createBottomTabNavigator,
-} from "@react-navigation/bottom-tabs";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Text } from "native-base";
-import React from "react";
-import { SvgCss } from "react-native-svg";
-import { HOME_ICON, PROFILE_ICON, SERVICES_ICON } from "../commons/assets";
-import { AppColors } from "../commons/colors";
-import { TabBarComponent } from "../components/BottomTabBar";
-import { useAuthenticatedUser } from "../hooks/useAuthenticatedUser";
-import Home from "../screens/Dashboard/Home";
-import Profile from "../screens/Dashboard/Profile";
-import Services from "../screens/Dashboard/Services";
+} from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Text } from 'native-base';
+import React from 'react';
+import { SvgCss } from 'react-native-svg';
+import { HOME_ICON, PROFILE_ICON, SERVICES_ICON } from '../commons/assets';
+import { AppColors } from '../commons/colors';
+import { TabBarComponent } from '../components/BottomTabBar';
+import { useAuthenticatedUser } from '../hooks/useAuthenticatedUser';
+import Home from '../screens/Dashboard/Home';
+import Profile from '../screens/Dashboard/Profile';
+import Services from '../screens/Dashboard/Services';
 
 export type DashboardTabParamList = {
   Home: undefined;
@@ -86,7 +86,7 @@ function DashboardTab() {
           marginBottom: -20,
         },
         tabBarLabelStyle: {
-          marginTop: 20,
+          // marginTop: 20,
           // marginBottom: 20,
         },
         // tabBarActiveBackgroundColor: AppColors.TEAL,
@@ -96,20 +96,14 @@ function DashboardTab() {
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused }) => (
-            <SvgCss
-              width={25}
-              xml={HOME_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
-            />
+            <SvgCss width={25} xml={HOME_ICON(focused ? AppColors.TEAL : AppColors.AAA)} />
           ),
           tabBarLabel: ({ focused }) => (
-            <Text
-              mt={1}
-              color={focused ? AppColors.TEAL : AppColors.AAA}
-              fontWeight="semibold"
-            >
+            <Text mt={1} color={focused ? AppColors.TEAL : AppColors.AAA} fontWeight="semibold">
               Home
             </Text>
           ),
+          headerShown: false,
         }}
         component={HomeStack}
         name="Home"
@@ -118,20 +112,14 @@ function DashboardTab() {
         <Tab.Screen
           options={{
             tabBarIcon: ({ focused }) => (
-              <SvgCss
-                width={25}
-                xml={SERVICES_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
-              />
+              <SvgCss width={25} xml={SERVICES_ICON(focused ? AppColors.TEAL : AppColors.AAA)} />
             ),
             tabBarLabel: ({ focused }) => (
-              <Text
-                mt={1}
-                color={focused ? AppColors.TEAL : AppColors.AAA}
-                fontWeight="semibold"
-              >
+              <Text mt={1} color={focused ? AppColors.TEAL : AppColors.AAA} fontWeight="semibold">
                 Services
               </Text>
             ),
+            headerShown: false,
           }}
           component={ServicesStack}
           name="Services"
@@ -140,20 +128,14 @@ function DashboardTab() {
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused }) => (
-            <SvgCss
-              width={25}
-              xml={PROFILE_ICON(focused ? AppColors.TEAL : AppColors.AAA)}
-            />
+            <SvgCss width={25} xml={PROFILE_ICON(focused ? AppColors.TEAL : AppColors.AAA)} />
           ),
           tabBarLabel: ({ focused }) => (
-            <Text
-              mt={1}
-              color={focused ? AppColors.TEAL : AppColors.AAA}
-              fontWeight="semibold"
-            >
+            <Text mt={1} color={focused ? AppColors.TEAL : AppColors.AAA} fontWeight="semibold">
               Profile
             </Text>
           ),
+          headerShown: false,
         }}
         component={ProfileStack}
         name="Profile"

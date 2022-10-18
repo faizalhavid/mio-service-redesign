@@ -16,7 +16,7 @@ import { Dimensions, Keyboard, Platform } from 'react-native';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import { AppColors } from '../../commons/colors';
 import { POOL_TYPES } from '../../commons/options';
-import { Option, PriceMap, HouseInfoAddressRequest } from '../../commons/types';
+import { HouseInfoAddressRequest, Option, PriceMap } from '../../commons/types';
 import { FAILED } from '../../commons/ui-states';
 import AppSafeAreaView from '../../components/AppSafeAreaView';
 import ErrorView from '../../components/ErrorView';
@@ -30,12 +30,12 @@ import { SuperRootStackParamList } from '../../navigations';
 import { goBack, replace } from '../../navigations/rootNavigation';
 import { StorageHelper } from '../../services/storage-helper';
 import {
-  selectCustomer,
-  selectAddress,
-  selectHouseInfo,
-  updateAddressAsync,
   getCustomerByIdAsync,
   getHouseInfoAsync,
+  selectAddress,
+  selectCustomer,
+  selectHouseInfo,
+  updateAddressAsync,
 } from '../../slices/customer-slice';
 import { selectLead, updateLeadState } from '../../slices/lead-slice';
 import { selectServices } from '../../slices/service-slice';
@@ -244,7 +244,7 @@ function EditAddress({ route }: EditAddressProps): JSX.Element {
   const [addressSelectedFromPopup, setAddressSelectedFromPopup] = useState<any>({});
   return (
     <AppSafeAreaView>
-      <VStack bg="white" mt="1/6" height="100%" width="100%">
+      <VStack bg="white" height="100%" width="100%">
         <Center>
           <Text fontSize={18} fontWeight="semibold">
             Property Information

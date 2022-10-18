@@ -309,7 +309,7 @@ function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
 
   return (
     <AppSafeAreaView
-      mt={42}
+      // mt={42}
       bg={AppColors.EEE}
       loading={[customerUiState, orderDetailUiState].indexOf(IN_PROGRESS) > 0}
     >
@@ -319,7 +319,6 @@ function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
-        style={{ marginTop: 35 }}
       />
     </AppSafeAreaView>
   );

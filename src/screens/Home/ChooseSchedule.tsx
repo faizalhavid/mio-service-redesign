@@ -1,21 +1,20 @@
-import { Divider, Text, VStack } from "native-base";
-import React from "react";
-import { ScrollView } from "react-native";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import FooterButton from "../../components/FooterButton";
-import ServiceComboCard from "../../components/ServiceComboCard";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { navigate } from "../../navigations/rootNavigation";
-import { selectCustomer } from "../../slices/customer-slice";
-import { selectLead, updateLeadAsync } from "../../slices/lead-slice";
-import { SERVICES } from "./ChooseService";
+import { Divider, Text, VStack } from 'native-base';
+import React from 'react';
+import { ScrollView } from 'react-native';
+import AppSafeAreaView from '../../components/AppSafeAreaView';
+import FooterButton from '../../components/FooterButton';
+import ServiceComboCard from '../../components/ServiceComboCard';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { navigate } from '../../navigations/rootNavigation';
+import { selectCustomer } from '../../slices/customer-slice';
+import { selectLead, updateLeadAsync } from '../../slices/lead-slice';
+import { SERVICES } from './ChooseService';
 
 function ChooseSchedule(): JSX.Element {
   const dispatch = useAppDispatch();
 
-  const { member: leadDetails, uiState: leadDetailsUiState } =
-    useAppSelector(selectLead);
+  const { member: leadDetails, uiState: leadDetailsUiState } = useAppSelector(selectLead);
   const { member: customer } = useAppSelector(selectCustomer);
 
   const isAllFieldsFilled: boolean = React.useMemo(() => {
@@ -33,8 +32,8 @@ function ChooseSchedule(): JSX.Element {
   }, [leadDetails]);
 
   return (
-    <AppSafeAreaView loading={leadDetailsUiState === "IN_PROGRESS"}>
-      <VStack mt="1/5" space={5}>
+    <AppSafeAreaView loading={leadDetailsUiState === 'IN_PROGRESS'}>
+      <VStack space={5} pt={5}>
         <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Schedule
         </Text>
@@ -49,11 +48,7 @@ function ChooseSchedule(): JSX.Element {
             pt={3}
           >
             {leadDetails?.subOrders?.map((service, index) => (
-              <ServiceComboCard
-                key={index}
-                service={SERVICES[service.serviceId]}
-                datetime
-               />
+              <ServiceComboCard key={index} service={SERVICES[service.serviceId]} datetime />
             ))}
           </VStack>
         </ScrollView>
@@ -63,7 +58,7 @@ function ChooseSchedule(): JSX.Element {
         type="SCHEDULE_SELECTION"
         minLabel="VIEW"
         maxLabel="SUMMARY"
-        loading={leadDetailsUiState === "IN_PROGRESS"}
+        loading={leadDetailsUiState === 'IN_PROGRESS'}
         disabled={!isAllFieldsFilled}
         onPress={async () => {
           if (!leadDetails?.customerProfile?.customerId) {
@@ -77,7 +72,7 @@ function ChooseSchedule(): JSX.Element {
               })
             );
           }
-          navigate("Payment");
+          navigate('Payment');
         }}
       />
     </AppSafeAreaView>

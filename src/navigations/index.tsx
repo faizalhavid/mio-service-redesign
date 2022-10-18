@@ -1,31 +1,31 @@
-import { NavigationContainer } from "@react-navigation/native";
+import auth from '@react-native-firebase/auth';
+import { NavigationContainer } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   NativeStackNavigationOptions,
-} from "@react-navigation/native-stack";
-import React from "react";
-import auth from "@react-native-firebase/auth";
-import RNBootSplash from "react-native-bootsplash";
-import { TitleBar } from "../components/TitleBar/TitleBar";
-import Login from "../screens/Auth/Login";
-import Register from "../screens/Auth/Register";
-import Welcome from "../screens/Auth/Welcome";
-import { navigationRef } from "./rootNavigation";
-import ChooseService from "../screens/Home/ChooseService";
-import Payment from "../screens/Home/Payment";
-import Booked from "../screens/Home/Booked";
-import DashboardTab from "./DashboardTab";
-import UpcomingServices from "../screens/Home/UpcomingServices";
-import ServiceHistory from "../screens/Home/ServiceHistory";
-import ViewServiceDetails from "../screens/Home/ViewServiceDetails";
-import VerifyEmail from "../screens/Auth/VerifyEmail";
-import { FLAG_TYPE, STATUS } from "../commons/status";
-import { StorageHelper } from "../services/storage-helper";
-import { useAnalytics } from "../services/analytics";
-import ChoosePlan from "../screens/Home/ChoosePlan";
-import ChooseDateTime from "../screens/Home/ChooseDateTime";
-import ChooseSchedule from "../screens/Home/ChooseSchedule";
-import EditAddress from "../screens/Home/EditAddress";
+} from '@react-navigation/native-stack';
+import React from 'react';
+import RNBootSplash from 'react-native-bootsplash';
+import { FLAG_TYPE, STATUS } from '../commons/status';
+import { TitleBar } from '../components/TitleBar/TitleBar';
+import Login from '../screens/Auth/Login';
+import Register from '../screens/Auth/Register';
+import VerifyEmail from '../screens/Auth/VerifyEmail';
+import Welcome from '../screens/Auth/Welcome';
+import Booked from '../screens/Home/Booked';
+import ChooseDateTime from '../screens/Home/ChooseDateTime';
+import ChoosePlan from '../screens/Home/ChoosePlan';
+import ChooseSchedule from '../screens/Home/ChooseSchedule';
+import ChooseService from '../screens/Home/ChooseService';
+import EditAddress from '../screens/Home/EditAddress';
+import Payment from '../screens/Home/Payment';
+import ServiceHistory from '../screens/Home/ServiceHistory';
+import UpcomingServices from '../screens/Home/UpcomingServices';
+import ViewServiceDetails from '../screens/Home/ViewServiceDetails';
+import { useAnalytics } from '../services/analytics';
+import { StorageHelper } from '../services/storage-helper';
+import DashboardTab from './DashboardTab';
+import { navigationRef } from './rootNavigation';
 
 export type SuperRootStackParamList = {
   Welcome: {};
@@ -33,14 +33,14 @@ export type SuperRootStackParamList = {
   Login: {};
   EditAddress: {
     returnTo: string;
-    mode: "NEW_ADDRESS" | "UPDATE_ADDRESS";
+    mode: 'NEW_ADDRESS' | 'UPDATE_ADDRESS';
     id?: string;
   };
   Address: { returnTo: string };
   ChooseService: {};
-  ChoosePlan: { serviceId: string; mode: "CREATE" | "UPDATE" };
+  ChoosePlan: { serviceId: string; mode: 'CREATE' | 'UPDATE' };
   ChooseSchedule: { serviceId: string };
-  ChooseDateTime: { serviceId: string; mode: "CREATE" | "UPDATE" };
+  ChooseDateTime: { serviceId: string; mode: 'CREATE' | 'UPDATE' };
   Payment: {};
   Booked: {};
   Dashboard: {};
@@ -54,26 +54,24 @@ export type SuperRootStackParamList = {
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
   const [initialScreen, setInitialScreen] = React.useState<
-    "Register" | "Address" | "VerifyEmail" | "Dashboard" | "Welcome"
-  >("Welcome");
+    'Register' | 'Address' | 'VerifyEmail' | 'Dashboard' | 'Welcome'
+  >('Welcome');
   const [loading, setLoading] = React.useState(true);
 
   const { logScreenView } = useAnalytics();
 
   const setupInitialScreen = React.useCallback(async () => {
     try {
-      const authenticationStatus = await StorageHelper.getValue(
-        FLAG_TYPE.AUTHENTICATED_USER
-      );
-      const inviteEmail = await StorageHelper.getValue("INVITE_EMAIL");
+      const authenticationStatus = await StorageHelper.getValue(FLAG_TYPE.AUTHENTICATED_USER);
+      const inviteEmail = await StorageHelper.getValue('INVITE_EMAIL');
 
       if (inviteEmail) {
-        setInitialScreen("Register");
+        setInitialScreen('Register');
       } else if (auth().currentUser && authenticationStatus === STATUS.TRUE) {
-        setInitialScreen("Dashboard");
+        setInitialScreen('Dashboard');
         return;
       } else {
-        setInitialScreen("Welcome");
+        setInitialScreen('Welcome');
       }
     } catch (error) {
       console.log(error);
@@ -90,13 +88,14 @@ const index = (): JSX.Element => {
   const navigationOptions: NativeStackNavigationOptions = {
     headerTitle: (props) => <TitleBar logoType="color" {...props} />,
     headerStyle: {
-      backgroundColor: "white",
+      backgroundColor: 'white',
     },
-    headerTransparent: true,
-    headerTitleAlign: "center",
+    headerShown: true,
+    // headerTransparent: true,
+    headerTitleAlign: 'center',
     headerShadowVisible: false,
     headerBackTitleVisible: false,
-    animation: "slide_from_right",
+    animation: 'slide_from_right',
   };
   const routeNameRef = React.useRef();
   return (
@@ -112,15 +111,13 @@ const index = (): JSX.Element => {
       }}
     >
       {!loading && (
-        <RootStack.Navigator
-          initialRouteName={initialScreen}
-          screenOptions={navigationOptions}
-        >
+        <RootStack.Navigator initialRouteName={initialScreen} screenOptions={navigationOptions}>
           <RootStack.Screen
             name="Welcome"
             component={Welcome}
             options={{
               headerShown: false,
+              headerTransparent: true,
             }}
           />
           <RootStack.Screen name="Register" component={Register} />
@@ -131,9 +128,9 @@ const index = (): JSX.Element => {
           <RootStack.Screen
             name="ChoosePlan"
             component={ChoosePlan}
-            initialParams={{ serviceId: "", mode: "CREATE" }}
+            initialParams={{ serviceId: '', mode: 'CREATE' }}
             options={{
-              animation: "slide_from_bottom",
+              animation: 'slide_from_bottom',
             }}
           />
           <RootStack.Screen name="ChooseSchedule" component={ChooseSchedule} />
@@ -141,20 +138,17 @@ const index = (): JSX.Element => {
             name="ChooseDateTime"
             component={ChooseDateTime}
             options={{
-              animation: "slide_from_bottom",
+              animation: 'slide_from_bottom',
             }}
           />
           <RootStack.Screen name="Payment" component={Payment} />
           <RootStack.Screen name="Booked" component={Booked} />
           <RootStack.Screen name="Dashboard" component={DashboardTab} />
-          <RootStack.Screen
-            name="UpcomingServices"
-            component={UpcomingServices}
-          />
+          <RootStack.Screen name="UpcomingServices" component={UpcomingServices} />
           <RootStack.Screen name="ServiceHistory" component={ServiceHistory} />
           <RootStack.Screen
             name="ViewServiceDetails"
-            initialParams={{ orderId: "", subOrderId: "" }}
+            initialParams={{ orderId: '', subOrderId: '' }}
             component={ViewServiceDetails}
           />
         </RootStack.Navigator>

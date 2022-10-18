@@ -197,39 +197,41 @@ function FooterButton({
       >
         <>
           {renderSwitch()}
-          <Pressable
-            borderColor={disabled || loading ? '#aaa' : AppColors.TEAL}
-            backgroundColor={disabled || loading ? '#aaa' : AppColors.TEAL}
-            height={50}
-            borderRadius={5}
-            width="50%"
-            disabled={disabled || loading}
-            justifyContent="center"
-            borderWidth={1}
-            onPress={onPress}
-          >
-            {loading ? (
-              <Spinner color="white" />
-            ) : (
-              <>
-                {minLabel && maxLabel && (
-                  <VStack>
-                    <Text alignSelf="center" color="#fff" fontWeight="semibold" fontSize="11">
-                      {minLabel}
-                    </Text>
+          {!(type === 'SCHEDULE_SELECTION' && !isAuthenticated) && (
+            <Pressable
+              borderColor={disabled || loading ? '#aaa' : AppColors.TEAL}
+              backgroundColor={disabled || loading ? '#aaa' : AppColors.TEAL}
+              height={50}
+              borderRadius={5}
+              width="50%"
+              disabled={disabled || loading}
+              justifyContent="center"
+              borderWidth={1}
+              onPress={onPress}
+            >
+              {loading ? (
+                <Spinner color="white" />
+              ) : (
+                <>
+                  {minLabel && maxLabel && (
+                    <VStack>
+                      <Text alignSelf="center" color="#fff" fontWeight="semibold" fontSize="11">
+                        {minLabel}
+                      </Text>
+                      <Text alignSelf="center" color="#fff" fontWeight="semibold" fontSize="14">
+                        {maxLabel}
+                      </Text>
+                    </VStack>
+                  )}
+                  {label && (
                     <Text alignSelf="center" color="#fff" fontWeight="semibold" fontSize="14">
-                      {maxLabel}
+                      {label}
                     </Text>
-                  </VStack>
-                )}
-                {label && (
-                  <Text alignSelf="center" color="#fff" fontWeight="semibold" fontSize="14">
-                    {label}
-                  </Text>
-                )}
-              </>
-            )}
-          </Pressable>
+                  )}
+                </>
+              )}
+            </Pressable>
+          )}
         </>
       </HStack>
       {showSelection && (

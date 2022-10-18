@@ -1,27 +1,24 @@
-import React, { useEffect } from "react";
-import { Button, HStack, PresenceTransition, Spinner, Text } from "native-base";
-import CodePush from "react-native-code-push";
-import { StorageHelper } from "../../services/storage-helper";
+import { Button, HStack, PresenceTransition, Spinner, Text } from 'native-base';
+import React, { useEffect } from 'react';
+import CodePush from 'react-native-code-push';
+import { StorageHelper } from '../../services/storage-helper';
 
-type CheckAppUpdateProps = {
-  mt?: number;
-};
+type CheckAppUpdateProps = {};
 
-function CheckAppUpdate({ mt }: CheckAppUpdateProps): JSX.Element {
-  const [newUpdateFound, setNewUpdateFound] = React.useState<boolean | null>(
-    false
-  );
+function CheckAppUpdate({}: CheckAppUpdateProps): JSX.Element {
+  const [newUpdateFound, setNewUpdateFound] = React.useState<boolean | null>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   useEffect(() => {
-    StorageHelper.getValue("NEW_UPDATE_FOUND").then((value) => {
-      setNewUpdateFound(value === "true");
+    StorageHelper.getValue('NEW_UPDATE_FOUND').then((value) => {
+      // setNewUpdateFound(value === 'true');
+      setNewUpdateFound(true);
     });
   }, []);
 
   const onReload = async () => {
     setIsLoading(true);
-    StorageHelper.setValue("NEW_UPDATE_FOUND", "false");
+    StorageHelper.setValue('NEW_UPDATE_FOUND', 'false');
     CodePush.restartApp();
     // CodePush.sync({ installMode: CodePush.InstallMode.IMMEDIATE }).then(
     //   (status) => {
@@ -55,7 +52,6 @@ function CheckAppUpdate({ mt }: CheckAppUpdateProps): JSX.Element {
             zIndex={999}
             py={2}
             px={4}
-            mt={mt === undefined ? 0 : mt}
             justifyContent="space-between"
             alignItems="center"
           >

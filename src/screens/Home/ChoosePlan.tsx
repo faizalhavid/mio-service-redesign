@@ -1,18 +1,9 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  Divider,
-  FlatList,
-  HStack,
-  Pressable,
-  Spacer,
-  Text,
-  View,
-  VStack,
-} from "native-base";
-import React, { useEffect } from "react";
-import { SvgCss } from "react-native-svg";
-import { CHECKBOX_TICK_ICON, PLUS_ICON } from "../../commons/assets";
-import { AppColors } from "../../commons/colors";
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Divider, FlatList, HStack, Pressable, Spacer, Text, View, VStack } from 'native-base';
+import React, { useEffect } from 'react';
+import { SvgCss } from 'react-native-svg';
+import { CHECKBOX_TICK_ICON, PLUS_ICON } from '../../commons/assets';
+import { AppColors } from '../../commons/colors';
 import {
   Flags2,
   LeadDetails,
@@ -20,54 +11,41 @@ import {
   PriceMap,
   ServicePrice,
   SubOrder,
-} from "../../commons/types";
-import AppSafeAreaView from "../../components/AppSafeAreaView";
-import FooterButton from "../../components/FooterButton";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { SuperRootStackParamList } from "../../navigations";
-import { goBack } from "../../navigations/rootNavigation";
-import { getServiceDetails } from "../../services/service-details";
-import { selectCustomer } from "../../slices/customer-slice";
+} from '../../commons/types';
+import AppSafeAreaView from '../../components/AppSafeAreaView';
+import FooterButton from '../../components/FooterButton';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { SuperRootStackParamList } from '../../navigations';
+import { goBack } from '../../navigations/rootNavigation';
+import { getServiceDetails } from '../../services/service-details';
+import { selectCustomer } from '../../slices/customer-slice';
+import { createLeadAsync, selectLead, updateLeadAsync } from '../../slices/lead-slice';
+import { getServiceCostAsync, selectServiceCost } from '../../slices/service-slice';
 import {
-  selectLead,
-  createLeadAsync,
-  updateLeadAsync,
-} from "../../slices/lead-slice";
-import {
-  getServiceCostAsync,
-  selectServiceCost,
-} from "../../slices/service-slice";
-import {
-  LAWN_CARE_ID,
   HOUSE_CLEANING_ID,
+  LAWN_CARE_ID,
   PEST_CONTROL_ID,
   POOL_CLEANING_ID,
-} from "./ChooseService";
+} from './ChooseService';
 
-type ChoosePlanProps = NativeStackScreenProps<
-  SuperRootStackParamList,
-  "ChoosePlan"
->;
+type ChoosePlanProps = NativeStackScreenProps<SuperRootStackParamList, 'ChoosePlan'>;
 
 function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
   const dispatch = useAppDispatch();
 
   const { mode, serviceId } = route.params;
 
-  const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] =
-    React.useState<any>({});
+  const [selectedSubscriptionMethod, setSelectedSubscriptionMethod] = React.useState<any>({});
 
-  const [subscriptionMethodOptions, setSubscriptionMethodOptions] =
-    React.useState<any[]>([]);
+  const [subscriptionMethodOptions, setSubscriptionMethodOptions] = React.useState<any[]>([]);
 
   const [planOptions, setPlanOptions] = React.useState<PlanOption[]>([]);
   const [selectedPlan, setSelectedPlan] = React.useState<PlanOption>();
 
   const { member: customer } = useAppSelector(selectCustomer);
 
-  const { member: leadDetails, uiState: leadDetailsUiState } =
-    useAppSelector(selectLead);
+  const { member: leadDetails, uiState: leadDetailsUiState } = useAppSelector(selectLead);
 
   const { collection: serviceCost, uiState: serviceCostUiState } =
     useAppSelector(selectServiceCost);
@@ -85,10 +63,8 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
       });
     } else if (serviceId === HOUSE_CLEANING_ID) {
       subOrders.push({
-        bedrooms:
-          leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bedrooms,
-        bathrooms:
-          leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bathrooms,
+        bedrooms: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bedrooms,
+        bathrooms: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bathrooms,
         serviceId,
       });
     } else {
@@ -98,9 +74,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
   };
 
   const updateLead = async (_leadDetails: LeadDetails) => {
-    const existingServiceIds = _leadDetails?.subOrders?.map(
-      (subOrder) => subOrder.serviceId
-    );
+    const existingServiceIds = _leadDetails?.subOrders?.map((subOrder) => subOrder.serviceId);
     const isNewlyAdded = existingServiceIds.indexOf(serviceId) < 0;
     const payload = {
       ..._leadDetails,
@@ -114,13 +88,10 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
     }
     const updatedSuborders = payload.subOrders.map((subOrder) => {
       if (serviceId === LAWN_CARE_ID) {
-        subOrder.area =
-          payload.customerProfile.addresses[0].houseInfo?.lotSize || 0;
+        subOrder.area = payload.customerProfile.addresses[0].houseInfo?.lotSize || 0;
       } else if (serviceId === HOUSE_CLEANING_ID) {
-        subOrder.bedrooms =
-          payload.customerProfile.addresses[0].houseInfo?.bedrooms;
-        subOrder.bathrooms =
-          payload.customerProfile.addresses[0].houseInfo?.bathrooms;
+        subOrder.bedrooms = payload.customerProfile.addresses[0].houseInfo?.bedrooms;
+        subOrder.bathrooms = payload.customerProfile.addresses[0].houseInfo?.bathrooms;
       }
       if (subOrder.serviceId === serviceId) {
         if (!subOrder.servicePrice) {
@@ -129,10 +100,10 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
         if (!subOrder.flags) {
           subOrder.flags = {} as Flags2;
         }
-        subOrder.flags.plan = selectedPlan?.label || "STANDARD";
-        if (selectedSubscriptionMethod.type === "ONCE") {
+        subOrder.flags.plan = selectedPlan?.label || 'STANDARD';
+        if (selectedSubscriptionMethod.type === 'ONCE') {
           subOrder.servicePrice.cost = selectedPlan?.cost || 0;
-          subOrder.flags.recurringDuration = "ONCE";
+          subOrder.flags.recurringDuration = 'ONCE';
           subOrder.flags.isRecurring = false;
         } else {
           subOrder.servicePrice.cost = selectedPlan?.cost || 0;
@@ -175,17 +146,13 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
     }
 
     // Update Area
-    const index1 = _subOrders.findIndex(
-      (subOrder2) => subOrder2.serviceId === LAWN_CARE_ID
-    );
+    const index1 = _subOrders.findIndex((subOrder2) => subOrder2.serviceId === LAWN_CARE_ID);
     _subOrders[index1] = {
       ..._subOrders[index1],
       area: _leadDetails.customerProfile.addresses[0].houseInfo?.lotSize || 0,
     };
     // Update Bedroom Bathroom
-    const index2 = _subOrders.findIndex(
-      (subOrder2) => subOrder2.serviceId === HOUSE_CLEANING_ID
-    );
+    const index2 = _subOrders.findIndex((subOrder2) => subOrder2.serviceId === HOUSE_CLEANING_ID);
     _subOrders[index2] = {
       ..._subOrders[index2],
       bedrooms: _leadDetails.customerProfile.addresses[0].houseInfo?.bedrooms,
@@ -216,12 +183,8 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             {
               serviceId,
               serviceParameters: {
-                bedrooms:
-                  leadDetails?.customerProfile?.addresses?.[0]?.houseInfo
-                    ?.bedrooms || 1,
-                bathrooms:
-                  leadDetails?.customerProfile?.addresses?.[0]?.houseInfo
-                    ?.bathrooms || 1,
+                bedrooms: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bedrooms || 1,
+                bathrooms: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bathrooms || 1,
               },
             },
           ])
@@ -241,12 +204,10 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
 
   useEffect(() => {
     if (serviceCost.length > 0) {
-      const isUpdate = mode === "UPDATE";
+      const isUpdate = mode === 'UPDATE';
       let subOrder = {} as SubOrder;
       if (isUpdate) {
-        subOrder = leadDetails.subOrders.filter(
-          (so) => so.serviceId === serviceId
-        )[0];
+        subOrder = leadDetails.subOrders.filter((so) => so.serviceId === serviceId)[0];
       }
       const subscriptionOptions: any[] = [];
       const priceMap: PriceMap[] = serviceCost;
@@ -254,44 +215,41 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
         const pricePerWeekExists =
           priceMap[0].pricePerWeek && parseInt(priceMap[0].pricePerWeek) !== 0;
         const pricePer2WeeksExists =
-          priceMap[0].pricePer2Weeks &&
-          parseInt(priceMap[0].pricePer2Weeks) !== 0;
+          priceMap[0].pricePer2Weeks && parseInt(priceMap[0].pricePer2Weeks) !== 0;
         const pricePerMonthExists =
-          priceMap[0].pricePerMonth &&
-          parseInt(priceMap[0].pricePerMonth) !== 0;
+          priceMap[0].pricePerMonth && parseInt(priceMap[0].pricePerMonth) !== 0;
         const pricePerQuarterlyExists =
-          priceMap[0].pricePerQuarterly &&
-          parseInt(priceMap[0].pricePerQuarterly) !== 0;
+          priceMap[0].pricePerQuarterly && parseInt(priceMap[0].pricePerQuarterly) !== 0;
 
         if (pricePerWeekExists) {
           subscriptionOptions.push({
             perCost: priceMap[0].pricePerWeek,
-            type: "WEEKLY",
-            label: "Weekly",
+            type: 'WEEKLY',
+            label: 'Weekly',
             selected: false,
           });
         }
         if (pricePer2WeeksExists) {
           subscriptionOptions.push({
             perCost: priceMap[0].pricePer2Weeks,
-            type: "BIWEEKLY",
-            label: "Bi-Weekly",
+            type: 'BIWEEKLY',
+            label: 'Bi-Weekly',
             selected: false,
           });
         }
         if (pricePerMonthExists) {
           subscriptionOptions.push({
             perCost: priceMap[0].pricePerMonth,
-            type: "MONTHLY",
-            label: "Monthly",
+            type: 'MONTHLY',
+            label: 'Monthly',
             selected: false,
           });
         }
         if (pricePerQuarterlyExists) {
           subscriptionOptions.push({
             perCost: priceMap[0].pricePerQuarterly,
-            type: "QUARTERLY",
-            label: "Quarterly",
+            type: 'QUARTERLY',
+            label: 'Quarterly',
             selected: false,
           });
         }
@@ -304,10 +262,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
           if (isUpdate) {
             let selectedIndex: number = 0;
             for (let i = 0; i < subscriptionOptions.length; i++) {
-              if (
-                subscriptionOptions[i].type ===
-                subOrder?.flags?.recurringDuration
-              ) {
+              if (subscriptionOptions[i].type === subOrder?.flags?.recurringDuration) {
                 selectedIndex = i;
               }
             }
@@ -325,17 +280,12 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
           }
         }
 
-        if (
-          priceMap[0].pricePerOnetime &&
-          parseInt(priceMap[0].pricePerOnetime) !== 0
-        ) {
+        if (priceMap[0].pricePerOnetime && parseInt(priceMap[0].pricePerOnetime) !== 0) {
           subscriptionOptions.push({
             perCost: priceMap[0].pricePerOnetime,
-            type: "ONCE",
-            label: "One-Time",
-            selected: isUpdate
-              ? !subOrder?.flags.isRecurring
-              : false,
+            type: 'ONCE',
+            label: 'One-Time',
+            selected: isUpdate ? !subOrder?.flags.isRecurring : false,
           });
         }
       }
@@ -347,27 +297,23 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
 
   useEffect(() => {
     if (Object.keys(selectedSubscriptionMethod).length > 0) {
-      let preSelectedPlan = "STANDARD";
-      const isUpdate = mode === "UPDATE";
+      let preSelectedPlan = 'STANDARD';
+      const isUpdate = mode === 'UPDATE';
       if (isUpdate) {
-        const subOrder = leadDetails.subOrders.filter(
-          (so) => so.serviceId === serviceId
-        )[0];
+        const subOrder = leadDetails.subOrders.filter((so) => so.serviceId === serviceId)[0];
         preSelectedPlan = subOrder.flags.plan;
       }
       const serviceCosts = serviceCost.filter(
         (cost) =>
           cost.serviceId === serviceId &&
-          ["STANDARD", "PREMIUM", "FULL CARE"].indexOf(cost.plan) >= 0
+          ['STANDARD', 'PREMIUM', 'FULL CARE'].indexOf(cost.plan) >= 0
       );
       const options: PlanOption[] = [];
-      if (selectedSubscriptionMethod.type === "WEEKLY") {
+      if (selectedSubscriptionMethod.type === 'WEEKLY') {
         for (const cost of serviceCosts) {
           const option: PlanOption = {
             label: cost.plan,
-            benefits:
-              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
-              [],
+            benefits: groupedServiceDetails[serviceId].packageDescription[cost.plan] || [],
             cost: parseInt(cost.pricePerWeek),
             selected: preSelectedPlan === cost.plan,
           };
@@ -376,13 +322,11 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
           }
           options.push(option);
         }
-      } else if (selectedSubscriptionMethod.type === "BIWEEKLY") {
+      } else if (selectedSubscriptionMethod.type === 'BIWEEKLY') {
         for (const cost of serviceCosts) {
           const option = {
             label: cost.plan,
-            benefits:
-              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
-              [],
+            benefits: groupedServiceDetails[serviceId].packageDescription[cost.plan] || [],
             cost: parseInt(cost.pricePer2Weeks),
             selected: preSelectedPlan === cost.plan,
           };
@@ -391,13 +335,11 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
           }
           options.push(option);
         }
-      } else if (selectedSubscriptionMethod.type === "MONTHLY") {
+      } else if (selectedSubscriptionMethod.type === 'MONTHLY') {
         for (const cost of serviceCosts) {
           const option = {
             label: cost.plan,
-            benefits:
-              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
-              [],
+            benefits: groupedServiceDetails[serviceId].packageDescription[cost.plan] || [],
             cost: parseInt(cost.pricePerMonth),
             selected: preSelectedPlan === cost.plan,
           };
@@ -406,13 +348,11 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
           }
           options.push(option);
         }
-      } else if (selectedSubscriptionMethod.type === "QUARTERLY") {
+      } else if (selectedSubscriptionMethod.type === 'QUARTERLY') {
         for (const cost of serviceCosts) {
           const option = {
             label: cost.plan,
-            benefits:
-              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
-              [],
+            benefits: groupedServiceDetails[serviceId].packageDescription[cost.plan] || [],
             cost: parseInt(cost.pricePerQuarterly),
             selected: preSelectedPlan === cost.plan,
           };
@@ -421,13 +361,11 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
           }
           options.push(option);
         }
-      } else if (selectedSubscriptionMethod.type === "ONCE") {
+      } else if (selectedSubscriptionMethod.type === 'ONCE') {
         for (const cost of serviceCosts) {
           const option = {
             label: cost.plan,
-            benefits:
-              groupedServiceDetails[serviceId].packageDescription[cost.plan] ||
-              [],
+            benefits: groupedServiceDetails[serviceId].packageDescription[cost.plan] || [],
             cost: parseInt(cost.pricePerOnetime),
             selected: preSelectedPlan === cost.plan,
           };
@@ -443,31 +381,22 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
 
   return (
     <AppSafeAreaView
-      loading={
-        leadDetailsUiState === "IN_PROGRESS" ||
-        serviceCostUiState === "IN_PROGRESS"
-      }
+      loading={leadDetailsUiState === 'IN_PROGRESS' || serviceCostUiState === 'IN_PROGRESS'}
     >
       {/* <ScrollView> */}
-      <VStack mt="1/5" space={5}>
+      <VStack space={5} pt={5}>
         <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Frequency
         </Text>
-        <HStack
-          justifyContent="center"
-          alignItems="center"
-          space={0}
-          bg="#eee"
-          p={3}
-        >
+        <HStack justifyContent="center" alignItems="center" space={0} bg="#eee" p={3}>
           <FlatList
             data={subscriptionMethodOptions}
             numColumns={frequencyColumns}
             contentContainerStyle={{
-              alignSelf: "center",
+              alignSelf: 'center',
               // justifyContent: "center",
               // alignItems: "center",
-              width: "100%",
+              width: '100%',
             }}
             renderItem={({ index, item }) => (
               <Pressable
@@ -479,36 +408,30 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
                 p={2}
                 borderWidth={item.selected ? 1 : 0}
                 borderColor={AppColors.TEAL}
-                bg={item.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
                 _pressed={{
                   borderColor: AppColors.TEAL,
                   borderWidth: 1,
                   backgroundColor: AppColors.LIGHT_TEAL,
                 }}
                 onPress={() => {
-                  const updatedOptions = subscriptionMethodOptions.map(
-                    (opt, i) => {
-                      if (i === index) {
-                        setSelectedSubscriptionMethod(opt);
-                        return {
-                          ...opt,
-                          selected: true,
-                        };
-                      }
+                  const updatedOptions = subscriptionMethodOptions.map((opt, i) => {
+                    if (i === index) {
+                      setSelectedSubscriptionMethod(opt);
                       return {
                         ...opt,
-                        selected: false,
+                        selected: true,
                       };
                     }
-                  );
+                    return {
+                      ...opt,
+                      selected: false,
+                    };
+                  });
                   setSubscriptionMethodOptions(updatedOptions);
                 }}
               >
-                <Text
-                  alignSelf="center"
-                  color={AppColors.TEAL}
-                  fontWeight="semibold"
-                >
+                <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
                   {item.label}
                 </Text>
               </Pressable>
@@ -518,18 +441,11 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
         <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Plan
         </Text>
-        <HStack
-          justifyContent="center"
-          alignItems="center"
-          space={0}
-          bg="#eee"
-          p={3}
-          pb={200}
-        >
+        <HStack justifyContent="center" alignItems="center" space={0} bg="#eee" p={3} pb={200}>
           <FlatList
             data={planOptions}
             contentContainerStyle={{
-              width: "100%",
+              width: '100%',
               paddingBottom: 500,
             }}
             showsVerticalScrollIndicator={false}
@@ -538,7 +454,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
                 alignSelf="center"
                 key={index}
                 borderColor={AppColors.TEAL}
-                bg={item.selected ? AppColors.LIGHT_TEAL : "#fff"}
+                bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
                 borderWidth={item.selected ? 1 : 0}
                 minHeight={100}
                 borderRadius={6}
@@ -569,35 +485,20 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
               >
                 <HStack justifyContent="space-between">
                   <VStack width="80%">
-                    <Text
-                      color={AppColors.TEAL}
-                      fontSize={18}
-                      fontWeight="semibold"
-                    >
+                    <Text color={AppColors.TEAL} fontSize={18} fontWeight="semibold">
                       {item.label}
                     </Text>
-                    <Spacer
-                      borderWidth={0.5}
-                      my={1}
-                      borderColor="#eee"
-                      borderRadius={5}
-                    />
+                    <Spacer borderWidth={0.5} my={1} borderColor="#eee" borderRadius={5} />
                     <VStack
                       py={2}
-                      divider={
-                        <Divider
-                          thickness={0.6}
-                          mb={2}
-                          mt={2}
-                          bg={AppColors.CCC}
-                        />
-                      }
+                      divider={<Divider thickness={0.6} mb={2} mt={2} bg={AppColors.CCC} />}
                     >
                       {item.benefits.map((b, i) => {
-                        const hasDescription =
-                          !!((typeof b.description === "string" ||
-                            typeof b.description === "object") &&
-                          b.description.length > 0);
+                        const hasDescription = !!(
+                          (typeof b.description === 'string' ||
+                            typeof b.description === 'object') &&
+                          b.description.length > 0
+                        );
                         return (
                           <VStack key={i}>
                             <Pressable
@@ -606,19 +507,14 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
                                   ...benefitExpand,
                                   [serviceId]: {
                                     [b.title]: hasDescription
-                                      ? benefitExpand?.[serviceId]?.[
-                                          b.title
-                                        ] !== true
+                                      ? benefitExpand?.[serviceId]?.[b.title] !== true
                                       : false,
                                   },
                                 };
                                 setBenefitExpand(payload);
                               }}
                             >
-                              <HStack
-                                justifyContent="space-between"
-                                alignItems="center"
-                              >
+                              <HStack justifyContent="space-between" alignItems="center">
                                 <HStack alignItems="center" space={1}>
                                   <SvgCss
                                     xml={CHECKBOX_TICK_ICON}
@@ -636,10 +532,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
                                 {hasDescription && (
                                   <View px={3}>
                                     {!benefitExpand?.[serviceId]?.[b.title] ? (
-                                      <SvgCss
-                                        xml={PLUS_ICON(AppColors.TEAL)}
-                                        height={9}
-                                      />
+                                      <SvgCss xml={PLUS_ICON(AppColors.TEAL)} height={9} />
                                     ) : (
                                       <Text
                                         color={AppColors.TEAL}
@@ -654,15 +547,8 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
                                 )}
                               </HStack>
                             </Pressable>
-                            {(hasDescription
-                              ? benefitExpand?.[serviceId]?.[b.title]
-                              : false) && (
-                              <Text
-                                color={AppColors.DARK_PRIMARY}
-                                fontSize={12}
-                                pl={6}
-                                py={2}
-                              >
+                            {(hasDescription ? benefitExpand?.[serviceId]?.[b.title] : false) && (
+                              <Text color={AppColors.DARK_PRIMARY} fontSize={12} pl={6} py={2}>
                                 {b.description}
                               </Text>
                             )}
@@ -677,11 +563,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
                     justifyContent="flex-start"
                     pr={5}
                   >
-                    <Text
-                      color={AppColors.DARK_PRIMARY}
-                      fontSize={24}
-                      fontWeight="semibold"
-                    >
+                    <Text color={AppColors.DARK_PRIMARY} fontSize={24} fontWeight="semibold">
                       ${item.cost}
                     </Text>
                     <Text color="#bbb" fontSize={12} fontWeight="semibold">
@@ -699,10 +581,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
         label="DONE"
         serviceId={serviceId}
         disabled={false}
-        loading={
-          leadDetailsUiState === "IN_PROGRESS" ||
-          serviceCostUiState === "IN_PROGRESS"
-        }
+        loading={leadDetailsUiState === 'IN_PROGRESS' || serviceCostUiState === 'IN_PROGRESS'}
         subText="Please add required services"
         onPress={async () => {
           await updateLead(leadDetails);

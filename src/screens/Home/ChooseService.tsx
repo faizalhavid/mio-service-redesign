@@ -1,19 +1,19 @@
 import { Divider, ScrollView, Text, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { HOUSE_CLEANING, LAWN_CARE, PEST_CONTROL, POOL_CLEANING } from '../../commons/assets';
+import { IN_PROGRESS } from '../../commons/ui-states';
 import AppSafeAreaView from '../../components/AppSafeAreaView';
 import FooterButton from '../../components/FooterButton';
-import { navigate } from '../../navigations/rootNavigation';
-import { StorageHelper } from '../../services/storage-helper';
+import ServiceComboCard from '../../components/ServiceComboCard';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { selectCustomer } from '../../slices/customer-slice';
-import { selectServices } from '../../slices/service-slice';
-import { createLeadAsync, getLeadAsync, selectLead } from '../../slices/lead-slice';
-import { IN_PROGRESS } from '../../commons/ui-states';
-import ServiceComboCard from '../../components/ServiceComboCard';
 import { useAuthenticatedUser } from '../../hooks/useAuthenticatedUser';
+import { navigate } from '../../navigations/rootNavigation';
+import { StorageHelper } from '../../services/storage-helper';
 import { isNonNull } from '../../services/utils';
+import { selectCustomer } from '../../slices/customer-slice';
+import { createLeadAsync, getLeadAsync, selectLead } from '../../slices/lead-slice';
+import { selectServices } from '../../slices/service-slice';
 
 export const LAWN_CARE_ID: string = 'lawnCare';
 export const POOL_CLEANING_ID: string = 'poolCleaning';
@@ -122,7 +122,7 @@ function ChooseService(): JSX.Element {
     <AppSafeAreaView
       loading={[leadUiState, customerUiState, servicesUiState].indexOf(IN_PROGRESS) >= 0}
     >
-      <VStack mt="1/5" space={5}>
+      <VStack space={5} pt={5}>
         <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Service
         </Text>

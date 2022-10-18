@@ -1,28 +1,29 @@
-import React, { useEffect } from "react";
-import { Platform, useColorScheme , LogBox } from "react-native";
-import { extendTheme, NativeBaseProvider } from "native-base";
-import "@react-native-firebase/app";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { firebase } from "@react-native-firebase/app-check";
-import messaging from "@react-native-firebase/messaging";
-import codePush, { CodePushOptions } from "react-native-code-push";
-import { Provider } from "react-redux";
-import { setJSExceptionHandler } from "react-native-exception-handler";
-import dynamicLinks from "@react-native-firebase/dynamic-links";
-import { ENV } from "./src/commons/environment";
-import { StorageHelper } from "./src/services/storage-helper";
-import { store } from "./src/stores";
-import { navigate, popToPop } from "./src/navigations/rootNavigation";
-import RootStackNavigation from "./src/navigations";
-import { AuthProvider } from "./src/contexts/AuthContext";
+import '@react-native-firebase/app';
+import { firebase } from '@react-native-firebase/app-check';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
+import messaging from '@react-native-firebase/messaging';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { extendTheme, NativeBaseProvider } from 'native-base';
+import React, { useEffect } from 'react';
+import { LogBox, Platform, useColorScheme } from 'react-native';
+import codePush, { CodePushOptions } from 'react-native-code-push';
+import { setJSExceptionHandler } from 'react-native-exception-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import { ENV } from './src/commons/environment';
+import { AuthProvider } from './src/contexts/AuthContext';
+import RootStackNavigation from './src/navigations';
+import { navigate, popToPop } from './src/navigations/rootNavigation';
+import { StorageHelper } from './src/services/storage-helper';
+import { store } from './src/stores';
 
-LogBox.ignoreLogs(["contrast ratio"]);
+LogBox.ignoreLogs(['contrast ratio']);
 
 function App() {
   GoogleSignin.configure({
     webClientId: ENV.WEB_CLIENT_ID,
   });
-  const isDarkMode = useColorScheme() === "dark";
+  const isDarkMode = useColorScheme() === 'dark';
   const customTheme = extendTheme({
     config: {
       // initialColorMode: useColorScheme(),
@@ -42,24 +43,18 @@ function App() {
 
   const updateInviteUser = async (url: string) => {
     const regex = /[?&]([^=#]+)=([^&#]*)/g;
-      const params: any = {};
-      let match;
+    const params: any = {};
+    let match;
     while ((match = regex.exec(url))) {
       params[match[1]] = match[2];
     }
     // const params = new URLSearchParams(_url.searchParams);
-    console.log("params", params);
+    console.log('params', params);
     if (params.email) {
-      await StorageHelper.setValue(
-        "INVITE_EMAIL",
-        decodeURIComponent(params.email) || ""
-      );
-      await StorageHelper.setValue("INVITE_RID", params.rid || "");
-      await StorageHelper.setValue(
-        "INVITE_SACCOUNTID",
-        params.sAccountId || ""
-      );
-      await StorageHelper.setValue("INVITE_ROLE", params.role || "");
+      await StorageHelper.setValue('INVITE_EMAIL', decodeURIComponent(params.email) || '');
+      await StorageHelper.setValue('INVITE_RID', params.rid || '');
+      await StorageHelper.setValue('INVITE_SACCOUNTID', params.sAccountId || '');
+      await StorageHelper.setValue('INVITE_ROLE', params.role || '');
     }
   };
 
@@ -72,10 +67,10 @@ function App() {
   const getAppLaunchLink = async () => {
     try {
       const value = await dynamicLinks().getInitialLink();
-      console.log("getAppLaunchLink", value);
+      console.log('getAppLaunchLink', value);
       if (value) {
         await updateInviteUser(value.url);
-        popToPop("Register");
+        popToPop('Register');
       }
     } catch (e) {
       console.log(e);
@@ -95,19 +90,19 @@ function App() {
     //   firebase.auth().useEmulator("http://localhost:9099");
     // }
     // Enable AppChek
-    firebase.appCheck().activate("com.miohomeservices.customer", true);
+    firebase.appCheck().activate('com.miohomeservices.customer', true);
     // Exception handler
     setJSExceptionHandler((error, isFatal) => {
-      console.log("JSError", error);
-      console.log("isFatal", isFatal);
+      console.log('JSError', error);
+      console.log('isFatal', isFatal);
       if (!__DEV__) {
         StorageHelper.clear();
-        navigate("Welcome");
+        navigate('Welcome');
       }
     }, true);
 
     // Request Push Permission
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       requestUserPermission();
     } else {
       getFCMToken();
@@ -115,17 +110,17 @@ function App() {
 
     // Background Push Message Listener
     messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-      console.log("Message handled in the background!", remoteMessage);
+      console.log('Message handled in the background!', remoteMessage);
     });
   }, []);
 
   const getFCMToken = () => {
-    StorageHelper.getValue("FCM_DEVICE_TOKEN").then((value) => {
+    StorageHelper.getValue('FCM_DEVICE_TOKEN').then((value) => {
       if (value === null) {
         messaging()
           .getToken()
           .then((token) => {
-            StorageHelper.setValue("FCM_DEVICE_TOKEN", token);
+            StorageHelper.setValue('FCM_DEVICE_TOKEN', token);
           });
       }
     });
@@ -135,7 +130,9 @@ function App() {
     <Provider store={store}>
       <NativeBaseProvider theme={customTheme}>
         <AuthProvider>
-          <RootStackNavigation />
+          <SafeAreaProvider>
+            <RootStackNavigation />
+          </SafeAreaProvider>
         </AuthProvider>
       </NativeBaseProvider>
     </Provider>
@@ -144,8 +141,6 @@ function App() {
 
 const codePushOptions: CodePushOptions = {
   installMode: codePush.InstallMode.IMMEDIATE,
-  checkFrequency: !__DEV__
-    ? codePush.CheckFrequency.ON_APP_START
-    : codePush.CheckFrequency.MANUAL,
+  checkFrequency: !__DEV__ ? codePush.CheckFrequency.ON_APP_START : codePush.CheckFrequency.MANUAL,
 };
 export default codePush(codePushOptions)(App);

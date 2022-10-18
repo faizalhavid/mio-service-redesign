@@ -11,24 +11,24 @@ import {
 } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { SvgCss } from 'react-native-svg';
+import { FILLED_CIRCLE_CLOSE_ICON, FILLED_CIRCLE_TICK_ICON } from '../../commons/assets';
 import { AppColors } from '../../commons/colors';
+import { IN_PROGRESS } from '../../commons/ui-states';
+import { AddCardBottomSheet } from '../../components/AddCardBottomSheet';
+import AppInput from '../../components/AppInput';
 import AppSafeAreaView from '../../components/AppSafeAreaView';
 import FooterButton from '../../components/FooterButton';
 import TermsAndConditions from '../../components/TermsAndConditions';
-import { popToPop } from '../../navigations/rootNavigation';
-import AppInput from '../../components/AppInput';
-import { FILLED_CIRCLE_CLOSE_ICON, FILLED_CIRCLE_TICK_ICON } from '../../commons/assets';
-import { StorageHelper } from '../../services/storage-helper';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { selectCustomer } from '../../slices/customer-slice';
+import { popToPop } from '../../navigations/rootNavigation';
+import { StorageHelper } from '../../services/storage-helper';
 import { getSavedCardsAsync, selectCards, selectSaveCard } from '../../slices/card-slice';
 import { selectValidateCoupon, validateCouponAsync } from '../../slices/coupon-slice';
+import { selectCustomer } from '../../slices/customer-slice';
 import { selectLead, updateLeadAsync } from '../../slices/lead-slice';
 import { createOrderFromLeadAsync, selectCreateOrder } from '../../slices/order-slice';
-import { IN_PROGRESS } from '../../commons/ui-states';
 import PriceBreakdown from './PriceBreakdown';
-import { AddCardBottomSheet } from '../../components/AddCardBottomSheet';
 
 function Payment(): JSX.Element {
   const [showTNC, setShowTNC] = React.useState(false);
@@ -124,7 +124,7 @@ function Payment(): JSX.Element {
         ].indexOf(IN_PROGRESS) >= 0
       }
     >
-      <ScrollView pt={70}>
+      <ScrollView>
         <VStack space={0}>
           <PriceBreakdown />
           <Divider thickness={10} />

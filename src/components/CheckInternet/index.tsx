@@ -1,18 +1,9 @@
-import React from "react";
-import NetInfo from "@react-native-community/netinfo";
-import { PresenceTransition, Text, View } from "native-base";
+import { PresenceTransition, Text, View } from 'native-base';
+import React from 'react';
 
-type CheckInternetProps = {
-  mt?: number;
-};
+type CheckInternetProps = { connected: boolean | null };
 
-function CheckInternet({ mt }: CheckInternetProps): JSX.Element {
-  const [connected, setConnected] = React.useState<boolean | null>(true);
-
-  NetInfo.fetch().then((state) => {
-    setConnected(state.isConnected);
-  });
-
+function CheckInternet({ connected }: CheckInternetProps): JSX.Element {
   return (
     <>
       {!connected ? (
@@ -30,20 +21,8 @@ function CheckInternet({ mt }: CheckInternetProps): JSX.Element {
             },
           }}
         >
-          <View
-            bg="red.100"
-            borderColor="red.300"
-            width="100%"
-            zIndex={999}
-            py={3}
-            mt={mt === undefined ? 0 : mt}
-          >
-            <Text
-              textAlign="center"
-              color="red.500"
-              fontWeight="semibold"
-              fontSize={16}
-            >
+          <View bg="red.100" borderColor="red.300" width="100%" zIndex={999} py={3}>
+            <Text textAlign="center" color="red.500" fontWeight="semibold" fontSize={16}>
               Please check your internet connection!
             </Text>
           </View>
