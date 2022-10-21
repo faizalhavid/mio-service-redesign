@@ -1,6 +1,6 @@
 // Just for testing
 
-import { CURRENT_ENV } from "./environment";
+import { CURRENT_ENV } from './environment';
 
 const VARIABLES = {
   // DEV: {
@@ -15,26 +15,37 @@ const VARIABLES = {
   //   ZIP: "78665",
   // },
   DEV: {
-    FIRST_NAME: "",
-    LAST_NAME: "",
-    PHONE: "",
-    EMAIL: "",
-    PASSWORD: "",
-    STREET: "",
-    CITY: "",
-    STATE: "",
-    ZIP: "",
+    FIRST_NAME: '',
+    LAST_NAME: '',
+    PHONE: '',
+    EMAIL: '',
+    PASSWORD: '',
+    STREET: '',
+    CITY: '',
+    STATE: '',
+    ZIP: '',
+  },
+  UAT: {
+    FIRST_NAME: '',
+    LAST_NAME: '',
+    PHONE: '',
+    EMAIL: '',
+    PASSWORD: '',
+    STREET: '',
+    CITY: '',
+    STATE: '',
+    ZIP: '',
   },
   PROD: {
-    FIRST_NAME: "",
-    LAST_NAME: "",
-    PHONE: "",
-    EMAIL: "",
-    PASSWORD: "",
-    STREET: "",
-    CITY: "",
-    STATE: "",
-    ZIP: "",
+    FIRST_NAME: '',
+    LAST_NAME: '',
+    PHONE: '',
+    EMAIL: '',
+    PASSWORD: '',
+    STREET: '',
+    CITY: '',
+    STATE: '',
+    ZIP: '',
   },
 };
 

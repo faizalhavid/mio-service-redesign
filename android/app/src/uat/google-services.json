@@ -1,0 +1,100 @@
+{
+  "project_info": {
+    "project_number": "469555711769",
+    "project_id": "homeservices-uat-8982a",
+    "storage_bucket": "homeservices-uat-8982a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469555711769:android:8502af2397a1328a68bf88",
+        "android_client_info": {
+          "package_name": "com.miohomeservices.customer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "469555711769-eoqf91irncnfc9lmvjuqr8rchq7k412t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miohomeservices.customer",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "469555711769-op88eerrdfkphk4jpk7esdpgarnd4ihf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2P8layUNNoWglDf7J-mKH4Z0Va2fgEzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "469555711769-op88eerrdfkphk4jpk7esdpgarnd4ihf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "469555711769-8drevteh2fqfh66h5ghm2r0ohulo2g47.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.miohomeservices.serviceprovider.app",
+                "app_store_id": "1643736770"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469555711769:android:62567ce90e638ebd68bf88",
+        "android_client_info": {
+          "package_name": "com.miohomeservices.serviceprovider"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "469555711769-27hfsvn89kj1j6d8rnhiu7f4dif82ufe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miohomeservices.serviceprovider",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "469555711769-op88eerrdfkphk4jpk7esdpgarnd4ihf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2P8layUNNoWglDf7J-mKH4Z0Va2fgEzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "469555711769-op88eerrdfkphk4jpk7esdpgarnd4ihf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "469555711769-8drevteh2fqfh66h5ghm2r0ohulo2g47.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.miohomeservices.serviceprovider.app",
+                "app_store_id": "1643736770"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

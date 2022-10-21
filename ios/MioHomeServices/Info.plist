@@ -28,7 +28,9 @@
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<!-- DEV_CONFIG -->
-					<string>com.googleusercontent.apps.528727320506-klb4in88vf4pb6iob1nna1ld02fsggur</string>
+					<!-- <string>com.googleusercontent.apps.528727320506-klb4in88vf4pb6iob1nna1ld02fsggur</string> -->
+					<!-- UAT_CONFIG -->
+					<string>com.googleusercontent.apps.469555711769-mnbrmt1rdq5el5eqmabnqnpajq829otv</string>
 					<!-- PROD_CONFIG -->
 					<!-- <string>com.googleusercontent.apps.383446887463-bnq7qgaifrl48qug9dst29tg6d79fon3</string> -->
 				</array>
@@ -47,11 +49,11 @@
 		<key>CFBundleVersion</key>
 		<string>$(CURRENT_PROJECT_VERSION)</string>
 		<!-- DEV_CONFIG -->
-		<key>CodePushDeploymentKey</key>
-		<string>gAQxMj338cpKmV5bU6qO2DYRfUaOHM2WiCsPy</string>
-		<!-- PROD_CONFIG -->
 		<!-- <key>CodePushDeploymentKey</key>
-		<string>mfXd-MWKqcfdpQc5eYwx2latKtHiUApEZw_35</string> -->
+		<string>gAQxMj338cpKmV5bU6qO2DYRfUaOHM2WiCsPy</string> -->
+		<!-- PROD_CONFIG | UAT_CONFIG -->
+		<key>CodePushDeploymentKey</key>
+		<string>mfXd-MWKqcfdpQc5eYwx2latKtHiUApEZw_35</string>
 		<!--  -->
 		<key>LSRequiresIPhoneOS</key>
 		<true/>

@@ -162,6 +162,9 @@ android {
         development {
             resValue "string", "build_config_package", "com.miohomeservices.customer"
         }
+        uat {
+            resValue "string", "build_config_package", "com.miohomeservices.customer"
+        }
         production {
             resValue "string", "build_config_package", "com.miohomeservices.customer"
         }
