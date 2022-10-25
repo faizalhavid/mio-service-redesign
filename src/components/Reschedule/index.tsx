@@ -1,4 +1,13 @@
-import { Actionsheet, Center, FlatList, HStack, Pressable, Text, VStack } from 'native-base';
+import {
+  Actionsheet,
+  Center,
+  Divider,
+  FlatList,
+  HStack,
+  Pressable,
+  Text,
+  VStack,
+} from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { AppColors } from '../../commons/colors';
@@ -22,6 +31,7 @@ import {
 import { setRefreshNeeded } from '../../slices/shared-slice';
 import ErrorView from '../ErrorView';
 import FooterButton from '../FooterButton';
+import VirtualizedView from '../VirtualizedView';
 
 type RescheduleProps = {
   isOpen: boolean;
@@ -134,150 +144,123 @@ export function Reschedule({
               {readableDateTime}
             </Text>
           </Center>
-          <VStack mt={3} px={4} pb={75} bg={AppColors.EEE}>
-            <ErrorView message={errorMsg} />
-            <VStack my={3} space={2}>
-              <Text fontSize={14} fontWeight="semibold" width="100%" color={AppColors.SECONDARY}>
-                Choose Date
-              </Text>
-              <HStack justifyContent="center" alignContent="center" space={0} bg="#eee">
-                <FlatList
-                  data={appointmentDateOptions}
-                  horizontal
-                  contentContainerStyle={{
-                    width: '100%',
-                  }}
-                  renderItem={({ index, item }) => (
-                    <Pressable
-                      key={index}
-                      height={20}
-                      borderRadius={5}
-                      width={78}
-                      mr={2}
-                      p={2}
-                      justifyContent="center"
-                      alignItems="center"
-                      borderWidth={item.selected ? 1 : 0}
-                      borderColor={AppColors.TEAL}
-                      bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
-                      _pressed={{
-                        borderColor: AppColors.TEAL,
-                        borderWidth: 1,
-                        backgroundColor: AppColors.LIGHT_TEAL,
-                      }}
-                      onPress={() => {
-                        const updatedAppointmentDateOptions = appointmentDateOptions.map(
-                          (option, optionIndex) => {
-                            if (optionIndex === index) {
-                              setSelectedDate(option.fullDate);
-                              return {
-                                ...option,
-                                selected: true,
-                              };
+          <VirtualizedView>
+            <VStack mt={3} px={4} pb={75} bg={AppColors.EEE}>
+              <ErrorView message={errorMsg} />
+              <VStack my={3} space={2}>
+                <Text fontSize={14} fontWeight="semibold" width="100%" color={AppColors.SECONDARY}>
+                  Choose Date
+                </Text>
+                <HStack justifyContent="center" alignContent="center" space={0} bg="#eee">
+                  <FlatList
+                    data={appointmentDateOptions}
+                    horizontal
+                    contentContainerStyle={{
+                      width: '100%',
+                    }}
+                    renderItem={({ index, item }) => (
+                      <Pressable
+                        key={index}
+                        height={20}
+                        borderRadius={5}
+                        width={78}
+                        mr={2}
+                        p={2}
+                        justifyContent="center"
+                        alignItems="center"
+                        borderWidth={item.selected ? 1 : 0}
+                        borderColor={AppColors.TEAL}
+                        bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
+                        _pressed={{
+                          borderColor: AppColors.TEAL,
+                          borderWidth: 1,
+                          backgroundColor: AppColors.LIGHT_TEAL,
+                        }}
+                        onPress={() => {
+                          const updatedAppointmentDateOptions = appointmentDateOptions.map(
+                            (option, optionIndex) => {
+                              if (optionIndex === index) {
+                                setSelectedDate(option.fullDate);
+                                return {
+                                  ...option,
+                                  selected: true,
+                                };
+                              }
+                              return { ...option, selected: false };
                             }
-                            return { ...option, selected: false };
-                          }
-                        );
-                        setAppointmentDateOptions(updatedAppointmentDateOptions);
-                      }}
-                    >
-                      <Text
-                        alignSelf="center"
-                        color={AppColors.TEAL}
-                        fontWeight="semibold"
-                        textAlign="center"
+                          );
+                          setAppointmentDateOptions(updatedAppointmentDateOptions);
+                        }}
                       >
-                        {item.day} {'\n'} {item.month} {item.date}
-                      </Text>
-                    </Pressable>
-                  )}
-                />
-              </HStack>
-              <Text fontSize={14} fontWeight="semibold" width="100%" color={AppColors.SECONDARY}>
-                Choose Slot
-              </Text>
-              <HStack justifyContent="center" alignItems="center" space={0} bg="#eee">
-                <FlatList
-                  data={appointmentTimeOptions}
-                  numColumns={columns}
-                  contentContainerStyle={{
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: '100%',
-                  }}
-                  renderItem={({ index, item }) => (
-                    <Pressable
-                      key={index}
-                      height={10}
-                      borderRadius={5}
-                      width="48%"
-                      m={1}
-                      justifyContent="center"
-                      p={2}
-                      borderWidth={item.selected ? 1 : 0}
-                      borderColor={AppColors.TEAL}
-                      bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
-                      _pressed={{
-                        borderColor: AppColors.TEAL,
-                        borderWidth: 1,
-                        backgroundColor: AppColors.LIGHT_TEAL,
-                      }}
-                      onPress={() => {
-                        const updatedAppointmentTimeOptions = appointmentTimeOptions.map(
-                          (option, optionIndex) => {
-                            if (optionIndex === index) {
-                              setSelectedTime(option.actualMin);
-                              return {
-                                ...option,
-                                selected: true,
-                              };
+                        <Text
+                          alignSelf="center"
+                          color={AppColors.TEAL}
+                          fontWeight="semibold"
+                          textAlign="center"
+                        >
+                          {item.day} {'\n'} {item.month} {item.date}
+                        </Text>
+                      </Pressable>
+                    )}
+                  />
+                </HStack>
+                <Text fontSize={14} fontWeight="semibold" width="100%" color={AppColors.SECONDARY}>
+                  Choose Slot
+                </Text>
+                <HStack justifyContent="center" alignItems="center" space={0} bg="#eee">
+                  <FlatList
+                    data={appointmentTimeOptions}
+                    numColumns={columns}
+                    contentContainerStyle={{
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
+                    renderItem={({ index, item }) => (
+                      <Pressable
+                        key={index}
+                        height={10}
+                        borderRadius={5}
+                        width="48%"
+                        m={1}
+                        justifyContent="center"
+                        p={2}
+                        borderWidth={item.selected ? 1 : 0}
+                        borderColor={AppColors.TEAL}
+                        bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
+                        _pressed={{
+                          borderColor: AppColors.TEAL,
+                          borderWidth: 1,
+                          backgroundColor: AppColors.LIGHT_TEAL,
+                        }}
+                        onPress={() => {
+                          const updatedAppointmentTimeOptions = appointmentTimeOptions.map(
+                            (option, optionIndex) => {
+                              if (optionIndex === index) {
+                                setSelectedTime(option.actualMin);
+                                return {
+                                  ...option,
+                                  selected: true,
+                                };
+                              }
+                              return { ...option, selected: false };
                             }
-                            return { ...option, selected: false };
-                          }
-                        );
-                        setAppointmentTimeOptions(updatedAppointmentTimeOptions);
-                      }}
-                    >
-                      <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
-                        {`${item.rangeMin} ${item.minMeridian} - ${item.rangeMax} ${item.maxMaxidian}`}
-                      </Text>
-                    </Pressable>
-                  )}
-                />
-              </HStack>
-              <Text fontSize={14} fontWeight="semibold" width="100%" color={AppColors.SECONDARY}>
-                Reschedule Type
-              </Text>
-              {orderDetail?.flags?.recurringDuration === 'ONCE' ? (
-                <Pressable
-                  key="TYPE_1"
-                  borderRadius={5}
-                  width="100%"
-                  px={3}
-                  py={3}
-                  justifyContent="center"
-                  borderWidth={rescheduleType === 'ONCE' ? 1 : 0}
-                  borderColor={AppColors.TEAL}
-                  bg={rescheduleType === 'ONCE' ? AppColors.LIGHT_TEAL : '#fff'}
-                  _pressed={{
-                    borderColor: AppColors.TEAL,
-                    borderWidth: 1,
-                    backgroundColor: AppColors.LIGHT_TEAL,
-                  }}
-                  onPress={() => {}}
-                >
-                  <VStack>
-                    <Text color={AppColors.TEAL} fontWeight="semibold">
-                      Reschedule Current Order
-                    </Text>
-                    <Text fontSize={12} color="amber.600" fontWeight="semibold">
-                      This action will reschedule the current scheduled order.
-                    </Text>
-                  </VStack>
-                </Pressable>
-              ) : (
-                <>
+                          );
+                          setAppointmentTimeOptions(updatedAppointmentTimeOptions);
+                        }}
+                      >
+                        <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
+                          {`${item.rangeMin} ${item.minMeridian} - ${item.rangeMax} ${item.maxMaxidian}`}
+                        </Text>
+                      </Pressable>
+                    )}
+                  />
+                </HStack>
+                <Text fontSize={14} fontWeight="semibold" width="100%" color={AppColors.SECONDARY}>
+                  Reschedule Type
+                </Text>
+                {orderDetail?.flags?.recurringDuration === 'ONCE' ? (
                   <Pressable
                     key="TYPE_1"
                     borderRadius={5}
@@ -293,9 +276,7 @@ export function Reschedule({
                       borderWidth: 1,
                       backgroundColor: AppColors.LIGHT_TEAL,
                     }}
-                    onPress={() => {
-                      setRescheduleType('ONCE');
-                    }}
+                    onPress={() => {}}
                   >
                     <VStack>
                       <Text color={AppColors.TEAL} fontWeight="semibold">
@@ -306,74 +287,104 @@ export function Reschedule({
                       </Text>
                     </VStack>
                   </Pressable>
-                  <Pressable
-                    key="TYPE_2"
-                    borderRadius={5}
-                    width="100%"
-                    px={3}
-                    py={3}
-                    justifyContent="center"
-                    borderWidth={rescheduleType === 'ALL' ? 1 : 0}
-                    borderColor={AppColors.TEAL}
-                    bg={rescheduleType === 'ALL' ? AppColors.LIGHT_TEAL : '#fff'}
-                    _pressed={{
-                      borderColor: AppColors.TEAL,
-                      borderWidth: 1,
-                      backgroundColor: AppColors.LIGHT_TEAL,
-                    }}
-                    onPress={() => {
-                      setRescheduleType('ALL');
-                    }}
-                  >
-                    <VStack>
-                      <Text color={AppColors.TEAL} fontWeight="semibold">
-                        Reschedule All Upcoming Orders
-                      </Text>
-                      <Text fontSize={12} color="amber.600" fontWeight="semibold">
-                        This action will reschedule all the upcoming orders.
-                      </Text>
-                    </VStack>
-                  </Pressable>
-                </>
-              )}
+                ) : (
+                  <>
+                    <Pressable
+                      key="TYPE_1"
+                      borderRadius={5}
+                      width="100%"
+                      px={3}
+                      py={3}
+                      justifyContent="center"
+                      borderWidth={rescheduleType === 'ONCE' ? 1 : 0}
+                      borderColor={AppColors.TEAL}
+                      bg={rescheduleType === 'ONCE' ? AppColors.LIGHT_TEAL : '#fff'}
+                      _pressed={{
+                        borderColor: AppColors.TEAL,
+                        borderWidth: 1,
+                        backgroundColor: AppColors.LIGHT_TEAL,
+                      }}
+                      onPress={() => {
+                        setRescheduleType('ONCE');
+                      }}
+                    >
+                      <VStack>
+                        <Text color={AppColors.TEAL} fontWeight="semibold">
+                          Reschedule Current Order
+                        </Text>
+                        <Text fontSize={12} color="amber.600" fontWeight="semibold">
+                          This action will reschedule the current scheduled order.
+                        </Text>
+                      </VStack>
+                    </Pressable>
+                    <Pressable
+                      key="TYPE_2"
+                      borderRadius={5}
+                      width="100%"
+                      px={3}
+                      py={3}
+                      justifyContent="center"
+                      borderWidth={rescheduleType === 'ALL' ? 1 : 0}
+                      borderColor={AppColors.TEAL}
+                      bg={rescheduleType === 'ALL' ? AppColors.LIGHT_TEAL : '#fff'}
+                      _pressed={{
+                        borderColor: AppColors.TEAL,
+                        borderWidth: 1,
+                        backgroundColor: AppColors.LIGHT_TEAL,
+                      }}
+                      onPress={() => {
+                        setRescheduleType('ALL');
+                      }}
+                    >
+                      <VStack>
+                        <Text color={AppColors.TEAL} fontWeight="semibold">
+                          Reschedule All Upcoming Orders
+                        </Text>
+                        <Text fontSize={12} color="amber.600" fontWeight="semibold">
+                          This action will reschedule all the upcoming orders.
+                        </Text>
+                      </VStack>
+                    </Pressable>
+                  </>
+                )}
+                <Divider thickness={0} mb={55} />
+              </VStack>
             </VStack>
-          </VStack>
-          <FooterButton
-            disabled={!selectedDate || !selectedTime}
-            loading={
-              orderDetailUiState === 'IN_PROGRESS' || rescheduleOrderUiState === 'IN_PROGRESS'
-            }
-            label="RESCHEDULE"
-            type="DEFAULT"
-            onPress={() => {
-              let selecDate = selectedDate;
-              if (Platform.OS === 'ios') {
-                selecDate = selecDate.replace(/-/g, '/');
-              }
-              dispatch(
-                rescheduleOrderAsync({
-                  type: rescheduleType,
-                  orderId,
-                  subOrderId: orderDetail.subOrderId,
-                  dateTime: new Date(
-                    `${selecDate} ${
-                      parseInt(selectedTime) > 9 ? selectedTime : `0${selectedTime}`
-                    }:00:00`
-                  ).toISOString(),
-                })
-              ).then((response) => {
-                const result: OrderStatus = response.payload;
-                if (result.status === 'SUCCESS') {
-                  setOpen(false);
-                  dispatch(setRefreshNeeded({ data: { UPCOMING_SERVICES: true } }));
-                } else {
-                  setErrorMsg(result.message);
-                }
-              });
-            }}
-            onCancel={() => setOpen(false)}
-          />
+          </VirtualizedView>
         </VStack>
+        <FooterButton
+          disabled={!selectedDate || !selectedTime}
+          loading={orderDetailUiState === 'IN_PROGRESS' || rescheduleOrderUiState === 'IN_PROGRESS'}
+          label="RESCHEDULE"
+          type="DEFAULT"
+          onPress={() => {
+            let selecDate = selectedDate;
+            if (Platform.OS === 'ios') {
+              selecDate = selecDate.replace(/-/g, '/');
+            }
+            dispatch(
+              rescheduleOrderAsync({
+                type: rescheduleType,
+                orderId,
+                subOrderId: orderDetail.subOrderId,
+                dateTime: new Date(
+                  `${selecDate} ${
+                    parseInt(selectedTime) > 9 ? selectedTime : `0${selectedTime}`
+                  }:00:00`
+                ).toISOString(),
+              })
+            ).then((response) => {
+              const result: OrderStatus = response.payload;
+              if (result.status === 'SUCCESS') {
+                setOpen(false);
+                dispatch(setRefreshNeeded({ data: { UPCOMING_SERVICES: true } }));
+              } else {
+                setErrorMsg(result.message);
+              }
+            });
+          }}
+          onCancel={() => setOpen(false)}
+        />
       </Actionsheet.Content>
     </Actionsheet>
   );

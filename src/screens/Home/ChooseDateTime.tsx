@@ -435,6 +435,9 @@ function ChooseDateTime({ route }: ChooseDateTimeProps): JSX.Element {
               value={serviceNotes}
               numberOfLines={5}
               mb={100}
+              keyboardType="default"
+              returnKeyType="done"
+              blurOnSubmit
               autoCompleteType={undefined}
             />
           </VStack>

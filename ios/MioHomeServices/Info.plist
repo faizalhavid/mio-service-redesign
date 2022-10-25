@@ -30,9 +30,9 @@
 					<!-- DEV_CONFIG -->
 					<!-- <string>com.googleusercontent.apps.528727320506-klb4in88vf4pb6iob1nna1ld02fsggur</string> -->
 					<!-- UAT_CONFIG -->
-					<string>com.googleusercontent.apps.469555711769-mnbrmt1rdq5el5eqmabnqnpajq829otv</string>
+					<!-- <string>com.googleusercontent.apps.469555711769-mnbrmt1rdq5el5eqmabnqnpajq829otv</string> -->
 					<!-- PROD_CONFIG -->
-					<!-- <string>com.googleusercontent.apps.383446887463-bnq7qgaifrl48qug9dst29tg6d79fon3</string> -->
+					<string>com.googleusercontent.apps.383446887463-bnq7qgaifrl48qug9dst29tg6d79fon3</string>
 				</array>
 			</dict>
 			<dict>

@@ -12,7 +12,7 @@ import {
   VStack,
 } from 'native-base';
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
+import { Keyboard, Platform } from 'react-native';
 import * as ImagePicker from 'react-native-image-picker';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import { SvgCss } from 'react-native-svg';
@@ -94,6 +94,9 @@ function JobCompletedBottomSheet({
               fontSize={14}
               value={serviceNotes}
               numberOfLines={5}
+              keyboardType="default"
+              returnKeyType="done"
+              blurOnSubmit
               autoCompleteType={undefined}
             />
             <Text fontWeight="semibold" fontSize={14}>
@@ -201,6 +204,7 @@ function JobCompletedBottomSheet({
             label={btnLabel}
             type="DEFAULT"
             onPress={() => {
+              Keyboard.dismiss();
               dispatch(
                 udpateJobStatusAsync({
                   serviceImages,
