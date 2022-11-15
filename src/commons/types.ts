@@ -202,6 +202,7 @@ export interface SubOrder {
   selectedAddons: any[];
   customerProfile?: CustomerProfile;
   flags: Flags2;
+  invoice?: string;
   area?: number;
   bedrooms?: number;
   bathrooms?: number;

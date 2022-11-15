@@ -4,13 +4,14 @@ import dynamicLinks from '@react-native-firebase/dynamic-links';
 import messaging from '@react-native-firebase/messaging';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { extendTheme, NativeBaseProvider } from 'native-base';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LogBox, Platform, useColorScheme } from 'react-native';
 import codePush, { CodePushOptions } from 'react-native-code-push';
 import { setJSExceptionHandler } from 'react-native-exception-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { ENV } from './src/commons/environment';
+import AppUpdate from './src/components/AppUpdate';
 import { AuthProvider } from './src/contexts/AuthContext';
 import RootStackNavigation from './src/navigations';
 import { navigate, popToPop } from './src/navigations/rootNavigation';
@@ -29,6 +30,7 @@ function App() {
       // initialColorMode: useColorScheme(),
     },
   });
+  const [hasUpdate, setHasUpdate] = useState<boolean>(false);
 
   const requestUserPermission = async () => {
     const authorizationStatus = await messaging().requestPermission({
@@ -86,6 +88,17 @@ function App() {
   }, []);
 
   useEffect(() => {
+    codePush.checkForUpdate().then((value) => {
+      if (value) {
+        setHasUpdate(true);
+        value.download().then((res) => {
+          res.install(codePush.InstallMode.IMMEDIATE);
+        });
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     // if (__DEV__) {
     //   firebase.auth().useEmulator("http://localhost:9099");
     // }
@@ -129,18 +142,22 @@ function App() {
   return (
     <Provider store={store}>
       <NativeBaseProvider theme={customTheme}>
-        <AuthProvider>
-          <SafeAreaProvider>
-            <RootStackNavigation />
-          </SafeAreaProvider>
-        </AuthProvider>
+        {hasUpdate ? (
+          <AppUpdate />
+        ) : (
+          <AuthProvider>
+            <SafeAreaProvider>
+              <RootStackNavigation />
+            </SafeAreaProvider>
+          </AuthProvider>
+        )}
       </NativeBaseProvider>
     </Provider>
   );
 }
 
 const codePushOptions: CodePushOptions = {
-  installMode: codePush.InstallMode.IMMEDIATE,
-  checkFrequency: !__DEV__ ? codePush.CheckFrequency.ON_APP_START : codePush.CheckFrequency.MANUAL,
+  // installMode: codePush.InstallMode.IMMEDIATE,
+  checkFrequency: codePush.CheckFrequency.MANUAL,
 };
 export default codePush(codePushOptions)(App);

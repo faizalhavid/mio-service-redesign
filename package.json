@@ -1,6 +1,6 @@
 {
   "name": "miohomeservices",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "scripts": {
     "start:metro": "react-native start",
@@ -19,6 +19,7 @@
     "ios:dev-ipad": "react-native run-ios --udid 00008020-0010641C0A8A402E",
     "ios:uat": "react-native run-ios --simulator=\"iPhone 14 Pro\"",
     "ios:prod": "react-native run-ios",
+    "ios:release": "react-native run-ios --configuration=release",
     "start": "react-native start",
     "test": "jest",
     "release-android": "cd android && ./gradlew assembleRelease"
@@ -62,6 +63,7 @@
     "react-native-linear-gradient": "^2.5.6",
     "react-native-pager-view": "^6.0.1",
     "react-native-pdf": "^6.4.0",
+    "react-native-permissions": "^3.6.1",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "3.10.2",
     "react-native-svg": "^12.1.1",

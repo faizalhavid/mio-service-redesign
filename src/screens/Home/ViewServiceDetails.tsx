@@ -1,7 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, Center, Divider, HStack, ScrollView, Text, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { useWindowDimensions } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
+import RNFetchBlob from 'react-native-blob-util';
 import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 import { AppColors } from '../../commons/colors';
 import { IN_PROGRESS } from '../../commons/ui-states';
@@ -146,6 +147,44 @@ function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
     );
   }
 
+  const downloadInvoicePdf = async () => {
+    const base64 = orderDetail?.invoice || '';
+    try {
+      const path = `${RNFetchBlob.fs.dirs.CacheDir}/${orderDetail?.subOrderId}.pdf`;
+      await RNFetchBlob.fs.writeFile(path, base64, 'base64');
+      if (Platform.OS === 'ios') {
+        setTimeout(() => {
+          RNFetchBlob.ios.openDocument(path);
+        }, 100);
+      } else {
+        setTimeout(() => {
+          RNFetchBlob.android.actionViewIntent(path, 'application/pdf');
+        }, 100);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  function DownloadInvoice(): JSX.Element {
+    return (
+      <Button
+        mx={3}
+        variant="outline"
+        _pressed={{
+          bgColor: AppColors.LIGHT_TEAL,
+        }}
+        borderColor={AppColors.TEAL}
+        borderWidth={0.8}
+        onPress={() => downloadInvoicePdf()}
+      >
+        <Center>
+          <Text color={AppColors.TEAL}>Download Invoice</Text>
+        </Center>
+      </Button>
+    );
+  }
+
   function ServiceDetailsCard(): JSX.Element {
     return (
       <VStack bg="white" mx={3} p={5} borderRadius={10}>
@@ -252,6 +291,7 @@ function ViewServiceDetails({ route }: ViewServiceDetailsProps): JSX.Element {
         <ScrollView pt={3}>
           <VStack space={3} pb={20}>
             <OverviewCard />
+            {orderDetail?.invoice && <DownloadInvoice />}
             <ServiceDetailsCard />
             <AddressCard />
             <CancelOrderAction />

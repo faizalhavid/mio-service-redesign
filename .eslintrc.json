@@ -30,6 +30,7 @@
     "import/no-cycle": "off",
     "prefer-promise-reject-errors": "off",
     "radix": "off",
+    "consistent-return": "off",
     "no-useless-escape": "off",
     "react/destructuring-assignment": "off",
     "no-empty": "off",
