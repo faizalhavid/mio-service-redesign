@@ -20,9 +20,7 @@ target 'MioHomeServices' do
 
 
   permissions_path = '../node_modules/react-native-permissions/ios'
-  pod 'Permission-MediaLibrary', :path => "#{permissions_path}/MediaLibrary"
-
-
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
 
   target 'MioHomeServicesTests' do
     inherit! :complete
