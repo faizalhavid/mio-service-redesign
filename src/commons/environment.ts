@@ -1,4 +1,4 @@
-export const CURRENT_ENV: 'DEV' | 'UAT' | 'PROD' = 'PROD';
+export const CURRENT_ENV: 'DEV' | 'UAT' | 'PROD' = 'DEV';
 
 const VARIABLES = {
   DEV: {

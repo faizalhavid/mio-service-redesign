@@ -160,22 +160,26 @@ function Notes(): JSX.Element {
             bgColor={AppColors.WHITE}
           >
             {orderDetail?.serviceNotes?.map((note, index) =>
-              note.userType === 'customer' ? (
-                <RightChat
-                  key={index}
-                  user="You"
-                  message={note.notes}
-                  images={note.serviceImages}
-                  timestamp={note.timestamp}
-                />
+              note?.notes?.length > 0 || note?.serviceImages?.length > 0 ? (
+                note.userType === 'customer' ? (
+                  <RightChat
+                    key={index}
+                    user="You"
+                    message={note.notes}
+                    images={note.serviceImages}
+                    timestamp={note.timestamp}
+                  />
+                ) : (
+                  <LeftChat
+                    key={index}
+                    user="Provider"
+                    message={note.notes}
+                    images={note.serviceImages}
+                    timestamp={note.timestamp}
+                  />
+                )
               ) : (
-                <LeftChat
-                  key={index}
-                  user="Provider"
-                  message={note.notes}
-                  images={note.serviceImages}
-                  timestamp={note.timestamp}
-                />
+                <VStack key={index} />
               )
             )}
           </VStack>

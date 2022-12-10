@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Divider, FlatList, HStack, Pressable, Spacer, Text, View, VStack } from 'native-base';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SvgCss } from 'react-native-svg';
 import { CHECKBOX_TICK_ICON, PLUS_ICON } from '../../commons/assets';
 import { AppColors } from '../../commons/colors';
@@ -20,9 +20,10 @@ import { SuperRootStackParamList } from '../../navigations';
 import { goBack } from '../../navigations/rootNavigation';
 import { getServiceDetails } from '../../services/service-details';
 import { selectCustomer } from '../../slices/customer-slice';
-import { createLeadAsync, selectLead, updateLeadAsync } from '../../slices/lead-slice';
+import { selectLead, updateLeadAsync } from '../../slices/lead-slice';
 import { getServiceCostAsync, selectServiceCost } from '../../slices/service-slice';
 import {
+  HANDYMAN_ID,
   HOUSE_CLEANING_ID,
   LAWN_CARE_ID,
   PEST_CONTROL_ID,
@@ -40,8 +41,9 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
 
   const [subscriptionMethodOptions, setSubscriptionMethodOptions] = React.useState<any[]>([]);
 
+  const [backupPlanOptions, setBackupPlanOptions] = React.useState<PlanOption[]>([]);
   const [planOptions, setPlanOptions] = React.useState<PlanOption[]>([]);
-  const [selectedPlan, setSelectedPlan] = React.useState<PlanOption>();
+  const [selectedPlan, setSelectedPlan] = React.useState<PlanOption>({} as PlanOption);
 
   const { member: customer } = useAppSelector(selectCustomer);
 
@@ -54,24 +56,9 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
 
   const [benefitExpand, setBenefitExpand] = React.useState<any>({});
 
-  const createLead = async () => {
-    const subOrders = [];
-    if (serviceId === LAWN_CARE_ID) {
-      subOrders.push({
-        area: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.lotSize,
-        serviceId,
-      });
-    } else if (serviceId === HOUSE_CLEANING_ID) {
-      subOrders.push({
-        bedrooms: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bedrooms,
-        bathrooms: leadDetails?.customerProfile?.addresses?.[0]?.houseInfo?.bathrooms,
-        serviceId,
-      });
-    } else {
-      subOrders.push({ serviceId });
-    }
-    return dispatch(createLeadAsync({ subOrders }));
-  };
+  const HANDYMAN_HOURS = [1, 2, 3, 4, 5, 6, 7, 8];
+
+  const [selectedHours, setSelectedHours] = useState(1);
 
   const updateLead = async (_leadDetails: LeadDetails) => {
     const existingServiceIds = _leadDetails?.subOrders?.map((subOrder) => subOrder.serviceId);
@@ -86,7 +73,10 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
         serviceId,
       });
     }
-    const updatedSuborders = payload.subOrders.map((subOrder) => {
+    const updatedSuborders = payload.subOrders.map((_subOrder) => {
+      const subOrder = {
+        ..._subOrder,
+      };
       if (serviceId === LAWN_CARE_ID) {
         subOrder.area = payload.customerProfile.addresses[0].houseInfo?.lotSize || 0;
       } else if (serviceId === HOUSE_CLEANING_ID) {
@@ -100,66 +90,34 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
         if (!subOrder.flags) {
           subOrder.flags = {} as Flags2;
         }
-        subOrder.flags.plan = selectedPlan?.label || 'STANDARD';
+        subOrder.flags = {
+          ...subOrder.flags,
+          plan: selectedPlan?.label || 'STANDARD',
+        };
+        const cost = planOptions.filter((opt) => opt.selected)?.[0]?.cost;
+        subOrder.servicePrice = {
+          ...subOrder.servicePrice,
+          cost: cost || 0,
+        };
         if (selectedSubscriptionMethod.type === 'ONCE') {
-          subOrder.servicePrice.cost = selectedPlan?.cost || 0;
-          subOrder.flags.recurringDuration = 'ONCE';
-          subOrder.flags.isRecurring = false;
+          subOrder.flags = {
+            ...subOrder.flags,
+            recurringDuration: 'ONCE',
+            hours: selectedHours,
+            isRecurring: false,
+          };
         } else {
-          subOrder.servicePrice.cost = selectedPlan?.cost || 0;
-          subOrder.flags.recurringDuration = selectedSubscriptionMethod?.type;
-          subOrder.flags.isRecurring = true;
+          subOrder.flags = {
+            ...subOrder.flags,
+            recurringDuration: selectedSubscriptionMethod?.type,
+            isRecurring: true,
+          };
         }
       }
       return subOrder;
     });
     payload.subOrders = updatedSuborders;
     return dispatch(updateLeadAsync(payload));
-  };
-
-  // const updateLead = async (pleadDetails: LeadDetails) => {
-  //   let _leadDetails = { ...pleadDetails };
-
-  //   if (isAuthenticated) {
-  //     _leadDetails = {
-  //       ..._leadDetails,
-  //       customerProfile: {
-  //         ..._leadDetails.customerProfile,
-  //         ...customer,
-  //         addresses: [
-  //           ...customer?.addresses?.filter((address) => address.isPrimary),
-  //         ],
-  //       },
-  //     };
-  //   }
-
-  //   _leadDetails.subOrders = updateSubOrders(_leadDetails);
-
-  //   return dispatch(updateLeadAsync(_leadDetails));
-  // };
-
-  const updateSubOrders = (_leadDetails: LeadDetails) => {
-    let _subOrders: SubOrder[] = [];
-
-    if (_leadDetails.subOrders && _leadDetails.subOrders.length > 0) {
-      _subOrders = [..._leadDetails.subOrders];
-    }
-
-    // Update Area
-    const index1 = _subOrders.findIndex((subOrder2) => subOrder2.serviceId === LAWN_CARE_ID);
-    _subOrders[index1] = {
-      ..._subOrders[index1],
-      area: _leadDetails.customerProfile.addresses[0].houseInfo?.lotSize || 0,
-    };
-    // Update Bedroom Bathroom
-    const index2 = _subOrders.findIndex((subOrder2) => subOrder2.serviceId === HOUSE_CLEANING_ID);
-    _subOrders[index2] = {
-      ..._subOrders[index2],
-      bedrooms: _leadDetails.customerProfile.addresses[0].houseInfo?.bedrooms,
-      bathrooms: _leadDetails.customerProfile.addresses[0].houseInfo?.bathrooms,
-    };
-
-    return _subOrders;
   };
 
   useEffect(() => {
@@ -189,7 +147,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             },
           ])
         );
-      } else if ([PEST_CONTROL_ID, POOL_CLEANING_ID].includes(serviceId)) {
+      } else if ([PEST_CONTROL_ID, POOL_CLEANING_ID, HANDYMAN_ID].includes(serviceId)) {
         dispatch(
           getServiceCostAsync([
             {
@@ -208,6 +166,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
       let subOrder = {} as SubOrder;
       if (isUpdate) {
         subOrder = leadDetails.subOrders.filter((so) => so.serviceId === serviceId)[0];
+        setSelectedHours(subOrder?.flags?.hours || 1);
       }
       const subscriptionOptions: any[] = [];
       const priceMap: PriceMap[] = serviceCost;
@@ -264,13 +223,13 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             for (let i = 0; i < subscriptionOptions.length; i++) {
               if (subscriptionOptions[i].type === subOrder?.flags?.recurringDuration) {
                 selectedIndex = i;
+                subscriptionOptions[selectedIndex] = {
+                  ...subscriptionOptions[selectedIndex],
+                  selected: true,
+                };
+                setSelectedSubscriptionMethod(subscriptionOptions[selectedIndex]);
               }
             }
-            subscriptionOptions[selectedIndex] = {
-              ...subscriptionOptions[selectedIndex],
-              selected: true,
-            };
-            setSelectedSubscriptionMethod(subscriptionOptions[selectedIndex]);
           } else {
             subscriptionOptions[0] = {
               ...subscriptionOptions[0],
@@ -281,12 +240,22 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
         }
 
         if (priceMap[0].pricePerOnetime && parseInt(priceMap[0].pricePerOnetime) !== 0) {
-          subscriptionOptions.push({
+          let option = {
             perCost: priceMap[0].pricePerOnetime,
             type: 'ONCE',
             label: 'One-Time',
             selected: isUpdate ? !subOrder?.flags.isRecurring : false,
-          });
+          };
+
+          setSelectedSubscriptionMethod(option);
+
+          if (serviceId === HANDYMAN_ID) {
+            option = {
+              ...option,
+              selected: true,
+            };
+          }
+          subscriptionOptions.push(option);
         }
       }
       setSubscriptionMethodOptions(subscriptionOptions);
@@ -299,9 +268,10 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
     if (Object.keys(selectedSubscriptionMethod).length > 0) {
       let preSelectedPlan = 'STANDARD';
       const isUpdate = mode === 'UPDATE';
+      let selectedSuborder: SubOrder = {} as SubOrder;
       if (isUpdate) {
-        const subOrder = leadDetails.subOrders.filter((so) => so.serviceId === serviceId)[0];
-        preSelectedPlan = subOrder.flags.plan;
+        selectedSuborder = leadDetails.subOrders.filter((so) => so.serviceId === serviceId)[0];
+        preSelectedPlan = selectedSuborder.flags.plan;
       }
       const serviceCosts = serviceCost.filter(
         (cost) =>
@@ -317,9 +287,6 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             cost: parseInt(cost.pricePerWeek),
             selected: preSelectedPlan === cost.plan,
           };
-          if (preSelectedPlan === cost.plan) {
-            setSelectedPlan(option);
-          }
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === 'BIWEEKLY') {
@@ -330,9 +297,6 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             cost: parseInt(cost.pricePer2Weeks),
             selected: preSelectedPlan === cost.plan,
           };
-          if (preSelectedPlan === cost.plan) {
-            setSelectedPlan(option);
-          }
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === 'MONTHLY') {
@@ -343,9 +307,6 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             cost: parseInt(cost.pricePerMonth),
             selected: preSelectedPlan === cost.plan,
           };
-          if (preSelectedPlan === cost.plan) {
-            setSelectedPlan(option);
-          }
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === 'QUARTERLY') {
@@ -356,9 +317,6 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             cost: parseInt(cost.pricePerQuarterly),
             selected: preSelectedPlan === cost.plan,
           };
-          if (preSelectedPlan === cost.plan) {
-            setSelectedPlan(option);
-          }
           options.push(option);
         }
       } else if (selectedSubscriptionMethod.type === 'ONCE') {
@@ -369,13 +327,22 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
             cost: parseInt(cost.pricePerOnetime),
             selected: preSelectedPlan === cost.plan,
           };
-          if (preSelectedPlan === cost.plan) {
-            setSelectedPlan(option);
-          }
           options.push(option);
         }
       }
-      setPlanOptions(options);
+      setBackupPlanOptions(options);
+
+      const _options = options.map((opt) => {
+        if (opt.selected) {
+          setSelectedPlan(opt);
+          opt.cost =
+            [HANDYMAN_ID].includes(serviceId) && selectedSuborder?.flags?.hours
+              ? opt.cost * selectedSuborder.flags.hours
+              : opt.cost;
+        }
+        return opt;
+      });
+      setPlanOptions(_options);
     }
   }, [selectedSubscriptionMethod]);
 
@@ -385,59 +352,113 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
     >
       {/* <ScrollView> */}
       <VStack space={5} pt={5}>
-        <Text textAlign="center" fontWeight="semibold" fontSize={18}>
-          Choose Frequency
-        </Text>
-        <HStack justifyContent="center" alignItems="center" space={0} bg="#eee" p={3}>
-          <FlatList
-            data={subscriptionMethodOptions}
-            numColumns={frequencyColumns}
-            contentContainerStyle={{
-              alignSelf: 'center',
-              // justifyContent: "center",
-              // alignItems: "center",
-              width: '100%',
-            }}
-            renderItem={({ index, item }) => (
-              <Pressable
-                key={index}
-                height={10}
-                borderRadius={5}
-                width="48%"
-                m={1}
-                p={2}
-                borderWidth={item.selected ? 1 : 0}
-                borderColor={AppColors.TEAL}
-                bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
-                _pressed={{
-                  borderColor: AppColors.TEAL,
-                  borderWidth: 1,
-                  backgroundColor: AppColors.LIGHT_TEAL,
+        {[HANDYMAN_ID].includes(serviceId) ? (
+          <>
+            <Text textAlign="center" fontWeight="semibold" fontSize={18}>
+              Choose Hours
+            </Text>
+            <HStack key="CHOOSE_HOURS" justifyContent="center" space={0} bg="#eee" p={3}>
+              {HANDYMAN_HOURS.map((v, index) => (
+                <Pressable
+                  key={index}
+                  borderRadius={5}
+                  width="10%"
+                  m={1}
+                  p={2}
+                  borderWidth={selectedHours === v ? 1 : 0}
+                  borderColor={AppColors.TEAL}
+                  bg={selectedHours === v ? AppColors.LIGHT_TEAL : '#fff'}
+                  _pressed={{
+                    borderColor: AppColors.TEAL,
+                    borderWidth: 1,
+                    backgroundColor: AppColors.LIGHT_TEAL,
+                  }}
+                  onPress={() => {
+                    setSelectedHours(v);
+                    let _selectedPlan = selectedPlan;
+                    const plans = backupPlanOptions.map((opt) => {
+                      if (opt.label === selectedPlan.label) {
+                        opt = {
+                          ...opt,
+                          cost: opt.cost * v,
+                        };
+                        _selectedPlan = opt;
+                      }
+                      return opt;
+                    });
+                    setPlanOptions(plans);
+                    setSelectedPlan(_selectedPlan);
+                  }}
+                >
+                  <Text textAlign="center" color={AppColors.DARK_TEAL}>
+                    {v}
+                  </Text>
+                </Pressable>
+              ))}
+            </HStack>
+          </>
+        ) : (
+          <>
+            <Text textAlign="center" fontWeight="semibold" fontSize={18}>
+              Choose Frequency
+            </Text>
+            <HStack
+              key="CHOOSE_FREQUENCY"
+              justifyContent="center"
+              alignItems="center"
+              space={0}
+              bg="#eee"
+              p={3}
+            >
+              <FlatList
+                data={subscriptionMethodOptions}
+                numColumns={frequencyColumns}
+                contentContainerStyle={{
+                  alignSelf: 'center',
+                  width: '100%',
                 }}
-                onPress={() => {
-                  const updatedOptions = subscriptionMethodOptions.map((opt, i) => {
-                    if (i === index) {
-                      setSelectedSubscriptionMethod(opt);
-                      return {
-                        ...opt,
-                        selected: true,
-                      };
-                    }
-                    return {
-                      ...opt,
-                      selected: false,
-                    };
-                  });
-                  setSubscriptionMethodOptions(updatedOptions);
-                }}
-              >
-                <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
-                  {item.label}
-                </Text>
-              </Pressable>
-            )}
-          />
-        </HStack>
+                renderItem={({ index, item }) => (
+                  <Pressable
+                    key={index}
+                    height={10}
+                    borderRadius={5}
+                    width="48%"
+                    m={1}
+                    p={2}
+                    borderWidth={item.selected ? 1 : 0}
+                    borderColor={AppColors.TEAL}
+                    bg={item.selected ? AppColors.LIGHT_TEAL : '#fff'}
+                    _pressed={{
+                      borderColor: AppColors.TEAL,
+                      borderWidth: 1,
+                      backgroundColor: AppColors.LIGHT_TEAL,
+                    }}
+                    onPress={() => {
+                      const updatedOptions = subscriptionMethodOptions.map((opt, i) => {
+                        if (i === index) {
+                          setSelectedSubscriptionMethod(opt);
+                          return {
+                            ...opt,
+                            selected: true,
+                          };
+                        }
+                        return {
+                          ...opt,
+                          selected: false,
+                        };
+                      });
+                      setSubscriptionMethodOptions(updatedOptions);
+                    }}
+                  >
+                    <Text alignSelf="center" color={AppColors.TEAL} fontWeight="semibold">
+                      {item.label}
+                    </Text>
+                  </Pressable>
+                )}
+              />
+            </HStack>
+          </>
+        )}
         <Text textAlign="center" fontWeight="semibold" fontSize={18}>
           Choose Plan
         </Text>
@@ -516,11 +537,7 @@ function ChoosePlan({ route }: ChoosePlanProps): JSX.Element {
                             >
                               <HStack justifyContent="space-between" alignItems="center">
                                 <HStack alignItems="center" space={1}>
-                                  <SvgCss
-                                    xml={CHECKBOX_TICK_ICON}
-                                    // width={30}
-                                    height={14}
-                                  />
+                                  <SvgCss xml={CHECKBOX_TICK_ICON} height={14} />
                                   <Text
                                     color={AppColors.DARK_PRIMARY}
                                     fontSize={14}

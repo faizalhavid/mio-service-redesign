@@ -149,6 +149,7 @@ export interface PromoCode {
 
 export interface Flags2 {
   plan: string;
+  hours: number;
   isRecurring: boolean;
   isCompleted: boolean;
   paymentStatus: string;
