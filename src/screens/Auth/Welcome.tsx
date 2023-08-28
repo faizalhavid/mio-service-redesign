@@ -1,7 +1,7 @@
 import LottieView from 'lottie-react-native';
 import { Box, Center, Divider, PresenceTransition, ScrollView, Text, VStack } from 'native-base';
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet } from 'react-native';
 import { SvgCss } from 'react-native-svg';
 import { COLOR_LOGO } from '../../commons/assets';
 import { AppColors } from '../../commons/colors';
@@ -27,91 +27,96 @@ function Welcome(): JSX.Element {
   }, []);
 
   return (
-    <AppSafeAreaView>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <VStack mt="1/4" pt={0}>
-          <PresenceTransition
-            visible
-            initial={{
-              opacity: 0,
-              translateX: 0,
-            }}
-            animate={{
-              opacity: 1,
-              translateX: 1,
-              transition: {
-                duration: 350,
-              },
-            }}
-          >
-            <Center>
-              <Pressable
-                onPress={async () => {
-                  try {
-                    await StorageHelper.clear();
-                    console.log('STORAGE CLEARED');
-                  } catch (error) {
-                    console.log('ERROR CLEARING STORAGE');
-                  }
-                }}
-              >
-                <SvgCss width={200} height={70} xml={COLOR_LOGO} />
-              </Pressable>
-            </Center>
-          </PresenceTransition>
-          <Divider thickness={0} mt={30} />
-          <VStack alignItems="center">
-            <Divider thickness={0} mt={30} />
-            <Center>
-              <Text fontWeight="semibold" fontSize={18}>
-                Welcome to Mio Home Services
-              </Text>
-              <Text fontWeight="semibold" color={AppColors.AAA}>
-                Your one destination for all the house needs
-              </Text>
-            </Center>
-            <Divider thickness={0} mt={31} />
-            <LottieView
-              source={require('../../assets/images/welcome.json')}
-              autoPlay
-              loop
-              style={{
-                marginTop: 10,
-                width: 200,
-                height: 200,
+    <AppSafeAreaView bg={AppColors.TRANSPARENT}>
+      <ImageBackground
+        style={{ flex: 1, resizeMode: 'cover', justifyContent: 'center' }}
+        source={require('../../assets/images/bg-lower-green.svg')}
+      >
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+          <VStack mt="1/4" pt={0}>
+            <PresenceTransition
+              visible
+              initial={{
+                opacity: 0,
+                translateX: 0,
               }}
-            />
+              animate={{
+                opacity: 1,
+                translateX: 1,
+                transition: {
+                  duration: 350,
+                },
+              }}
+            >
+              <Center>
+                <Pressable
+                  onPress={async () => {
+                    try {
+                      await StorageHelper.clear();
+                      console.log('STORAGE CLEARED');
+                    } catch (error) {
+                      console.log('ERROR CLEARING STORAGE');
+                    }
+                  }}
+                >
+                  <SvgCss width={200} height={70} xml={COLOR_LOGO} />
+                </Pressable>
+              </Center>
+            </PresenceTransition>
             <Divider thickness={0} mt={30} />
-            <Box mx={5} width="80%">
-              <GradientButton
-                text="Create Account"
-                onPress={() => {
-                  navigate('Register');
-                }}
-              />
-              <Divider thickness={0} mt={21} />
-              <AppButton
-                label="Existing user? Login"
-                type="outline"
-                onPress={async (event) => {
-                  navigate('Login');
-                }}
-              />
-              <Divider thickness={0} mt={21} />
-              <Pressable
-                onPress={async () => {
-                  await StorageHelper.setValue(FLAG_TYPE.AUTHENTICATED_USER, STATUS.FALSE);
-                  navigate('Dashboard');
-                }}
-              >
-                <Text textAlign="center" color={AppColors.AAA}>
-                  Skip for now
+            <VStack alignItems="center">
+              <Divider thickness={0} mt={30} />
+              <Center>
+                <Text fontWeight="semibold" fontSize={18}>
+                  Welcome to Mio Home Services
                 </Text>
-              </Pressable>
-            </Box>
+                <Text fontWeight="semibold" color={AppColors.AAA}>
+                  Your one destination for all the house needs
+                </Text>
+              </Center>
+              <Divider thickness={0} mt={31} />
+              <LottieView
+                source={require('../../assets/images/welcome.json')}
+                autoPlay
+                loop
+                style={{
+                  marginTop: 10,
+                  width: 200,
+                  height: 200,
+                }}
+              />
+              <Divider thickness={0} mt={30} />
+              <Box mx={5} width="80%">
+                <GradientButton
+                  text="Create Account"
+                  onPress={() => {
+                    navigate('Register');
+                  }}
+                />
+                <Divider thickness={0} mt={21} />
+                <AppButton
+                  label="Existing user? Login"
+                  type="outline"
+                  onPress={async (event) => {
+                    navigate('Login');
+                  }}
+                />
+                <Divider thickness={0} mt={21} />
+                <Pressable
+                  onPress={async () => {
+                    await StorageHelper.setValue(FLAG_TYPE.AUTHENTICATED_USER, STATUS.FALSE);
+                    navigate('Dashboard');
+                  }}
+                >
+                  <Text textAlign="center" color={AppColors.AAA}>
+                    Skip for now
+                  </Text>
+                </Pressable>
+              </Box>
+            </VStack>
           </VStack>
-        </VStack>
-      </ScrollView>
+        </ScrollView>
+      </ImageBackground>
       {/* </ImageBackground> */}
     </AppSafeAreaView>
   );

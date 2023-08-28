@@ -8,6 +8,7 @@ import React from 'react';
 import RNBootSplash from 'react-native-bootsplash';
 import { FLAG_TYPE, STATUS } from '../commons/status';
 import { TitleBar } from '../components/TitleBar/TitleBar';
+
 import Login from '../screens/Auth/Login';
 import Register from '../screens/Auth/Register';
 import VerifyEmail from '../screens/Auth/VerifyEmail';
@@ -22,12 +23,15 @@ import Payment from '../screens/Home/Payment';
 import ServiceHistory from '../screens/Home/ServiceHistory';
 import UpcomingServices from '../screens/Home/UpcomingServices';
 import ViewServiceDetails from '../screens/Home/ViewServiceDetails';
+
+import SplashScreen from '../screens/Auth/SplashScreen';
 import { useAnalytics } from '../services/analytics';
 import { StorageHelper } from '../services/storage-helper';
 import DashboardTab from './DashboardTab';
 import { navigationRef } from './rootNavigation';
 
 export type SuperRootStackParamList = {
+  SplashScreen: {};
   Welcome: {};
   Register: {};
   Login: {};
@@ -54,7 +58,7 @@ export type SuperRootStackParamList = {
 const RootStack = createNativeStackNavigator<SuperRootStackParamList>();
 const index = (): JSX.Element => {
   const [initialScreen, setInitialScreen] = React.useState<
-    'Register' | 'Address' | 'VerifyEmail' | 'Dashboard' | 'Welcome'
+    'Register' | 'Address' | 'VerifyEmail' | 'Dashboard' | 'Welcome' | 'SplashScreen'
   >('Welcome');
   const [loading, setLoading] = React.useState(true);
 
@@ -71,7 +75,7 @@ const index = (): JSX.Element => {
         setInitialScreen('Dashboard');
         return;
       } else {
-        setInitialScreen('Welcome');
+        setInitialScreen('SplashScreen');
       }
     } catch (error) {
       console.log(error);
@@ -112,6 +116,14 @@ const index = (): JSX.Element => {
     >
       {!loading && (
         <RootStack.Navigator initialRouteName={initialScreen} screenOptions={navigationOptions}>
+          <RootStack.Screen
+            name="SplashScreen"
+            component={SplashScreen}
+            options={{
+              headerShown: false,
+              headerTransparent: true,
+            }}
+          />
           <RootStack.Screen
             name="Welcome"
             component={Welcome}

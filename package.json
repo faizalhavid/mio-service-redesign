@@ -40,6 +40,8 @@
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@reduxjs/toolkit": "^1.8.1",
+    "@swc/helpers": "^0.5.1",
+    "@types/react": "^17",
     "@types/rn-material-ui-textfield": "^1.0.2",
     "axios": "^0.25.0",
     "fbjs": "^3.0.4",
@@ -118,5 +120,9 @@
       "json",
       "node"
     ]
-  }
+  },
+  "main": "index.js",
+  "repository": "https://github.com/miohomeservices/mio-customer-app.git",
+  "author": "faizalhavid <67695722+faizalhavid@users.noreply.github.com>",
+  "license": "MIT"
 }

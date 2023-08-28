@@ -1,4 +1,4 @@
-import { Center, Spinner, useColorModeValue, View, VStack } from 'native-base';
+import { Center, Image, Spinner, useColorModeValue, View, VStack } from 'native-base';
 import React from 'react';
 import { Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,9 @@ import { AppStatusBar } from '../AppStatusBar';
 type AppSafeAreaViewProps = {
   bg?: string;
   mt?: number;
+  logo?: boolean;
   statusBarColor?: string;
+  hiddenBar?: boolean;
   children?: React.ReactNode;
   loading?: boolean;
 };
@@ -17,7 +19,9 @@ type AppSafeAreaViewProps = {
 function AppSafeAreaView({
   bg,
   mt = 0,
+  logo,
   statusBarColor,
+  hiddenBar,
   children,
   loading,
 }: AppSafeAreaViewProps): JSX.Element {
@@ -31,7 +35,10 @@ function AppSafeAreaView({
         backgroundColor: bg || useColorModeValue('white', 'black'),
       }}
     >
-      <AppStatusBar color={statusBarColor || useColorModeValue('white', 'black')} />
+      <AppStatusBar
+        ishidden={hiddenBar}
+        color={statusBarColor || useColorModeValue('white', 'black')}
+      />
       <AppBannerWrapper />
       {loading && (
         <View
@@ -40,9 +47,20 @@ function AppSafeAreaView({
           height={Dimensions.get('screen').height}
           bg="rgba(0,0,0,0.5)"
           zIndex={999}
+          flex={1}
           justifyContent="center"
         >
           <Center>
+            {logo && (
+              <View
+                style={{
+                  marginBottom: 250,
+                  marginTop: 80,
+                }}
+              >
+                <Image source={require('../../assets/images/mio-logo-green.png')} />
+              </View>
+            )}
             <VStack>
               <Spinner size="lg" color={AppColors.PRIMARY} />
               {/* <Text mt={10}>Loading</Text> */}
